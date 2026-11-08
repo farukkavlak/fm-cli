@@ -265,6 +265,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   until that id's row is drawn before pressing; the open message is still told by its id. TR + EN (`intl-break`):
   `--all` the same 3 times, `reply 53` 3/3, the window's numbers unchanged, `reply 999` refused. Measured on the way:
   plain `inbox` is the newest ~13 rows the list draws (37 when they fit), on Overview and Messages alike.
+- [x] T128 The inbox read empty while a message waited (30 Aug 2030, Helmond): its Tasks filter had been left on
+  (`inbox --tasks`, or a filter press lost while the portal was not drawn), so `status` could not name the message
+  asked again. The filter on show is the game's `data.PortalMessagesSelectedTab` (0 all, 2 tasks): every read of the
+  inbox puts it back on all first, a filter press is read back by it, `inbox --tasks` lists and puts it back.
+  TR by hand: filter left on Tasks 3 times, `inbox` lists the messages and the tab reads 0; `status` names the
+  message. Left: an open message is not in the list, so `status` cannot name the one on screen.
 - [x] T127 The season's collective win bonuses (message "Collective bonuses to be decided", scenario `bonuses`,
   Helmond 30 Jul 2030): a level is an in-message choice, `reply <msg> --pick <n>`, by the event its button sends
   (`EventFmxCollective{League,Cup,Continental}Bonus{Low,Normal,High}`), read back by the record's own index

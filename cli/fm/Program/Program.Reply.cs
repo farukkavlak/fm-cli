@@ -49,6 +49,12 @@ internal static partial class Program
 		var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
 		var byNumber = int.TryParse(words[0], out _);
 		if (byNumber && NumberedElsewhere(inbox, words[0])) inbox = await AllInbox();
+		// One `inbox --tasks` listed: the Tasks filter shows it, and stays on while it is answered.
+		if (byNumber && NumberedElsewhere(inbox, words[0]))
+		{
+			taskFilterOn = true;
+			inbox = await TaskInbox(stay: true);
+		}
 		var message = Pick(inbox, words[0], quiet: !byNumber);
 		if (message == null && !byNumber) message = Pick(await AllInbox(), words[0], quiet: true);
 		// A waiting task can be listed only under the inbox's Tasks filter (a loan offer for one of

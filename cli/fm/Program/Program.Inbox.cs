@@ -13,6 +13,9 @@ internal static partial class Program
 	/// </summary>
 	internal static async Task<JsonElement> FreshInbox()
 	{
+		// A filter left on (Tasks, by `inbox --tasks` or a reply that looked there) shows only its own rows:
+		// the inbox read empty while a message waited (30 Aug 2030).
+		await Filter("AllMessagesTutorial");
 		var before = (await Fm.GetJson("inbox")).ToString();
 		var sentAt = DateTime.UtcNow;
 		await Fm.Get("send",
@@ -48,11 +51,21 @@ internal static partial class Program
 	/// <summary>The inbox back on all messages, after `TaskInbox(stay: true)`.</summary>
 	internal static Task AllMessages() => Filter("AllMessagesTutorial");
 
+	/// <summary>The inbox filter on show, by the game's own number for it: 0 all messages, 2 tasks.</summary>
+	private static async Task<string> FilterOn() =>
+		Field(await Fm.GetJson("pull", ("path", "data"), ("props", "PortalMessagesSelectedTab")), "PortalMessagesSelectedTab");
+
+	private static readonly Dictionary<string, string> FilterTab = new() { ["AllMessagesTutorial"] = "0", ["TaskMessagesTutorial"] = "2" };
+
+	/// <summary>An inbox filter by its button's element name, read back by the filter the game says is on.</summary>
 	private static async Task Filter(string name)
 	{
+		if (await FilterOn() == FilterTab[name]) return;
 		var controls = await Fm.GetJson("buttons", ("json", "1"));
 		var button = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Name") == name);
-		if (button.ValueKind == JsonValueKind.Object) await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		if (button.ValueKind != JsonValueKind.Object) return;
+		await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		await Until(async () => await FilterOn() == FilterTab[name], seconds: 3, every: 0.1);
 	}
 
 	/// <summary>
@@ -108,7 +121,11 @@ internal static partial class Program
 	}
 
 	/// <summary>The bound inbox, its list scrolled to the newest first.</summary>
-	internal static async Task<JsonElement> TopInbox() => await AtTop(await Bound("inbox", "PortalScreen"));
+	internal static async Task<JsonElement> TopInbox()
+	{
+		await Filter("AllMessagesTutorial");
+		return await AtTop(await Bound("inbox", "PortalScreen"));
+	}
 
 	private static async Task<JsonElement> AtTop(JsonElement data)
 	{
@@ -205,19 +222,6 @@ internal static partial class Program
 		// Offer messages can sit behind the inbox's own Tasks filter, where the default list
 		// does not show them and `offers` has no button to answer. Pressing
 		// that filter by its stable element name brings them up.
-		if (args.Contains("--tasks"))
-		{
-			var controls = await Fm.GetJson("buttons", ("json", "1"));
-			var task = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Name") == "TaskMessagesTutorial");
-			if (task.ValueKind == JsonValueKind.Object)
-			{
-				// The list is put again under the filter: the press counts once it reads differently.
-				var shown = (await FreshInbox()).GetRawText();
-				await Fm.Get("press", ("ptr", Field(task, "Pointer")));
-				await Until(async () => (await FreshInbox()).GetRawText() != shown, seconds: 3, every: 0.25);
-			}
-		}
-
 		// Every message marked read with the inbox's own Mark All Read (EventFmxMarkAllHumanMessagesAsRead).
 		if (args.Contains("--read-all"))
 		{
@@ -256,9 +260,13 @@ internal static partial class Program
 
 		// `--all` reads every message the inbox holds, scrolling its streamed list; the bound
 		// inbox only carries the ones the current page has loaded (ARCHIVED offers, for one).
+		// `--tasks` reads the list under the inbox's own Tasks filter, then puts the filter back: left on, every
+		// later read of the inbox saw only its rows (empty while a message waited, 30 Aug 2030).
 		var inbox = args.Contains("--all")
 			? System.Text.Json.JsonSerializer.SerializeToElement(await AllInbox())
-			: await FreshInbox();
+			: args.Contains("--tasks")
+				? System.Text.Json.JsonSerializer.SerializeToElement(await FreshInbox() is var _ ? await TaskInbox() : [])
+				: await FreshInbox();
 		RememberNumbers(inbox);
 		if (json)
 		{
