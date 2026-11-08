@@ -316,7 +316,8 @@ def forward(args):
         if stopped and args.catch and not match_day:
             catch()
         if stopped:
-            if args.answer and match_day and fm("tactic pick")[0] == 0:
+            # Short of eleven (injuries, illness, loans): the youth players too, as a manager would.
+            if args.answer and match_day and (fm("tactic pick")[0] == 0 or fm("tactic pick --youth")[0] == 0):
                 continue
             if args.catch and reject_bids():
                 continue

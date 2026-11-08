@@ -108,7 +108,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - Measured EN and TR: list cold, repeated, another player, unknown player, a man sent off; on / off / already on.
   - [ ] Extra time.
 - [ ] T99 `next` said "offer or half-way message" after a teammate failed to talk Atakan round, 16 Aug 2028: the answered
-  message offered its choices again but was not named, though the same case with Utku was. `AllInbox` is now looked at too; not met again.
+  message offered its choices again but was not named, though the same case with Utku was. `AllInbox` is now looked at too. Met again (scenario `asked-again`, 11 Nov 2029, Ujkani handed to Akmum): the message
+  offers Decline / Discuss again and `status` and `next` name it. Left: a test TR + EN 3/3.
 - [ ] T11 TransferRoom: `fm transferroom`. Adverts (transfer, loan, every row), offer a player, requirements (new, read, delete), agents' players (read, discard). TR + EN 3 × with the negatives (`tests/live/round2.toml`).
   - A player whose question has two answers: `offer` leaves the talk open for the player to answer.
   - [ ] Left: `responses` and `activity --loan` hold their tables by names not seen yet (`responses-transfers-table`, `responses-loans-table`, `activity-loans-table`); no such rows in the scenario. Offer through a list of several players: measured by hand once, EN only. `discard --all` and a wrong word to `--time`, `--type`, `--oop-role`: TR + EN (list `round5`). A real value through `--oop-position`, `--oop-role`, `--role`, `--time`, `--type`: not run yet. Measured EN 8 Nov
@@ -415,6 +416,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     own mark; `board` shows it once time moves on (a page built before keeps the old level, the game's own).
     End of season: pre-season start date and camp place from the message's list. TR + EN 3/3 (`round29.toml`).
   - [ ] A job offer while employed.
+  - [ ] The board's meeting about our future (scenario `caught-2029-11-30`, Den Bosch): `reply` Attend, `talk` to the
+    end; "what do I need to do" set 7 points from 5 matches, accepted (EN once by hand). Left: a test TR + EN 3/3;
+    the target is shown nowhere (`board` has it not; `Human.Team.JobSecurityStatus` reads 3, no words found).
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
   - [x] A renewal we start: `contract <player>` promises, `--next` terms, `--sign --yes` offered; the player's answer
     comes by message and `contracts` shows the new end (EN by hand: Ahmet Koşar, 30/6/2028 → 30/6/2030). A player the
