@@ -224,6 +224,23 @@ internal static partial class Program
 			if (Ui.Ask(L("Send it?"), [L("Yes"), L("No")]) != 0) return 0;
 		}
 
+		// The post's own status, as the game keeps it (not its words): read back after the press.
+		// Read off the table afresh each time, the post found by its club's id: a row's node read again keeps the
+		// value it had, and a post applied for leaves the list, so the rows after it move up. "gone" when it left.
+		var club = Field(await Fm.GetJson("pull", ("path", job.Row), ("props", "Team.UniqueId")), "Team.UniqueId");
+		async Task<string> StatusNow()
+		{
+			var table = (await Fm.GetJson("checkrows", ("gen", $"js{Environment.TickCount64}"))).EnumerateArray()
+				.FirstOrDefault(t => t.TryGetProperty("Names", out var names) && names.EnumerateArray().Any(x => x.GetString() == "JobMarketTableBlock"));
+			if (table.ValueKind != JsonValueKind.Object || club.Length == 0) return "";
+			foreach (var item in table.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").Where(i => i.Length > 0))
+			{
+				var row = await Fm.GetJson("pull", ("path", item), ("props", "Team.UniqueId,Status"));
+				if (Field(row, "Team.UniqueId") == club) return Field(row, "Status");
+			}
+			return "gone";
+		}
+		var statusBefore = await StatusNow();
 		var pressed = await Fm.Get("press", ("ptr", Field((await JobButton(answer))!.Value, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
@@ -239,6 +256,14 @@ internal static partial class Program
 		{
 			Console.WriteLine(L("The game asked a question: dialog"));
 			return 0;
+		}
+		// The button goes off either way; a club that turns an application down at once leaves the post as it was
+		// (Vitesse, 11 Nov 2030: "application not accepted" in the inbox, the post still open to apply).
+		// The status moves a moment after the button goes off: waited for, the bound only an upper limit.
+		if (applies && statusBefore.Length > 0 && !await Until(async () => await StatusNow() != statusBefore, seconds: 5, every: 0.25))
+		{
+			Console.WriteLine(L($"{job.Club} turned the application down at once; the post is as it was. Their answer: inbox"));
+			return 1;
 		}
 		Console.WriteLine(L("Sent. The answer will come to the inbox: inbox"));
 		return 0;

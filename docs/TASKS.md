@@ -477,6 +477,12 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     board's expectation there, `comp.TeamsBoardExpectationsInCompString` in the game's words: TR "1. Lig · Ligi orta
     sıralarda bitirmek", EN "1. League · Mid-table". Code of Conduct rows unchanged, no added time. The Code of
     Conduct came out in Turkish words now (was English on 7 Nov). TR + EN 3/3 by hand (`preseason`).
+- [ ] T130 `jobs <club> apply` said "sent" for Vitesse, which turned the application down at once (its post stayed
+  open, an "application not accepted" message came): the button going off was read as sent. Now the post's own
+  status is read back, found by its club's id in the table read afresh (a row's node read again keeps its old value,
+  and a post applied for leaves the list): unchanged within the bound, it says the club turned it down. TR by hand:
+  Sheff Wed, Newell's, Defensa y Justicia "sent", each "application received" in the inbox. Left: the turned-down
+  case seen again with the new code (Vitesse no longer offers the button); EN.
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of
