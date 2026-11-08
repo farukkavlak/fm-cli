@@ -42,12 +42,20 @@ internal static partial class Program
 		// A row that stands for a competition (its record holds `comp`) shows only the name and a progress icon;
 		// what the board expects of us there is that competition's own record, read in the game's words.
 		var expected = new Dictionary<int, string>();
+		// A table's rows are records of one kind: the first row says whether they stand for competitions, so a table of
+		// thirty players is asked once, not thirty times (each a pull of a path that is not there).
+		var notCompetitions = new HashSet<string>();
 		for (var i = 0; i < shown.Count; i++)
 		{
 			if (Field(shown[i].Block, "Kind") != "row" || !shown[i].Block.TryGetProperty("Nodes", out var nodes)) continue;
+			var ofTable = Field(shown[i].Block, "Table");
+			if (notCompetitions.Contains(ofTable)) continue;
+			var found = false;
 			foreach (var node in nodes.EnumerateArray().Select(n => n.GetString() ?? "").Where(n => n.Length > 0))
 			{
-				if (Field(await Fm.Pull($"{node}.comp", "Name"), "Name").Length == 0) continue;
+				// One asking: a competition's name is bound as soon as its row is (Fm.Pull would ask again and again).
+				if (Field(await Fm.GetJson("pull", ("path", $"{node}.comp"), ("props", "Name")), "Name").Length == 0) continue;
+				found = true;
 				var words = "";
 				await Until(async () =>
 				{
@@ -57,6 +65,7 @@ internal static partial class Program
 				if (words.Length > 0) expected[i] = words;
 				break;
 			}
+			if (!found) notCompetitions.Add(ofTable);
 		}
 
 		Console.WriteLine(L("\n  Attached:"));
