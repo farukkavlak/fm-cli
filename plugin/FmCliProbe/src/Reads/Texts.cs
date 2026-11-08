@@ -170,18 +170,30 @@ internal static class Texts
 	/// The data node a BindingRemapper hands its children (a plan's season: "…9.3", whose ID is 3), or null.
 	/// A text's own path ("Club.VisionObjectiveYearString") is relative to it.
 	/// </summary>
-	private static string RemappedAt(VisualElement element)
+	private static string RemappedAt(VisualElement element) => RemappedNodes(element)?[0];
+
+	/// <summary>
+	/// The data node a BindingRemapper hands its children and the nodes above it, innermost first (a table row's
+	/// text is remapped to "…items0.1.1", the row's record is "…items0.1"); null when it is not a remapper.
+	/// </summary>
+	internal static List<string> RemappedNodes(VisualElement element)
 	{
 		try
 		{
 			var remapper = element.TryCast<SI.Bindable.BindingRemapper>();
 			if (remapper == null) return null;
 			var key = remapper.Key;
-			var parts = new List<string>();
-			for (var node = Game.Bindings?.GetNode(ref key); node != null; node = node.Parent)
-				if (!string.IsNullOrEmpty(node.Name)) parts.Add(node.Name);
-			parts.Reverse();
-			return parts.Count == 0 ? null : string.Join(".", parts).TrimStart('.');
+			var chain = new List<string>();
+			for (var node = Game.Bindings?.GetNode(ref key); node != null; node = node.Parent) chain.Add(node.Name);
+			var paths = new List<string>();
+			for (var from = 0; from < System.Math.Min(chain.Count, 3); from++)
+			{
+				var parts = new List<string>();
+				for (var i = chain.Count - 1; i >= from; i--)
+					if (!string.IsNullOrEmpty(chain[i])) parts.Add(chain[i]);
+				if (parts.Count > 0) paths.Add(string.Join(".", parts).TrimStart('.'));
+			}
+			return paths.Count == 0 ? null : paths;
 		}
 		catch { return null; }
 	}

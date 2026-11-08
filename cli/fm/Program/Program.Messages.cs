@@ -39,6 +39,26 @@ internal static partial class Program
 			.Where(b => b.Texts.Count > 0 && !(b.Texts.Count == 1 && answers.Contains(b.Texts[0]))).ToList();
 		if (shown.Count == 0) return;
 
+		// A row that stands for a competition (its record holds `comp`) shows only the name and a progress icon;
+		// what the board expects of us there is that competition's own record, read in the game's words.
+		var expected = new Dictionary<int, string>();
+		for (var i = 0; i < shown.Count; i++)
+		{
+			if (Field(shown[i].Block, "Kind") != "row" || !shown[i].Block.TryGetProperty("Nodes", out var nodes)) continue;
+			foreach (var node in nodes.EnumerateArray().Select(n => n.GetString() ?? "").Where(n => n.Length > 0))
+			{
+				if (Field(await Fm.Pull($"{node}.comp", "Name"), "Name").Length == 0) continue;
+				var words = "";
+				await Until(async () =>
+				{
+					words = Field(await Fm.Pull($"{node}.comp", "TeamsBoardExpectationsInCompString", shown: "TeamsBoardExpectationsInCompString"), "TeamsBoardExpectationsInCompString");
+					return words.Length > 0;
+				}, seconds: 3, every: 0.2);
+				if (words.Length > 0) expected[i] = words;
+				break;
+			}
+		}
+
 		Console.WriteLine(L("\n  Attached:"));
 		var rowsOf = new Dictionary<string, (int Shown, int Count)>();
 		string? table = null;
@@ -48,8 +68,10 @@ internal static partial class Program
 				Console.WriteLine(L($"    … {t.Count - t.Shown} more rows (the table lays out only those in view)"));
 			table = null;
 		}
-		foreach (var (block, texts) in shown)
+		for (var i = 0; i < shown.Count; i++)
 		{
+			var (block, texts) = shown[i];
+			if (expected.TryGetValue(i, out var words)) texts = [.. texts, words];
 			var kind = Field(block, "Kind");
 			if (kind == "row")
 			{

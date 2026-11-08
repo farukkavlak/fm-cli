@@ -69,7 +69,8 @@ internal static class Attachment
 				{
 					Flush();
 					var cells = Texts(e);
-					if (cells.Count > 0) blocks.Add(Block("row", cells, $"\"Table\": \"0x{at.Table.Pointer.ToInt64():x}\", \"Index\": {at.Index}, \"Count\": {at.Table.ItemCount}"));
+					var nodes = string.Join(", ", (Remapped(e) ?? []).Select(n => $"\"{Report.Escape(n)}\""));
+					if (cells.Count > 0) blocks.Add(Block("row", cells, $"\"Table\": \"0x{at.Table.Pointer.ToInt64():x}\", \"Index\": {at.Index}, \"Count\": {at.Table.ItemCount}, \"Nodes\": [{nodes}]"));
 					continue;
 				}
 				if (e.TryCast<TextElement>() is { } t && e.worldBound.width > 0)
@@ -170,6 +171,28 @@ internal static class Attachment
 			texts[key] = n;
 			return n;
 		}
+	}
+
+	/// <summary>
+	/// The data nodes a row's record is bound at: those of the first remapper inside it, innermost first, so the
+	/// caller can read more of the record it stands for (the competition a row names) by its data path.
+	/// </summary>
+	private static List<string> Remapped(VisualElement row)
+	{
+		var stack = new Stack<VisualElement>();
+		stack.Push(row);
+		while (stack.Count > 0)
+		{
+			var e = stack.Pop();
+			try
+			{
+				if (FmCliProbe.Texts.RemappedNodes(e) is { } nodes) return nodes;
+				var h = e.hierarchy;
+				for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
+			}
+			catch { }
+		}
+		return null;
 	}
 
 	private static List<(string Text, string Path)> Texts(VisualElement root)

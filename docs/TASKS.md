@@ -256,6 +256,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   ("Unhappy", "Transfer listed", "Retiring"); now read with /pull `shown` (TR "Mutsuz", "Transfer listesinde"; EN
   "Unhappy"). The squad board left out the injury flag by its English word: now by its number (41,
   InjuredNotInTraining). TR + EN by hand (`caught-2029-02-02`, `caught-2029-03-31`).
+- [ ] T126 English game, `preseason`: after `reply 26` the inbox numbers moved (the same message was row 2 on the
+  next `inbox`), so `reply <#>` from an older listing opens another message. Turkish kept its numbers. Measure what
+  orders the list (read state, the game's sort) and whether `reply` should hold a message by its UniqueId.
 - [x] T125 `squad` read only the rows the table had drawn: 22 of 33 on a 1080-high window (the injured, at the
   bottom, missing); `depth`, `squad --fitness` too. Now, when fewer rows carry the view's own field (Wage,
   Condition) than the team has players (`Human.Team.Players`), the table is scrolled down in four steps and the rows
@@ -433,8 +436,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     `ClubSeasonExpectationsNumberCompetitions`); measured cold, page open, another page open. The pre-season stages are
     `schedule style` programs: `--json` lists them by the game's numbers (category.index), which `style` takes; the
     week under way is refused (the game's selector is off; the message said "passed"). TR + EN 3/3 (`round28.toml`).
-  - [ ] The "Season expectations" message's attachment shows only the competitions' names (T117). The Code of
-    Conduct attachment came out in English words in a Turkish game on 7 Nov ("Team Leaders", "Multiple Booking ban").
+  - [x] The "Season expectations" message's attachment showed only the competitions' names (the card draws a
+    progress icon, no words). A row whose record holds `comp` (/attachment gives a row's data nodes) now adds the
+    board's expectation there, `comp.TeamsBoardExpectationsInCompString` in the game's words: TR "1. Lig · Ligi orta
+    sıralarda bitirmek", EN "1. League · Mid-table". Code of Conduct rows unchanged, no added time. The Code of
+    Conduct came out in Turkish words now (was English on 7 Nov). TR + EN 3/3 by hand (`preseason`).
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
   penalty shootout, extra time, injury during a match.
   - [x] FM27's shouts: a popup on the match bar (the floating widget inside `#shouts-cooldown-disable`), team shouts
