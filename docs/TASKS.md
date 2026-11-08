@@ -477,9 +477,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     board's expectation there, `comp.TeamsBoardExpectationsInCompString` in the game's words: TR "1. Lig · Ligi orta
     sıralarda bitirmek", EN "1. League · Mid-table". Code of Conduct rows unchanged, no added time. The Code of
     Conduct came out in Turkish words now (was English on 7 Nov). TR + EN 3/3 by hand (`preseason`).
-- [ ] T129 After a live match (`cup-live`, 29 Oct 2030, Helmond 1-0 Quick Boys) the end-of-match line "our ratings
-  (live)" gave nearly every player 6.7 (one 6.8) while the man of the match had 7.6: the live ratings look stale or
-  read from the wrong place. Measure against `report`, TR + EN.
+- [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
+  the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
+  pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of
+  its own. `cup-live` played live: EN Van der Velde 8.1 live, 8.2 official (man of the match); TR Dizdarević 7.9
+  and 7.9; the others spread 6.5–8.0.
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
   penalty shootout, extra time, injury during a match.
   - [x] FM27's shouts: a popup on the match bar (the floating widget inside `#shouts-cooldown-disable`), team shouts
