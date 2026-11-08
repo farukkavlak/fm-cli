@@ -256,9 +256,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   ("Unhappy", "Transfer listed", "Retiring"); now read with /pull `shown` (TR "Mutsuz", "Transfer listesinde"; EN
   "Unhappy"). The squad board left out the injury flag by its English word: now by its number (41,
   InjuredNotInTraining). TR + EN by hand (`caught-2029-02-02`, `caught-2029-03-31`).
-- [ ] T126 English game, `preseason`: after `reply 26` the inbox numbers moved (the same message was row 2 on the
-  next `inbox`), so `reply <#>` from an older listing opens another message. Turkish kept its numbers. Measure what
-  orders the list (read state, the game's sort) and whether `reply` should hold a message by its UniqueId.
+- [ ] T126 English game, `preseason`, right after the switch from Turkish: the second `reply 26` showed the Battal
+  loan card's attachment (its title not captured), and the next `inbox` listed 13 rows, not 37, the Overview's
+  message widget being the bound list. `reply <#>` holds the number by the message's UniqueId from the last `inbox`.
+  Not reproduced in three more runs (TR → EN, the same replies, 14/14 right). Next time keep the title and the
+  attachment of each `reply` output.
 - [x] T125 `squad` read only the rows the table had drawn: 22 of 33 on a 1080-high window (the injured, at the
   bottom, missing); `depth`, `squad --fitness` too. Now, when fewer rows carry the view's own field (Wage,
   Condition) than the team has players (`Human.Team.Players`), the table is scrolled down in four steps and the rows
