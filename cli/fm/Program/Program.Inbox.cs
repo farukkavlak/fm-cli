@@ -80,18 +80,39 @@ internal static partial class Program
 		var seen = rows.Select(m => Field(m, "UniqueId")).Where(id => id.Length > 0).ToHashSet();
 		var list = (await Fm.Get("inboxlist")).Trim();
 		if (list.StartsWith("error", StringComparison.Ordinal)) return rows;
-		for (var step = 1; step <= 10; step++)
+		// The list draws a window of rows; scrolled by a fixed share, a long inbox (149 messages) was read with gaps
+		// between windows and a waiting message was missed. Each window must share a row with the one before:
+		// when it does not, the step is halved and the gap read again.
+		async Task<HashSet<string>> WindowAt(double at)
 		{
-			var to = (step / 10.0).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
-			var moved = await Fm.Get("scroll", ("ptr", list), ("to", to));
-			if (moved.StartsWith("error", StringComparison.Ordinal)) break;
+			var to = at.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture);
 			var before = string.Join("|", (await Fm.GetJson("inbox")).EnumerateArray().Select(m => Field(m, "UniqueId")));
+			if ((await Fm.Get("scroll", ("ptr", list), ("to", to))).StartsWith("error", StringComparison.Ordinal)) return [];
 			await Until(async () => string.Join("|", (await Fm.GetJson("inbox")).EnumerateArray().Select(m => Field(m, "UniqueId"))) != before, seconds: 1, every: 0.1);
+			var ids = new HashSet<string>();
 			foreach (var m in (await Fm.GetJson("inbox")).EnumerateArray())
 			{
 				var id = Field(m, "UniqueId");
-				if (id.Length > 0 && seen.Add(id)) rows.Add(m.Clone());
+				if (id.Length == 0) continue;
+				ids.Add(id);
+				if (seen.Add(id)) rows.Add(m.Clone());
 			}
+			return ids;
+		}
+		var last = rows.Select(m => Field(m, "UniqueId")).ToHashSet();
+		double done = 0, share = 0.1;
+		while (done < 1)
+		{
+			var next = Math.Min(1, done + share);
+			var window = await WindowAt(next);
+			if (window.Count == 0) break;
+			if (!window.Overlaps(last) && share > 0.01)
+			{
+				share /= 2;
+				continue;
+			}
+			last = window;
+			done = next;
 		}
 		await Fm.Get("scroll", ("ptr", list), ("to", "0"));
 		// In the order they came, as `inbox` lists its window: the order the scrolled pages handed rows

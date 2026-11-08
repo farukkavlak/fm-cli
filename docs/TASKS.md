@@ -270,7 +270,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   asked again. The filter on show is the game's `data.PortalMessagesSelectedTab` (0 all, 2 tasks): every read of the
   inbox puts it back on all first, a filter press is read back by it, `inbox --tasks` lists and puts it back.
   TR by hand: filter left on Tasks 3 times, `inbox` lists the messages and the tab reads 0; `status` names the
-  message. Left: an open message is not in the list, so `status` cannot name the one on screen.
+  message. `inbox --all` also missed it: the list was scrolled by a tenth, and 150 messages left gaps between the
+  windows read (149 of 150). Now each window must share a row with the one before, else the step is halved:
+  150 of 150, in 5–6 s (was 14 s). Left: an open message is not in the list, so `status` cannot name the one on
+  screen; T126's test again after this change.
 - [x] T127 The season's collective win bonuses (message "Collective bonuses to be decided", scenario `bonuses`,
   Helmond 30 Jul 2030): a level is an in-message choice, `reply <msg> --pick <n>`, by the event its button sends
   (`EventFmxCollective{League,Cup,Continental}Bonus{Low,Normal,High}`), read back by the record's own index
