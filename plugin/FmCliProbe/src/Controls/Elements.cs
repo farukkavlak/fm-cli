@@ -110,7 +110,7 @@ internal static class Elements
 	}
 
 	/// <summary>The data path of a binding key's node, or null when it names none.</summary>
-	private static string KeyPath(SI.Bindable.Bindings.Key key)
+	internal static string KeyPath(SI.Bindable.Bindings.Key key)
 	{
 		try
 		{

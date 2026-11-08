@@ -117,7 +117,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
   - [ ] Left: copy a plan (EventFmxSquadPlannerCopy, its data `copytype`). The list's entry sent by `select`, by a row's
     submit, and by `select` with its events queued (`fire=1`, Season After, EN 8 Nov) changes nothing in the other
-    season (its ST and DCR stayed). Next: what a click sends that these do not; the rows' ticks (`SelectedPlayers`).
+    season (its ST and DCR stayed). Measured EN 8 Nov (`window`): the event's data is the page variable `copytype`
+    (its `BindingVariables`, beside the game's own `plantypecurrentseason` 0, `plantypenextseason` 1,
+    `plantypeseasonafter` 2); a select or a row's submit leaves it 0. Copied in from those constants (1, 2), the
+    event carries it (`pluginevent?show=1`), and still nothing reaches the other season: not a striker added to
+    the current plan, not one removed from the next, not with his row ticked (`SelectedPlayers` set), not after
+    the page is opened again. No question is asked. Next: what else the handler (`Team.Manager.SquadPlanner`) reads.
 - [x] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
   - [x] Swap two starters: `tactic player <position> <starter>` already does it (the two change places). Clear a place: `tactic player <position> --clear`, the place's `XIButton` told by its row's `PlayerIndex`, its right-click list sends `EventFmxTeamSelectionClearOrPickPlayerAuto`, read back by the place's `PlayerIndex` -1. TR + EN 3 × (list `round5`): wrong position, only that place, already empty, filled again, from another page.
@@ -128,7 +133,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
   Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
   opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
-  pages no command reads (T16); a real critique line (only "no advice" seen).
+  pages no command reads (T16); a real critique line (only "no advice" seen). Measured EN 8 Nov: `spring` (31 Mar,
+  match day) and `window` with a striker in goal (effectiveness 34): "no advice" from the first read, unchanged for 10 s.
 - [x] T15 Training week card: `schedule copy | paste | clear [this|<weeks ahead>]` by the card's own events, left by Confirm or Cancel, read back from the week's sessions; a session by `schedule set`. TR + EN: copy, paste, clear 2 ×, nothing copied, nothing to clear, a week the card does not offer.
 - [x] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
   `fm read <page>`: the page by its GUID, its texts by `/shown` (in the body on top, by the game's hit test), tables by row. TR + EN, a list of 58 tests (`tests/live/read-pages.toml`), plus 3 repeats.
@@ -154,6 +160,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   EN `calm` 7 Nov: empty too. FM27 has no club right-click menu: league table rows and a club's own page carry only
   person menus (`actions?menus=1`; `ClubButton` has no right-click events), so `ScoutTeam` is not reached that way.
   Next: find where the game fills `ScoutTeamPriorities.SpecificallyScoutedTeams` (scouting staff, a date with fixtures ahead).
+  EN `spring` 8 Nov (match day): the page says no team report, "request a member of your recruitment team"; the
+  next opponent's page has no scouting button; `EventFmxHumanScoutFixture` is in the game but on no crawled page.
+  A club's own page not reached: `search`'s result row, pressed, left the search open.
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
@@ -249,11 +258,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.
-- [ ] T31 `scout player --cancel`: FM27 calls it off on Recruitment › Scouting › Scout Priorities
+- [x] T31 `scout player --cancel`: FM27 calls it off on Recruitment › Scouting › Scout Priorities
   (`6bc226cc…`, from the Scout Reports bar): the table in `RecruitmentScoutPrioritiesBlock`, his row told by its
   record's `UniqueId`, ticked alone, then the page's button that sends `EventFmxCancelScoutingPlayer` (off until a
-  row is ticked). Read back by his `IsBeingScouted`; `--cancel --dry` changes nothing and answers 0 only while he
-  is scouted. His menu's entry stays closed in FM27 (the old way). Tests: `round34.toml`.
+  row is ticked). Read back by the game's count of scouted players and his row gone (his `IsBeingScouted` stays
+  True a while); `--cancel --dry` changes nothing and answers 0 only while he is scouted. His menu's entry stays
+  closed in FM27 (the old way). TR + EN 3/3, the other assignment kept (`round34.toml`).
 - [x] T32 `training --trait-suggest`: FM27 has no such entry in the actions menu and no button for it, so the flag leaves help, the MCP tool and the tests; typed by hand it says so (PORTING). The refusal itself not run again after this change.
 
 ## 4. Pages no command reads (read only, lower priority)
