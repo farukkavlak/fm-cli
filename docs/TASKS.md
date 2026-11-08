@@ -492,7 +492,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   heading came twice ("— Promises" then "Promises:"). A value is now put in the game's words, part by part when the
   game builds it of two of its words ("Önemli Oyuncu (Önerilen)"); the mark goes through `L`; a section-less group
   has no heading of its own. TR by hand (`caught-2031-06-30`, Uğurcan's renewal opened from "last hours of his
-  contract": promises, terms, signed; the answer comes by message). Left: EN; MANUAL image; three "Additional
+  contract": promises, terms, signed; his yes came some three weeks later, his contract read 30/6/2032). Left: EN; MANUAL image; three "Additional
   Promises" lock lines look alike (one per promise slot).
 - [ ] T133 `reply "<subject>"` with two messages of that subject (a second pre-season camp squad, 14 Jul 2031) said
   "matches 2 messages", then "no message": the one awaiting an answer was not taken. Now, of several, the one the
