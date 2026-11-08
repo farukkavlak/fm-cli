@@ -16,9 +16,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
 - [x] T106 `captains --captain / --vice`: lists told by their element (`ChangeCaptain`, `ChangeViceCaptain`), Yes by the game's dialog handler, result read back. TR + EN, list `round1`: unknown name refused 3 ×, captain 3 ×, vice there and back 3 ×.
 - [x] T107 A line that starts with the command it means is that command, every word kept: `dugout 1 zzz` says 'zzz' not understood. TR + EN in a match.
-- [ ] T104 Scenario saves, each one load away: `tools/fm-round.py scenarios`, kept in `~/fm27_bep/scenarios`. Entering one takes about 85 s,
+- [x] T104 Scenario saves, each one load away: `tools/fm-round.py scenarios`, kept in `~/fm27_bep/scenarios`. Entering one takes about 85 s,
   a language switch about 10 s more; a simulated match 15 s. Kept: `calm`, `cup`, `cup-draw`, `kickoff`, `window`, `season-lists`, `sacked`, `interview`, `job-offer`, `newjob`, `spring`,
-  `deadline`, `intl-break`, `helmond-may`, `playoffs`, `playoff-final`, `season-end` (the list: `scenarios`).
+  `deadline`, `intl-break`, `helmond-may`, `playoffs`, `playoff-final`, `season-end`; 8 Nov: `postpone`,
+  `asked-again`, `caught-2029-11-30` (the board's meeting about our future), `bonuses`, `cup-live` (a cup tie at home,
+  match day). The list: `scenarios`. A new moment is kept with `forward --answer --catch`, which now picks youth
+  players when short of eleven.
   - [x] Season's end: `season-end`, 4 Jun 2030, Helmond Sport after a lost play-off final; the vision meeting and the pre-season date wait.
 - [x] T105 One test tool: `tools/fm-round.py`, lists in `tests/live/*.toml`. `dry` finds a broken list without the game's time (scenario, step shape, command, flag,
   read path); `run` goes EN then TR and checks only `--json` and exit codes.
@@ -80,7 +83,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   `cash-list-frame`, its figures from the game (any currency), read back by the kept amount.
 - [x] T8 `tactic`: the pitch view is put back by the tab's element name (`#overview` in `#sivisible-tabs`).
 - [x] T86 Cup results by the game's numbers, not the shown letters ("u3-2", "p"). `stages` reads the round's own list (`Stage.CupTies` under the page's GUID, new plugin route `pullbound`): whole, no scrolling, no portal tile's ties mixed in, divisions back. Result codes: 1 win, 2 won in extra time, 3 won on penalties, 7 won a leg of a two-legged tie, 9 draw, 10 defeat. `calendar`, `fixtures`, `fixtures --all`, `report`: score, level with a winner is a shootout, code 2 is extra time. Croky Cup, every round, TR and EN agree: 154 ties, 13 penalties, 7 extra time. List `round3`, 3 ×; our cup tie simulated, read by report, fixtures and the full list: TR + EN 3/3 (`round32.toml`).
-  - [ ] Our own match settled by extra time or penalties: not met in simulated cup ties yet (we win them). `ResultType` on another club's fixture list reads empty, so code 2 on a `Team` fixture is not measured.
+  - [ ] Our own match settled by extra time or penalties: not met in simulated cup ties yet (we win them). Played
+    live once from `cup-live` (won 1-0 in 90 minutes); before kick-off `match` stopped at the staff's opposition
+    instruction suggestion, `dugout uygula` took it. `ResultType` on another club's fixture list reads empty, so code 2 on a `Team` fixture is not measured.
 - [x] T111 `stages`: after a competition with no rounds the page has no stage list and every `stages` said "did not open". The competition list is held on its own; the competition says it has no rounds. TR + EN 3 ×.
 - [x] T112 `report`: goals short of the score. One scorer's goals are one entry ("22', 31', pen 76'"), and only the last minute was kept. The game's text is now shown whole, nothing read inside it; `--json` has `HomeGoals`, `AwayGoals`. 13 played fixtures read against their scores; TR + EN list `round4`.
 - [x] T89 `tactic copy`: the copy list is the add list's one row with a submenu, chosen by its path of indices
@@ -392,7 +397,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [x] Retirements come as news stories ("Lopes retires"): `news`, `news <no>` (T119). Award winners: `read
     award-winners`, the table with its headings. TR + EN (`round14.toml`, scenario `helmond-june`, 31 May 2030).
   - [ ] This season's award, once given (not out by 31 May): its message or story, and the page's new row.
-- [ ] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
+- [x] T56 Transfer window open and deadline day: incoming bids, the window's own screens.
   - [x] Deadline day (`deadline`): its message's question (Take Part / Decline) answered with `reply`, read back by the
     message no longer waiting; a wrong answer number refused. The offers waiting are free-transfer ones the game answers
     only from their message: `offers <#> reject` says so (it called every refusal a stall). TR + EN 3/3 (`round13.toml`).
@@ -467,6 +472,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     board's expectation there, `comp.TeamsBoardExpectationsInCompString` in the game's words: TR "1. Lig · Ligi orta
     sıralarda bitirmek", EN "1. League · Mid-table". Code of Conduct rows unchanged, no added time. The Code of
     Conduct came out in Turkish words now (was English on 7 Nov). TR + EN 3/3 by hand (`preseason`).
+- [ ] T129 After a live match (`cup-live`, 29 Oct 2030, Helmond 1-0 Quick Boys) the end-of-match line "our ratings
+  (live)" gave nearly every player 6.7 (one 6.8) while the man of the match had 7.6: the live ratings look stale or
+  read from the wrong place. Measure against `report`, TR + EN.
 - [ ] T63 Match: substitution screen, FM27's shouts (or what replaced them), set pieces edited during a match,
   penalty shootout, extra time, injury during a match.
   - [x] FM27's shouts: a popup on the match bar (the floating widget inside `#shouts-cooldown-disable`), team shouts
