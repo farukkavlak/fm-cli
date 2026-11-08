@@ -1,0 +1,41 @@
+# Round 34: a scouting assignment cancelled where FM27 offers it (T31): Recruitment › Scouting › Scout Priorities,
+# the player's row told by his record, ticked alone, the page's cancel event pressed. `--cancel --dry` is the
+# read-back: it answers 0 only while he is being scouted, and changes nothing.
+# Run: tools/fm-round.py dry tests/live/round34.toml, then run.
+
+[[test]]
+task = "T31"
+name = "an assignment made, cancelled and read back; a second cancel refused"
+at = "deadline"
+fresh = true
+repeat = 3
+steps = [
+  { run = "scout player \"Prince Zagadou\" --cancel --dry", rc = "fail", note = "not scouted yet" },
+  { run = "scout player \"Prince Zagadou\" --for \"1 week\"" },
+  { run = "dialog Yes", rc = "any", note = "the scouting budget's question, when asked" },
+  { run = "scout player \"Prince Zagadou\" --cancel --dry" },
+  { run = "scout player \"Prince Zagadou\" --cancel --dry", note = "the dry run changed nothing" },
+  { run = "squad", note = "from another page" },
+  { run = "scout player \"Prince Zagadou\" --cancel" },
+  { run = "scout player \"Prince Zagadou\" --cancel --dry", rc = "fail" },
+  { run = "scout player \"Prince Zagadou\" --cancel", rc = "fail", note = "nothing left to cancel" },
+]
+
+[[test]]
+task = "T31"
+name = "of two assignments only the one named is cancelled"
+at = "deadline"
+fresh = true
+repeat = 3
+steps = [
+  { run = "scout player \"Prince Zagadou\" --for \"1 week\"" },
+  { run = "dialog Yes", rc = "any" },
+  { run = "scout player \"Victor Dedes\" --for \"1 week\"" },
+  { run = "dialog Yes", rc = "any" },
+  { run = "scout player \"Victor Dedes\" --cancel --dry" },
+  { run = "scout player \"Prince Zagadou\" --cancel" },
+  { run = "scout player \"Prince Zagadou\" --cancel --dry", rc = "fail" },
+  { run = "scout player \"Victor Dedes\" --cancel --dry", note = "the other one stays" },
+  { run = "scout player \"Victor Dedes\" --cancel" },
+  { run = "scout player \"Victor Dedes\" --cancel --dry", rc = "fail" },
+]

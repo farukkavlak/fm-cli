@@ -146,48 +146,8 @@ internal static partial class Program
 		var cancel = FirstOf(entries, stop);
 		if (args.Contains("--cancel"))
 		{
-			if (cancel is not { } off)
-			{
-				await Fm.Get("actions", ("close", "1"));
-				Console.Error.WriteLine(L($"There is no scouting assignment running for {name}."));
-				return 1;
-			}
-			// FM27 shows the entry closed while a scout is on him ("Currently Scouting"): stopping is not
-			// offered from his menu, and choosing the closed entry did nothing.
-			if (!IsEnabled(off))
-			{
-				await Fm.Get("actions", ("close", "1"));
-				Console.Error.WriteLine(L($"{name}: the game does not offer to stop this assignment from his menu (the entry is closed); it ends by itself when its time is up."));
-				return 1;
-			}
-			// His record kept at a node of its own while the search that found him is still up: its
-			// path goes with the search.
-			const string person = "fmcli.scoutcancel";
-			await Fm.Get("pathset", ("to", person), ("from", LastPersonPath));
-			// The game asks whether to stop scouting him; having been told to here, the answer is yes.
-			var chosen = await ChooseEntry(off, entries);
-			if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
-			// It is answered the way the game's own handler does (dialog?press=primary): a simulated click
-			// on its Yes closed the question and left the assignment (FM26 and FM27 alike).
-			JsonElement dialogs = default;
-			if (await Until(async () => (dialogs = await Fm.GetJson("dialog")).GetArrayLength() > 0 && DialogAsks(dialogs[0]), seconds: 5, every: 0.5))
-			{
-				await Fm.Get("dialog", ("press", "primary"));
-				// The question stays drawn a moment after its answer.
-				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.3);
-			}
-			// Believed once his record says he is no longer being scouted (IsBeingScouted): the game has
-			// closed the question and kept the assignment before.
 			await Fm.Get("actions", ("close", "1"));
-			async Task<bool> Scouted() => Field(await Fm.Pull(person, "IsBeingScouted"), "IsBeingScouted") == "True";
-			var still = !await Until(async () => !await Scouted(), seconds: 5, every: 0.3);
-			if (still)
-			{
-				Console.Error.WriteLine(L($"{name}: the game took the confirmation but did not remove the assignment (the game's own behaviour); it ends by itself when its time is up."));
-				return 1;
-			}
-			Console.WriteLine(L($"{name}: scouting assignment removed."));
-			return 0;
+			return await CancelScouting(name, args.Contains("--dry"));
 		}
 		if (cancel != null)
 		{
@@ -217,6 +177,99 @@ internal static partial class Program
 		var lengths = OfAction(entries, "PersonAssignScoutToPlayersClub").Where(e => Field(e, "Who") == who).ToList();
 		if (await EntryBy(name, lengths, ScoutDays, Option(args, "--for"), L("How long should they be scouted"), L("--for \"1 week\"")) is not { } entry) return 64;
 		return await ChooseAction(name, entry, entries);
+	}
+
+	/// <summary>Recruitment › Scouting › Scout Priorities: the players a scout has been sent to, with Cancel Assignment (FM27).</summary>
+	private const string ScoutReports = "c6308dba088ce2b4faba8a570681ccf6";
+	private const string ScoutPriorities = "6bc226ccaa1b5cd46bdd9d7d05d503a2";
+	private const string CancelScoutingPlayer = "EventFmxCancelScoutingPlayer";
+
+	/// <summary>
+	/// Calls a scouting assignment off where FM27 offers it: his menu shows the entry closed while a scout is on
+	/// him, and its question kept the assignment. The Scout Priorities page lists every player being scouted; his
+	/// row is told by its record's UniqueId, ticked alone, and the page's button that sends the game's own
+	/// cancel event is pressed. Believed once the game's count of them drops and its list no longer holds him: his record's IsBeingScouted
+	/// stays True for a while after (EN 8 Nov, the list 2 → 1), so it says nothing here.
+	/// </summary>
+	private static async Task<int> CancelScouting(string name, bool dry)
+	{
+		// His record kept at a node of its own while the search that found him is still up.
+		const string person = "fmcli.scoutcancel";
+		await Fm.Get("pathset", ("to", person), ("from", LastPersonPath));
+		var id = Field(await Fm.Pull(person, "UniqueId"), "UniqueId");
+		if (id.Length == 0) return Report(L($"error: {name}'s record could not be read"));
+
+		// The page's table, by the block it sits in, and his row in it by his record (-1: not in it).
+		async Task<(string Table, int Index, List<int> Ticked)?> Table()
+		{
+			foreach (var t in (await Fm.GetJson("checkrows", ("gen", "scoutcancel" + Environment.TickCount64))).EnumerateArray())
+			{
+				if (!t.TryGetProperty("Names", out var names) || !names.EnumerateArray().Any(x => x.GetString() == "RecruitmentScoutPrioritiesBlock")) continue;
+				var items = t.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "").ToList();
+				var ticked = t.GetProperty("Ticked").EnumerateArray().Select(x => x.GetInt32()).ToList();
+				for (var i = 0; i < items.Count; i++)
+					if (items[i].Length > 0 && Field(await Fm.Pull(items[i], "UniqueId"), "UniqueId") == id)
+						return (Field(t, "Table"), i, ticked);
+				return (Field(t, "Table"), -1, ticked);
+			}
+			return null;
+		}
+		(string Table, int Index, List<int> Ticked)? found = null;
+		async Task<JsonElement?> Button(bool enabled) =>
+			(await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+				.Where(b => Field(b, "Page") == ScoutPriorities && (!enabled || Field(b, "Enabled") == "True") && Field(b, "Events").Contains(CancelScoutingPlayer, StringComparison.Ordinal))
+				.Cast<JsonElement?>().FirstOrDefault();
+		// The game's own count of the players being scouted, read before and after.
+		const string countPath = "Human.Team.ScoutPriorities.SpecificallyScoutedPlayersCount";
+		async Task<int?> Count()
+		{
+			var answer = await Fm.Get("pathbind", ("path", countPath));
+			var at = answer.IndexOf("(DynamicNumber) ", StringComparison.Ordinal);
+			return at >= 0 && int.TryParse(answer[(at + 16)..].Trim(), out var n) ? n : null;
+		}
+		// Nobody on the list: the page draws neither the table nor its buttons.
+		int? listedNow = null;
+		await Until(async () => (listedNow = await Count()) != null, seconds: 3, every: 0.2);
+		if (listedNow == 0)
+		{
+			Console.Error.WriteLine(L($"There is no scouting assignment running for {name}."));
+			return 1;
+		}
+		var opened = await OpenSubpage(ScoutReports, ScoutPriorities, async () => (found = await Table()) != null, bar: true);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		if (found is not { Index: >= 0 } at)
+		{
+			Console.Error.WriteLine(L($"There is no scouting assignment running for {name}."));
+			return 1;
+		}
+		if (await Button(false) is null) return Report(L("error: the Scout Priorities page has no button that cancels an assignment"));
+		if (dry)
+		{
+			Console.WriteLine(L($"dry run, nothing changed: {name}'s assignment would be cancelled on the Scout Priorities page."));
+			return 0;
+		}
+
+		// Only his row ticked: the button acts on every ticked one.
+		foreach (var other in at.Ticked.Where(i => i != at.Index))
+			await Fm.Get("rowselect", ("table", at.Table), ("index", other.ToString()), ("check", "0"));
+		await Fm.Get("rowselect", ("table", at.Table), ("index", at.Index.ToString()), ("check", "1"));
+		JsonElement? press = null;
+		if (!await Until(async () => (press = await Button(true)) != null && await Table() is { } now && now.Ticked.SequenceEqual([at.Index]), seconds: 5, every: 0.25))
+			return Report(L($"error: {name}'s row could not be selected on the Scout Priorities page"));
+		int? before = null;
+		await Until(async () => (before = await Count()) != null, seconds: 3, every: 0.2);
+		if (before is not { } listed) return Report(L("error: the game's count of the players being scouted could not be read"));
+		var pressed = await Fm.Get("press", ("ptr", Field(press!.Value, "Pointer")));
+		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
+
+		// Gone from the list: the table no longer holds his record (or, his the only one, is no longer drawn).
+		if (!await Until(async () => await Count() is { } now && now < listed && await Table() is not { Index: >= 0 }, seconds: 5, every: 0.3))
+		{
+			Console.Error.WriteLine(L($"{name}: the game took the cancel but still has him scouted."));
+			return 1;
+		}
+		Console.WriteLine(L($"{name}: scouting assignment removed."));
+		return 0;
 	}
 
 	/// <summary>The scouts and coaches a player can be given to, as his menu names them.</summary>

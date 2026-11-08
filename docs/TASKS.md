@@ -115,7 +115,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     each choice with it), the same in every language; a requirement made by values, read back, deleted; the wrong
     words and `discard --all`: TR + EN 3/3 (`round33.toml`). The type list and some roles carry no value: by word.
 - [ ] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
-  - [ ] Left: copy a plan (EventFmxSquadPlannerCopy). The list's entry sent by `select` and by a row's submit changes nothing in the other season, so there is no command. Next: what a click sends that these do not; the rows' ticks (`SelectedPlayers`).
+  - [ ] Left: copy a plan (EventFmxSquadPlannerCopy, its data `copytype`). The list's entry sent by `select`, by a row's
+    submit, and by `select` with its events queued (`fire=1`, Season After, EN 8 Nov) changes nothing in the other
+    season (its ST and DCR stayed). Next: what a click sends that these do not; the rows' ticks (`SelectedPlayers`).
 - [x] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
   - [x] Swap two starters: `tactic player <position> <starter>` already does it (the two change places). Clear a place: `tactic player <position> --clear`, the place's `XIButton` told by its row's `PlayerIndex`, its right-click list sends `EventFmxTeamSelectionClearOrPickPlayerAuto`, read back by the place's `PlayerIndex` -1. TR + EN 3 × (list `round5`): wrong position, only that place, already empty, filled again, from another page.
@@ -208,7 +210,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     an opposition scout report.
   - [ ] A sign that the card is drawn (the open message's `NewsItem.DynamicCardId` node is there but unbound): taken
     now once two readings agree.
-  - [ ] A figure and its label come as two lines ("88" / "Done Deals"): they sit in different elements.
+  - [x] A figure and its label are one line ("88 · Done Deals"): one of a set of look-alike items (siblings built
+    of the same element types, two texts or more each) is one line however deep its texts sit. By shape only,
+    no names or words; Fitness tests, Staffing Advice and Scouting update came out the same as before (EN).
 - [x] T118 `tour` at a step that waits for something done on screen says only that: the new club's Tactics Introduction
   ("select the tactical display shown", no tactic set) passed once `tactic new` made a tactic. Name the command for
   such a step by the step's anchor (`FM.UI.TutorialAnchorID`) or action (`TutorialActionsID`), not its words.
@@ -245,15 +249,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   too (`Says`). Not met again yet: check at the next one.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.
-- [ ] T31 `scout player --cancel`: the game keeps the assignment (PORTING). Measured TR: the entry is Report › Cancel
-  Assignments (`PersonStopScoutPlayersClub`), its question `Confirm1198281291` has a Yes with no event; answered by the
-  dialog handler it closes, and the player's `IsBeingScouted` stays True (also after `next`). Read back now by
-  `IsBeingScouted` (the person kept at `fmcli.scoutcancel`). Next: Scouting › Assignments (`ScoutingCentreActions`).
-  - Measured EN 8 Nov (`deadline`, Michut, 1 week): his menu shows "Scouting In Progress" closed; Scouting ›
-    Assignments (`5ccd19d8…`) lists only focuses ("Active Assignments (0)"). The game's own event
-    `EventFmxCancelScoutingPlayer` and `CanCancelScoutedPlayersSelection` point to the Scout Reports list
-    (`c6308dba…`) with the player selected; `open?guid=…&bar=1` said opened but the screen stayed on Assignments.
-    Next: Scout Reports by its bar's own list, tick his row (`checkrows`), find the button sending that event.
+- [ ] T31 `scout player --cancel`: FM27 calls it off on Recruitment › Scouting › Scout Priorities
+  (`6bc226cc…`, from the Scout Reports bar): the table in `RecruitmentScoutPrioritiesBlock`, his row told by its
+  record's `UniqueId`, ticked alone, then the page's button that sends `EventFmxCancelScoutingPlayer` (off until a
+  row is ticked). Read back by his `IsBeingScouted`; `--cancel --dry` changes nothing and answers 0 only while he
+  is scouted. His menu's entry stays closed in FM27 (the old way). Tests: `round34.toml`.
 - [x] T32 `training --trait-suggest`: FM27 has no such entry in the actions menu and no button for it, so the flag leaves help, the MCP tool and the tests; typed by hand it says so (PORTING). The refusal itself not run again after this change.
 
 ## 4. Pages no command reads (read only, lower priority)
