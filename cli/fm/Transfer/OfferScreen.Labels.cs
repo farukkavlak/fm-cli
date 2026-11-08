@@ -26,6 +26,20 @@ internal sealed partial class OfferScreen
 	/// A text read from the screen in the game's own words: the plugin hands labels over in English
 	/// and the words it saw beside them (<see cref="GameWords"/>).
 	/// </summary>
+	/// <summary>
+	/// A term's value in the game's words. The plugin gives it as the game's English; a value the game builds of two
+	/// of its words ("Important Player (Suggested)") is not one entry of its table, so each part is put in its words.
+	/// Only for showing: nothing is decided by it.
+	/// </summary>
+	public static string SayValue(string value)
+	{
+		if (GameWords.Of(value) is var whole && whole != value) return whole;
+		var open = value.LastIndexOf(" (", StringComparison.Ordinal);
+		return open > 0 && value.EndsWith(')')
+			? $"{GameWords.Of(value[..open])} ({GameWords.Of(value[(open + 2)..^1])})"
+			: value;
+	}
+
 	public static string Say(string label) =>
 		label.EndsWith(" ›", StringComparison.Ordinal) ? Say(label[..^2]) + " ›"
 		// A heading's colon is in some of the game's texts and not in others.
@@ -97,7 +111,7 @@ internal sealed partial class OfferScreen
 		{
 			grid.AddRow(new Markup($"[bold]{Ui.Safe(SectionName(group.Key))}[/]"), new Text(""));
 			foreach (var row in group)
-				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]"
+				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(SayValue(row.Shown))}[/]"
 					+ (row.Detail.Length > 0 ? $" [dim]{Ui.Safe(row.Detail)}[/]" : "")
 					+ LockMark(row.Lock)));
 		}
@@ -141,11 +155,12 @@ internal sealed partial class OfferScreen
 			Console.WriteLine(who.Length > 0 ? $"{who} — {title}" : title);
 			foreach (var group in Rows.GroupBy(r => r.Section))
 			{
-				Console.WriteLine($"{ContractSection(group.Key, title)}:");
+				// The stage's own terms have no section: the heading above already names them.
+				if (ContractSection(group.Key, title) is var heading && heading != title) Console.WriteLine($"{heading}:");
 				foreach (var row in group)
-					Console.WriteLine($"  {Say(row.Label)}: {row.Shown}{(row.Detail.Length > 0 ? $" ({SayDetail(row.Detail)})" : "")}"
+					Console.WriteLine($"  {Say(row.Label)}: {SayValue(row.Shown)}{(row.Detail.Length > 0 ? $" ({SayDetail(row.Detail)})" : "")}"
 						+ (row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")
-						+ (row.Warning ? "  [kurala uymuyor]" : ""));
+						+ (row.Warning ? L("  [breaks a rule]") : ""));
 			}
 			foreach (var line in lockLine.Concat(shown)) Console.WriteLine(line);
 			if (costs.Count > 0) Console.WriteLine(string.Join(" · ", costs));
@@ -158,7 +173,7 @@ internal sealed partial class OfferScreen
 		{
 			grid.AddRow(new Markup($"[bold]{Ui.Safe(ContractSection(group.Key, title))}[/]"), new Text(""));
 			foreach (var row in group)
-				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(row.Shown)}[/]"
+				grid.AddRow(new Markup($"  [dim]{Ui.Safe(Say(row.Label))}[/]"), new Markup($"[yellow]{Ui.Safe(SayValue(row.Shown))}[/]"
 					+ (row.Detail.Length > 0 ? Stage == "Terms" ? $"  [red]{Ui.Safe(SayDetail(row.Detail))}[/]" : $" [dim]{Ui.Safe(row.Detail)}[/]" : "")
 					+ LockMark(row.Lock)
 					+ (row.Warning ? L("  [red]breaks a rule[/]") : "")));

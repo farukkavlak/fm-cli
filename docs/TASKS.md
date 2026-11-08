@@ -487,6 +487,13 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   again while a briefing waited listed only under the inbox's Tasks filter; `next` said only that a page was shown.
   `next` now looks under the Tasks filter when nothing moved and names what waits there. Left: seen again with the new
   code (the one waiting was open on screen, so not in the list); the open message on screen named too (T128).
+- [ ] T132 The contract card in a Turkish game: a promise's value came in English ("Playing Time: Important Player
+  (Suggested)"), the rule mark was written in Turkish whatever the language ("[kurala uymuyor]"), and the stage's
+  heading came twice ("— Promises" then "Promises:"). A value is now put in the game's words, part by part when the
+  game builds it of two of its words ("Önemli Oyuncu (Önerilen)"); the mark goes through `L`; a section-less group
+  has no heading of its own. TR by hand (`caught-2031-06-30`, Uğurcan's renewal opened from "last hours of his
+  contract": promises, terms, signed; the answer comes by message). Left: EN; MANUAL image; three "Additional
+  Promises" lock lines look alike (one per promise slot).
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of
