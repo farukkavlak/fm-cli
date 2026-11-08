@@ -220,7 +220,8 @@ def moments_waiting():
             if m.get("CanRespond") != "True" or m.get("NewsHasResponded") == "True":
                 continue
             _, shown, _, _ = fm(f'reply "{m.get("NewsTitleString", "")}"')
-            answers = len(re.findall(r"^ *\d+  \S", shown, re.M))
+            # The message's answers, at two spaces; a choice inside the message ("    1  [x] Normal") is not one.
+            answers = len(re.findall(r"^  \d+  \S", shown, re.M))
             if answers == 0:
                 continue  # read and put away: nothing to choose
             found.append((f"message:{m.get('TagsList', '')}:{answers}", m.get("NewsTitleString", "")))
