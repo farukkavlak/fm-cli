@@ -48,6 +48,7 @@ internal static partial class Program
 
 		var inbox = (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList();
 		var byNumber = int.TryParse(words[0], out _);
+		if (byNumber && NumberedElsewhere(inbox, words[0])) inbox = await AllInbox();
 		var message = Pick(inbox, words[0], quiet: !byNumber);
 		if (message == null && !byNumber) message = Pick(await AllInbox(), words[0], quiet: true);
 		// A waiting task can be listed only under the inbox's Tasks filter (a loan offer for one of
@@ -97,6 +98,11 @@ internal static partial class Program
 
 		if (!open)
 		{
+			if (!await DrawMessage(id))
+			{
+				Console.Error.WriteLine(L($"'{title}' could not be opened."));
+				return 1;
+			}
 			var opened = await Arriving("press", [("has", title), ("name", "NewsItemButton"), ("any", "1")]);
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 

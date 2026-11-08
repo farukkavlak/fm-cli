@@ -256,11 +256,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   ("Unhappy", "Transfer listed", "Retiring"); now read with /pull `shown` (TR "Mutsuz", "Transfer listesinde"; EN
   "Unhappy"). The squad board left out the injury flag by its English word: now by its number (41,
   InjuredNotInTraining). TR + EN by hand (`caught-2029-02-02`, `caught-2029-03-31`).
-- [ ] T126 English game, `preseason`, right after the switch from Turkish: the second `reply 26` showed the Battal
-  loan card's attachment (its title not captured), and the next `inbox` listed 13 rows, not 37, the Overview's
-  message widget being the bound list. `reply <#>` holds the number by the message's UniqueId from the last `inbox`.
-  Not reproduced in three more runs (TR → EN, the same replies, 14/14 right). Next time keep the title and the
-  attachment of each `reply` output.
+- [x] T126 `inbox --all` listed the messages in the order the scrolled list handed them out, not the same twice (a
+  postponement request 15th, then 23rd), and `reply <#>` of a message only `--all` reached failed: it looked in the
+  drawn rows, then pressed a row that was not drawn. Now `--all` is in the order they came (by the game's id, as the
+  plain `inbox` window is); `reply` looks in the whole inbox when the number's id is not drawn, and scrolls the list
+  until that id's row is drawn before pressing; the open message is still told by its id. TR + EN (`intl-break`):
+  `--all` the same 3 times, `reply 53` 3/3, the window's numbers unchanged, `reply 999` refused. Measured on the way:
+  plain `inbox` is the newest ~13 rows the list draws (37 when they fit), on Overview and Messages alike.
 - [x] T125 `squad` read only the rows the table had drawn: 22 of 33 on a 1080-high window (the injured, at the
   bottom, missing); `depth`, `squad --fitness` too. Now, when fewer rows carry the view's own field (Wage,
   Condition) than the team has players (`Human.Team.Players`), the table is scrolled down in four steps and the rows
@@ -391,6 +393,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     the game words it: it was taken apart by the English words "caps" / "goals" (0 in a Turkish game). TR + EN 3/3,
     nobody away outside a break (`round12.toml`).
   - [ ] The postponement request a call-up brings ("Request … postponement?"): answered with `reply`, read back.
+    `intl-break` (29 Sep 2029): both requests open through `reply` but offer no answer any more (one match played,
+    the other's request past). Needs a scenario made the day the call-ups come.
 - [x] T59 Youth intake (March): candidates, intake preview.
   - [x] Candidates (T28). The intake came on 4 Apr 2029 (Varzim) with no message of its own in the inbox.
   - [x] A candidate's status by the game's data (on trial until signed: no trial club once signed); a youth contract

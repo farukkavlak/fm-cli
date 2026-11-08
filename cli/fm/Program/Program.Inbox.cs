@@ -81,7 +81,30 @@ internal static partial class Program
 			}
 		}
 		await Fm.Get("scroll", ("ptr", list), ("to", "0"));
-		return rows;
+		// In the order they came, as `inbox` lists its window: the order the scrolled pages handed rows
+		// out in is not the same twice (a message was 15th, then 23rd).
+		return rows.OrderBy(m => Id(m) is var id and >= 0 ? id : long.MaxValue).ToList();
+	}
+
+	/// <summary>
+	/// Scrolls the inbox's own list until the row of this message (by its id) is drawn, so it can be pressed:
+	/// the list draws only the rows in view, and one `inbox --all` listed may lie far down. False when no step
+	/// of the list draws it.
+	/// </summary>
+	internal static async Task<bool> DrawMessage(string id)
+	{
+		bool Drawn(JsonElement rows) => rows.ValueKind == JsonValueKind.Array && rows.EnumerateArray().Any(m => Field(m, "UniqueId") == id);
+		if (Drawn(await Fm.GetJson("inbox"))) return true;
+		var list = (await Fm.Get("inboxlist")).Trim();
+		if (list.StartsWith("error", StringComparison.Ordinal)) return false;
+		for (var step = 0; step <= 20; step++)
+		{
+			var to = (step / 20.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+			if ((await Fm.Get("scroll", ("ptr", list), ("to", to))).StartsWith("error", StringComparison.Ordinal)) return false;
+			// The rows are drawn again a moment after the list moves: the read that holds it is waited for.
+			if (await Until(async () => Drawn(await Fm.GetJson("inbox")), seconds: 1, every: 0.1)) return true;
+		}
+		return false;
 	}
 
 	/// <summary>The bound inbox, its list scrolled to the newest first.</summary>

@@ -66,21 +66,34 @@ internal static partial class Program
 		catch { }
 	}
 
+	/// <summary>The message's id and subject the number stood for when `inbox` last listed it; null when not kept.</summary>
+	private static (string Id, string Title)? Remembered(int number)
+	{
+		string[][]? shown = null;
+		try
+		{
+			if (File.Exists(NumbersFile) && DateTime.UtcNow - File.GetLastWriteTimeUtc(NumbersFile) < TimeSpan.FromHours(12))
+				shown = JsonSerializer.Deserialize<string[][]>(File.ReadAllText(NumbersFile));
+		}
+		catch { }
+		return shown != null && number >= 1 && number <= shown.Length ? (shown[number - 1][0], shown[number - 1][1]) : null;
+	}
+
+	/// <summary>
+	/// Whether the message a number stood for is outside these rows: one `inbox --all` listed, which the
+	/// list no longer draws, is looked for in the whole inbox.
+	/// </summary>
+	private static bool NumberedElsewhere(List<JsonElement> inbox, string wanted) =>
+		int.TryParse(wanted, out var number) && Remembered(number) is { } kept && !inbox.Any(m => Field(m, "UniqueId") == kept.Id);
+
 	private static JsonElement? Pick(List<JsonElement> inbox, string wanted, bool quiet = false)
 	{
 		if (int.TryParse(wanted, out var number))
 		{
 			// The number as `inbox` showed it, found again by the message's id.
-			string[][] shown = null;
-			try
+			if (Remembered(number) is { } kept)
 			{
-				if (File.Exists(NumbersFile) && DateTime.UtcNow - File.GetLastWriteTimeUtc(NumbersFile) < TimeSpan.FromHours(12))
-					shown = JsonSerializer.Deserialize<string[][]>(File.ReadAllText(NumbersFile));
-			}
-			catch { }
-			if (shown != null && number >= 1 && number <= shown.Length)
-			{
-				var (id, title) = (shown[number - 1][0], shown[number - 1][1]);
+				var (id, title) = kept;
 				if (inbox.FirstOrDefault(m => Field(m, "UniqueId") == id) is { ValueKind: JsonValueKind.Object } same) return same;
 				Console.Error.WriteLine(L($"Message {number} ('{title}') is no longer in the inbox. For the current numbers: inbox"));
 				return null;
