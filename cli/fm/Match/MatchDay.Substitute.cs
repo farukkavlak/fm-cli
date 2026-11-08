@@ -203,9 +203,14 @@ internal static partial class Program
 	///: the match screen binds a MatchPlayer under every position of its pitch.
 	/// Its paths start with "..", which a reading cannot take, so each is put at a node of ours first.
 	/// </summary>
+	private static int matchReadings;
+
 	private static async Task<Dictionary<string, MatchMan>> MatchPlayers(bool atStop = false)
 	{
 		var men = new Dictionary<string, MatchMan>();
+		// Nodes of this reading's own: a node pointed again at a player keeps what was bound under it before, and a
+		// whole match read at the same nodes gave the kick-off ratings at the whistle (6.7 for all, man of the match 7.6).
+		var at = $"fmcli.mp.g{Environment.ProcessId}x{Interlocked.Increment(ref matchReadings)}";
 		List<string> paths;
 		try { paths = (await Fm.Get("find", ("name", "MatchPlayer"), ("limit", "80"))).Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith("..", StringComparison.Ordinal)).Distinct().ToList(); }
 		catch (FmError) { return men; }
@@ -215,21 +220,21 @@ internal static partial class Program
 			.GroupBy(p => System.Text.RegularExpressions.Regex.Replace(p, @"\.[^.]+\.\d+\.Position\.MatchPlayer$", ""))
 			.Select(g => g.ToList()).ToList();
 		var firsts = new List<(string Path, string Props)>();
-		var placed = await PathSets(tiles.Select((tile, t) => ($"fmcli.mp.t{t}", tile[0])).ToList());
+		var placed = await PathSets(tiles.Select((tile, t) => ($"{at}.t{t}", tile[0])).ToList());
 		for (var t = 0; t < tiles.Count; t++)
-			if (placed[t]) firsts.Add(($"fmcli.mp.t{t}.Player", "Name"));
+			if (placed[t]) firsts.Add(($"{at}.t{t}.Player", "Name"));
 		var leaders = await PullEach(firsts);
 		paths = tiles.Where((tile, t) => t < leaders.Count).Select((tile, t) => (tile, Lead: Field(leaders[t], "Name")))
 			.Where(x => x.Lead.Length > 0).GroupBy(x => x.Lead).Select(g => g.OrderByDescending(x => x.tile.Count).First().tile)
 			.SelectMany(tile => tile).ToList();
 
 		var readings = new List<(string Path, string Props)>();
-		var set = await PathSets(paths.Select((path, i) => ($"fmcli.mp.p{i}", path)).ToList());
+		var set = await PathSets(paths.Select((path, i) => ($"{at}.p{i}", path)).ToList());
 		for (var i = 0; i < paths.Count; i++)
 		{
 			if (!set[i]) continue;
-			readings.Add(($"fmcli.mp.p{i}", "MatchInjuryType,YellowCardedInMatch,RedCardedInMatch,MatchRating,PitchShirtShowUnavailableFlag"));
-			readings.Add(($"fmcli.mp.p{i}.Player", "Name"));
+			readings.Add(($"{at}.p{i}", "MatchInjuryType,YellowCardedInMatch,RedCardedInMatch,MatchRating,PitchShirtShowUnavailableFlag"));
+			readings.Add(($"{at}.p{i}.Player", "Name"));
 		}
 		var read = await PullEach(readings);
 		for (var i = 0; i + 1 < read.Count; i += 2)
@@ -247,10 +252,10 @@ internal static partial class Program
 		// At a stop neither field need say it (Draper, 11 Nisan 2026: type 0, shirt not flagged) while the
 		// planner's status column does; that column is his first status flag, which wants the match's tactic beside him.
 		if (atStop && men.Values.Any(m => m.Injury == 0 && !m.Red) && await FindMatchTactic() && matchTactic != null
-		    && !(await Fm.Get("pathset", ("to", "fmcli.mp.Tactic"), ("from", matchTactic))).StartsWith("error", StringComparison.Ordinal))
+		    && !(await Fm.Get("pathset", ("to", $"{at}.Tactic"), ("from", matchTactic))).StartsWith("error", StringComparison.Ordinal))
 		{
 			// The tactic is taken up a frame after it is put there: answered once his position is.
-			var asked = Enumerable.Range(0, paths.Count).Where(i => set[i]).Select(i => ($"fmcli.mp.p{i}", "Position,PlayerStatus.StatusFlag,Player.Name")).ToList();
+			var asked = Enumerable.Range(0, paths.Count).Where(i => set[i]).Select(i => ($"{at}.p{i}", "Position,PlayerStatus.StatusFlag,Player.Name")).ToList();
 			var status = new List<JsonElement>();
 			await Until(async () => (status = await PullEach(asked)).Any(r => Field(r, "Position").Length > 0), seconds: 3, every: 0.1);
 			foreach (var row in status)

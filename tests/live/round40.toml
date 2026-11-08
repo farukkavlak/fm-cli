@@ -1,0 +1,35 @@
+# Round 40: the inbox read whole and in one order (T126), its filter put back and a long inbox read without gaps (T128).
+# - `inbox --all` lists the same messages in the same places twice; a message only it reaches is opened by `reply`;
+# - `inbox --tasks` leaves the inbox on all messages: the plain inbox is not empty after it;
+# - a long inbox (Helmond, ~150 messages) read whole, the same count twice.
+# Run: tools/fm-round.py dry tests/live/round40.toml, then run.
+
+[[test]]
+task = "T126"
+name = "inbox --all in one order; a message only it reaches is opened"
+at = "intl-break"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox --all", path = "#", keep = "count", live = true },
+  { read = "inbox --all", path = "20.UniqueId", keep = "twentieth", live = true },
+  { read = "inbox --all", path = "#", same_as = "count", live = true },
+  { read = "inbox --all", path = "20.UniqueId", same_as = "twentieth", live = true },
+  { read = "inbox --all", path = "?UniqueId=985420.0.NewsTitleString", keep = "msg", live = true, note = "a postponement request, below the first window" },
+  { run = "reply {msg}" },
+  { run = "reply 'zzzq no such message'", rc = "fail" },
+]
+
+[[test]]
+task = "T128"
+name = "the Tasks filter is put back; a long inbox read whole twice the same"
+at = "bonuses"
+fresh = true
+repeat = 3
+steps = [
+  { run = "inbox --tasks" },
+  { read = "inbox", path = "#", not = "0", live = true, note = "back on all messages" },
+  { read = "inbox --all", path = "#", keep = "count", live = true },
+  { read = "inbox --all", path = "#", same_as = "count", live = true },
+  { read = "inbox --all", path = "?UniqueId=1258601.0.NewsTitleString", present = true, live = true, note = "collective bonuses, the newest" },
+]

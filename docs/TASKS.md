@@ -278,7 +278,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   message. `inbox --all` also missed it: the list was scrolled by a tenth, and 150 messages left gaps between the
   windows read (149 of 150). Now each window must share a row with the one before, else the step is halved:
   150 of 150, in 5–6 s (was 14 s). Left: an open message is not in the list, so `status` cannot name the one on
-  screen; T126's test again after this change.
+  screen. TR + EN 3/3 (`round40.toml`: the filter put back, a long inbox read whole twice the same; T126 again:
+  `--all` in one order, a message only it reaches opened).
 - [x] T127 The season's collective win bonuses (message "Collective bonuses to be decided", scenario `bonuses`,
   Helmond 30 Jul 2030): a level is an in-message choice, `reply <msg> --pick <n>`, by the event its button sends
   (`EventFmxCollective{League,Cup,Continental}Bonus{Low,Normal,High}`), read back by the record's own index
