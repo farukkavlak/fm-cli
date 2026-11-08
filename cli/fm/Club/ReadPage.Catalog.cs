@@ -39,6 +39,7 @@ internal static partial class Program
 		new("window-report", "Transfer Window Report", "88194404f990bc544ac35c4e9cda00fe", Screen.Competition),
 		new("transfer-history", "Transfer History", "7d082c85954edba46a6213e6ad4e93c2", null),
 		new("transfer-window", "Transfer Window", "3ce997dda731e61468b15e676a2e6819", null),
+		new("transfer-activity", "Transfer Activity", Screen.TransferActivity, null),
 		new("clauses", "Clauses", "13766ffa5c7373840b9107ebea20da52", null),
 		new("scout-reports", "Scout Reports", "c6308dba088ce2b4faba8a570681ccf6", null),
 		new("scout-priorities", "Scout Priorities", "6bc226ccaa1b5cd46bdd9d7d05d503a2", "c6308dba088ce2b4faba8a570681ccf6"),

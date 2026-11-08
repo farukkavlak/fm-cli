@@ -162,7 +162,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Next: find where the game fills `ScoutTeamPriorities.SpecificallyScoutedTeams` (scouting staff, a date with fixtures ahead).
   EN `spring` 8 Nov (match day): the page says no team report, "request a member of your recruitment team"; the
   next opponent's page has no scouting button; `EventFmxHumanScoutFixture` is in the game but on no crawled page.
-  A club's own page not reached: `search`'s result row, pressed, left the search open.
+  EN `spring` 8 Nov, round 36: a club's page opens from `search` (`searchopen?path=<ClubPath>`); its Team Report
+  tab (Overview, Formation / Goal / Team Analysis) has no scouting or request button, only "Analysis Staff Rating";
+  a club search row raises no menu (`actions?open=1&path=`). `ScoutTeam` is an `ActionID`, but on no menu seen.
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
@@ -232,7 +234,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T119 `news <no>` printed "the story's text could not be read" for every story (EN, 31 May 2030): it walked the
   whole tree for the text. Now the story's title on screen names its record (`Under`), and the title and text are read
   together from that record (`newsitem.NewsBodyString`). TR + EN 3/3 (`round14.toml`).
-  - [ ] The list's age reads "Just Now" in a Turkish game: find where the game's own words for it are bound.
+  - [x] The list's age read "Just Now" in a Turkish game: the plugin put the bound text into English. The age, the
+    subject and the text are now read in the game's words (`tree?shown=<fields>`); the title stays as matched against
+    its tile. TR + EN 3/3 (`round36.toml`); TR by hand: "2g önce", "23s önce", "3. Lig".
 - [x] T120 Found by the sweep (`tools/sweep.sh`, `helmond-june` and `kickoff`, TR + EN): `table` right after a load
   failed once ("Lists on the Stages page not found": the stage lists come a moment after the page; now waited for);
   `depth` and `targets` wrote positions in the CLI's English codes in a Turkish game (now the game's own, "KL", and
@@ -369,7 +373,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     once, nothing else).
   - [x] Fee bids rejected (gone from the list) and accepted (status moves on) through `offers`. TR + EN 3/3
     (`round20.toml`, scenario `window-bids`).
-  - [ ] The window's own pages (Transfer Activity).
+  - [x] The window's own pages: Transfer Activity's offers through `offers`, the page itself through
+    `read transfer-activity` (its GUID). TR + EN 3/3, cold, open, another page open (`round36.toml`).
 - [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.
 - [ ] T58 International break: call-ups, the national side's screens.
   - [x] Who is away now: `internationals` by the status's ineligibility reason (3 joining, 4 coming back, 5 on duty)

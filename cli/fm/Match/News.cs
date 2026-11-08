@@ -23,7 +23,8 @@ internal static partial class Program
 		var same = 0;
 		await Until(async () =>
 		{
-			items = NewsItems(await Fm.Get("tree", ("depth", "40")));
+			// What is only read out comes in the game's words: put into English, a Turkish "Az önce" read "Just Now".
+			items = NewsItems(await Fm.Get("tree", ("depth", "40"), ("shown", ShownFields)));
 			var key = string.Join("|", items.Select(i => i.Title));
 			same = items.Count > 0 && key == previous ? same + 1 : 0;
 			previous = key;
@@ -68,7 +69,7 @@ internal static partial class Program
 				if (shown.ValueKind != System.Text.Json.JsonValueKind.Array) return false;
 				foreach (var title in shown.EnumerateArray().Where(t => Field(t, "Path") == "newsitem.NewsTitleString" && Field(t, "Text") == item.Title && Field(t, "Under").Length > 0))
 				{
-					var story = await Fm.Pull($"{Field(title, "Under")}.newsitem", "NewsTitleString,NewsBodyString");
+					var story = await Fm.Pull($"{Field(title, "Under")}.newsitem", "NewsTitleString,NewsBodyString", shown: "NewsBodyString");
 					if (Field(story, "NewsTitleString") != item.Title || Field(story, "NewsBodyString") is not { Length: > 0 } text) continue;
 					body = text;
 					return true;
@@ -98,6 +99,9 @@ internal static partial class Program
 		Console.WriteLine(L("\nIn full: news <# | part of the headline>"));
 		return 0;
 	}
+
+	/// <summary>A story's fields only read out, never matched: the title is matched against its tile, so it is not here.</summary>
+	private const string ShownFields = "NewsItemAgeRoundedString,NewsItemAgeString,HeadlineSubTitle,NewsBodyString";
 
 	/// <summary>
 	/// The news items in the page's bound data: every title with the subject and age bound after

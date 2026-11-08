@@ -1,0 +1,49 @@
+# Round 36: T119 the news list's ages and subjects in the game's words (a Turkish "Az önce" came back "Just Now");
+# T56 the window's own page, Transfer Activity, read by name. Words are checked by hand (TR); the list checks
+# that nothing else moved: the stories, their order, a story's whole text, the page read in three states.
+# Run: tools/fm-round.py dry tests/live/round36.toml, then run.
+
+[[test]]
+task = "T119"
+name = "news: every story with its age and subject; a story's text from its own record"
+at = "helmond-june"
+fresh = true
+repeat = 3
+steps = [
+  { read = "news", path = "#", not = "0", live = true },
+  { read = "news", path = "?Age.#", keep = "aged", live = true },
+  { read = "news", path = "#", same_as = "aged", live = true, note = "every story has its age" },
+  { read = "news", path = "0.Title", keep = "t1", live = true },
+  { read = "news 1", path = "Title", same_as = "t1", live = true },
+  { read = "news 1", path = "Age", not = "", live = true },
+  { read = "news 1", path = "Body", not = "", live = true },
+  { run = "news 9999", rc = "fail" },
+]
+
+[[test]]
+task = "T119"
+name = "news after a day moved on: the newest stories have an age too"
+at = "calm"
+fresh = true
+steps = [
+  { run = "next", rc = "any" },
+  { read = "news", path = "#", not = "0", live = true },
+  { read = "news", path = "?Age.#", keep = "aged", live = true },
+  { read = "news", path = "#", same_as = "aged", live = true },
+]
+
+[[test]]
+task = "T56"
+name = "read transfer-activity: cold, open, from another page"
+at = "window-bids"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "read transfer-activity", path = "Page", is = "transfer-activity" },
+  { read = "read transfer-activity", path = "Parts.#", not = 0 },
+  { read = "read transfer-activity", path = "Parts.#", not = 0, note = "the page already open" },
+  { run = "squad" },
+  { read = "read transfer-activity", path = "Parts.#", not = 0, note = "another page open" },
+  { read = "status", path = "Date", same_as = "day" },
+]

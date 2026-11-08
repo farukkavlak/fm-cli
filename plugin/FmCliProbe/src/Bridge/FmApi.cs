@@ -20,7 +20,7 @@ internal static partial class FmApi
 	public static string Handle(string route, NameValueCollection q) => route switch
 	{
 		"" or "health" => Health(),
-		"tree" => Tree(q["path"], Int(q["depth"], DefaultDepth)),
+		"tree" => Tree(q["path"], Int(q["depth"], DefaultDepth), q["shown"]),
 		"get" => Get(q["path"]),
 		"exists" => Exists(q["path"]),
 		"props" => Props(q["path"]),
@@ -220,8 +220,13 @@ internal static partial class FmApi
 		return sb.ToString();
 	}
 
-	private static string Tree(string path, int depth)
+	/// <summary>
+	/// The bound tree as text. The fields named in <paramref name="shown"/> come in the game's own
+	/// words, not put into English: text only read out (a news story's age, "Az önce" came back "Just Now").
+	/// </summary>
+	private static string Tree(string path, int depth, string shown = null)
 	{
+		var inGameWords = new HashSet<string>((shown ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 		var node = string.IsNullOrEmpty(path) ? Root(out var err) : Resolve(path, out err);
 		if (err != null) return err;
 
@@ -229,7 +234,7 @@ internal static partial class FmApi
 		var count = 0;
 		// From the root, what /pull and the routes put at fmcli.* is left out: it is ours, not the
 		// screen's, and its live values (lists of records read earlier) made a whole dump take minutes.
-		Walk(node, 0, depth, sb, ref count, skipOwn: string.IsNullOrEmpty(path));
+		Walk(node, 0, depth, sb, ref count, skipOwn: string.IsNullOrEmpty(path), inGameWords);
 		sb.AppendLine($"-- {count} node(s)");
 		return sb.ToString();
 	}
@@ -480,7 +485,7 @@ internal static partial class FmApi
 
 	// ------------------------------------------------------------------ walking
 
-	private static void Walk(IReadOnlyNode node, int depth, int maxDepth, StringBuilder sb, ref int count, bool skipOwn = false)
+	private static void Walk(IReadOnlyNode node, int depth, int maxDepth, StringBuilder sb, ref int count, bool skipOwn = false, HashSet<string> inGameWords = null)
 	{
 		if (count >= MaxNodes || depth > maxDepth) return;
 		if (skipOwn && depth == 1 && node.Name == "fmcli") return;
@@ -489,12 +494,14 @@ internal static partial class FmApi
 		var children = node.ChildCount;
 		sb.Append(' ', depth * 2)
 			.Append(node.Name ?? "<null>")
-			.Append(Suffix(node.Value))
+			.Append(inGameWords != null && node.Name != null && inGameWords.Contains(node.Name) && node.Value is { IsNull: false } v
+				? $" = ({v.DataType?.Name ?? "?"}) {Text.ShownOf(v)}"
+				: Suffix(node.Value))
 			.AppendLine(children > 0 ? $"  [{children}]" : "");
 
 		for (var c = node.FirstChild; c != null; c = c.NextSibling)
 		{
-			Walk(c, depth + 1, maxDepth, sb, ref count, skipOwn);
+			Walk(c, depth + 1, maxDepth, sb, ref count, skipOwn, inGameWords);
 			if (count >= MaxNodes) return;
 		}
 	}
