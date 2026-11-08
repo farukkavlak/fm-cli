@@ -494,6 +494,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   has no heading of its own. TR by hand (`caught-2031-06-30`, Uğurcan's renewal opened from "last hours of his
   contract": promises, terms, signed; the answer comes by message). Left: EN; MANUAL image; three "Additional
   Promises" lock lines look alike (one per promise slot).
+- [ ] T133 `reply "<subject>"` with two messages of that subject (a second pre-season camp squad, 14 Jul 2031) said
+  "matches 2 messages", then "no message": the one awaiting an answer was not taken. Now, of several, the one the
+  game marks as open (`CanRespond` and not `NewsHasResponded`) is taken. TR by hand: the camp squad answered; of five
+  journalist questions of one subject, the open one opened. Left: EN; a test.
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of

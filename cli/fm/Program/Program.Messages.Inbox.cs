@@ -110,6 +110,10 @@ internal static partial class Program
 			.Where(m => Field(m, "NewsTitleString") is var subject && (subject.Contains(wanted, StringComparison.OrdinalIgnoreCase) || GameWords.Of(subject).Contains(wanted, StringComparison.OrdinalIgnoreCase)))
 			.ToList();
 		if (matches.Count == 1) return matches[0];
+		// The same subject twice (a second pre-season camp, 14 Jul 2031): the one still awaiting an answer, by the
+		// game's own marks, is the one meant.
+		if (matches.Count > 1 && matches.Where(m => Field(m, "CanRespond") == "True" && Field(m, "NewsHasResponded") != "True").ToList() is { Count: 1 } open)
+			return open[0];
 		if (matches.Count == 0 && quiet) return null;
 
 		Console.Error.WriteLine(matches.Count == 0
