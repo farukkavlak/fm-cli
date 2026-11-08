@@ -498,6 +498,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   "matches 2 messages", then "no message": the one awaiting an answer was not taken. Now, of several, the one the
   game marks as open (`CanRespond` and not `NewsHasResponded`) is taken. TR by hand: the camp squad answered; of five
   journalist questions of one subject, the open one opened. Left: EN; a test.
+- [ ] T134 The pitch size for the season (message "Choose the pitch size", scenario `caught-2031-08-04`, Antalyaspor):
+  an answer holding a list, `reply <msg> 2 <n>`; read back by `Human.Team.Stadium.PitchLength/PitchWidth`
+  (105m×68m → 100m×64m, once the day moved on). TR by hand. Left: EN; a test. The same day's captains message would
+  not take Confirm while the vice-captain was empty: `reply` said the message still waits, `captains --vice` then
+  Confirm took it.
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of
