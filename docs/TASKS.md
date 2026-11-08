@@ -387,14 +387,14 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [x] The window's own pages: Transfer Activity's offers through `offers`, the page itself through
     `read transfer-activity` (its GUID). TR + EN 3/3, cold, open, another page open (`round36.toml`).
 - [x] T57 Cup draws: a draw's message offers skip or view; view opens the draw screen, `fm draw` runs it (`EventFmxDrawAllTeams`, read back by the button going off) and prints it. `fm read here` reads whatever is on top. TR + EN, nothing open refused.
-- [ ] T58 International break: call-ups, the national side's screens.
+- [x] T58 International break: call-ups, the national side's screens.
   - [x] Who is away now: `internationals` by the status's ineligibility reason (3 joining, 4 coming back, 5 on duty)
     and the day he is back (`InternationalReturnDate`); `squad --json` Flags carry `Ineligible`. The career is shown as
     the game words it: it was taken apart by the English words "caps" / "goals" (0 in a Turkish game). TR + EN 3/3,
     nobody away outside a break (`round12.toml`).
-  - [ ] The postponement request a call-up brings ("Request … postponement?"): answered with `reply`, read back.
-    `intl-break` (29 Sep 2029): both requests open through `reply` but offer no answer any more (one match played,
-    the other's request past). Needs a scenario made the day the call-ups come.
+  - [x] The postponement request a call-up brings ("Request … postponement?"): answered with `reply` (Postpone /
+    Don't Postpone), read back by the message's own `NewsHasResponded`; a wrong number refused, a second answer
+    changes nothing. Scenario `postpone` (Den Bosch, 22 Sep 2029). TR + EN 3/3 (`round38.toml`).
 - [x] T59 Youth intake (March): candidates, intake preview.
   - [x] Candidates (T28). The intake came on 4 Apr 2029 (Varzim) with no message of its own in the inbox.
   - [x] A candidate's status by the game's data (on trial until signed: no trial club once signed); a youth contract

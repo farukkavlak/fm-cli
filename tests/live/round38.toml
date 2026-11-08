@@ -1,0 +1,24 @@
+# Round 38: a call-up's match postponement request (T58), from the `postpone` moment (22 Sep 2029).
+# - each request answered with `reply`, read back by the message's own answered mark;
+# - a wrong answer number refused, a second answer changes nothing.
+# Run: tools/fm-round.py dry tests/live/round38.toml, then run.
+
+[[test]]
+task = "T58"
+name = "postponement requests: one asked for, one declined, read back as answered"
+at = "postpone"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=984971.0.NewsTitleString", keep = "mvv", live = true, note = "request the MVV match's postponement" },
+  { read = "inbox", path = "?UniqueId=984972.0.NewsTitleString", keep = "helmond", live = true },
+  { read = "inbox", path = "?UniqueId=984971.0.NewsHasResponded", is = "False", live = true },
+  { run = "reply {mvv} 9", rc = "fail" },
+  { read = "inbox", path = "?UniqueId=984971.0.NewsHasResponded", is = "False", live = true },
+  { run = "reply {mvv} 2" },
+  { read = "inbox", path = "?UniqueId=984971.0.NewsHasResponded", is = "True", live = true },
+  { run = "reply {helmond} 1" },
+  { read = "inbox", path = "?UniqueId=984972.0.NewsHasResponded", is = "True", live = true },
+  { run = "reply {helmond} 2", rc = "any", note = "a second answer changes nothing" },
+  { read = "inbox", path = "?UniqueId=984972.0.NewsHasResponded", is = "True", live = true },
+]
