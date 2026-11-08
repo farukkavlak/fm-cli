@@ -107,9 +107,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     `--reset` takes those back. TR, paused: team, individual, all, and each scope leaves the other; after play went on, none came on.
   - Measured EN and TR: list cold, repeated, another player, unknown player, a man sent off; on / off / already on.
   - [ ] Extra time.
-- [ ] T99 `next` said "offer or half-way message" after a teammate failed to talk Atakan round, 16 Aug 2028: the answered
-  message offered its choices again but was not named, though the same case with Utku was. `AllInbox` is now looked at too. Met again (scenario `asked-again`, 11 Nov 2029, Ujkani handed to Akmum): the message
-  offers Decline / Discuss again and `status` and `next` name it. Left: a test TR + EN 3/3.
+- [x] T99 A message asked again after a team-mate failed to settle it (Ujkani, scenario `asked-again`): it offers
+  Decline / Discuss again and holds the day; `status` and `next` name it, and `next` now fails when nothing moved
+  (it said so but answered 0, read by scripts and the MCP as a step taken). Answered, the day goes on; the game keeps
+  `CanRespond` True on it. TR + EN 3/3 (`round39.toml`).
 - [ ] T11 TransferRoom: `fm transferroom`. Adverts (transfer, loan, every row), offer a player, requirements (new, read, delete), agents' players (read, discard). TR + EN 3 × with the negatives (`tests/live/round2.toml`).
   - A player whose question has two answers: `offer` leaves the talk open for the player to answer.
   - [ ] Left: `responses` and `activity --loan` hold their tables by names not seen yet (`responses-transfers-table`, `responses-loans-table`, `activity-loans-table`); no such rows in the scenario. Offer through a list of several players: measured by hand once, EN only. `discard --all` and a wrong word to `--time`, `--type`, `--oop-role`: TR + EN (list `round5`). A real value through `--oop-position`, `--oop-role`, `--role`, `--time`, `--type`: not run yet. Measured EN 8 Nov
@@ -264,6 +265,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   until that id's row is drawn before pressing; the open message is still told by its id. TR + EN (`intl-break`):
   `--all` the same 3 times, `reply 53` 3/3, the window's numbers unchanged, `reply 999` refused. Measured on the way:
   plain `inbox` is the newest ~13 rows the list draws (37 when they fit), on Overview and Messages alike.
+- [x] T127 The season's collective win bonuses (message "Collective bonuses to be decided", scenario `bonuses`,
+  Helmond 30 Jul 2030): a level is an in-message choice, `reply <msg> --pick <n>`, by the event its button sends
+  (`EventFmxCollective{League,Cup,Continental}Bonus{Low,Normal,High}`), read back by the record's own index
+  (`collectivewinbonus.Bonus<scope>Data.Selected` under the buttons' source); a level the game greys out (high, over
+  budget) refused. Confirmed, the transfer budget moves. TR + EN 3/3 (`round39.toml`).
 - [x] T125 `squad` read only the rows the table had drawn: 22 of 33 on a 1080-high window (the injured, at the
   bottom, missing); `depth`, `squad --fitness` too. Now, when fewer rows carry the view's own field (Wage,
   Condition) than the team has players (`Human.Team.Players`), the table is scrolled down in four steps and the rows
@@ -416,9 +422,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     own mark; `board` shows it once time moves on (a page built before keeps the old level, the game's own).
     End of season: pre-season start date and camp place from the message's list. TR + EN 3/3 (`round29.toml`).
   - [ ] A job offer while employed.
-  - [ ] The board's meeting about our future (scenario `caught-2029-11-30`, Den Bosch): `reply` Attend, `talk` to the
-    end; "what do I need to do" set 7 points from 5 matches, accepted (EN once by hand). Left: a test TR + EN 3/3;
-    the target is shown nowhere (`board` has it not; `Human.Team.JobSecurityStatus` reads 3, no words found).
+  - [x] The board's meeting about our future (scenario `caught-2029-11-30`, Den Bosch): `reply` Attend, `talk` to the
+    end, a target accepted (7 points from 5 matches), still employed. TR + EN 3/3 (`round39.toml`).
+  - [ ] The target is shown nowhere (`board` has it not; `Human.Team.JobSecurityStatus` reads 3, no words found). Not
+    met it is the sack (24 Dec 2029).
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
   - [x] A renewal we start: `contract <player>` promises, `--next` terms, `--sign --yes` offered; the player's answer
     comes by message and `contracts` shows the new end (EN by hand: Ahmet Koşar, 30/6/2028 → 30/6/2030). A player the

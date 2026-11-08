@@ -2768,3 +2768,4 @@ The game did not take the choice: {0} → {1}	Oyun seçimi almadı: {0} → {1}
 Chosen: {0} → {1}	Seçildi: {0} → {1}
 \nIn the message, to choose before answering (reply <message> --pick <number>):	\nMesajın içinde, cevaplamadan önce seçilecek (reply <mesaj> --pick <numara>):
     … {0} more rows (the table lays out only those in view)	    … {0} satır daha (tablo yalnızca görünenleri çiziyor)
+The game does not allow that choice now: {0}	Oyun bu seçime şu an izin vermiyor: {0}

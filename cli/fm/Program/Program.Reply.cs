@@ -163,7 +163,8 @@ internal static partial class Program
 		var choices = await InMessageChoices();
 		// The options are drawn a moment after the message: its bound attachment says they are coming.
 		if (choices.Count == 0 && await MessageTexts() is { ValueKind: JsonValueKind.Array } attached
-		    && attached.EnumerateArray().Any(t => Field(t, "Path").Contains("ClubSeasonExpectationsPotentialExpectationsOption", StringComparison.Ordinal)))
+		    && attached.EnumerateArray().Any(t => Field(t, "Path").Contains("ClubSeasonExpectationsPotentialExpectationsOption", StringComparison.Ordinal)
+			                                     || Field(t, "Path").StartsWith("collectivewinbonus.", StringComparison.Ordinal)))
 			await Until(async () => (choices = await InMessageChoices()).Count > 0, seconds: 5, every: 0.25);
 		if (Option(args, "--pick") is { } pickWord)
 		{
@@ -174,10 +175,16 @@ internal static partial class Program
 				return 1;
 			}
 			var picked = choices[nth - 1];
+			// Greyed out by the game (a higher bonus the transfer budget cannot pay): it would do nothing.
+			if (Field(picked.Button, "Enabled") != "True")
+			{
+				Console.Error.WriteLine(L($"The game does not allow that choice now: {picked.Label}"));
+				return 1;
+			}
 			var sent = await Fm.Get("press", ("ptr", Field(picked.Button, "Pointer")));
 			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
 			// Read back: the game's own mark on the option, not the press.
-			if (!await Until(async () => (await InMessageChoices()).Any(c => c.Source == picked.Source && c.Selected), seconds: 5, every: 0.2))
+			if (!await Until(async () => (await InMessageChoices()).Any(c => c.Source == picked.Source && Field(c.Button, "Events") == Field(picked.Button, "Events") && c.Selected), seconds: 5, every: 0.2))
 			{
 				Console.Error.WriteLine(L($"The game did not take the choice: {picked.Competition} → {picked.Label}"));
 				return 1;
@@ -349,6 +356,25 @@ internal static partial class Program
 				for (var up = source; name.Length == 0 && up.LastIndexOf('.') is var dot and > 0; up = up[..dot])
 					name = Field(await Fm.GetJson("pull", ("path", up[..dot]), ("props", competition)), competition);
 				found.Add(new InMessageChoice(b, source, GameWords.Of(name), GameWords.Of(Field(b, "Label")), mark == "True"));
+			}
+			// The season's collective win bonuses (league, cup, continental), each a level by the event its button
+			// sends; the level chosen is the game's own index on the record (low 0, normal 1, high 2).
+			string[] levels = ["Low", "Normal", "High"];
+			foreach (var b in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
+			{
+				if (Field(b, "Visible") != "True") continue;
+				var events = Field(b, "Events");
+				var at = events.IndexOf("EventFmxCollective", StringComparison.Ordinal);
+				if (at < 0) continue;
+				var name = events[(at + "EventFmxCollective".Length)..];
+				var scope = new[] { "League", "Cup", "Continental" }.FirstOrDefault(sc => name.StartsWith(sc + "Bonus", StringComparison.Ordinal));
+				var level = scope == null ? -1 : Array.IndexOf(levels, name[(scope.Length + "Bonus".Length)..].Split(',', ' ')[0]);
+				if (level < 0) continue;
+				var source = Field(b, "Source");
+				var mark = $"collectivewinbonus.Bonus{scope}Data.Selected";
+				var heading = "collectivewinbonus.BonusLeagueString";
+				var record = await Fm.GetJson("pull", ("path", source), ("props", $"{mark},{heading}"));
+				found.Add(new InMessageChoice(b, source, scope == "League" ? GameWords.Of(Field(record, heading)) : "", GameWords.Of(Field(b, "Label")), Field(record, mark) == level.ToString()));
 			}
 			return found;
 		}

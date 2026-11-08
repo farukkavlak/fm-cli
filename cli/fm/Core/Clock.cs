@@ -46,6 +46,8 @@ internal static partial class Program
 
 		var shown = false;
 		var reads = 0;
+		// Something moved on: the date or the hour, a message come in, or one the game wanted read opened.
+		var moved = false;
 		for (var taken = 0; taken < times; taken++)
 		{
 			var state = await Fm.GetJson("state");
@@ -75,6 +77,7 @@ internal static partial class Program
 					return 75;
 				}
 				if (opened.Length > 0) Console.WriteLine(L($"  opened: {GameWords.Of(opened)}"));
+				moved |= opened.Length > 0 || Field(freed, "Date") != Field(state, "Date") || Field(freed, "Clock") != Field(state, "Clock");
 				// The same press can go on past the message (27 → 28 Tem 2026 in one press).
 				if (Field(freed, "Date") != Field(state, "Date")) Console.WriteLine($"{Pretty(Field(state, "Date"))} → {Pretty(Field(freed, "Date"))} {Time(freed)}");
 				else if (Field(freed, "Clock") != Field(state, "Clock")) Console.WriteLine($"{Pretty(Field(freed, "Date"))} {Time(state)} → {Time(freed)}");
@@ -141,8 +144,8 @@ internal static partial class Program
 
 			var from = Field(state, "Date");
 			var to = Field(now, "Date");
-			if (from != to) Console.WriteLine($"{Pretty(from)} → {Pretty(to)} {Time(now)}");
-			else if (Field(state, "Clock") != Field(now, "Clock") || arrived.Count > 0) Console.WriteLine($"{Pretty(to)} {Time(state)} → {Time(now)}");
+			if (from != to) { moved = true; Console.WriteLine($"{Pretty(from)} → {Pretty(to)} {Time(now)}"); }
+			else if (Field(state, "Clock") != Field(now, "Clock") || arrived.Count > 0) { moved = true; Console.WriteLine($"{Pretty(to)} {Time(state)} → {Time(now)}"); }
 			else if (flow != "CanContinue" && !shown)
 			{
 				// The press only brought a page up (the results after a match); the step asked
@@ -168,7 +171,9 @@ internal static partial class Program
 
 		var last = await Fm.GetJson("state");
 		if (!Passable(Field(last, "State"))) await Explain(last, Console.Out);
-		return 0;
+		// Nothing moved: the game holds the day for something (a message asked again), and a script or the
+		// MCP must not read it as a step taken.
+		return moved ? 0 : 1;
 	}
 
 	/// <summary>

@@ -1,0 +1,59 @@
+# Round 39: moments caught on the walk of 8 Nov (Den Bosch 2029, Helmond 2030).
+# - the season's collective win bonuses: a level chosen in the message (--pick), a greyed one refused, confirmed,
+#   read back by the transfer budget moving (T127);
+# - a message asked again after a team-mate failed to settle it: `next` holds, the message answered (T99);
+# - the board's meeting about our future: attended, talked to its end, still employed (T60).
+# Run: tools/fm-round.py dry tests/live/round39.toml, then run.
+
+[[test]]
+task = "T127"
+name = "collective bonuses: a level picked, high refused, confirmed, the transfer budget moves"
+at = "bonuses"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=1258601.0.NewsTitleString", keep = "msg", live = true, note = "collective bonuses to be decided" },
+  { read = "budget", path = "0.Value", keep = "budget", live = true },
+  { run = "reply {msg} --pick 3", rc = "fail", note = "high is greyed out by the game" },
+  { run = "reply {msg} --pick 9", rc = "fail" },
+  { run = "reply {msg} --pick 2" },
+  { run = "reply {msg} --pick 1" },
+  { run = "reply {msg} --pick 1", note = "already that one" },
+  { run = "reply {msg} 1" },
+  { read = "inbox", path = "?UniqueId=1258601.0.NewsHasResponded", is = "True", live = true },
+  { read = "budget", path = "0.Value", differs_from = "budget", live = true },
+]
+
+[[test]]
+task = "T99"
+name = "a message asked again holds next until it is answered"
+at = "asked-again"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=1018252.0.NewsTitleString", keep = "msg", live = true, note = "Ujkani keen to discuss personal matters" },
+  { read = "inbox", path = "?UniqueId=1018252.0.CanRespond", is = "True", live = true },
+  { run = "next", rc = "fail", note = "the message asked again holds the day" },
+  { run = "reply {msg} 9", rc = "fail" },
+  { run = "reply {msg} 1", note = "Decline" },
+  { run = "next", note = "answered, the day goes on (the game keeps CanRespond True on it)" },
+]
+
+[[test]]
+task = "T60"
+name = "the board's meeting about our future: attended, a target accepted, still employed"
+at = "caught-2029-11-30"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=1033464.0.NewsTitleString", keep = "msg", live = true, note = "board request meeting to discuss your future" },
+  { run = "reply {msg} 9", rc = "fail" },
+  { run = "reply {msg} 2", note = "Attend Meeting" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { run = "talk 2", note = "a difficult run of games" },
+  { run = "talk 7", note = "what do I need to do" },
+  { run = "talk 1", note = "accept the target" },
+  { run = "talk 1", note = "end chat" },
+  { read = "inbox", path = "?UniqueId=1033464.0.NewsHasResponded", is = "True", live = true },
+  { run = "squad", note = "still in the job" },
+]
