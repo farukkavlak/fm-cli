@@ -36,6 +36,11 @@ dotnet publish cli/fm -c Release -r osx-arm64 --self-contained true \
 mkdir -p dist/fm
 for f in dist/fm.next/*; do mv -f "$f" dist/fm/; done
 rmdir dist/fm.next
+# The single file unpacks itself under ~/.net/fm, a new folder (~34 MB) for every build, never removed.
+# The newest three are kept: a running `fm mcp` can still hold an older build's.
+if [ -d "$HOME/.net/fm" ]; then
+	ls -t "$HOME/.net/fm" | tail -n +4 | while read -r d; do rm -rf -- "$HOME/.net/fm/$d"; done
+fi
 mkdir -p "$BIN"
 ln -sf "$PWD/dist/fm/fm" "$BIN/fm"
 
