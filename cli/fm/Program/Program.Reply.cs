@@ -380,7 +380,10 @@ internal static partial class Program
 				var mark = $"collectivewinbonus.Bonus{scope}Data.Selected";
 				var heading = "collectivewinbonus.BonusLeagueString";
 				var record = await Fm.GetJson("pull", ("path", source), ("props", $"{mark},{heading}"));
-				found.Add(new InMessageChoice(b, source, scope == "League" ? GameWords.Of(Field(record, heading)) : "", GameWords.Of(Field(b, "Label")), Field(record, mark) == level.ToString()));
+				// The league's heading is bound (its name); the cups' and continental heading is a fixed text with no
+				// path, so the CLI names the group by the event's scope.
+				var title = scope switch { "League" => GameWords.Of(Field(record, heading)), "Cup" => L("Domestic cups"), _ => L("Continental competitions") };
+				found.Add(new InMessageChoice(b, source, title, GameWords.Of(Field(b, "Label")), Field(record, mark) == level.ToString()));
 			}
 			return found;
 		}

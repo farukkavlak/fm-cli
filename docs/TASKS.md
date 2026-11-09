@@ -288,7 +288,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Helmond 30 Jul 2030): a level is an in-message choice, `reply <msg> --pick <n>`, by the event its button sends
   (`EventFmxCollective{League,Cup,Continental}Bonus{Low,Normal,High}`), read back by the record's own index
   (`collectivewinbonus.Bonus<scope>Data.Selected` under the buttons' source); a level the game greys out (high, over
-  budget) refused. Confirmed, the transfer budget moves. TR + EN 3/3 (`round39.toml`).
+  budget) refused. Confirmed, the transfer budget moves. TR + EN 3/3 (`round39.toml`). A season with cup bonuses
+  too (Antalyaspor, 29 Jul 2032) lists a second group; its heading in the game is fixed text with no path, so the CLI
+  names it by the event's scope ("Domestic cups"); the cup level picked by its own number (4–6). Not tested yet.
 - [x] T125 `squad` read only the rows the table had drawn: 22 of 33 on a 1080-high window (the injured, at the
   bottom, missing); `depth`, `squad --fitness` too. Now, when fewer rows carry the view's own field (Wage,
   Condition) than the team has players (`Human.Team.Players`), the table is scrolled down in four steps and the rows
