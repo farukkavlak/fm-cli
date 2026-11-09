@@ -1,0 +1,32 @@
+# Round 43: moments of a new club and a renewal, in both languages.
+# - a new club's first days: `next` holds and names what waits under the Tasks filter (T131);
+# - a renewal opened from its message: promises, then terms, nothing signed (T132; the card's words read in the log).
+# Run: tools/fm-round.py dry tests/live/round43.toml, then run.
+
+[[test]]
+task = "T131"
+name = "a new club's first days: next holds while briefings wait under Tasks"
+at = "caught-2031-03-26b"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { run = "next", rc = "fail", note = "names the briefings waiting" },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "inbox --tasks", path = "#", not = "0", live = true },
+]
+
+[[test]]
+task = "T132"
+name = "a renewal from its message: the promises card, then the terms card"
+at = "caught-2031-06-30"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=1529708.0.NewsTitleString", keep = "msg", live = true, note = "final hours of a contract" },
+  { run = "reply {msg} 9", rc = "fail" },
+  { run = "reply {msg} 2", note = "enter contract negotiations" },
+  { run = "contract", note = "promises, in the game's words" },
+  { run = "contract --next", note = "terms" },
+  { run = "contract --term 'Contract Length=zzq'", rc = "fail" },
+]

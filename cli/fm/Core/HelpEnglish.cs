@@ -93,15 +93,15 @@ internal static partial class Program
 			  tour            run the open guided tour to the end
 			    --skip        skip the tour (if the tour allows it)
 			  contract [player]  the contract negotiation card: promises, then terms; edited with the arrow keys in a terminal; --next: on to the terms · --sign --yes: offer it
-			  contract <player> --agent  ask their agent whether they are open to a renewal (then with talk)
-			  offers          offers for our players awaiting an answer;  offers <# | player> view | accept | stall | reject
-			  propose <player> [fee] [--loan] [--yes]  offer the player to clubs (a sale or a loan)
-			  release <player> [--free | --mutual] [--yes]  release on a free (shows the compensation) or a mutual termination
 			                  with a player given (one of ours) it opens a new contract negotiation
 			    --term "Term=value"  set / add a term ("Wage=20K", "Appearance Fee=remove",
 			                  "Will appoint player as captain", "Entire offer=Non-Negotiable")
 			    --wage <amount>  wage, in the game's wage period;  --next: confirm the promises, go on to the terms
 			    --sign --yes  put the terms to the agent / sign;  --cancel: cancel the negotiation
+			  contract <player> --agent  ask their agent whether they are open to a renewal (then with talk)
+			  offers          offers for our players awaiting an answer;  offers <# | player> view | accept | stall | reject
+			  propose <player> [fee] [--loan] [--yes]  offer the player to clubs (a sale or a loan)
+			  release <player> [--free | --mutual] [--yes]  release on a free (shows the compensation) or a mutual termination
 			  training [player]  individual training: position/role, out-of-possession role, focus;  --focus / --position "A>B" / --role;  --control player|month|all takes it over from the assistant
 			  training <player> --report [--coach <name>]  ask a coach for a training report and show it
 			  training <player> --trait ["<trait>"]  traits and what can be taught; given one, teach it

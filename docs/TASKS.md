@@ -495,13 +495,16 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T131 A new club's first days (Antalyaspor, 27 Mar 2031): Continue said "Messages" and showed the page again and
   again while a briefing waited listed only under the inbox's Tasks filter; `next` said only that a page was shown.
   `next` now looks under the Tasks filter when nothing moved and names what waits there. Left: seen again with the new
-  code (the one waiting was open on screen, so not in the list); the open message on screen named too (T128).
+  code: EN + TR in `round43.toml` 3/3 each (`next` holds, the briefings named). Left: the open message on screen
+  named too (T128).
 - [ ] T132 The contract card in a Turkish game: a promise's value came in English ("Playing Time: Important Player
   (Suggested)"), the rule mark was written in Turkish whatever the language ("[kurala uymuyor]"), and the stage's
   heading came twice ("— Promises" then "Promises:"). A value is now put in the game's words, part by part when the
   game builds it of two of its words ("Önemli Oyuncu (Önerilen)"); the mark goes through `L`; a section-less group
   has no heading of its own. TR by hand (`caught-2031-06-30`, Uğurcan's renewal opened from "last hours of his
-  contract": promises, terms, signed; his yes came some three weeks later, his contract read 30/6/2032). Left: EN; MANUAL image; three "Additional
+  contract": promises, terms, signed; his yes came some three weeks later, his contract read 30/6/2032). EN + TR in `round43.toml` 3/3 each; EN card by hand: "Important Player (Recommended)",
+  heading once; the rule mark not met in EN (the game offers only 12 months and caps the wage). Left: the rule mark in EN;
+  MANUAL image (`manual-shot.py` waits on the arrow-key card);  three "Additional
   Promises" lock lines look alike (one per promise slot).
 - [ ] T133 `reply "<subject>"` with two messages of that subject (a second pre-season camp squad, 14 Jul 2031) said
   "matches 2 messages", then "no message": the one awaiting an answer was not taken. Now, of several, the one the
@@ -512,6 +515,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   (105m×68m → 100m×64m, once the day moved on). TR by hand. EN + TR in `round42.toml` 3/3 each (pitch read back by `facilities`). The same day's captains message would
   not take Confirm while the vice-captain was empty: `reply` said the message still waits, `captains --vice` then
   Confirm took it.
+- [ ] T136 An open contract negotiation is closed without a word when `player <name>` opens the player's page
+  (EN, Uğurcan, `caught-2031-06-30`): `contract` then said "no open contract negotiation". Say it before leaving, or
+  read the page without leaving the talks.
 - [ ] T135 A youth team's match the manager has to pick for (Antalyaspor U19, 20 Mar 2032; U19 squad selection is
   delegated but the U19 has no manager): the match screen asks for the U19 eleven under the main team's next match.
   `match --instant` pressed Instant Result, confirmed "hand the match to your staff" and "Team Selection" yes, and the
