@@ -445,6 +445,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [ ] A job offer while employed.
   - [x] The board's meeting about our future (scenario `caught-2029-11-30`, Den Bosch): `reply` Attend, `talk` to the
     end, a target accepted (7 points from 5 matches), still employed. TR + EN 3/3 (`round39.toml`).
+  - [ ] The board's meeting about the dressing room's mood ("Request a meeting about the board's confidence",
+    Antalyaspor 4 Aug 2032): `reply` Attend, `talk` a promise to mend it, ended with the board satisfied. TR by hand.
+    Caught as the same kind as the meeting about our future (its tags and answers): no scenario of its own.
   - [ ] The target is shown nowhere (`board` has it not; `Human.Team.JobSecurityStatus` reads 3, no words found). Not
     met it is the sack (24 Dec 2029).
 - [ ] T61 Contract renewals: a player asking for a new deal, an unhappy player's demand.
