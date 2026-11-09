@@ -1,0 +1,41 @@
+# Round 42: repeats and the other language for moments caught on the walk of 8 Nov.
+# - a first-team match names both sides from the match (T135), three times;
+# - the pitch size chosen from its message, a wrong option refused, read back once the day moves (T134).
+# Run: tools/fm-round.py dry tests/live/round42.toml, then run.
+
+[[test]]
+task = "T135"
+name = "a first-team match names both sides from the match itself"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "0.Team", keep = "own" },
+  { start = "match --no-talk" },
+  { until = "status", path = "DuringMatch", is = "True", seconds = 600, every = 10, live = true },
+  { read = "status", path = "OwnSide", same_as = "own", live = true },
+  { read = "status", path = "OpponentSide", differs_from = "own", live = true },
+  { read = "status", path = "WatchedMatch", is = "False", live = true },
+  { read = "status", path = "OtherTeamMatch", is = "False", live = true },
+  { stop = true },
+]
+
+[[test]]
+task = "T134"
+name = "the pitch size: a wrong option refused, the minimum chosen, read back once the day moves"
+at = "caught-2031-08-04"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox --all", path = "?UniqueId=1578159.0.NewsTitleString", keep = "pitch", live = true, note = "set the pitch size" },
+  { read = "inbox --all", path = "?UniqueId=1578158.0.NewsTitleString", keep = "captain", live = true, note = "choose the captain" },
+  { read = "facilities", path = "Stadium.PitchDimensions", keep = "before", live = true },
+  { run = "reply {pitch} 2 9", rc = "fail" },
+  { run = "reply {pitch} 9", rc = "fail" },
+  { run = "reply {pitch} 2 2", note = "minimum allowed" },
+  { read = "inbox --all", path = "?UniqueId=1578159.0.NewsHasResponded", is = "True", live = true },
+  { run = "captains --vice 'Eray Özbek'", note = "the captains message takes Confirm only with a vice" },
+  { run = "reply {captain} 2", note = "Confirm Captains" },
+  { run = "next" },
+  { read = "facilities", path = "Stadium.PitchDimensions", differs_from = "before", live = true },
+]

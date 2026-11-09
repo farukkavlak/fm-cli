@@ -507,9 +507,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   "matches 2 messages", then "no message": the one awaiting an answer was not taken. Now, of several, the one the
   game marks as open (`CanRespond` and not `NewsHasResponded`) is taken. TR by hand: the camp squad answered; of five
   journalist questions of one subject, the open one opened. Left: EN; a test.
-- [ ] T134 The pitch size for the season (message "Choose the pitch size", scenario `caught-2031-08-04`, Antalyaspor):
+- [x] T134 The pitch size for the season (message "Choose the pitch size", scenario `caught-2031-08-04`, Antalyaspor):
   an answer holding a list, `reply <msg> 2 <n>`; read back by `Human.Team.Stadium.PitchLength/PitchWidth`
-  (105m×68m → 100m×64m, once the day moved on). TR by hand. Left: EN; a test. The same day's captains message would
+  (105m×68m → 100m×64m, once the day moved on). TR by hand. EN + TR in `round42.toml` 3/3 each (pitch read back by `facilities`). The same day's captains message would
   not take Confirm while the vice-captain was empty: `reply` said the message still waits, `captains --vice` then
   Confirm took it.
 - [ ] T135 A youth team's match the manager has to pick for (Antalyaspor U19, 20 Mar 2032; U19 squad selection is
@@ -522,7 +522,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   ("not ready, last fixture still …" is the main team's). `fm-round forward` now plays such a match through.
   - [x] Sides told by the game's ids (`HomeTeam/AwayTeam.UniqueId`, `.Club.UniqueId` against `Human.Team`), not by name;
     our players read from our side of the match; the first team's report skipped. Built, not yet seen in the game.
-  - [x] A first-team league match still names both sides right (round41, EN + TR, once each).
+  - [x] A first-team league match still names both sides right (round41 once, round42 3× each: TR 3/3, EN 2/3).
+  - [ ] EN repeat 3 of round42: the game was gone while the match was being started ("Submitting the team", no crash
+    report; the one at 17:06 was the stop before). Not known whether the sides read at kick-off had a part (T92).
   - [ ] Seen in a youth match (TR + EN).
   - [ ] `match --instant` for such a match.
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
