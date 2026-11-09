@@ -457,6 +457,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     through with a promise; one thinking of leaving for free talked round; a transfer-list request granted, read back
     by the game's own status (flag 6) once the day moves on.
   - [ ] A player asking for a new deal himself (moment not met yet).
+  - [ ] A contract's extension option from the "contract about to end" message (scenario `caught-2032-06-24`,
+    Yunus Eker): `reply <msg> 2` "Use the contract extension option", read back by `player` (30/6/2032 → 30/6/2033
+    at once). TR by hand. Left: EN; a test. The same message's "start contract talks" was walked through on
+    Uğurcan (T132).
 - [x] T62 Pre-season: friendlies, pre-season training, new-season expectations.
   - [x] Friendlies: `friendly` (new) lists the opponents the game offers (by reputation, with fees), the open dates and
     the rules; `friendly <#> [--date] [--away] [--rules] --yes` proposes one. The panel by its button (`ArrangeFriendly`),
