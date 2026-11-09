@@ -1,0 +1,22 @@
+# Round 41: the sides of a match told by the game's team ids (T135).
+# - a first-team league match: our side and the opponent named from the match, neither watched nor another team's;
+# - the same once play runs.
+# Run: tools/fm-round.py dry tests/live/round41.toml, then run.
+
+[[test]]
+task = "T135"
+name = "a first-team match names both sides from the match itself"
+at = "kickoff"
+fresh = true
+repeat = 1
+steps = [
+  { read = "squad", path = "0.Team", keep = "own" },
+  { start = "match --no-talk" },
+  { until = "status", path = "DuringMatch", is = "True", seconds = 600, every = 10, live = true },
+  { read = "status", path = "OwnSide", same_as = "own", live = true },
+  { read = "status", path = "OpponentSide", present = true, live = true },
+  { read = "status", path = "OpponentSide", differs_from = "own", live = true },
+  { read = "status", path = "WatchedMatch", is = "False", live = true },
+  { read = "status", path = "OtherTeamMatch", is = "False", live = true },
+  { stop = true },
+]

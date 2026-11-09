@@ -80,6 +80,19 @@ internal static partial class Program
 		var state = await Fm.GetJson("state");
 		if (json)
 		{
+			// In a match the two sides are named too, as the match itself tells them apart (T135).
+			if (Field(state, "DuringMatch") == "True" && System.Text.Json.Nodes.JsonNode.Parse(state.GetRawText()) is System.Text.Json.Nodes.JsonObject withSides)
+			{
+				if (await MatchNames() is { } sides)
+				{
+					withSides["OwnSide"] = sides.Own;
+					withSides["OpponentSide"] = sides.Opponent;
+					withSides["WatchedMatch"] = watchedMatch;
+					withSides["OtherTeamMatch"] = otherTeamMatch;
+				}
+				Console.WriteLine(withSides.ToJsonString());
+				return 0;
+			}
 			Console.WriteLine(state.ToString());
 			return 0;
 		}

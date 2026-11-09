@@ -522,7 +522,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   ("not ready, last fixture still …" is the main team's). `fm-round forward` now plays such a match through.
   - [x] Sides told by the game's ids (`HomeTeam/AwayTeam.UniqueId`, `.Club.UniqueId` against `Human.Team`), not by name;
     our players read from our side of the match; the first team's report skipped. Built, not yet seen in the game.
-  - [ ] Seen in a youth match (TR + EN); a normal first-team match still names both sides right.
+  - [x] A first-team league match still names both sides right (round41, EN + TR, once each).
+  - [ ] Seen in a youth match (TR + EN).
   - [ ] `match --instant` for such a match.
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
