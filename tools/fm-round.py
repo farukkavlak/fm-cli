@@ -310,6 +310,11 @@ def forward(args):
         before = now.get("Date"), now.get("Clock")
         match_day = now["State"] in ("Tactics", "SubmitTeam", "SquadNumbers")
         rc, out, err, _ = fm("match --instant" if match_day else "next")
+        # A youth team's match the manager must pick for (no U-19 manager) is not given an instant result (T135):
+        # it is played through instead.
+        if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam"):
+            print("  instant result refused: the match played through", flush=True)
+            rc, out, err, _ = fm("match --play --no-talk", timeout=1800)
         stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
         if stopped and not match_day and state()["State"] in ("Tactics", "SubmitTeam", "SquadNumbers"):
             continue  # opening the last message led on to the match: not a stop

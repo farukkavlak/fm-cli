@@ -503,6 +503,14 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   (105m×68m → 100m×64m, once the day moved on). TR by hand. Left: EN; a test. The same day's captains message would
   not take Confirm while the vice-captain was empty: `reply` said the message still waits, `captains --vice` then
   Confirm took it.
+- [ ] T135 A youth team's match the manager has to pick for (Antalyaspor U19, 20 Mar 2032; U19 squad selection is
+  delegated but the U19 has no manager): the match screen asks for the U19 eleven under the main team's next match.
+  `match --instant` pressed Instant Result, confirmed "hand the match to your staff" and "Team Selection" yes, and the
+  screen stayed (said "still on the squad screen"). Played through with `match --play`, the match ran, but the end
+  said "Gaziantep FK 3-0 Antalyaspor" (the commentary: our U19 won) and listed our U19 players' cards as the
+  opponent's: names and sides are taken from the main team (`Human.Team.NextFixture`, the squad's names), not the
+  match being played. Left: tell the sides from the match itself; instant result for such a match; the report
+  ("not ready, last fixture still …" is the main team's). `fm-round forward` now plays such a match through.
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of
