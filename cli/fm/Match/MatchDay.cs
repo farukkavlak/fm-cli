@@ -268,7 +268,7 @@ internal static partial class Program
 		var radarOn = panel.Radar;
 		var radarStyle = panel.RadarStyle;
 		// Our squad's names tell our men from theirs in the match's list of players.
-		try { ourNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
+		try { ourNames = (await Fm.Pull(ourPlayersPath, "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
 		catch (FmError) { ourNames = []; }
 		string? lastNamed = null;
 		var heard = new Queue<(string Minute, string Said)>();
@@ -688,7 +688,7 @@ internal static partial class Program
 			Console.WriteLine();
 			// The report is the first team's last match; a match only watched has none of its own here.
 			// Picked up after the post-match talk the board is not read again; the report then stands on its own.
-			if (!watchedMatch) try { await MatchReport.Show(Fm, json: false, expected: score.Length > 0 ? score : null); } catch (FmError) { }
+			if (!watchedMatch && !otherTeamMatch) try { await MatchReport.Show(Fm, json: false, expected: score.Length > 0 ? score : null); } catch (FmError) { }
 			if (finalMen is { Count: > 0 }) MatchMoments(finalMen);
 		}
 		// What holds the game up after the whistle is read afresh: usually the press conference.

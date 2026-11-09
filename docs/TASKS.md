@@ -520,6 +520,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   opponent's: names and sides are taken from the main team (`Human.Team.NextFixture`, the squad's names), not the
   match being played. Left: tell the sides from the match itself; instant result for such a match; the report
   ("not ready, last fixture still …" is the main team's). `fm-round forward` now plays such a match through.
+  - [x] Sides told by the game's ids (`HomeTeam/AwayTeam.UniqueId`, `.Club.UniqueId` against `Human.Team`), not by name;
+    our players read from our side of the match; the first team's report skipped. Built, not yet seen in the game.
+  - [ ] Seen in a youth match (TR + EN); a normal first-team match still names both sides right.
+  - [ ] `match --instant` for such a match.
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of

@@ -13,18 +13,36 @@ internal static partial class Program
 	{
 		try
 		{
-			var (own, _) = await Fm.OwnTeam();
-			// A match we only watch — the under-18s against the year's youth candidates — is not the
-			// first team's next fixture: the match on screen names its own two sides.
 			watchedMatch = false;
-			if (await MatchSides() is { } sides && sides.Home != own && sides.Away != own)
+			otherTeamMatch = false;
+			ourPlayersPath = "Human.Team.Players";
+			// The sides are told apart by the game's own ids, not by name: a club's under-19s can carry
+			// the first team's name, and the match on screen need not be the first team's next fixture.
+			var first = await Fm.Pull("Human.Team", "Name,UniqueId");
+			var firstId = Field(first, "UniqueId");
+			var clubId = Field(await Fm.Pull("Human.Team.Club", "UniqueId"), "UniqueId");
+			if (await MatchSides() is { } m && firstId.Length > 0)
 			{
-				watchedMatch = true;
-				return (sides.Home, sides.Away);
+				var homeOurs = m.Home.Id == firstId || (clubId.Length > 0 && m.Home.Club == clubId);
+				var awayOurs = m.Away.Id == firstId || (clubId.Length > 0 && m.Away.Club == clubId);
+				if (homeOurs != awayOurs)
+				{
+					var (own, other) = homeOurs ? (m.Home, m.Away) : (m.Away, m.Home);
+					ourPlayersPath = $"{own.Path}.Players";
+					otherTeamMatch = own.Id != firstId;
+					return (own.Name, other.Name);
+				}
+				// A match we only watch — the under-18s against the year's youth candidates — names its own sides.
+				if (!homeOurs)
+				{
+					watchedMatch = true;
+					return (m.Home.Name, m.Away.Name);
+				}
 			}
 			var opponent = Field(await Fm.Pull("Human.Team.NextMatchOpponent", "Name"), "Name");
-			if (own.Length == 0 || opponent.Length == 0) return null;
-			return (own, opponent);
+			var ownName = Field(first, "Name");
+			if (ownName.Length == 0 || opponent.Length == 0) return null;
+			return (ownName, opponent);
 		}
 		catch (FmError)
 		{
@@ -35,8 +53,16 @@ internal static partial class Program
 	/// <summary>True when the match being played is another of the club's teams', named home first.</summary>
 	private static bool watchedMatch;
 
+	/// <summary>True when we pick for the match but the side is another of our club's teams (the under-19s), not the first team.</summary>
+	private static bool otherTeamMatch;
+
+	/// <summary>Where the players of our side in the match on screen are read.</summary>
+	private static string ourPlayersPath = "Human.Team.Players";
+
+	private readonly record struct MatchSide(string Name, string Id, string Club, string Path);
+
 	/// <summary>The two teams of the match on screen, from the match the screen is bound to; null without one.</summary>
-	private static async Task<(string Home, string Away)?> MatchSides()
+	private static async Task<(MatchSide Home, MatchSide Away)?> MatchSides()
 	{
 		try
 		{
@@ -49,9 +75,16 @@ internal static partial class Program
 			if (path == null) return null;
 			var node = $"fmcli.sides{DateTime.UtcNow.Ticks % 100000}";
 			await Fm.Get("pathset", ("to", node), ("from", path));
-			var home = Field(await Fm.Pull($"{node}.HomeTeam", "Name"), "Name");
-			var away = Field(await Fm.Pull($"{node}.AwayTeam", "Name"), "Name");
-			return home.Length > 0 && away.Length > 0 ? (home, away) : null;
+			async Task<MatchSide> Side(string at)
+			{
+				var team = await Fm.Pull(at, "Name,UniqueId");
+				var club = "";
+				try { club = Field(await Fm.Pull($"{at}.Club", "UniqueId"), "UniqueId"); } catch (FmError) { }
+				return new MatchSide(Field(team, "Name"), Field(team, "UniqueId"), club, at);
+			}
+			var home = await Side($"{node}.HomeTeam");
+			var away = await Side($"{node}.AwayTeam");
+			return home.Name.Length > 0 && away.Name.Length > 0 ? (home, away) : null;
 		}
 		catch (FmError) { return null; }
 	}
