@@ -165,7 +165,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   (media) 3 × both ways, one group, nothing to do, unknown name; TR 3 rounds. Undo / redo not needed: every change is
   confirmed at once, and a failed one is undone with Reset.
 - [x] T20 `coaches --clear` (`EventFmxClearCoaches`), read back; TR + EN 3 runs with `--auto` between.
-- [ ] T21 Opposition scouting priorities: prioritise / cancel. Tactics › Oppo. › Team Report Priorities
+- [ ] T21 (waits for a moment: the game filling the list itself, e.g. the staff scouting the next opponent)
+  Opposition scouting priorities: prioritise / cancel. Tactics › Oppo. › Team Report Priorities
   (`6e8ea46097c185d468f2723d4931e63b`, opened with `open?guid=&bar=1` from Oppo.). Buttons `EventFmxPrioritiseScoutingTeam`,
   `EventFmxCancelScoutingTeam`, list `scout`. TR, 30 Aug 2028: the list is empty and both are off; needs a game with assignments.
   EN `calm` 7 Nov: empty too. FM27 has no club right-click menu: league table rows and a club's own page carry only
