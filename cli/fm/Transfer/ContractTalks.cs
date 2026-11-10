@@ -53,7 +53,7 @@ internal static partial class Program
 			if (wanted.Length == 0)
 			{
 				Console.Error.WriteLine(L("There is no open contract negotiation.\n")
-					+ L("  To renew one of our players: contract <player>\n")
+					+ L("  To renew one of our players, or go back to talks left for another page: contract <player>\n")
 					+ L("  In a transfer: once the offer is accepted, reply \"<player> offer accepted\" → Enter Contract Negotiations"));
 				return 1;
 			}

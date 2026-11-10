@@ -20,7 +20,12 @@ internal static partial class Program
 		}
 
 		if (await NotNow() is { } refused) return refused;
+		// Opening the page takes the screen off contract talks. The game holds them, but a plain `contract`
+		// reads the screen, so the way back is said before leaving (T136).
+		var talks = await OfferScreen.Read(Fm, "contract");
 		if (await OpenPlayer(wanted) is not { } card) return 1;
+		if (talks is { Player.Length: > 0 } held)
+			Console.Error.WriteLine(L($"Contract talks with {held.Player} are held by the game, off screen now; back to them: contract \"{held.Player}\""));
 		// His actions are the game's menu for him, the same one `actions` raises.
 		if (args.Contains("--actions")) return await Actions(json, ["actions", Field(card.GetProperty("Player"), "Name")]);
 		if (args.Contains("--career")) return await Career(card, json);

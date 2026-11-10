@@ -298,7 +298,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   `all=1` moves every list binding one, since a table's other views stay laid out beside it. TR + EN 3/3, cold, page
   open, another page open (`round31.toml`).
 - [ ] T98 `talk`: a journalist pressing with the same answers on offer read as "did not move on". Now the words said count
-  too (`Says`). Not met again yet: check at the next one.
+  too (`Says`). Not met again yet: `round44.toml` talks the unveiling to its end, EN + TR 3/3, no pressing came.
 - [x] T30 The active tactic's name is right again ("pendik-yedek-t1", from `tactic load`). FM27's tactic menus have no
   rename (Edit Tactic and Manage Tactics open nothing to type in, TR); a tactic is named by `tactic save "<name>"`, then `tactic load`.
 - [x] T31 `scout player --cancel`: FM27 calls it off on Recruitment › Scouting › Scout Priorities
@@ -515,9 +515,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   (105m×68m → 100m×64m, once the day moved on). TR by hand. EN + TR in `round42.toml` 3/3 each (pitch read back by `facilities`). The same day's captains message would
   not take Confirm while the vice-captain was empty: `reply` said the message still waits, `captains --vice` then
   Confirm took it.
-- [ ] T136 An open contract negotiation is closed without a word when `player <name>` opens the player's page
+- [x] T136 An open contract negotiation is closed without a word when `player <name>` opens the player's page
   (EN, Uğurcan, `caught-2031-06-30`): `contract` then said "no open contract negotiation". Say it before leaving, or
-  read the page without leaving the talks.
+  read the page without leaving the talks. Now `player` says the talks are held and how to go back (`contract "<player>"`),
+  read from the talks' own screen before leaving; `contract` alone says so too. `round44.toml` EN + TR 3/3: said twice
+  a run (talks on screen), not on the third (none).
 - [ ] T135 A youth team's match the manager has to pick for (Antalyaspor U19, 20 Mar 2032; U19 squad selection is
   delegated but the U19 has no manager): the match screen asks for the U19 eleven under the main team's next match.
   `match --instant` pressed Instant Result, confirmed "hand the match to your staff" and "Team Selection" yes, and the
