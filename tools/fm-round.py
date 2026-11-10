@@ -319,6 +319,15 @@ def keep(args):
     return 0
 
 
+def newest_message():
+    """The inbox's newest message by the game's own id; None when it cannot be read."""
+    rc, out, _, _ = fm("inbox --json")
+    if rc != 0 or not out.lstrip().startswith("["):
+        return None
+    ids = [int(m["UniqueId"]) for m in json.loads(out) if str(m.get("UniqueId", "")).isdigit()]
+    return max(ids) if ids else None
+
+
 def reject_bids():
     """In a walk the squad is kept: each incoming bid the game lets us refuse is refused. True if one was."""
     tried, done = set(), False
@@ -375,6 +384,7 @@ def forward(args):
         # Before each match: one way back to its kick-off (a cup tie that went to penalties, a card, a goal).
         if match_day and args.pool and now.get("CanSave") == "True" and fm("save --yes")[0] == 0:
             pool_copy("match", args.pool)
+        newest_before = None if match_day else newest_message()
         rc, out, err, _ = fm("match --instant" if match_day else "next")
         if match_day and args.pool:
             walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc})
@@ -393,6 +403,10 @@ def forward(args):
             if args.pool:
                 walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc, "after": "played through"})
         stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
+        # Deadline day goes on hour by hour with the date and clock read the same (4 Feb 2033): a new message
+        # come in is the game moving on.
+        if stopped and rc == 0 and not match_day and newest_message() != newest_before:
+            stopped = False
         if stopped and not match_day and state()["State"] in ("Tactics", "SubmitTeam", "SquadNumbers"):
             continue  # opening the last message led on to the match: not a stop
         # Not on a match day: the tool's own windows (the result handed over) would be caught and stop a save.
