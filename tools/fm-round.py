@@ -261,6 +261,62 @@ def catch():
     CAUGHT.write_text(json.dumps(caught, indent=1, ensure_ascii=False))
 
 
+POOL = STORE / "pool"
+WALK_LOG = STORE / "walk.jsonl"
+
+
+def walk_note(entry):
+    """The walk's log, for reading afterwards only: what came each day, so a moment passed by can be found and its
+    pool copy kept. Nothing in the walk decides by it."""
+    entry = {"at": datetime.datetime.now().isoformat(timespec="seconds"), **entry}
+    with WALK_LOG.open("a") as file:
+        file.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
+def note_inbox(now, seen):
+    rc, out, _, _ = fm("inbox --json")
+    if rc != 0 or not out.lstrip().startswith("["):
+        return
+    for m in json.loads(out):
+        key = m.get("UniqueId") or m.get("NewsTitleString")
+        if key in seen:
+            continue
+        seen.add(key)
+        walk_note({"date": now.get("Date"), "message": m.get("NewsTitleString"), "tags": m.get("TagsList"),
+                   "choices": m.get("CanRespond"), "answered": m.get("NewsHasResponded")})
+
+
+def pool_copy(tag, size):
+    """The save just written, copied into the pool; the oldest copies go past `size`. A moment noticed only in
+    the log afterwards is taken up from here with `keep`."""
+    if size <= 0 or shutil.disk_usage(STORE).free < 6 * 1024 ** 3:
+        return
+    saves = sorted(saves_folder().glob(f"{PREFIX}*.fm"), key=lambda f: f.stat().st_mtime)
+    if not saves:
+        return
+    date = state().get("Date") or "x"
+    POOL.mkdir(parents=True, exist_ok=True)
+    target = POOL / f"{date}-{tag}.fm"
+    shutil.copy2(saves[-1], target)
+    for old in sorted(POOL.glob("*.fm"), key=lambda f: f.stat().st_mtime)[:-size]:
+        old.unlink()
+    walk_note({"date": date, "pool": target.name})
+
+
+def keep(args):
+    """A pool copy made a scenario, under a name of its own."""
+    source = POOL / f"{args.copy}.fm"
+    if not source.exists():
+        raise Failed(f"no pool copy '{args.copy}': " + ", ".join(f.stem for f in sorted(POOL.glob("*.fm"))))
+    if not re.fullmatch(r"[a-z0-9-]+", args.name):
+        raise Failed("a scenario's name is lower-case letters, digits and -")
+    shutil.copy2(source, STORE / f"{args.name}.fm")
+    (STORE / f"{args.name}.json").write_text(json.dumps({"moment": args.moment, "date": args.copy[:10], "state": "",
+        "made": datetime.datetime.now().isoformat(timespec="seconds")}, indent=1))
+    print(f"{args.name}: kept from the pool ({args.copy})")
+    return 0
+
+
 def reject_bids():
     """In a walk the squad is kept: each incoming bid the game lets us refuse is refused. True if one was."""
     tried, done = set(), False
@@ -286,8 +342,12 @@ def forward(args):
     answered = False
     # Answers that do not move the game on (offers opened again and again, 6 Nov) end the run instead of looping.
     idle, last_moment = 0, None
+    seen, noted_day = set(), None
     while True:
         now = state()
+        if args.pool and now.get("Date") and now.get("Date") != noted_day:
+            noted_day = now.get("Date")
+            note_inbox(now, seen)
         moment = (now.get("Date"), now.get("Clock"))
         idle = idle + 1 if moment == last_moment else 0
         last_moment = moment
@@ -304,16 +364,24 @@ def forward(args):
             answered = False
             if saving and fm("save --yes")[0] == 0:
                 saved_week = week
+                pool_copy("week", args.pool)
         if now.get("Date", "") >= args.date:
             print(f"Reached {now['Date']} ({now['State']}).")
             return 0
         before = now.get("Date"), now.get("Clock")
         match_day = now["State"] in ("Tactics", "SubmitTeam", "SquadNumbers")
+        # Before each match: one way back to its kick-off (a cup tie that went to penalties, a card, a goal).
+        if match_day and args.pool and now.get("CanSave") == "True" and fm("save --yes")[0] == 0:
+            pool_copy("match", args.pool)
         rc, out, err, _ = fm("match --instant" if match_day else "next")
+        if match_day and args.pool:
+            walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc})
         # A youth team's match the manager must pick for (no U-19 manager) is not given an instant result (T135):
         # it is played through instead.
         if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam"):
             print("  instant result refused: the match played through", flush=True)
+            if args.pool:
+                walk_note({"date": now.get("Date"), "moment": "instant result refused (a youth match, T135, or a player missing)", "said": (out or err).strip()[-300:]})
             rc, out, err, _ = fm("match --play --no-talk", timeout=1800)
         stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
         if stopped and not match_day and state()["State"] in ("Tactics", "SubmitTeam", "SquadNumbers"):
@@ -682,7 +750,13 @@ def main():
     one.add_argument("date")
     one.add_argument("--answer", action="store_true", help="to reach a moment: opens what needs no choice, stops at a choice")
     one.add_argument("--catch", action="store_true", help="keep a scenario at each kind of moment not kept before (caught.json)")
+    one.add_argument("--pool", type=int, default=0, help="keep the last N saves (each week, each match day) in the pool, and a log of the walk")
     one.set_defaults(go=forward)
+    one = sub.add_parser("keep")
+    one.add_argument("copy")
+    one.add_argument("name")
+    one.add_argument("moment")
+    one.set_defaults(go=keep)
     one = sub.add_parser("enter")
     one.add_argument("name")
     one.add_argument("--lang", choices=LANGUAGES)
