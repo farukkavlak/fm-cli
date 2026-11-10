@@ -180,6 +180,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   game's handler (`FM.Game.PluginContextActionsModule.HandleActionEvent`), which wants `ActionData` as a `Record`
   (the menu entries' action data), not a team: "Unable to cast TeamReference to Record". Next: read the record a
   menu's scouting entry carries (a player's `ScoutPlayer`, its keys), build one with the team (a plugin route), send.
+  10 Nov, `press` (TR, Helmond 2030): a player of another club (Haaland) has no team scouting entry either. His
+  "Scout Player" and "Report > Assign Scout > <scout> > 1 Week" both run `PersonAssignScoutToPlayersClub` /
+  `PersonScoutPlayersClub` (a player scouted, the name read "players' club"), data: days (`1684434273` 7), a cost
+  (`1131299171` 1691), flags; no team in it. Not a way to a team report.
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
