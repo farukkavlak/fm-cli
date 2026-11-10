@@ -219,6 +219,8 @@ def moments_waiting():
         for m in json.loads(out):
             if m.get("CanRespond") != "True" or m.get("NewsHasResponded") == "True":
                 continue
+            if not m.get("TagsList"):
+                continue  # its tags not bound yet: no kind to tell it by
             _, shown, _, _ = fm(f'reply "{m.get("NewsTitleString", "")}"')
             # The message's answers, at two spaces; a choice inside the message ("    1  [x] Normal") is not one.
             answers = len(re.findall(r"^  \d+  \S", shown, re.M))
