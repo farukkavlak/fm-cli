@@ -55,14 +55,29 @@ internal static partial class Program
 			taskFilterOn = true;
 			inbox = await TaskInbox(stay: true);
 		}
-		var message = Pick(inbox, words[0], quiet: !byNumber);
-		if (message == null && !byNumber) message = Pick(await AllInbox(), words[0], quiet: true);
-		// A waiting task can be listed only under the inbox's Tasks filter (a loan offer for one of
-		// ours, 16 Mart 2029), the way `next` finds it: the filter stays on while it is answered.
+		var message = Pick(inbox, words[0], quiet: !byNumber, out var many);
+		var manyIn = inbox;
+		// The whole inbox holds the rows drawn and more: what it finds, or the several it matches, stands.
 		if (message == null && !byNumber)
 		{
+			var all = await AllInbox();
+			message = Pick(all, words[0], quiet: true, out var allMany);
+			if (allMany.Count > 0) (many, manyIn) = (allMany, all);
+		}
+		// A waiting task can be listed only under the inbox's Tasks filter (a loan offer for one of
+		// ours, 16 Mart 2029), the way `next` finds it: the filter stays on while it is answered.
+		if (message == null && !byNumber && many.Count == 0)
+		{
 			taskFilterOn = true;
-			message = Pick(await TaskInbox(stay: true), words[0]);
+			var tasks = await TaskInbox(stay: true);
+			message = Pick(tasks, words[0], quiet: true, out many);
+			manyIn = tasks;
+		}
+		// Said once, after every list was looked in: the several a subject matches, or that none has it.
+		if (message == null && !byNumber)
+		{
+			if (many.Count > 0) SayMany(manyIn, many, words[0]);
+			else Console.Error.WriteLine(L($"No message has '{words[0]}' in its subject."));
 		}
 		if (message is not { } chosen) return 1;
 

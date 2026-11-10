@@ -2776,3 +2776,4 @@ To answer: inbox --tasks, then reply <#>	Cevaplamak için: inbox --tasks, sonra 
 Domestic cups	Yerel kupalar
 Continental competitions	Kıtasal turnuvalar
 Contract talks with {0} are held by the game, off screen now; back to them: contract "{1}"	{0} ile sözleşme görüşmesi oyunda açık duruyor, şu an ekranda değil; dönmek için: contract "{1}"
+'{0}' matches {1} messages, none of them awaiting an answer; choose by number:	'{0}' {1} mesaja uyuyor, hiçbiri cevap beklemiyor; numarasıyla seç:

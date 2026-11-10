@@ -86,8 +86,17 @@ internal static partial class Program
 	private static bool NumberedElsewhere(List<JsonElement> inbox, string wanted) =>
 		int.TryParse(wanted, out var number) && Remembered(number) is { } kept && !inbox.Any(m => Field(m, "UniqueId") == kept.Id);
 
-	private static JsonElement? Pick(List<JsonElement> inbox, string wanted, bool quiet = false)
+	private static JsonElement? Pick(List<JsonElement> inbox, string wanted, bool quiet = false) =>
+		Pick(inbox, wanted, quiet, out _);
+
+	/// <summary>
+	/// The message a number or a piece of its subject names. <paramref name="many"/> holds the messages of that subject
+	/// when several match and the game marks none of them alone as awaiting an answer; they are said only when not
+	/// <paramref name="quiet"/>, so a caller that looks in more lists says them once (<see cref="SayMany"/>).
+	/// </summary>
+	private static JsonElement? Pick(List<JsonElement> inbox, string wanted, bool quiet, out List<JsonElement> many)
 	{
+		many = [];
 		if (int.TryParse(wanted, out var number))
 		{
 			// The number as `inbox` showed it, found again by the message's id.
@@ -112,14 +121,36 @@ internal static partial class Program
 		if (matches.Count == 1) return matches[0];
 		// The same subject twice (a second pre-season camp, 14 Jul 2031): the one still awaiting an answer, by the
 		// game's own marks, is the one meant.
-		if (matches.Count > 1 && matches.Where(m => Field(m, "CanRespond") == "True" && Field(m, "NewsHasResponded") != "True").ToList() is { Count: 1 } open)
+		if (matches.Count > 1 && matches.Where(Awaits).ToList() is { Count: 1 } open)
 			return open[0];
-		if (matches.Count == 0 && quiet) return null;
+		many = matches;
+		if (quiet) return null;
 
-		Console.Error.WriteLine(matches.Count == 0
-			? L($"No message has '{wanted}' in its subject.")
-			: L($"'{wanted}' matches {matches.Count} messages; choose by number:"));
-		foreach (var match in matches) Console.Error.WriteLine("  " + GameWords.Of(Field(match, "NewsTitleString")));
+		if (matches.Count == 0) Console.Error.WriteLine(L($"No message has '{wanted}' in its subject."));
+		else SayMany(inbox, matches, wanted);
 		return null;
+	}
+
+	/// <summary>A message the game marks as awaiting an answer: it can be answered and has not been.</summary>
+	private static bool Awaits(JsonElement message) =>
+		Field(message, "CanRespond") == "True" && Field(message, "NewsHasResponded") != "True";
+
+	/// <summary>
+	/// Several messages of one subject, none of them alone awaiting an answer: each said with a number `reply` takes.
+	/// The numbers are those of the list they were found in, kept as `inbox` keeps its own (each held by the
+	/// message's id), so `reply <n>` finds the same message (10 journalist questions of one subject, 12 May 2029).
+	/// </summary>
+	private static void SayMany(List<JsonElement> list, List<JsonElement> many, string wanted)
+	{
+		RememberNumbers(JsonSerializer.SerializeToElement(list));
+		var awaiting = many.Count(Awaits);
+		Console.Error.WriteLine(awaiting == 0
+			? L($"'{wanted}' matches {many.Count} messages, none of them awaiting an answer; choose by number:")
+			: L($"'{wanted}' matches {many.Count} messages; choose by number:"));
+		foreach (var message in many)
+		{
+			var at = list.FindIndex(m => Field(m, "UniqueId") == Field(message, "UniqueId")) + 1;
+			Console.Error.WriteLine($"  {at,3}  {GameWords.Of(Field(message, "NewsTitleString"))}" + (Awaits(message) ? "  · " + L("can be answered") : ""));
+		}
 	}
 }

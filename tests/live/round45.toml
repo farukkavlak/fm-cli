@@ -1,0 +1,31 @@
+# Round 45: job applications read back by the post's own state (T130); a subject several messages share (T133).
+# Run: tools/fm-round.py dry tests/live/round45.toml, then run.
+
+[[test]]
+task = "T130"
+name = "an application sent is read back by the post; a post applied for, or taking none, refused"
+at = "unemployed-may"
+fresh = true
+repeat = 3
+steps = [
+  { read = "jobs --all", path = "?Club=TSG Hoffenheim.0.Open", is = "True", live = true },
+  { run = "jobs 'TSG Hoffenheim' apply --yes" },
+  { read = "jobs --all", path = "?Club=TSG Hoffenheim.0.Open", is = "False", live = true, note = "the post's own state moved" },
+  { run = "jobs 'TSG Hoffenheim' apply --yes", rc = "fail", note = "applied already: the button is off" },
+  { run = "jobs 'Newcastle' apply --yes", rc = "fail", note = "a post with a manager takes no applications" },
+  { run = "jobs 'Willem II' apply --yes" },
+  { read = "jobs --all", path = "?Club=Willem II.0.Open", is = "False", live = true },
+]
+
+[[test]]
+task = "T133"
+name = "a subject several messages share: numbered when none awaits, the one awaiting taken"
+at = "unemployed-may"
+fresh = true
+repeat = 3
+steps = [
+  { run = "reply 'Rumeysa Bozali'", rc = "fail", note = "several, none awaiting an answer: each listed with a number" },
+  { run = "reply 'zzqx no such subject'", rc = "fail" },
+  { run = "jobs 'Willem II' apply --yes" },
+  { run = "reply 'Willem II'", note = "the application's message opened, though a press leak may share the club's name" },
+]

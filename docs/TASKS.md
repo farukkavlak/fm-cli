@@ -496,7 +496,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   status is read back, found by its club's id in the table read afresh (a row's node read again keeps its old value,
   and a post applied for leaves the list): unchanged within the bound, it says the club turned it down. TR by hand:
   Sheff Wed, Newell's, Defensa y Justicia "sent", each "application received" in the inbox. Left: the turned-down
-  case seen again with the new code (Vitesse no longer offers the button); EN.
+  case seen again with the new code (Vitesse no longer offers the button). `round45.toml` EN + TR 3/3: sent read back
+  by the post's `Open`, applied again and a post taking none refused; 11 vacant posts (`unemployed-may`) all took the
+  application, none turned it down. Left: a turn-down seen; its sign is "unchanged within 5 s" (time): look for the
+  game's own (the refusal message's type).
 - [ ] T131 A new club's first days (Antalyaspor, 27 Mar 2031): Continue said "Messages" and showed the page again and
   again while a briefing waited listed only under the inbox's Tasks filter; `next` said only that a page was shown.
   `next` now looks under the Tasks filter when nothing moved and names what waits there. Left: seen again with the new
@@ -511,10 +514,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   heading once; the rule mark not met in EN (the game offers only 12 months and caps the wage). Left: the rule mark in EN;
   MANUAL image (`manual-shot.py` waits on the arrow-key card);  three "Additional
   Promises" lock lines look alike (one per promise slot).
-- [ ] T133 `reply "<subject>"` with two messages of that subject (a second pre-season camp squad, 14 Jul 2031) said
-  "matches 2 messages", then "no message": the one awaiting an answer was not taken. Now, of several, the one the
-  game marks as open (`CanRespond` and not `NewsHasResponded`) is taken. TR by hand: the camp squad answered; of five
-  journalist questions of one subject, the open one opened. Left: EN; a test.
+- [x] T133 `reply "<subject>"` with several messages of that subject: the one the game marks as open (`CanRespond`
+  and not `NewsHasResponded`) is taken; with none (or several) open, one answer after every list is looked in: each
+  message with a number `reply` takes (kept by id), and "none awaiting an answer" when so. `round45.toml` EN + TR 3/3
+  (`unemployed-may`: 11 journalist questions of one subject numbered; "Willem II" took the application, not the leak).
 - [x] T134 The pitch size for the season (message "Choose the pitch size", scenario `caught-2031-08-04`, Antalyaspor):
   an answer holding a list, `reply <msg> 2 <n>`; read back by `Human.Team.Stadium.PitchLength/PitchWidth`
   (105m×68m → 100m×64m, once the day moved on). TR by hand. EN + TR in `round42.toml` 3/3 each (pitch read back by `facilities`). The same day's captains message would
