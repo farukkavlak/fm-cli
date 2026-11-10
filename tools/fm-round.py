@@ -381,11 +381,15 @@ def forward(args):
         # A player missing (injured, banned) refuses it too: the assistant picks again first, youth players if short.
         if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam") and (fm("tactic pick")[0] == 0 or fm("tactic pick --youth")[0] == 0):
             rc, out, err, _ = fm("match --instant")
+            if args.pool:
+                walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc, "after": "picked again"})
         if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam"):
             print("  instant result refused: the match played through", flush=True)
             if args.pool:
                 walk_note({"date": now.get("Date"), "moment": "instant result refused (a youth match, T135, or a player missing)", "said": (out or err).strip()[-300:]})
             rc, out, err, _ = fm("match --play --no-talk", timeout=1800)
+            if args.pool:
+                walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc, "after": "played through"})
         stopped = rc != 0 or (not match_day and (state().get("Date"), state().get("Clock")) == before)
         if stopped and not match_day and state()["State"] in ("Tactics", "SubmitTeam", "SquadNumbers"):
             continue  # opening the last message led on to the match: not a stop
