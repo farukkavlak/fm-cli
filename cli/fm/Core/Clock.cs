@@ -176,6 +176,14 @@ internal static partial class Program
 		if (!moved && Passable(Field(last, "State")))
 		{
 			var waiting = (await TaskInbox()).Where(Blocking).ToList();
+			// The message open on screen is in no list read (opening it unbinds that list): named by the game's own
+			// record of the one last opened.
+			if (waiting.Count == 0 && await LastOpenedMessage() is { } open && Blocking(open))
+			{
+				Console.WriteLine(L("Waiting for an answer, the message open on screen:"));
+				Console.WriteLine($"  {GameWords.Of(Field(open, "NewsTitleString"))}");
+				Console.WriteLine(L($"To answer: reply \"{Field(open, "NewsTitleString")}\""));
+			}
 			if (waiting.Count > 0)
 			{
 				Console.WriteLine(L("Waiting for an answer, listed under the inbox's Tasks filter:"));
@@ -355,6 +363,8 @@ internal static partial class Program
 				List<JsonElement>? all = null;
 				if (blocking.Count == 0) blocking = (all = await AllInbox()).Where(Blocking).ToList();
 				if (blocking.Count == 0) blocking = (await TaskInbox()).Where(Blocking).ToList();
+				// The message open on screen is in no list read: the game's record of the one last opened names it.
+				if (blocking.Count == 0) blocking = await WithLastOpened(blocking);
 				if (blocking.Count > 0)
 				{
 					// Say what each waiting message needs: a notice only has to be opened, a question

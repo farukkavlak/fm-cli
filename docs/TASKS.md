@@ -499,21 +499,29 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   case seen again with the new code (Vitesse no longer offers the button). `round45.toml` EN + TR 3/3: sent read back
   by the post's `Open`, applied again and a post taking none refused; 11 vacant posts (`unemployed-may`) all took the
   application, none turned it down. Left: a turn-down seen; its sign is "unchanged within 5 s" (time): look for the
-  game's own (the refusal message's type).
+  game's own (the refusal message's type). Source: a post's `Status` reads the game's names `Available` / `Applied`,
+  no refusal value; an inbox row binds no message type (no `NewsItemId`; `TagsList` 8 is every job message) and
+  `Human.AllNews` is not a list to read. Waits for a turn-down moment to measure the message it leaves.
 - [ ] T131 A new club's first days (Antalyaspor, 27 Mar 2031): Continue said "Messages" and showed the page again and
   again while a briefing waited listed only under the inbox's Tasks filter; `next` said only that a page was shown.
   `next` now looks under the Tasks filter when nothing moved and names what waits there. Left: seen again with the new
-  code: EN + TR in `round43.toml` 3/3 each (`next` holds, the briefings named). Left: the open message on screen
-  named too (T128).
+  code: EN + TR in `round43.toml` 3/3 each (`next` holds, the briefings named). The open message on screen is now
+  read by the game's own record of it (`Human.HumanPortalLastSelectedMessageReference`): `next`, `status` and
+  `reply "<subject>"` fall back to it when no list has it. TR by hand: a briefing opened, the record reads its
+  subject, priority, unanswered. `round46.toml` EN + TR 3/3 (briefing opened, `next` holds, `reply` finds it again).
+  Left: a moment where the open message is missing from every list (here the Tasks list still had it), seen once.
 - [ ] T132 The contract card in a Turkish game: a promise's value came in English ("Playing Time: Important Player
   (Suggested)"), the rule mark was written in Turkish whatever the language ("[kurala uymuyor]"), and the stage's
   heading came twice ("— Promises" then "Promises:"). A value is now put in the game's words, part by part when the
   game builds it of two of its words ("Önemli Oyuncu (Önerilen)"); the mark goes through `L`; a section-less group
   has no heading of its own. TR by hand (`caught-2031-06-30`, Uğurcan's renewal opened from "last hours of his
   contract": promises, terms, signed; his yes came some three weeks later, his contract read 30/6/2032). EN + TR in `round43.toml` 3/3 each; EN card by hand: "Important Player (Recommended)",
-  heading once; the rule mark not met in EN (the game offers only 12 months and caps the wage). Left: the rule mark in EN;
-  MANUAL image (`manual-shot.py` waits on the arrow-key card);  three "Additional
-  Promises" lock lines look alike (one per promise slot).
+  heading once; the rule mark not met in EN (the game offers only 12 months and caps the wage).
+  - [x] The three alike "Additional Promises" lock lines were the locks of three promises in the deal that the card
+    never showed: FM27's promise items are `binding_expect` frames inside `add-on-list`, not `item-enabled`. Now each
+    is a row (name, note, value, lock, remove). `round46.toml` EN + TR 3/3 (three rows, no lone lock line, terms after).
+  - [x] MANUAL images: `manual-shot.py --no-input` draws an arrow-key card and leaves it; promises and terms redone (EN).
+  - [ ] The rule mark in EN.
 - [x] T133 `reply "<subject>"` with several messages of that subject: the one the game marks as open (`CanRespond`
   and not `NewsHasResponded`) is taken; with none (or several) open, one answer after every list is looked in: each
   message with a number `reply` takes (kept by id), and "none awaiting an answer" when so. `round45.toml` EN + TR 3/3

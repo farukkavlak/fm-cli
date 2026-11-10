@@ -33,10 +33,12 @@ PAGE, WINDOW, BAR, EDGE, DIM = (11, 14, 19), (13, 17, 23), (22, 26, 33), (48, 54
 MONO = "/System/Library/Fonts/Menlo.ttc"
 
 
-def run(cmd: list[str], cols: int, rows: int) -> str:
+def run(cmd: list[str], cols: int, rows: int, no_input: bool = False) -> str:
     env = dict(os.environ, TERM="xterm-256color", COLORTERM="truecolor")
     pid, fd = pty.fork()
     if pid == 0:
+        if no_input:  # colours stay on (stdout is the pty), but no card waits for arrow keys
+            os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
         os.execvpe(cmd[0], cmd, env)
     fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
     out = b""
@@ -134,13 +136,14 @@ def main() -> None:
     ap.add_argument("--cols", type=int, default=120)
     ap.add_argument("--rows", type=int, default=40)
     ap.add_argument("--skip", type=int, default=0, help="drop this many leading lines of command output")
+    ap.add_argument("--no-input", action="store_true", help="stdin from /dev/null: a card that takes arrow keys is drawn and left")
     ap.add_argument("cmd", nargs="*")
     args = ap.parse_args()
     if args.frame:
         cells = cells_of(args.frame.read_text(errors="replace"), panel=True)
         title = args.title or "fm — match --play"
     else:
-        cells = cells_of(run(args.cmd, args.cols, args.rows), panel=False)[args.skip:]
+        cells = cells_of(run(args.cmd, args.cols, args.rows, args.no_input), panel=False)[args.skip:]
         title = args.title or "fm — " + " ".join(args.cmd[1:])
     draw(cells, title, args.out)
     print(args.out)

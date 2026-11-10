@@ -73,6 +73,10 @@ internal static partial class Program
 			message = Pick(tasks, words[0], quiet: true, out many);
 			manyIn = tasks;
 		}
+		// The message open on screen is in no list read (opening it unbinds the list): the game's record of the
+		// one last opened, by the same subject match.
+		if (message == null && !byNumber && many.Count == 0 && await LastOpenedMessage() is { } lastOpened)
+			message = Pick([lastOpened], words[0], quiet: true, out _);
 		// Said once, after every list was looked in: the several a subject matches, or that none has it.
 		if (message == null && !byNumber)
 		{

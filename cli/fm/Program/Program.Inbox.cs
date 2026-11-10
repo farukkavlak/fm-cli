@@ -48,6 +48,30 @@ internal static partial class Program
 		return rows;
 	}
 
+	/// <summary>
+	/// The message the inbox last opened, as the game keeps it (`Human.HumanPortalLastSelectedMessageReference`),
+	/// with the fields an inbox row has. Opening a message unbinds the list that carries it, so the one on screen
+	/// can be missing from every list read (T128, T131). Null when none is kept.
+	/// </summary>
+	internal static async Task<JsonElement?> LastOpenedMessage()
+	{
+		const string at = "HumanPortalLastSelectedMessageReference.";
+		string[] fields = ["UniqueId", "NewsTitleString", "CanRespond", "NewsHasResponded", "NewsItemIsPriority", "NewsItemTimeSent", "NewsItemHasBeenRead"];
+		JsonElement row;
+		try { row = await Fm.GetJson("pull", ("path", "Human"), ("props", string.Join(",", fields.Select(f => at + f)))); }
+		catch (FmError) { return null; }
+		if (Field(row, at + "UniqueId") is not { Length: > 0 } id || id == "0") return null;
+		return JsonSerializer.SerializeToElement(fields.ToDictionary(f => f, f => Field(row, at + f)));
+	}
+
+	/// <summary>The messages read, with the last opened one added when it holds the game up and no list had it.</summary>
+	internal static async Task<List<JsonElement>> WithLastOpened(List<JsonElement> blocking)
+	{
+		if (await LastOpenedMessage() is { } open && Blocking(open) && !blocking.Any(m => Field(m, "UniqueId") == Field(open, "UniqueId")))
+			blocking.Add(open);
+		return blocking;
+	}
+
 	/// <summary>The inbox back on all messages, after `TaskInbox(stay: true)`.</summary>
 	internal static Task AllMessages() => Filter("AllMessagesTutorial");
 

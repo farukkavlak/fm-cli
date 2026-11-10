@@ -108,6 +108,12 @@ internal static class Offer
 				case "item-enabled" when contract && section.Length > 0:
 					if (Row(element, section) is { } addOn) rows.Add(addOn);
 					return;
+				// FM27's promise items in the list have no "item-enabled": each is a "binding_expect" frame holding
+				// the promise's name, its note, its value, its lock and its remove button (T132: three promises
+				// in the deal were read only as three unnamed locks).
+				case "binding_expect" when contract && section.Length > 0 && Within(element, "add-on-list"):
+					if (Row(element, section) is { } promise) { rows.Add(promise); return; }
+					break;
 				// The text before the entire offer's lock is its name, shown only.
 				case "text" when contract:
 					try { lastText = Text.Plain(element.TryCast<TextElement>()?.text ?? ""); } catch { }
@@ -146,6 +152,18 @@ internal static class Offer
 			}
 			catch { }
 		}
+	}
+
+	/// <summary>Whether an element sits inside the one of that name.</summary>
+	private static bool Within(VisualElement element, string name)
+	{
+		try
+		{
+			for (var up = element.hierarchy.parent; up != null; up = up.hierarchy.parent)
+				if (up.name == name) return true;
+		}
+		catch { }
+		return false;
 	}
 
 	/// <summary>One term: its name, what it is set to, and the control that changes it.</summary>

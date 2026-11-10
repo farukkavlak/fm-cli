@@ -1,0 +1,35 @@
+# Round 46: a renewal's additional promises read as rows (T132); next holds with a briefing open on screen (T131).
+# Run: tools/fm-round.py dry tests/live/round46.toml, then run.
+
+[[test]]
+task = "T132"
+name = "a renewal's promises card: the three promises in the deal each a row with its lock, no lock left alone"
+at = "caught-2031-06-30"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=1529708.0.NewsTitleString", keep = "msg", live = true, note = "final hours of a contract" },
+  { run = "reply {msg} 2", note = "enter contract negotiations" },
+  { read = "contract", path = "Stage", is = "Promises", live = true },
+  { read = "contract", path = "Terms.?Section=add-on-list.#", is = "3", live = true, note = "captain, preferred role, an area strengthened" },
+  { read = "contract", path = "Terms.?Label=Will appoint player as captain.#", is = "1", live = true },
+  { run = "contract", note = "the promises under their heading, each once" },
+  { run = "contract --term 'Will look to strengthen the following area of the first team squad:=zzq'", rc = "fail", note = "the promise's own choices listed" },
+  { run = "contract --next", note = "terms" },
+  { read = "contract", path = "Stage", is = "Terms", live = true },
+]
+
+[[test]]
+task = "T131"
+name = "a new club's first days: a briefing opened, next still holds and names what waits"
+at = "caught-2031-03-26b"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "inbox --tasks", path = "0.NewsTitleString", keep = "brief", live = true },
+  { run = "reply {brief}", note = "opened, not answered" },
+  { run = "next", rc = "fail", note = "names the briefings, the open one among them" },
+  { read = "status", path = "Date", same_as = "day" },
+  { run = "reply {brief}", note = "found again while open" },
+]
