@@ -378,6 +378,9 @@ def forward(args):
             walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc})
         # A youth team's match the manager must pick for (no U-19 manager) is not given an instant result (T135):
         # it is played through instead.
+        # A player missing (injured, banned) refuses it too: the assistant picks again first, youth players if short.
+        if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam") and (fm("tactic pick")[0] == 0 or fm("tactic pick --youth")[0] == 0):
+            rc, out, err, _ = fm("match --instant")
         if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam"):
             print("  instant result refused: the match played through", flush=True)
             if args.pool:
