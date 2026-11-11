@@ -690,7 +690,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 
 - [x] T71 Every new command has its MCP tool (`Core/Mcp.Tools.cs`) and help line (`HelpEnglish.cs`, labels).
 - [x] T72 Every new command is reachable from the natural-language layer (`cli/fm/Nl`), `tools/nl-check.py` passes.
-- [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`). `live-match.png` shows the new key line. To capture: `tools/live-capture.py … -- fm match --play --no-talk` (the `--` is needed).
+- [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`).
+  - 11 Nov: 35 read images shot again from FM27 (TR, `scn-hunt-cup-extra-time`). Still FM26: `inbox --tasks` (empty
+    there), `reply` done, `register` pick/ready/done, `offer` (3), `contract` answer, `live-match`, radar previews. `live-match.png` shows the new key line. To capture: `tools/live-capture.py … -- fm match --play --no-talk` (the `--` is needed).
 - [ ] T74 Full sweep passes after the last task: `tools/sweep.sh` (every read command) and `tools/mcp-check.py`,
   TR and EN.
   - 11 Nov, career `scn-career-2034-06-29` (team on its end-of-season holiday): sweep 62/63 EN and TR, mcp-check
