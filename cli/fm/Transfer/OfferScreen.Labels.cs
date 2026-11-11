@@ -165,6 +165,7 @@ internal sealed partial class OfferScreen
 			foreach (var line in lockLine.Concat(shown)) Console.WriteLine(line);
 			if (costs.Count > 0) Console.WriteLine(string.Join(" · ", costs));
 			if (now.Length > 0) Console.WriteLine(L($"Current contract: {now}"));
+			if (Facts.TryGetValue("NotTaken", out var refusedPlain)) Console.WriteLine(L($"The game will not take as it stands: {refusedPlain}  [breaks a rule]"));
 			return;
 		}
 
@@ -183,6 +184,7 @@ internal sealed partial class OfferScreen
 		if (shown.Count > 0) grid.AddRow(new Markup(L("[dim]Shown[/]")), new Markup(Ui.Safe(string.Join(" · ", shown))));
 		if (costs.Count > 0) grid.AddRow(new Markup(L("[dim]Budget[/]")), new Markup(Ui.Safe(string.Join(" · ", costs))));
 		if (now.Length > 0) grid.AddRow(new Markup(L("[dim]Current contract[/]")), new Markup(Ui.Safe(now)));
+		if (Facts.TryGetValue("NotTaken", out var refused)) grid.AddRow(new Markup(L("[red]Not taken[/]")), new Markup($"[red]{Ui.Safe(refused)}[/]"));
 
 		Ui.Out.Write(new Panel(grid)
 		{

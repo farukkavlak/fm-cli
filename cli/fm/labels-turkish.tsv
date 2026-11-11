@@ -2803,3 +2803,6 @@ Told the game {0} for {1}, but the row is still open.	Oyuna {1} için {0} denild
 {0}: recommended {1}; chosen {2}	{0}: önerilen {1}; seçilen {2}
 {0}: would be {1} (not sent: --dry)	{0}: {1} olurdu (gönderilmedi: --dry)
 {0}: {1}	{0}: {1}
+The game will not take as it stands: {0}  [breaks a rule]	Oyun bu hâliyle kabul etmiyor: {0}  [kurala uymuyor]
+[red]Not taken[/]	[red]Kabul edilmiyor[/]
+Nothing to put to the agent: the game will not take {0} as the deal stands (change the term it depends on, or remove it: --term "<term>=remove").	Menajere sunulacak bir şey yok: oyun anlaşmanın bu hâliyle {0} maddesini kabul etmiyor (bağlı olduğu şartı değiştir ya da kaldır: --term "<şart>=remove").

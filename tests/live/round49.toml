@@ -54,3 +54,19 @@ steps = [
   { read = "player 'Muhammed Erkasap'", path = "Player.ContractEnds", differs_from = "end" },
   { read = "player 'Ömürcan Acar'", path = "Player.ContractEnds", same_as = "other", note = "a row not decided keeps its contract" },
 ]
+
+[[test]]
+task = "T142"
+name = "a clause the game will not take on a one-year deal is named by its record, not left unmarked"
+at = "contracts-expire"
+fresh = true
+repeat = 3
+steps = [
+  { run = "contracts --expiring Eray 1", note = "renewal talks opened from the message" },
+  { run = "contract --next" },
+  { run = "contract --term 'Contract Length=2 years'", run_tr = "contract --term 'Sözleşme Süresi=2 yıl'" },
+  { read = "contract", path = "Facts.NotTaken", absent = true, live = true, note = "negative: two years, every clause taken" },
+  { run = "contract --term 'Contract Length=1 year'", run_tr = "contract --term 'Sözleşme Süresi=1 yıl'" },
+  { read = "contract", path = "Facts.NotTaken", present = true, live = true, note = "the promotion wage rise is not taken on one year" },
+  { run = "contract --sign --yes", rc = "fail", note = "nothing goes to the agent, and it says why" },
+]

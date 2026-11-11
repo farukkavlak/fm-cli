@@ -228,6 +228,17 @@ internal sealed partial class OfferScreen
 			Fact("Wage", read[2], "DisplayValue");
 		}
 
+		// A bonus or clause the game will not take as the deal stands ("Contract too short" beside a promotion wage
+		// rise on a one-year deal, T142) has no warning mark on the card: its record says so (`AddOnIsInvalidType`).
+		var notTaken = new List<string>();
+		try
+		{
+			foreach (var addOn in (await fm.Pull($"{Session}.AddOnList", "Name,AddOnIsInvalidType", list: true, shown: "Name")).EnumerateArray())
+				if (F(addOn, "AddOnIsInvalidType") == "True" && F(addOn, "Name") is { Length: > 0 } name) notTaken.Add(name);
+		}
+		catch (FmError) { }
+		if (notTaken.Count > 0) facts["NotTaken"] = string.Join(" · ", notTaken);
+
 		var reasons = judged.Zip(read.Skip(Person.Length > 0 ? 3 : 1)).ToDictionary(p => p.First, p => F(p.Second, "InvalidOrDisabledReason"));
 		var rows = Rows.Select(row => reasons.TryGetValue(row, out var reason) && reason.Length > 0 && !row.Detail.Contains(reason, StringComparison.Ordinal)
 			? row with { Detail = row.Detail.Length > 0 ? $"{row.Detail} · {reason}" : reason } : row).ToList();

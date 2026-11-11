@@ -571,9 +571,12 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     `Fm.Pull` gives up after 1.5 s). Now the squad is waited for (one reading keeps its rows, `Pull(seconds:)`):
     1 in 5 still found nobody (EN, 15 s). Not reproduced by hand (the squad there at once, twice). Then 12 fresh
     loads in a row found the player (`round49.toml` T61 + T140, EN + TR).
-- [ ] T142 The contract card did not mark a term the game will not take: "Promotion wage rise: 35% (Contract length
+- [x] T142 The contract card did not mark a term the game will not take: "Promotion wage rise: 35% (Contract length
   too short)" with a 1-year deal (TR, Eray Özbek, 31 May 2034): no `[breaks a rule]`, and `--sign` said only "nothing
-  to put to the agent". The term's own state should be read (the game's flag, not the note's words) and named.
+  to put to the agent". Now the talks' record is read: each add-on's `AddOnIsInvalidType` (`Session.AddOnList`);
+  those the game will not take are named under the card ("The game will not take as it stands: …", `Facts.NotTaken`)
+  and by `--sign`. `round49.toml` EN 3/3, TR 3/3 (two years: none; one year: the promotion wage rise).
+  `fm-round` steps can be written per language (`run_tr`): a term's value is the game's word ("2 yıl").
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the

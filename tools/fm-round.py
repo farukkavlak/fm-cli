@@ -66,6 +66,7 @@ class Failed(Exception):
     pass
 
 
+LANG_NOW = None  # the language a run is in, for a step written for it (run_<lang>)
 LOG = None  # a run keeps every command's answer here: a failed try can be read without playing it again
 
 
@@ -552,7 +553,7 @@ def load_list(path):
 
 
 STEP_KINDS = ("run", "read", "until", "start", "finish", "stop")
-READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "seconds", "every", "live", "note", "doing"}
+READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing"}
 
 
 def problems_in(tests):
@@ -586,8 +587,11 @@ def problems_in(tests):
                     kept.add(step["keep"])
                 if kind == "until" and not {"is", "not"} & set(step):
                     found.append(f"{where} step {number}: until waits for is / not")
-            if kind == "run" and set(step) - {"run", "rc", "within", "note"}:
-                found.append(f"{where} step {number}: unknown {sorted(set(step) - {'run', 'rc', 'within', 'note'})}")
+            # `run_<lang>`: the same step as a player of that language types it (a term's value in the game's
+            # words: "2 years", "2 yıl"); `run` is taken in the others.
+            allowed = {"run", "rc", "within", "note"} | {f"run_{lang}" for lang in LANGUAGES}
+            if kind == "run" and set(step) - allowed:
+                found.append(f"{where} step {number}: unknown {sorted(set(step) - allowed)}")
             if kind == "start":
                 running = True
             if kind in ("finish", "stop"):
@@ -699,6 +703,8 @@ def play(test):
     side = None
     try:
         for number, step in enumerate(test["steps"], 1):
+            if f"run_{LANG_NOW}" in step:
+                step = {**step, "run": step[f"run_{LANG_NOW}"]}
             step = {k: filled(v, kept) if k in ("run", "read", "until", "start") else v for k, v in step.items()}
             if "run" in step:
                 rc, out, err, took = fm(step["run"])
@@ -720,7 +726,11 @@ def play(test):
                 try:
                     value = dig(read_json(step["read"]), re.sub(r"\{(\w+)\}", lambda m: str(kept[m.group(1)]), step["path"]))
                 except (KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
+                    if step.get("absent"):
+                        continue  # the step asks for the path not to be there
                     raise Failed(f"step {number} `{step['read']}` {step['path']}: not there ({error})") from error
+                if step.get("absent"):
+                    raise Failed(f"step {number} `{step['read']}` {step['path']} is {value!r}, wanted it not there")
                 if "keep" in step:
                     kept[step["keep"]] = value
                 if wrong := holds(step, value, kept):
@@ -764,7 +774,9 @@ def run(args):
     failed = 0
     global LOG
     restore = {}
+    global LANG_NOW
     for lang in args.lang.split(","):
+        LANG_NOW = lang
         rows = []
         loaded = None
         LOG = open(RESULTS / f"{stem}-{lang}.log", "w")
