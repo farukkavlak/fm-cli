@@ -589,6 +589,11 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [x] T146 `contract --sign` with a term the card marks red said only "either a term breaks a rule, or …": now it
   names the marked terms ("Agent Fee breaks a rule"; TR "Temsilci Komisyonu kurala uymuyor"). `round50.toml` EN 3/3,
   TR 3/3 (Asaf's renewal at his old wage: the agent's fee above the club's percentage; the agent's own terms: none).
+- [x] T147 A new signing's press introduction: `reply … 1` "Delegate to a staff member" said "Confirmed", yet the game
+  still waited (Decline / Attend). The staff member takes such conferences from the next one; this one still needs
+  its answer. Now, after a confirmed answer, the game still waiting (`PressConference` / `NeedAction`) and the
+  message still offering answers (`CanRespond`, the record of the message last opened) are read back and said:
+  "The game took it, yet still waits on this message". `round50.toml` EN 3/3, TR 3/3 (scenario `press-intro`).
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the

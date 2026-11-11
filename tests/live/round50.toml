@@ -57,3 +57,19 @@ steps = [
   { run = "contract --sign --yes", rc = "fail", note = "names the agent fee" },
   { run = "contract --cancel" },
 ]
+
+[[test]]
+task = "T147"
+name = "a press introduction given to staff for next time: reply says the game still waits on it"
+at = "press-intro"
+fresh = true
+repeat = 3
+steps = [
+  { run = "next", rc = "any", note = "the game holds at the introduction's message" },
+  { read = "inbox", path = "?UniqueId=2441352.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 1", note = "the staff member takes such conferences from now on" },
+  { read = "status", path = "State", is = "PressConference", note = "this one still waits" },
+  { run = "reply {msg} 9", rc = "fail", note = "negative: no such answer" },
+  { run = "reply {msg} 1", note = "decline: now it is done" },
+  { read = "status", path = "State", not = "PressConference" },
+]

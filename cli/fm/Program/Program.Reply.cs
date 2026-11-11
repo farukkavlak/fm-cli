@@ -338,6 +338,13 @@ internal static partial class Program
 				if (confirmed.StartsWith("error", StringComparison.Ordinal)) return Report(confirmed);
 				await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
 				Console.WriteLine(L($"Confirmed: {title2}"));
+				// An answer can be taken for the next time only: a new signing's press introduction given to a staff
+				// member (27 Jun 2034) marks the message answered, yet the game still waits at it with Decline /
+				// Attend (T147). Read back by the game still waiting and the message still offering answers.
+				var state = Field(await Fm.GetJson("state"), "State");
+				if (state is "PressConference" or "NeedAction" && await LastOpenedMessage() is { } after
+				    && Field(after, "UniqueId") == id && Field(after, "CanRespond") == "True")
+					Console.WriteLine(L($"The game took it, yet still waits on this message; what it asks now: reply \"{GameWords.Of(title)}\""));
 			}
 			else
 			{

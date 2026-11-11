@@ -2809,3 +2809,4 @@ Nothing to put to the agent: the game will not take {0} as the deal stands (chan
 Leaving (their move is agreed; not counted): {0}	Gidecekler (transferleri kesin; sayılmadı): {0}
 {0} has no club to make an offer to: offer him a contract instead: contract "{1}"	{0} bir kulübe bağlı değil, teklif yapılacak kulüp yok; onun yerine sözleşme teklif et: contract "{1}"
 Nothing to put to the agent: {0} breaks a rule (red on the card); change it (--term "<term>=<value>", --wage).	Menajere sunulacak bir şey yok: {0} kurala uymuyor (kartta kırmızı); değiştir (--term "<şart>=<değer>", --wage).
+The game took it, yet still waits on this message; what it asks now: reply "{0}"	Oyun bunu aldı, ama hâlâ bu mesajı bekliyor; şimdi ne sorduğu: reply "{0}"
