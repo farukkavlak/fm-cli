@@ -316,6 +316,27 @@ internal static partial class Program
 			var starting = close.Where(r => (" " + Fold(Field(r, "Name"))).Contains(" " + folded, StringComparison.Ordinal)).ToList();
 			if (exact.Count == 1) close = exact;
 			else if (starting.Count > 0) close = starting;
+			// One name only a typo away from what was typed is someone else as often as a typo: "Yunus Eker", ours,
+			// came up as another club's Yunus Emre Konak while the squad had not been read yet (T141). It is
+			// offered, not opened: asked in a terminal, said otherwise.
+			var typedWords = folded.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			bool Holds(JsonElement r)
+			{
+				var name = Fold(Field(r, "Name"));
+				var words = name.Split(' ', '-', '\'');
+				return name.Contains(folded, StringComparison.Ordinal)
+				       || typedWords.All(w => words.Any(x => x.StartsWith(w, StringComparison.Ordinal)));
+			}
+			if (close.Count == 1 && !Holds(close[0]))
+			{
+				var guess = Field(close[0], "Name");
+				var whose = (await Who(close))[0];
+				if (!(Ui.Interactive && Ui.Ask(L($"No player called '{wanted}'. Did you mean {guess} ({whose})?"), [L($"Open {guess}")], cancel: L("No")) == 0))
+				{
+					Console.Error.WriteLine(L($"No player called '{wanted}'. The closest name in search: {guess} ({whose}); to open him: player \"{guess}\""));
+					return null;
+				}
+			}
 			if (close.Count != 1)
 			{
 				Console.Error.WriteLine(found.Count == 0

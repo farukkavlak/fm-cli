@@ -103,6 +103,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L("No save is loaded. Load one with `fm continue`."));
 			return 69;
 		}
+		if (args.Contains("--expiring")) return await ContractsExpiring(json, args);
 		if (string.Join(" ", Words(args)) is { Length: > 0 } wanted) return await ContractOf(json, wanted);
 
 		var players = (await Fm.Pull("Human.Team.Players", "Name,Age,PositionCombinedString", list: true)).EnumerateArray().ToList();

@@ -128,6 +128,7 @@ internal static partial class Program
 			  dynamics        the dressing room: atmosphere, support for the manager, hierarchy and social groups
 			  contracts       contract calendar: whose contract ends when, soonest first
 			  contracts <player>  a player's contract: wage, status, bonuses and clauses
+			    --expiring [<player> <choice>]  the "contracts set to expire" message: each player's recommended action; with a player and a choice (its number), that decision
 			  club            club summary: the board's grade and objectives, supporters, balance and wages, facilities, gaps in the staff
 			  staff           the club's staff: who has which job, their age, wage, contract; what the teams lack and the board's view
 			  finances        finances: balance, this month's income/expenditure, debt, FFP, payroll by player status, sponsorship, projection

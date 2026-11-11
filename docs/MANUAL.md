@@ -97,6 +97,8 @@ fm squad --views         # the table's own views
 ```bash
 fm contracts             # whose contract ends when, soonest first
 fm contracts "A Player"
+fm contracts --expiring  # the "contracts set to expire" message: each player's recommended action
+fm contracts --expiring "A Player" 2   # that row's decision by its number (2: trigger the extension)
 fm health                # injured, tired, low sharpness, highest injury risk
 fm doctor                # what is wrong, with the command for each finding
 fm depth                 # who can play each position, age profile

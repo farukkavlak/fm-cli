@@ -33,3 +33,24 @@ steps = [
   { run = "match --instant", note = "a full eleven: the match is played" },
   { read = "status", path = "State", not = "Tactics" },
 ]
+
+[[test]]
+task = "T140"
+name = "contracts set to expire: a row's decision taken, read back by the row and by the contract"
+at = "contracts-expire"
+fresh = true
+repeat = 3
+steps = [
+  { read = "contracts --expiring", path = "?Name=Muhammed Erkasap.0.Done", is = "False" },
+  { read = "player 'Muhammed Erkasap'", path = "Player.ContractEnds", keep = "end" },
+  { read = "player 'Ömürcan Acar'", path = "Player.ContractEnds", keep = "other" },
+  { run = "contracts --expiring Erkasap 9", rc = "fail", note = "negative: no such choice" },
+  { run = "contracts --expiring zzqx 2", rc = "fail", note = "negative: no such player in the table" },
+  { read = "contracts --expiring", path = "?Name=Muhammed Erkasap.0.Done", is = "False" },
+  { run = "contracts --expiring Erkasap 2", note = "Trigger Extension" },
+  { read = "contracts --expiring", path = "?Name=Muhammed Erkasap.0.Done", is = "True" },
+  { run = "contracts --expiring Erkasap 2", rc = "fail", note = "decided already" },
+  { run = "next" },
+  { read = "player 'Muhammed Erkasap'", path = "Player.ContractEnds", differs_from = "end" },
+  { read = "player 'Ömürcan Acar'", path = "Player.ContractEnds", same_as = "other", note = "a row not decided keeps its contract" },
+]

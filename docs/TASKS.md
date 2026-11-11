@@ -552,17 +552,25 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   unanswered message with choices once a day and stops (rc 4) at a kind in `STOP_KINDS`; `--past <id>` goes on.
   Scenario `contracts-expire` (31 May 2034): EN 3/3 and TR 3/3 stopped at the player's message; `--past` both: on to
   4 Jun (EN, TR).
-- [ ] T140 The "contracts set to expire" message's table: a decision per player (`GenericContractDecisionButton`
-  "Trigger Extension", `OfferContractButton`), `SetForReleaseButton`, `SetDoFToNegotiateButton` and
-  `ApplyAllRecommendedButton`; `reply` lists only "Delegate". Each button sits inside its player's row (the row's
-  node is the start of the button's `Source`); the row's player record (`…Items.<n>.Player`) did not pull. A command
-  to take a row's decision, read back by the player's contract. Scenario `contracts-expire`.
+- [x] T140 The "contracts set to expire" message's table: a decision per player; `reply` lists only "Delegate".
+  `contracts --expiring [<player> <choice>]` (new): the message found by its kind (125) among the waiting ones and
+  held when its rows are players of ours; each row by its decision node (`personexpiringcontract`: `Person` id,
+  `Recommended`, `Options` with the game's numbers 1 offer, 2 trigger extension, 3 release, 0 do not offer,
+  `Disabled` once decided); the choice put at the row's `ButtonsAndDropdown…selectedoption` (the row's button
+  follows it), the button inside the row (`Source` under the row's node) sending `EventFmxMakeContractDecision`.
+  Read back by `Disabled` and the game's own status ("Extension Triggered"); a contract offer opens the talks
+  (`contract`). By hand EN: Erkasap 2 (contract 30/6/2034 → 2035 after `next`, a row not decided unchanged),
+  Asaf 0, Chetauya 1 (talks), wrong choice / name / a second decision refused. `round49.toml` EN 3/3, TR 3/3
+  (TR: "Muhammed Erkasap: Uzatma Opsiyonu Kullanıldı").
 - [ ] T141 `player "Yunus Eker"` opened another club's Yunus Emre Konak without a word (TR, just after a load, when
   the squad read as no one): search's typo match took the one close name. A name that is not the one typed should
-  be offered, not opened (`round49.toml` log, 11:43).
+  be offered, not opened (`round49.toml` log, 11:43). Now a single name only a typo away (not holding what was typed,
+  nor its words' starts) is asked in a terminal and said otherwise ("The closest name in search: …"). Not tried
+  live: no such name met yet.
   - Just after a load `player` found nobody 3 times in 4 fresh loads (the squad read as no one, or without names;
     `Fm.Pull` gives up after 1.5 s). Now the squad is waited for (one reading keeps its rows, `Pull(seconds:)`):
-    1 in 5 still found nobody (EN, 15 s). Not reproduced by hand (the squad there at once, twice).
+    1 in 5 still found nobody (EN, 15 s). Not reproduced by hand (the squad there at once, twice). Then 12 fresh
+    loads in a row found the player (`round49.toml` T61 + T140, EN + TR).
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the
