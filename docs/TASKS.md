@@ -544,6 +544,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - Not reproduced: `squad --views` over the inbox, then `reply 1` (`round48.toml`) passes with the old code too (EN
     3/3), so a fix that opens the inbox when no row is drawn was not kept. Needs the walk's own moment (the squad's
     Senior Squad Players page on top after `next`).
+- [ ] T139 The walk (`fm-round forward --answer`) went past "Antalyaspor player contracts set to expire" (tag 4, with
+  choices; 31 May and 23 Jun 2034) without stopping, as the game let it continue: on 30 Jun most of the squad left
+  (12 players by 19 Jul, the registration list 2/28). The walk should stop at contract expiry messages with choices
+  (by their tag), as a manager would act there. Pool saves before it: `2034-05-31-week.fm`, `2034-06-26-week.fm`.
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the
