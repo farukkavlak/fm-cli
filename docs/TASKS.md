@@ -571,6 +571,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     `Fm.Pull` gives up after 1.5 s). Now the squad is waited for (one reading keeps its rows, `Pull(seconds:)`):
     1 in 5 still found nobody (EN, 15 s). Not reproduced by hand (the squad there at once, twice). Then 12 fresh
     loads in a row found the player (`round49.toml` T61 + T140, EN + TR).
+- [ ] T142 The contract card did not mark a term the game will not take: "Promotion wage rise: 35% (Contract length
+  too short)" with a 1-year deal (TR, Eray Özbek, 31 May 2034): no `[breaks a rule]`, and `--sign` said only "nothing
+  to put to the agent". The term's own state should be read (the game's flag, not the note's words) and named.
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the
