@@ -745,6 +745,9 @@ not yet tried in a live terminal.
   - [x] Comparisons against the CLI's own labels gone: `register`'s menu by its entries' places, `contracts` terms by
     their field, the table's form by the game's codes.
   - Known: `Transfer/Contracts.cs` leaves out terms whose value reads "-", "N/A", "None", "No" (English words the plugin gives).
+    Same class (the plugin's English source label, the same in every language): `Core/Clock.cs` Continue button
+    "Continue" / "Response Required", `Match/Guided.cs` "Mutual Termination" / "Release On A Free" (the `--yes` guard),
+    `Club/ClubCards.cs` "Unknown" / "N/A".
   - Found 6 Nov (grep of the source; each needs its identity measured in the game):
     - [x] `Club/BoardRequests.cs`: whole command broken in this FM27 build (the card it clicked is gone); the stadium
       and new-contract requests were found by English labels. Now FM27's one list (`#MakeBoardRequestButton`), each
@@ -771,6 +774,15 @@ not yet tried in a live terminal.
       own words (`L`).
     - [ ] `Club/Youth.cs` overview (`youth`): first-team prospects read as "the cells after a name" (order) and the
       age as the number in "21-year-old full-back" (a sentence); waits on two reads agreeing.
+    - [ ] Found 11 Nov: `Club/Resign.cs` answers the board's "are you sure" talk by words in Turkish and English
+      ("niyetim", "gitmek", "korkarim", "leave", "intend", "afraid"), else the last line (text and order; any other
+      language falls to the last line). Measure the talk line's own identity at a resignation (what `SpeakToAction`
+      sends); until then, list the lines and leave the answer to `talk <n>` rather than pick one.
+    - [ ] Found 11 Nov: `Squad/Dynamics.cs` names a social group by the text that comes between two players' rows
+      (order). Look for the groups in the team's data (a list of social groups with their members).
+    - Checked 11 Nov, nothing new: compares on `Name` are element names; `Task.Delay` calls are poll steps inside
+      waits for a sign; `Club/Coaches.cs` reads a row by its shape (name, job, then checkbox + stars per area, each
+      area by its record).
     - [ ] Waits on "two reads agree" (about 100 places in 45 files: `settled`, `== last`): each is a time-based sign; move to
       the game's own sign where one is known (as T93, T119 did), one by one, measured. Tried and kept as it was:
       `squad --view` (the rows keep fields of views shown before and gain the new ones over several reads, so "the
