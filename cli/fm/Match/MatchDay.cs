@@ -215,6 +215,15 @@ internal static partial class Program
 		await LearnShape();
 		var state = await Fm.GetJson("state");
 		var inMatch = Field(state, "DuringMatch") == "True";
+		// On a match day the flow can rest on a page the game only wants looked at (Fixtures, after a settings
+		// page was left): the next fixture being today is the game's own word that Continue goes to the squad.
+		if (!inMatch && Passable(Field(state, "State")) && await DaysToNextMatch() == 0)
+		{
+			await Fm.Get("next");
+			await Until(async () => Field(state = await Fm.GetJson("state"), "State") is "Tactics" or "SubmitTeam" or "SquadNumbers"
+				|| Field(state, "DuringMatch") == "True", seconds: 30, every: 0.25);
+			inMatch = Field(state, "DuringMatch") == "True";
+		}
 		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "SquadNumbers"))
 		{
 			Console.Error.WriteLine(L("No match to play right now. When the game reaches a match day, `next` says so."));
@@ -238,7 +247,7 @@ internal static partial class Program
 				Console.Error.WriteLine(L("The match has started; an instant result can only be asked for before the team is submitted. To carry on: match"));
 				return 1;
 			}
-			return await InstantResult(state);
+			return await InstantResult(state, args);
 		}
 
 		// Stopped by `pause`: asking for the match is asking for it to go on. Without this it would stand
@@ -256,7 +265,11 @@ internal static partial class Program
 		// spot; a script is handed the choice and the match left waiting, unless told to pass
 		// the talks by.
 		var passTalks = args.Contains("--no-talk");
-		var names = await MatchNames();
+		// The sides are read from the match once a period is under way (below), never while it loads (T92).
+		sidesFromMatch = false;
+		var names = Field(state, "Period").Length > 0 || Field(state, "DuringMatch") != "True" ? await MatchNames() : null;
+		// Read before kick-off they can only be a guess (or an old match's): read again once it is under way.
+		if (Field(state, "DuringMatch") != "True") sidesFromMatch = false;
 		string stop = null, period = "", score = "", pressed = null, spoke = null, clock = null, commentary = null;
 		Dictionary<string, MatchMan> finalMen = null;
 		var lastLook = DateTime.MinValue;
@@ -285,6 +298,7 @@ internal static partial class Program
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(40);
 		MatchLive.Reset();
 		speedSet = null;
+		var sidesAt = DateTime.MinValue;
 
 		while (DateTime.UtcNow < deadline)
 		{
@@ -304,7 +318,22 @@ internal static partial class Program
 				continue;
 			}
 
-			if (Field(state, "DuringMatch") == "True") inMatch = true;
+			if (Field(state, "DuringMatch") == "True")
+			{
+				// Read before the team went in, the sides were the first team's: the match on screen says whose it
+				// is (the U19s' friendly played after the first team's instant result) once it has begun; asked
+				// again every few seconds until the match itself has answered.
+				// Not while the team is being submitted and the match loads: only once a period is under way, the
+				// game's busiest moment left alone (the game was lost at submission more than once, T92).
+				if (!sidesFromMatch && Field(state, "Period").Length > 0 && DateTime.UtcNow - sidesAt > TimeSpan.FromSeconds(5)
+				    && (sidesAt = DateTime.UtcNow) is var _ && await MatchNames() is { } begun)
+				{
+					names = begun;
+					try { ourNames = (await Fm.Pull(ourPlayersPath, "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToHashSet(); }
+					catch (FmError) { }
+				}
+				inMatch = true;
+			}
 			else if (inMatch) break;
 
 			// The flow can step aside for a moment and come back to the same stop; it is named once,
@@ -375,6 +404,16 @@ internal static partial class Program
 			{
 				var dialog = dialogs[0];
 				var yes = DialogAnswer(dialog, true);
+
+				// A notice with nothing to press is the game at work (the match loading after the team went in,
+				// 19 Mar 2034): it goes by itself, and is waited for, not answered.
+				if (dialog.GetProperty("Buttons").GetArrayLength() == 0)
+				{
+					var held = DialogWords(dialog, "Title") + "|" + DialogWords(dialog, "Description");
+					await Until(async () => (await Fm.GetJson("dialog")) is var now && (now.GetArrayLength() == 0 || now[0].GetProperty("Buttons").GetArrayLength() > 0
+						|| DialogWords(now[0], "Title") + "|" + DialogWords(now[0], "Description") != held), seconds: 30, every: 0.25);
+					continue;
+				}
 
 				// The eleven cannot go out as it is: who plays is the manager's call.
 				if (TeamProblem(dialog) is { } problem)

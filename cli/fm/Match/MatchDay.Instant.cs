@@ -8,7 +8,7 @@ internal static partial class Program
 	/// Leaves the match to the staff: the game simulates it in a few seconds instead of
 	/// playing it out. The button is on the team submission screen and asks twice.
 	/// </summary>
-	private static async Task<int> InstantResult(JsonElement state)
+	private static async Task<int> InstantResult(JsonElement state, string[] args, bool retried = false)
 	{
 		// The last fixture is still the previous match for a moment after the simulation ends,
 		// so its own key is kept and the report is not read until it has moved on. Otherwise
@@ -51,6 +51,7 @@ internal static partial class Program
 		var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(2);
 		var quiet = 0;
 		var answered = "";
+		var confirmed = false;
 		string Key(JsonElement d) =>
 			Field(d, "Title") + "\n" + Field(d, "Description") + "\n" + d.GetProperty("Buttons").GetArrayLength();
 		async Task<bool> NextDialog()
@@ -93,6 +94,7 @@ internal static partial class Program
 				}
 
 				await Fm.Get("click", ("ptr", Field(button!.Value, "Pointer")));
+				if (Field(dialog, "Panel") is InstantResultPanel) confirmed = true;
 				answered = key;
 				continue;
 			}
@@ -108,8 +110,40 @@ internal static partial class Program
 
 		if (Field(state, "State") is "Tactics" or "SubmitTeam")
 		{
-			Console.Error.WriteLine(L("An instant result was asked for, but the game is still on the squad screen."));
-			return 1;
+			// Another of our teams playing the same day (the under-19s' friendly when the youth side has no
+			// manager) is asked for after the first team's, on the same screen: the instant result was taken
+			// for the first team, and the game plays the other match out, as it has no instant result of
+			// its own (pressed there, the first team's questions come back). Known by the game still waiting
+			// for a team after the instant result was confirmed while another of the club's teams plays today.
+			if (!confirmed || await OtherTeamToday() is not { } other)
+			{
+				Console.Error.WriteLine(L("An instant result was asked for, but the game is still on the squad screen."));
+				return 1;
+			}
+			// That side has no squad screen of its own: an empty eleven shows only as the game's "no players" notice
+			// on Continue, after which it is back on the first team's screen, where a pick lands on the first team
+			// (19 Mar 2034). The one way the game offers to pick it is its staff's selection advice, whose answer
+			// is the suggested team: an advice still unanswered means nobody is picked there yet.
+			if (await OtherTeamAdvice(other.Ids) is { } advice)
+			{
+				var use = args.Contains("--pick")
+					|| Ui.Interactive && Ui.Ask(L($"Nobody is picked for today's {other.Match}; its staff suggest a team ('{advice}')."), [L("Use the suggested team")], cancel: L("Leave it")) == 0;
+				if (!use)
+				{
+					Console.Error.WriteLine(L($"Nobody is picked for today's {other.Match}; its staff suggest a team in '{advice}'. To use it: match --instant --pick   (or: reply \"{advice}\")"));
+					return 1;
+				}
+				// Its one answer is the suggested team.
+				if (await Reply(["reply", advice, "1"]) != 0) return 1;
+				if (retried) return 1;
+				// Answering opened the inbox over the squad screen: the instant result is asked for again from there.
+				return await InstantResult(await Fm.GetJson("state"), [.. args.Where(a => a != "--pick")], retried: true);
+			}
+			Console.WriteLine(L($"The first team's match is left to the staff. The game also asks for a team for today's {other.Match}; that match has no instant result and is played now."));
+			// An instant result was asked for: in a script the talks of the match played instead are passed by.
+			var rc = await PlayMatch(["--play", .. args.Contains("--no-talk") || !Ui.Interactive ? new[] { "--no-talk" } : []]);
+			if (rc != 0) return rc;
+			state = await Fm.GetJson("state");
 		}
 
 		var afterKey = beforeKey;
@@ -143,5 +177,52 @@ internal static partial class Program
 
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
 		return 0;
+	}
+
+	/// <summary>
+	/// The match today of another of the club's teams, home side first, and its two sides' ids, told by the
+	/// game's ids (the club's teams against the first team's own id); null when there is none. Two of the
+	/// club's teams can be its two sides, so the match is named, not a team.
+	/// </summary>
+	private static async Task<(string Match, string[] Ids)?> OtherTeamToday()
+	{
+		try
+		{
+			var first = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
+			var teams = await Fm.Pull("Human.Team.Club.Teams", "UniqueId,NextFixture.FixtureDateDistanceInDays,NextFixture.HomeTeam.Name,NextFixture.AwayTeam.Name,NextFixture.HomeTeam.UniqueId,NextFixture.AwayTeam.UniqueId", list: true);
+			return teams.EnumerateArray()
+				.Where(t => Field(t, "UniqueId") is { Length: > 0 } id && id != first && Field(t, "NextFixture.FixtureDateDistanceInDays") == "0")
+				.Select(t => ((string Match, string[] Ids)?)($"{Field(t, "NextFixture.HomeTeam.Name")} – {Field(t, "NextFixture.AwayTeam.Name")}",
+					[Field(t, "NextFixture.HomeTeam.UniqueId"), Field(t, "NextFixture.AwayTeam.UniqueId")]))
+				.FirstOrDefault();
+		}
+		catch (FmError) { return null; }
+	}
+
+	/// <summary>
+	/// The subject of the staff's team selection advice for the other match, still unanswered: a message of the
+	/// game's selection-advice tag (26) that can be answered, sent by staff of one of that match's sides (the
+	/// sender's team, by its id); null when there is none.
+	/// </summary>
+	private static async Task<string?> OtherTeamAdvice(string[] sides)
+	{
+		try
+		{
+			await Bound("inbox", "PortalScreen");
+			var rows = await Fm.GetJson("inbox", ("paths", "1"));
+			foreach (var row in rows.EnumerateArray().Where(m => Field(m, "TagsList").Split(',').Contains("26")
+				         && Field(m, "CanRespond") == "True" && Field(m, "NewsHasResponded") != "True" && Field(m, "Path").Length > 0))
+			{
+				var node = $"fmcli.advice{DateTime.UtcNow.Ticks % 100000}";
+				await Fm.Get("pathset", ("to", node), ("from", Field(row, "Path")));
+				// A reference read at a new node answers on the next read.
+				var team = "";
+				await Until(async () => (team = Field(await Fm.Pull($"{node}.NewsPersonSenderTeam", "UniqueId"), "UniqueId")).Length > 0, seconds: 2, every: 0.2);
+				await ReleaseNode(node);
+				if (team.Length > 0 && sides.Contains(team)) return Field(row, "NewsTitleString");
+			}
+		}
+		catch (FmError) { }
+		return null;
 	}
 }

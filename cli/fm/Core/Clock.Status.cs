@@ -80,10 +80,11 @@ internal static partial class Program
 		var state = await Fm.GetJson("state");
 		if (json)
 		{
-			// In a match the two sides are named too, as the match itself tells them apart (T135).
+			// In a match the two sides are named too, as the match itself tells them apart (T135); only once a period
+			// is under way: read while the match loads, the game was lost more than once (T92).
 			if (Field(state, "DuringMatch") == "True" && System.Text.Json.Nodes.JsonNode.Parse(state.GetRawText()) is System.Text.Json.Nodes.JsonObject withSides)
 			{
-				if (await MatchNames() is { } sides)
+				if (Field(state, "Period").Length > 0 && await MatchNames() is { } sides)
 				{
 					withSides["OwnSide"] = sides.Own;
 					withSides["OpponentSide"] = sides.Opponent;
@@ -109,7 +110,7 @@ internal static partial class Program
 				_ => await FixtureVenue() != "A",
 			};
 			if (score == "-") score = "–";
-			var named = await MatchNames();
+			var named = Field(state, "Period").Length > 0 ? await MatchNames() : null;
 			var board = named is { } sides
 				? home || watchedMatch ? $"{sides.Own} {score} {sides.Opponent}" : $"{sides.Opponent} {score} {sides.Own}"
 				: score + (home ? L(" (we are at home)") : L(" (we are away)"));

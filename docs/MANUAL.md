@@ -176,6 +176,7 @@ fm penalties                 # penalty order and rules
 fm match             # asks: watch in the terminal or instant result
 fm match --play      # watch: commentary, goals, talks
 fm match --instant   # leave it to the assistants
+fm match --instant --pick   # the U19s play the same day: take their staff's suggested team
 fm sub               # during a match: on the pitch and the bench
 fm sub <off> <on>
 fm shout [<x>]

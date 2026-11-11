@@ -1,0 +1,46 @@
+# Round 47: an instant result on a day the under-19s play too (T135): the first team left to the staff, the U19 match
+# played through, the first team's result read. Run: tools/fm-round.py dry tests/live/round47.toml, then run.
+
+[[test]]
+task = "T135"
+name = "instant result with the U19 friendly the same day: nobody picked there, the staff's advice taken, both matches done"
+at = "hunt-t135-u19"
+fresh = true
+repeat = 3
+fast = true
+steps = [
+  { read = "fixtures", path = "?Date=2034-03-19.0.Played", is = "False", note = "the first team's match today" },
+  { run = "match --instant --no-talk", rc = "fail", within = 300, note = "nobody picked for the U19 friendly: names the staff's advice and --pick" },
+  { read = "fixtures", path = "?Date=2034-03-19.0.Played", is = "False", note = "negative: nothing played" },
+  { start = "match --instant --no-talk --pick", note = "the advice taken, first team to the staff, the friendly played through" },
+  { until = "status", path = "DuringMatch", is = "True", seconds = 600, every = 10, live = true },
+  { until = "status", path = "OtherTeamMatch", is = "True", seconds = 120, every = 10, live = true, note = "the side we picked is the match's own MatchHumanTeam" },
+  { read = "status", path = "OpponentSide", present = true, live = true },
+  { finish = true },
+  { run = "next", rc = "any", note = "past the result screen: pages open again" },
+  { read = "fixtures", path = "?Date=2034-03-19.0.Played", is = "True", note = "the first team's match has its result" },
+  { read = "status", path = "DuringMatch", not = "True", live = true },
+]
+
+[[test]]
+task = "T135"
+name = "negative: a cup tie alone that day still goes by instant result as before"
+at = "cup"
+fresh = true
+repeat = 3
+steps = [
+  { run = "match --instant", within = 300 },
+  { read = "report", path = "Fixture.HasResult", is = "True", live = true },
+]
+
+[[test]]
+task = "T135"
+name = "negative: no match today, match still refuses and the day does not move"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { run = "match --instant", rc = "fail" },
+  { read = "status", path = "Date", same_as = "day" },
+]

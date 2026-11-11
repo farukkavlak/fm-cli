@@ -15,6 +15,7 @@ internal static partial class Program
 		{
 			watchedMatch = false;
 			otherTeamMatch = false;
+			sidesFromMatch = false;
 			ourPlayersPath = "Human.Team.Players";
 			// The sides are told apart by the game's own ids, not by name: a club's under-19s can carry
 			// the first team's name, and the match on screen need not be the first team's next fixture.
@@ -23,19 +24,23 @@ internal static partial class Program
 			var clubId = Field(await Fm.Pull("Human.Team.Club", "UniqueId"), "UniqueId");
 			if (await MatchSides() is { } m && firstId.Length > 0)
 			{
-				var homeOurs = m.Home.Id == firstId || (clubId.Length > 0 && m.Home.Club == clubId);
-				var awayOurs = m.Away.Id == firstId || (clubId.Length > 0 && m.Away.Club == clubId);
+				// The match names the side the manager picks for: two of the club's own teams can meet (the
+				// under-19s against the year's youth candidates, the manager picking the candidates).
+				var homeOurs = m.Human.Length > 0 ? m.Home.Id == m.Human : m.Home.Id == firstId || (clubId.Length > 0 && m.Home.Club == clubId);
+				var awayOurs = m.Human.Length > 0 ? m.Away.Id == m.Human : m.Away.Id == firstId || (clubId.Length > 0 && m.Away.Club == clubId);
 				if (homeOurs != awayOurs)
 				{
 					var (own, other) = homeOurs ? (m.Home, m.Away) : (m.Away, m.Home);
 					ourPlayersPath = $"{own.Path}.Players";
 					otherTeamMatch = own.Id != firstId;
+					sidesFromMatch = true;
 					return (own.Name, other.Name);
 				}
 				// A match we only watch — the under-18s against the year's youth candidates — names its own sides.
 				if (!homeOurs)
 				{
 					watchedMatch = true;
+					sidesFromMatch = true;
 					return (m.Home.Name, m.Away.Name);
 				}
 			}
@@ -50,6 +55,9 @@ internal static partial class Program
 		}
 	}
 
+	/// <summary>True when the last reading of the sides came from the match itself, not the first team's fixture.</summary>
+	private static bool sidesFromMatch;
+
 	/// <summary>True when the match being played is another of the club's teams', named home first.</summary>
 	private static bool watchedMatch;
 
@@ -61,8 +69,11 @@ internal static partial class Program
 
 	private readonly record struct MatchSide(string Name, string Id, string Club, string Path);
 
-	/// <summary>The two teams of the match on screen, from the match the screen is bound to; null without one.</summary>
-	private static async Task<(MatchSide Home, MatchSide Away)?> MatchSides()
+	/// <summary>
+	/// The two teams of the match on screen, from the match the screen is bound to, and the id of the side
+	/// the manager picks for (the match's MatchHumanTeam; empty when the match does not say); null without one.
+	/// </summary>
+	private static async Task<(MatchSide Home, MatchSide Away, string Human)?> MatchSides()
 	{
 		try
 		{
@@ -71,7 +82,8 @@ internal static partial class Program
 			// before (a home side from one match, an away side from another), so each reading gets a new one.
 			var paths = (await Fm.Get("find", ("name", "Match"), ("limit", "40"))).Split('\n').Select(l => l.Trim())
 				.Where(l => l.StartsWith("..", StringComparison.Ordinal) && l.EndsWith(".Match", StringComparison.Ordinal)).ToList();
-			var path = paths.FirstOrDefault(l => System.Text.RegularExpressions.Regex.IsMatch(l, @"^\.\.MatchStateCache\d+\.Match$"));
+			// The cache's number is written in hex ("MatchStateCache2E"): digits alone missed it, and the sides with it.
+			var path = paths.FirstOrDefault(l => System.Text.RegularExpressions.Regex.IsMatch(l, @"^\.\.MatchStateCache[0-9A-Fa-f]+\.Match$"));
 			if (path == null) return null;
 			var node = $"fmcli.sides{DateTime.UtcNow.Ticks % 100000}";
 			await Fm.Get("pathset", ("to", node), ("from", path));
@@ -84,9 +96,23 @@ internal static partial class Program
 			}
 			var home = await Side($"{node}.HomeTeam");
 			var away = await Side($"{node}.AwayTeam");
-			return home.Name.Length > 0 && away.Name.Length > 0 ? (home, away) : null;
+			var human = "";
+			try { human = Field(await Fm.Pull($"{node}.MatchHumanTeam", "UniqueId"), "UniqueId"); } catch (FmError) { }
+			// A watched match names a side of neither ours nor its own: only one of the two counts.
+			if (human != home.Id && human != away.Id) human = "";
+			return home.Name.Length > 0 && away.Name.Length > 0 ? (home, away, human) : null;
 		}
 		catch (FmError) { return null; }
+	}
+
+	/// <summary>
+	/// Lets go of the game's object a node of ours was pointed at, by pointing it at a plain number, once it has
+	/// been read through: a node left holding a message can outlive the page it came from (the game was lost at
+	/// the next kick-off with such nodes held, T92; not shown to be the cause).
+	/// </summary>
+	internal static async Task ReleaseNode(string node)
+	{
+		try { await Fm.Get("pathset", ("to", node), ("int", "-1")); } catch (FmError) { }
 	}
 
 	/// <summary>The panels the game opens its match-day windows in: their names are the same in every language.</summary>

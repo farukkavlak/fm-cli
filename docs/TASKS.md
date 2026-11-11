@@ -354,6 +354,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   asked `health` with the long timeout. Now it asks briefly first (`Answers`, 3 s) and the port file is read on every
   call. Measured with 7777 held by a dead game: 2 normal starts and one with the file set to 7777, 75–78 s each.
 - [ ] T92 The game crashed once leaving a match (15 Apr 2028, tweaks used in that match with a wrong bound path). Twice more on 5 Nov at kick-off, in a terminal with `status` asked every 2 s from another process (SIGBUS on the GC Finalizer thread); not with it asked every 5 s or not at all. Cause not known. Again 5 Nov, EN, list `round4`: gone before kick-off with `tweak` asked every second; the two reports of that day on the GC Finalizer jump to a bad address from UnityPlayer. `until` now takes `every`. Again 5 Nov 20:03, EN, ten seconds after `match` began submitting the team, with `tweak` asked every 5 s.
+  - 11 Nov, U19 friendly after an instant result (`round47.toml`): lost 5 times in about 13 runs while the match
+    loaded, then 2 in 5 with nothing asked beside it, so asking is not the whole cause. The sides are now read only
+    once a period is under way (`status`, `match`), and with that the list's own test ran 3/3 in EN and TR. Open.
   6 Nov, `kickoff` EN: 3 of 4 matches died at "Submitting the team" with nothing else asking (GC Finalizer, SIGSEGV
   at 0x20, GameAssembly → UnityPlayer). That day the plugin had begun reading every event context of every control
   for `Writes` on each `buttons?json=1`, which the submission asks many times; `Writes` is now only read when asked
@@ -536,7 +539,16 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   read the page without leaving the talks. Now `player` says the talks are held and how to go back (`contract "<player>"`),
   read from the talks' own screen before leaving; `contract` alone says so too. `round44.toml` EN + TR 3/3: said twice
   a run (talks on screen), not on the third (none).
-- [ ] T135 A youth team's match the manager has to pick for (Antalyaspor U19, 20 Mar 2032; U19 squad selection is
+- [ ] T137 `reply` found no message while another page (the squad's) was over the inbox: "no control holds it on
+  the loaded screens" (walk, 4 Jan 2034); `fm open Messages` then `reply` worked. The list stays bound under the page,
+  but no row is drawn to press. Now, with no row to press, `reply` opens the inbox page itself (by its GUID) and draws
+  the row again. `round48.toml`.
+  - [ ] EN + TR 3/3, negative (an unknown subject still refuses).
+- [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
+  warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
+  19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the
+  held queue and the incomplete eleven.
+- [x] T135 A youth team's match the manager has to pick for (Antalyaspor U19, 20 Mar 2032; U19 squad selection is
   delegated but the U19 has no manager): the match screen asks for the U19 eleven under the main team's next match.
   `match --instant` pressed Instant Result, confirmed "hand the match to your staff" and "Team Selection" yes, and the
   screen stayed (said "still on the squad screen"). Played through with `match --play`, the match ran, but the end
@@ -547,10 +559,20 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - [x] Sides told by the game's ids (`HomeTeam/AwayTeam.UniqueId`, `.Club.UniqueId` against `Human.Team`), not by name;
     our players read from our side of the match; the first team's report skipped. Built, not yet seen in the game.
   - [x] A first-team league match still names both sides right (round41 once, round42 3× each: TR 3/3, EN 2/3).
-  - [ ] EN repeat 3 of round42: the game was gone while the match was being started ("Submitting the team", no crash
+  - [x] (moved to T92) EN repeat 3 of round42: the game was gone while the match was being started ("Submitting the team", no crash
     report; the one at 17:06 was the stop before). Not known whether the sides read at kick-off had a part (T92).
-  - [ ] Seen in a youth match (TR + EN).
-  - [ ] `match --instant` for such a match.
+  - [x] What it is (FM27, 19 Mar 2034): the U19s meet the year's youth candidates (Antalyaspor YC) the same day as
+    the first team, and the manager picks the candidates. The match's own `MatchHumanTeam` names our side; the match
+    node is `MatchStateCache<hex>` (digits alone missed "2E", so no side was ever read there).
+  - [x] Seen in a youth match (TR + EN): `status` names "Antalyaspor U19s 0-3 Antalyaspor YC", `OtherTeamMatch` true.
+  - [x] `match --instant` for such a match: the first team goes to the staff; the other side has no squad screen of
+    its own (an empty eleven shows only as the "no players" notice on Continue, then the screen is the first team's
+    again, so `tactic pick` lands there). Its staff's selection advice (tag 26, sender's team one of the match's
+    sides, unanswered) is the one way to pick it: `--pick` (or yes at a terminal) takes it, else `match` names it.
+    Then the friendly is played through, no instant result for it; `match` waits out the buttonless notice while
+    it loads. `round47.toml` EN + TR 3/3 (game lost now and then while loading: T92).
+  - [x] `match` on a match day resting on a page only to be looked at (Fixtures, after a settings page) goes on to
+    the squad, by the next fixture being today; on another day it still refuses (`round47.toml` EN + TR 3/3).
 - [x] T129 After a live match the end-of-match line "our ratings (live)" gave nearly every player 6.7 while the man of
   the match had 7.6: each reading of the match's players was put at the same nodes (`fmcli.mp.p<i>`), and a node
   pointed again keeps what was bound under it, so the whistle showed kick-off ratings. Each reading now has nodes of

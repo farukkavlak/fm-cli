@@ -73,6 +73,7 @@ internal static partial class Program
 			                  (in a script it stops at a talk: talk <no>, then match)
 			    --no-talk     skip the talks
 			    --instant     do not play it, leave it to the assistants: the game simulates it in a few seconds
+			    --pick        another of our teams playing the same day with nobody picked (the U19s): use its staff's suggested team
 			  shout [<x>]     shout from the touchline during a match (Well Done, Up Your Game, Calm Down…)
 			  tweak [<x>]     during a match, the tactical tweaks (Take a Breather, Lock It Down…): which are on;  tweak <x> puts one on, --off takes it off
 			    tweak [<x>] --player <player>   his individual tweaks;  tweak --reset team|individual|all

@@ -385,14 +385,14 @@ def forward(args):
         if match_day and args.pool and now.get("CanSave") == "True" and fm("save --yes")[0] == 0:
             pool_copy("match", args.pool)
         newest_before = None if match_day else newest_message()
-        rc, out, err, _ = fm("match --instant" if match_day else "next")
+        rc, out, err, _ = fm("match --instant --pick" if match_day else "next")
         if match_day and args.pool:
             walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc})
         # A youth team's match the manager must pick for (no U-19 manager) is not given an instant result (T135):
         # it is played through instead.
         # A player missing (injured, banned) refuses it too: the assistant picks again first, youth players if short.
         if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam") and (fm("tactic pick")[0] == 0 or fm("tactic pick --youth")[0] == 0):
-            rc, out, err, _ = fm("match --instant")
+            rc, out, err, _ = fm("match --instant --pick")
             if args.pool:
                 walk_note({"date": now.get("Date"), "match": (out or err).strip()[-400:], "rc": rc, "after": "picked again"})
         if match_day and rc != 0 and state()["State"] in ("Tactics", "SubmitTeam"):
