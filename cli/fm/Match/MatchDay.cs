@@ -193,12 +193,20 @@ internal static partial class Program
 		return Field(state, "HumanIsHome") == "True" ? $"{n.Own} {home}-{away} {n.Opponent}" : $"{n.Opponent} {home}-{away} {n.Own}";
 	}
 
-	/// <summary>The period as the panel names it.</summary>
+	/// <summary>
+	/// The ball is in play: the game's own periods of play (SI.Match.MatchPeriod), extra time's halves too.
+	/// A break, a shootout, before kick-off and after the whistle are not.
+	/// </summary>
+	private static bool InPlay(JsonElement state) =>
+		Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTimeFirstHalf" or "ExtraTimeSecondHalf";
+
+	/// <summary>The period as the panel names it (SI.Match.MatchPeriod).</summary>
 	private static string LivePeriod(JsonElement state) => Field(state, "Period") switch
 	{
 		"FirstHalf" => L("First half"),
 		"SecondHalf" => L("Second half"),
-		"ExtraTime" => L("Extra time"),
+		"ExtraTimeFirstHalf" or "ExtraTimeSecondHalf" => L("Extra time"),
+		"Penalties" => L("Penalties"),
 		_ => "",
 	};
 
@@ -253,7 +261,7 @@ internal static partial class Program
 		// Stopped by `pause`: asking for the match is asking for it to go on. Without this it would stand
 		// still until the watch below calls it a decision the game is waiting for. No dialog may be up
 		// (a button under one would act behind it), and a talk screen has no such button.
-		if (inMatch && Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
+		if (inMatch && Field(state, "Playing") != "True" && InPlay(state)
 		    && (await Fm.GetJson("dialog")).GetArrayLength() == 0
 		    && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Events").Contains("MatchTogglePlayPause", StringComparison.Ordinal)) is { ValueKind: JsonValueKind.Object } play)
 		{
@@ -365,7 +373,7 @@ internal static partial class Program
 			// about half the time, in stretches of some twenty seconds, so until one reading has found them
 			// it is tried every fifteen seconds: at wider gaps a whole match went by unseen. A reading is some
 			// hundred parts, under a second in batches but still a pause in the panel, so not oftener.
-			if (Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime" && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
+			if (InPlay(state) && int.TryParse(Field(state, "MatchTime").Split(':')[0], out var lateMinute)
 			    && DateTime.UtcNow - lastLook > TimeSpan.FromSeconds(finalMen == null ? 15 : lateMinute >= 80 ? 10 : 30))
 			{
 				lastLook = DateTime.UtcNow;
@@ -382,8 +390,8 @@ internal static partial class Program
 			var said = Field(state, "Commentary");
 			if (Field(state, "Playing") == "True") heldByKey = false;
 			var live = Ui.Rich && Field(state, "DuringMatch") == "True" && (Field(state, "Playing") == "True" || heldByKey)
-			           && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime";
-			if (said.Length > 0 && said != commentary && !heard.Any(h => h.Said == said) && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime")
+			           && InPlay(state);
+			if (said.Length > 0 && said != commentary && !heard.Any(h => h.Said == said) && (InPlay(state) || Field(state, "Period") == "Penalties"))
 			{
 				heard.Enqueue((Field(state, "MatchTime"), said));
 				if (heard.Count > 40) heard.Dequeue();
@@ -525,7 +533,7 @@ internal static partial class Program
 
 			// An injury stops the match: the clock halts, play is paused and the screen offers
 			// "Confirm Changes". The assistant's note on the Dugout says who.
-			if (!heldByKey && Field(state, "Playing") != "True" && Field(state, "Period") is "FirstHalf" or "SecondHalf" or "ExtraTime"
+			if (!heldByKey && Field(state, "Playing") != "True" && InPlay(state)
 			    && PlannerStop(controls) is { } confirm)
 			{
 				var why = await DugoutNow() is { IsScoreUpdate: false } note ? note.Text : "";
@@ -577,7 +585,7 @@ internal static partial class Program
 			// The clock can also hang on a minute while play goes on (seen after a corner, for
 			// most of a minute); commentary still coming means the match is still going.
 			var time = Field(state, "MatchTime");
-			if (heldByKey || time != clock || talking || button != null || Field(state, "Period") is not ("FirstHalf" or "SecondHalf" or "ExtraTime"))
+			if (heldByKey || time != clock || talking || button != null || !InPlay(state))
 			{
 				clock = time;
 				clockAt = DateTime.UtcNow;

@@ -553,7 +553,7 @@ def load_list(path):
 
 
 STEP_KINDS = ("run", "read", "until", "start", "finish", "stop")
-READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing"}
+READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing", "again"}
 
 
 def problems_in(tests):
@@ -714,6 +714,7 @@ def play(test):
                 if "within" in step and took > step["within"]:
                     raise Failed(f"step {number} `{step['run']}`: took {took:.0f} s, wanted within {step['within']} s")
             elif "start" in step:
+                started = step["start"]
                 side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
             elif "finish" in step:
                 side.wait(timeout=COMMAND_LIMIT)
@@ -737,9 +738,22 @@ def play(test):
                     raise Failed(f"step {number} `{step['read']}` {step['path']} {wrong}")
             elif "until" in step:
                 limit = time.time() + step.get("seconds", 300)
+                restarts = 0
                 wrong = "never asked"
                 while time.time() < limit:
+                    if side is not None and side.poll() is not None and "again" in step and restarts < 5 \
+                            and read_json("status", 120).get("DuringMatch") == "True":
+                        # The match stopped for the game's own question (staff advice before kick-off): answer it, play on.
+                        restarts += 1
+                        fm(filled(step["again"], kept), 120)
+                        side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
                     if side is not None and side.poll() is not None:
+                        try:  # one last reading: the match ending may be what was waited for
+                            wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)
+                        except (Failed, KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
+                            wrong = str(error)
+                        if wrong is None:
+                            break
                         raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong}, and the match beside it ended")
                     try:
                         wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)

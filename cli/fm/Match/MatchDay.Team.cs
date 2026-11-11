@@ -178,7 +178,26 @@ internal static partial class Program
 
 		// After the whistle the match stops saying which side is ours; the board as it last
 		// stood, with the names, is the one to keep.
-		if (names != null && score != null && Field(state, "HumanIsHome") is not ("True" or "False")) return;
+		if (names != null && score != null && Field(state, "HumanIsHome") is not ("True" or "False"))
+		{
+			// Extra time's break and the shootout go straight to the game's stop, without the sides: the
+			// whistle is said with the board as it last stood (SI.Match.MatchPeriod; EN twice, TR once).
+			var pause = Field(state, "Period");
+			if (pause is "HalfTime" or "ExtraTimeHalfTime" or "Penalties" && pause != period)
+			{
+				var none = "";
+				var said = pause switch
+				{
+					"HalfTime" => L($"Half time: {score}{none}"),
+					"ExtraTimeHalfTime" => L($"Half time in extra time: {score}{none}"),
+					_ => L($"Penalty shootout: {score}{none}"),
+				};
+				if (said != LastWhistle) Console.WriteLine($"  {said}");
+				LastWhistle = said;
+				period = pause;
+			}
+			return;
+		}
 
 		var now = $"{home}-{away}";
 		if (watchedMatch && names is { } watched) now = $"{watched.Own} {now} {watched.Opponent}";
@@ -195,6 +214,10 @@ internal static partial class Program
 				"FirstHalf" => L("Kick-off"),
 				"HalfTime" => L($"Half time: {now}{side}"),
 				"SecondHalf" => L("Second half under way"),
+				"ExtraTimeFirstHalf" => L("Extra time under way"),
+				"ExtraTimeHalfTime" => L($"Half time in extra time: {now}{side}"),
+				"ExtraTimeSecondHalf" => L("Second half of extra time under way"),
+				"Penalties" => L($"Penalty shootout: {now}{side}"),
 				"FullTime" => L($"Full time: {now}{side}"),
 				_ => null,
 			};

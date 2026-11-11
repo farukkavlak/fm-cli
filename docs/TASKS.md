@@ -111,7 +111,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - `TacticPendingTweakOps` is a log: a tweak's last entry is what it will be. The game's Reset leaves a waiting change, so
     `--reset` takes those back. TR, paused: team, individual, all, and each scope leaves the other; after play went on, none came on.
   - Measured EN and TR: list cold, repeated, another player, unknown player, a man sent off; on / off / already on.
-  - [ ] Extra time.
+  - [ ] Extra time: a tweak put on, read back, taken off, a wrong one refused (`round51.toml`, scenario
+    `hunt-cup-extra-time`: EN 1 of 5 tries reached extra time, TR 1 of 4). Left: two more passes in each language. The game's periods are
+    `SI.Match.MatchPeriod` (`ExtraTimeFirstHalf`, `ExtraTimeHalfTime`, `ExtraTimeSecondHalf`, `Penalties`).
 - [x] T99 A message asked again after a team-mate failed to settle it (Ujkani, scenario `asked-again`): it offers
   Decline / Discuss again and holds the day; `status` and `next` name it, and `next` now fails when nothing moved
   (it said so but answered 0, read by scripts and the MCP as a step taken). Answered, the day goes on; the game keeps
@@ -203,6 +205,14 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - What apply does: a tactical tweak on the match's tactic (the button's `DugoutAdviceAcceptEventContext` carries its id), not a change of mentality or instructions. Pending at once, on after play goes on; `dugout apply` (the newest card that can be) says which. Measured: yellow-card card → Go Narrower (EN paused). List `round4`: TR 1 of 1, EN 0 of 3 (no apply with a tweak seen in the whole match; why is not known, as the test keeps no failed try).
   - [ ] Next round: tried at the highest speeds (10x / 40x) in one match each: no card taken. The panel stays hidden, and in both languages `match` stopped at an injury that needs a substitute (scenario `kickoff`, 46'), so the list must answer with `sub`, or play at normal speed. Normal speed, first half (list `round5`): TR no card taken in 7 minutes, the panel away for most calls; EN the game died at team submission (T92). Next: a way to apply that does not need the panel up, or a scenario set just before a card.
   - The panel is hidden during a move, even paused: `dugout` waits while the ball rolls and says so when paused.
+  - [ ] Round 51 (normal speed, `kickoff`): EN 1/1, a 50' card applied (Play With More Patience, read back on by
+    `tweak`) after several tries lost to the hidden panel, a 20' card taking nothing; TR 0/1, no card that can be
+    applied in the whole match. Slow and not to be counted on.
+    Lead: applying a card is a tactical tweak (`DugoutAdviceAcceptEventContext.m_tweakId`, an `FM.UI.TacticalTweak`;
+    `TacticalTweakOrigin` has `Dugout`), and `tweak` works with the panel hidden. A card's tweak is
+    `AnalysisFeedbackTweakId` / `TweakAction` on its `MatchAnalysisFeedback`, and `MatchDugoutSelectedEventTweakId`
+    on the selected one. `Match.MatchAnalysisFeedback` from the root `Match` reads empty (not bound without the
+    panel?). Next: read the card's tweak id where the panel is up (`match` lists every new card), apply it as a tweak.
   - While the ball rolls the list can move between two calls, so a number can mean another card (T101 removes the need for numbers).
 - [x] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
   talk) says `match`; at the game's own stop the button does nothing and it says `match`. `match` after `pause` plays on. `skip`
@@ -645,6 +655,13 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     confirmed by the panel's own Confirm Changes, a read leaves by Cancel; both read back by the panel going.
     TR 3/3, EN 2/3 (one died at submission, T92), `round23.toml`.
   - [x] `status` in a match says a window the game opened (by the dialog route), with `dialog` to answer it.
+  - [x] Extra time in `match`: commentary, the whistles (under way, the break with the score, second half), by
+    `SI.Match.MatchPeriod` (it looked for a period "ExtraTime" that never comes: no line was shown in extra time).
+    EN + TR (`round51.toml`); the break's whistle seen in TR (the sides drop out there: said with the last board).
+  - [ ] Penalty shootout in `match`: seen once (TR, won on penalties, said by the report). One kick's line shown of
+    the whole shootout (top speed); the shootout's own score not read; its whistle now said like the break, not seen.
+  - [ ] `match --play` stops at staff advice before kick-off ("The match waits for an answer to it"): the list
+    answers `dugout apply` and plays on (`again`). An injury needing a substitute ends a test try the same way.
 - [x] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
   - [x] The new manager's unveiling: its invitation answered with `reply` (Attend), every question with `talk`, the
     conference over (no answers left, `talk` then has no conversation). TR + EN 3/3 (`round24.toml`, scenario `press`).
