@@ -41,3 +41,19 @@ steps = [
   { run = "offer 'Ahmet Doğan Yıldırım' --dry", note = "negative: a player with a club, the card opens" },
   { run = "offer --close" },
 ]
+
+[[test]]
+task = "T146"
+name = "an offer the card marks as breaking a rule names the term"
+at = "contracts-expire"
+fresh = true
+repeat = 3
+steps = [
+  { run = "contracts --expiring Asaf 1", note = "renewal talks: the agent's fee is above the club's percentage" },
+  { run = "contract --next" },
+  { read = "contract", path = "Terms.?Warning=True.#", is = "0", live = true, note = "negative: the agent's own terms break nothing" },
+  { run = "contract --wage 43000", note = "his wage now: the agent's fee is then above the club's percentage" },
+  { read = "contract", path = "Terms.?Warning=True.#", not = "0", live = true },
+  { run = "contract --sign --yes", rc = "fail", note = "names the agent fee" },
+  { run = "contract --cancel" },
+]

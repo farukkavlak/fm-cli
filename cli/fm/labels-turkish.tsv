@@ -2808,3 +2808,4 @@ The game will not take as it stands: {0}  [breaks a rule]	Oyun bu hâliyle kabul
 Nothing to put to the agent: the game will not take {0} as the deal stands (change the term it depends on, or remove it: --term "<term>=remove").	Menajere sunulacak bir şey yok: oyun anlaşmanın bu hâliyle {0} maddesini kabul etmiyor (bağlı olduğu şartı değiştir ya da kaldır: --term "<şart>=remove").
 Leaving (their move is agreed; not counted): {0}	Gidecekler (transferleri kesin; sayılmadı): {0}
 {0} has no club to make an offer to: offer him a contract instead: contract "{1}"	{0} bir kulübe bağlı değil, teklif yapılacak kulüp yok; onun yerine sözleşme teklif et: contract "{1}"
+Nothing to put to the agent: {0} breaks a rule (red on the card); change it (--term "<term>=<value>", --wage).	Menajere sunulacak bir şey yok: {0} kurala uymuyor (kartta kırmızı); değiştir (--term "<şart>=<değer>", --wage).

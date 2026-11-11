@@ -586,6 +586,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [x] T145 `offer` on a free agent said "no 'Make An Offer'": he has no club to bid to. Now, when the menu holds the
   game's way to sign him (`PersonApproachToSign`, or `PersonOfferContract`), it says to use `contract "<player>"`.
   `round50.toml` EN 3/3, TR 3/3 (and `contract` opens the talks; a player with a club still gets the card).
+- [x] T146 `contract --sign` with a term the card marks red said only "either a term breaks a rule, or …": now it
+  names the marked terms ("Agent Fee breaks a rule"; TR "Temsilci Komisyonu kurala uymuyor"). `round50.toml` EN 3/3,
+  TR 3/3 (Asaf's renewal at his old wage: the agent's fee above the club's percentage; the agent's own terms: none).
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the

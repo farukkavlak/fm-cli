@@ -166,6 +166,9 @@ internal static partial class Program
 			// What the game will not take is said by name, read from the talks' record (T142).
 			if (ours != null && (await ours.WithReasons(Fm)).Facts.TryGetValue("NotTaken", out var refused))
 				Console.Error.WriteLine(L($"Nothing to put to the agent: the game will not take {refused} as the deal stands (change the term it depends on, or remove it: --term \"<term>=remove\")."));
+			// The terms the card marks (its warning icon) are said by name, so the one to change is not guessed at.
+			else if (ours?.Rows.Where(r => r.Warning).Select(r => OfferScreen.Say(r.Label)).Distinct().ToList() is { Count: > 0 } marked)
+				Console.Error.WriteLine(L($"Nothing to put to the agent: {string.Join(", ", marked)} breaks a rule (red on the card); change it (--term \"<term>=<value>\", --wage)."));
 			else
 				Console.Error.WriteLine(L("Nothing to put to the agent: either a term breaks a rule (red on the card), or the negotiation is at another step (look with talk)."));
 			return Outcome.Failed;
