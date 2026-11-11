@@ -56,7 +56,7 @@ internal static partial class Program
 	internal static async Task<JsonElement?> LastOpenedMessage()
 	{
 		const string at = "HumanPortalLastSelectedMessageReference.";
-		string[] fields = ["UniqueId", "NewsTitleString", "CanRespond", "NewsHasResponded", "NewsItemIsPriority", "NewsItemTimeSent", "NewsItemHasBeenRead"];
+		string[] fields = ["UniqueId", "NewsTitleString", "CanRespond", "NewsHasResponded", "NewsItemIsPriority", "NewsItemTimeSent", "NewsItemHasBeenRead", "NewsItemId"];
 		JsonElement row;
 		try { row = await Fm.GetJson("pull", ("path", "Human"), ("props", string.Join(",", fields.Select(f => at + f)))); }
 		catch (FmError) { return null; }
@@ -262,6 +262,20 @@ internal static partial class Program
 		{
 			Console.Error.WriteLine(L("The inbox is not read during a match. For the match: match"));
 			return 1;
+		}
+
+		// `--open`: the message last opened, with its kind, the game's own number for what the message is
+		// (`NewsItemId`: 125 "contracts set to expire", player's or staff's). The list's rows do not bind it.
+		if (args.Contains("--open"))
+		{
+			if (await LastOpenedMessage() is not { } open)
+			{
+				Console.Error.WriteLine(L("No message has been opened."));
+				return 1;
+			}
+			if (json) Console.WriteLine(open.ToString());
+			else Console.WriteLine(L($"{Field(open, "NewsTitleString")}   (kind {Field(open, "NewsItemId")})"));
+			return 0;
 		}
 
 		// Offer messages can sit behind the inbox's own Tasks filter, where the default list

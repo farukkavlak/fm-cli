@@ -1,0 +1,35 @@
+# Round 49: contracts at the season's end, and a match day the game's queue holds.
+# - a player's "deal about to expire" message: its contract extension option, read back by the player's contract (T61);
+# - an eleven short of a player: `match --instant` lets the game's held queue go and names the problem (T138).
+# The walk's stop at "contracts set to expire" (T139) is a `fm-round.py forward` run, tried by hand (EN + TR 3/3).
+# Run: tools/fm-round.py dry tests/live/round49.toml, then run.
+
+[[test]]
+task = "T61"
+name = "the contract extension option from the player's message, read back by his contract"
+at = "caught-2032-06-24"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?UniqueId=1826702.0.NewsTitleString", keep = "msg", live = true, note = "Yunus' deal about to expire" },
+  { read = "player 'Yunus Eker'", path = "Player.ContractEnds", keep = "end", is = "30/6/2032" },
+  { run = "reply {msg} 9", rc = "fail", note = "negative: no such answer" },
+  { read = "player 'Yunus Eker'", path = "Player.ContractEnds", same_as = "end" },
+  { run = "reply {msg} 2", note = "Trigger Extension" },
+  { read = "player 'Yunus Eker'", path = "Player.ContractEnds", differs_from = "end" },
+]
+
+[[test]]
+task = "T138"
+name = "an eleven short of a player: match --instant does not sit silent on the squad screen"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { run = "tactic player ST --clear", note = "ten outfield players" },
+  { run = "match --instant", rc = "any", note = "the warning comes, the queue let go" },
+  { read = "status", path = "State", not = "CanContinue", note = "the match is not played with ten" },
+  { run = "tactic pick" },
+  { run = "match --instant", note = "a full eleven: the match is played" },
+  { read = "status", path = "State", not = "Tactics" },
+]

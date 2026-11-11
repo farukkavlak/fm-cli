@@ -470,9 +470,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     through with a promise; one thinking of leaving for free talked round; a transfer-list request granted, read back
     by the game's own status (flag 6) once the day moves on.
   - [ ] A player asking for a new deal himself (moment not met yet).
-  - [ ] A contract's extension option from the "contract about to end" message (scenario `caught-2032-06-24`,
-    Yunus Eker): `reply <msg> 2` "Use the contract extension option", read back by `player` (30/6/2032 → 30/6/2033
-    at once). TR by hand. Left: EN; a test. The same message's "start contract talks" was walked through on
+  - [x] A contract's extension option from the "contract about to end" message (scenario `caught-2032-06-24`,
+    Yunus Eker): `reply <msg> 2` "Trigger Extension", read back by `player` (30/6/2032 → 30/6/2033 at once); a
+    wrong answer number refused, the contract unchanged. `round49.toml` EN 3/3, TR 3/3. The same message's "start contract talks" was walked through on
     Uğurcan (T132).
 - [x] T62 Pre-season: friendlies, pre-season training, new-season expectations.
   - [x] Friendlies: `friendly` (new) lists the opponents the game offers (by reputation, with fees), the open dates and
@@ -544,14 +544,32 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - Not reproduced: `squad --views` over the inbox, then `reply 1` (`round48.toml`) passes with the old code too (EN
     3/3), so a fix that opens the inbox when no row is drawn was not kept. Needs the walk's own moment (the squad's
     Senior Squad Players page on top after `next`).
-- [ ] T139 The walk (`fm-round forward --answer`) went past "Antalyaspor player contracts set to expire" (tag 4, with
-  choices; 31 May and 23 Jun 2034) without stopping, as the game let it continue: on 30 Jun most of the squad left
-  (12 players by 19 Jul, the registration list 2/28). The walk should stop at contract expiry messages with choices
-  (by their tag), as a manager would act there. Pool saves before it: `2034-05-31-week.fm`, `2034-06-26-week.fm`.
+- [x] T139 The walk (`fm-round forward --answer`) went past "Antalyaspor player contracts set to expire" (tag 4, with
+  choices; 31 May and 23 Jun 2034) without stopping, as the game let it continue: on 30 Jun most of the squad left.
+  The tag is not the identity (tag 4 also has the youth intake); the message's own kind is: `NewsItemId` 125 for the
+  player's and the staff's "contracts set to expire" (465 a press story about one player). The list's rows do not
+  bind it; the game's record of the message last opened does: `inbox --open [--json]` (new). The walk opens each
+  unanswered message with choices once a day and stops (rc 4) at a kind in `STOP_KINDS`; `--past <id>` goes on.
+  Scenario `contracts-expire` (31 May 2034): EN 3/3 and TR 3/3 stopped at the player's message; `--past` both: on to
+  4 Jun (EN, TR).
+- [ ] T140 The "contracts set to expire" message's table: a decision per player (`GenericContractDecisionButton`
+  "Trigger Extension", `OfferContractButton`), `SetForReleaseButton`, `SetDoFToNegotiateButton` and
+  `ApplyAllRecommendedButton`; `reply` lists only "Delegate". Each button sits inside its player's row (the row's
+  node is the start of the button's `Source`); the row's player record (`…Items.<n>.Player`) did not pull. A command
+  to take a row's decision, read back by the player's contract. Scenario `contracts-expire`.
+- [ ] T141 `player "Yunus Eker"` opened another club's Yunus Emre Konak without a word (TR, just after a load, when
+  the squad read as no one): search's typo match took the one close name. A name that is not the one typed should
+  be offered, not opened (`round49.toml` log, 11:43).
+  - Just after a load `player` found nobody 3 times in 4 fresh loads (the squad read as no one, or without names;
+    `Fm.Pull` gives up after 1.5 s). Now the squad is waited for (one reading keeps its rows, `Pull(seconds:)`):
+    1 in 5 still found nobody (EN, 15 s). Not reproduced by hand (the squad there at once, twice).
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the
   held queue and the incomplete eleven.
+  - Not reproduced: a striker taken out (`tactic player ST --clear`, `kickoff`) and `match --instant` names the ten
+    with the old code too (`round49.toml` EN 3/3 old and new), so a fix that lets the queue go was not kept. Needs the
+    walk's own moment (the eleven short after an injury or a loan, the warning panel held at the queue's head).
 - [x] T135 A youth team's match the manager has to pick for (Antalyaspor U19, 20 Mar 2032; U19 squad selection is
   delegated but the U19 has no manager): the match screen asks for the U19 eleven under the main team's next match.
   `match --instant` pressed Instant Result, confirmed "hand the match to your staff" and "Team Selection" yes, and the

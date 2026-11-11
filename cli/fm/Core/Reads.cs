@@ -229,8 +229,17 @@ internal static partial class Program
 	private static async Task<JsonElement?> OpenPlayer(string wanted)
 	{
 		var folded = Fold(wanted);
-		var records = (await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true)).EnumerateArray()
-			.Where(p => Field(p, "Name").Length > 0).ToList();
+		// Just after a load the squad can read as no one, or as ids without names (24 Jun 2032): the player was then
+		// looked for in search alone, which found nobody, or someone else of a like name. A club always has a
+		// squad: it is waited for until there is one with every name; one reading keeps its rows while it waits
+		// for the names. The seconds are only upper bounds.
+		List<JsonElement> all = [];
+		await Until(async () =>
+		{
+			all = (await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true, seconds: 5)).EnumerateArray().ToList();
+			return all.Count > 0 && all.All(p => Field(p, "Name").Length > 0);
+		}, seconds: 15, every: 0.25);
+		var records = all.Where(p => Field(p, "Name").Length > 0).ToList();
 		var squad = records.Select(p => Field(p, "Name")).Distinct().ToList();
 		var own = squad.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
 

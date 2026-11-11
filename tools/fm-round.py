@@ -349,6 +349,33 @@ def reject_bids(hold=()):
             done = True
 
 
+# Kinds of message a walk stops at, by the game's own number for the message (`inbox --open`, `NewsItemId`),
+# never its words: what a manager acts on there or loses the squad (T139: 30 Jun 2034, 12 players left).
+STOP_KINDS = {"125": "contracts set to expire"}
+
+
+def kind_waiting(checked):
+    """A message with choices, not answered, of a kind in STOP_KINDS: (kind's note, title, id), else None. Each
+    message is opened once (`reply` with no answer changes nothing) and its kind read; `checked` keeps its id."""
+    rc, out, _, _ = fm("inbox --json")
+    if rc != 0 or not out.lstrip().startswith("["):
+        return None
+    for m in json.loads(out):
+        key = m.get("UniqueId")
+        if m.get("CanRespond") != "True" or m.get("NewsHasResponded") == "True" or key in checked:
+            continue
+        if fm(f'reply "{m.get("NewsTitleString", "")}"')[0] != 0:
+            continue
+        rc, out, _, _ = fm("inbox --open --json")
+        opened = json.loads(out) if rc == 0 and out.lstrip().startswith("{") else {}
+        if opened.get("UniqueId") != key:
+            continue  # another message came up: looked at again next time
+        checked.add(key)
+        if opened.get("NewsItemId") in STOP_KINDS:
+            return STOP_KINDS[opened["NewsItemId"]], m.get("NewsTitleString", ""), key
+    return None
+
+
 def forward(args):
     """Days forward through the tool, matches simulated, up to a date. Stops where the game asks something.
     With --answer the first answers can lose the job (a board meeting answered blindly, 1 Mar 2030): while
@@ -359,8 +386,18 @@ def forward(args):
     # Answers that do not move the game on (offers opened again and again, 6 Nov) end the run instead of looping.
     idle, last_moment = 0, None
     seen, noted_day = set(), None
+    checked, kinds_day = set(args.past or ()), None
     while True:
         now = state()
+        if args.answer and now.get("Date") and now.get("Date") != kinds_day:
+            kinds_day = now.get("Date")
+            found = kind_waiting(checked)
+            if found:
+                print(f"Stopped at {now.get('Date')}: a message a manager acts on waits ({found[0]}): {found[1]}\n"
+                      f"  answered or dealt with, go on with: --past {found[2]}")
+                if args.pool:
+                    walk_note({"date": now.get("Date"), "moment": "stopped", "kind": found[0], "message": found[1]})
+                return 4
         if args.pool and now.get("Date") and now.get("Date") != noted_day:
             noted_day = now.get("Date")
             note_inbox(now, seen)
@@ -777,6 +814,7 @@ def main():
     one = sub.add_parser("forward")
     one.add_argument("date")
     one.add_argument("--answer", action="store_true", help="to reach a moment: opens what needs no choice, stops at a choice")
+    one.add_argument("--past", action="append", help="a message id (inbox --open --json) the walk has been stopped at and goes past now")
     one.add_argument("--catch", action="store_true", help="keep a scenario at each kind of moment not kept before (caught.json)")
     one.add_argument("--pool", type=int, default=0, help="keep the last N saves (each week, each match day) in the pool, and a log of the walk")
     one.add_argument("--hold", action="append", help="a player whose bids are not refused (a promise made to him); repeatable")

@@ -136,17 +136,20 @@ internal sealed class Bridge
 	private static int pulls;
 
 	/// <param name="shown">Properties to have in the game's own words rather than English.</param>
-	public async Task<JsonElement> Pull(string path, string props, bool list = false, string shown = "")
+	/// <param name="seconds">How long one reading may wait for every record to be complete (its rows kept): just after
+	/// a load a squad's names come seconds after its ids. Only an upper bound; the default keeps the short wait.</param>
+	public async Task<JsonElement> Pull(string path, string props, bool list = false, string shown = "", double seconds = 1.5)
 	{
 		var wanted = props.Split(',').Length;
 		// A list's entries are put at rows of their own for this reading.
 		var generation = list ? Interlocked.Increment(ref pulls).ToString() + DateTime.UtcNow.Ticks.ToString()[^6..] : "";
 		JsonElement data = default;
-		for (var attempt = 0; attempt < 6; attempt++)
+		var attempts = Math.Max(6, (int)Math.Ceiling(seconds / 0.25));
+		for (var attempt = 0; attempt < attempts; attempt++)
 		{
 			// A list bound by this very call holds nothing until the next frame.
 			try { data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation), ("shown", shown)); }
-			catch (FmError e) when (attempt < 5 && e.Message.Contains("is not a list", StringComparison.Ordinal))
+			catch (FmError e) when (attempt < attempts - 1 && e.Message.Contains("is not a list", StringComparison.Ordinal))
 			{
 				await Task.Delay(TimeSpan.FromMilliseconds(250));
 				continue;
