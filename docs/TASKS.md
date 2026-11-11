@@ -523,7 +523,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   `reply "<subject>"` fall back to it when no list has it. TR by hand: a briefing opened, the record reads its
   subject, priority, unanswered. `round46.toml` EN + TR 3/3 (briefing opened, `next` holds, `reply` finds it again).
   Left: a moment where the open message is missing from every list (here the Tasks list still had it), seen once.
-- [ ] T132 The contract card in a Turkish game: a promise's value came in English ("Playing Time: Important Player
+- [x] T132 The contract card in a Turkish game: a promise's value came in English ("Playing Time: Important Player
   (Suggested)"), the rule mark was written in Turkish whatever the language ("[kurala uymuyor]"), and the stage's
   heading came twice ("— Promises" then "Promises:"). A value is now put in the game's words, part by part when the
   game builds it of two of its words ("Önemli Oyuncu (Önerilen)"); the mark goes through `L`; a section-less group
@@ -534,7 +534,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     never showed: FM27's promise items are `binding_expect` frames inside `add-on-list`, not `item-enabled`. Now each
     is a row (name, note, value, lock, remove). `round46.toml` EN + TR 3/3 (three rows, no lone lock line, terms after).
   - [x] MANUAL images: `manual-shot.py --no-input` draws an arrow-key card and leaves it; promises and terms redone (EN).
-  - [ ] The rule mark in EN.
+  - [x] The rule mark in EN: Asaf's renewal at his old wage (`contracts-expire`), "Agent Fee … [breaks a rule]" on the card;
+    the JSON mark is T146's (`round50.toml` EN 3/3).
 - [x] T133 `reply "<subject>"` with several messages of that subject: the one the game marks as open (`CanRespond`
   and not `NewsHasResponded`) is taken; with none (or several) open, one answer after every list is looked in: each
   message with a number `reply` takes (kept by id), and "none awaiting an answer" when so. `round45.toml` EN + TR 3/3
@@ -554,6 +555,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   - Not reproduced: `squad --views` over the inbox, then `reply 1` (`round48.toml`) passes with the old code too (EN
     3/3), so a fix that opens the inbox when no row is drawn was not kept. Needs the walk's own moment (the squad's
     Senior Squad Players page on top after `next`).
+  - 11 Nov: `bug-reply-notfound` (Azat taken ill) loaded fresh: `reply` finds and opens it, TR. Not reproduced.
 - [x] T139 The walk (`fm-round forward --answer`) went past "Antalyaspor player contracts set to expire" (tag 4, with
   choices; 31 May and 23 Jun 2034) without stopping, as the game let it continue: on 30 Jun most of the squad left.
   The tag is not the identity (tag 4 also has the youth intake); the message's own kind is: `NewsItemId` 125 for the
@@ -572,7 +574,7 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   (`contract`). By hand EN: Erkasap 2 (contract 30/6/2034 → 2035 after `next`, a row not decided unchanged),
   Asaf 0, Chetauya 1 (talks), wrong choice / name / a second decision refused. `round49.toml` EN 3/3, TR 3/3
   (TR: "Muhammed Erkasap: Uzatma Opsiyonu Kullanıldı").
-- [ ] T141 `player "Yunus Eker"` opened another club's Yunus Emre Konak without a word (TR, just after a load, when
+- [x] T141 `player "Yunus Eker"` opened another club's Yunus Emre Konak without a word (TR, just after a load, when
   the squad read as no one): search's typo match took the one close name. A name that is not the one typed should
   be offered, not opened (`round49.toml` log, 11:43). Now a single name only a typo away (not holding what was typed,
   nor its words' starts) is asked in a terminal and said otherwise ("The closest name in search: …"). Not tried
@@ -581,6 +583,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     `Fm.Pull` gives up after 1.5 s). Now the squad is waited for (one reading keeps its rows, `Pull(seconds:)`):
     1 in 5 still found nobody (EN, 15 s). Not reproduced by hand (the squad there at once, twice). Then 12 fresh
     loads in a row found the player (`round49.toml` T61 + T140, EN + TR).
+  - Typo offered, not opened: `round52.toml` EN 3/3, TR 3/3 ("Eray Cömart", "Ali Habesoglo" offered; the right names and
+    one of ours open; nobody of a made-up name). The Turkish line had come out in English (its label numbered the
+    repeated name as the same hole); two such labels fixed, five missing ones added. A player with no number no
+    longer shows "#-1".
 - [x] T142 The contract card did not mark a term the game will not take: "Promotion wage rise: 35% (Contract length
   too short)" with a 1-year deal (TR, Eray Özbek, 31 May 2034): no `[breaks a rule]`, and `--sign` said only "nothing
   to put to the agent". Now the talks' record is read: each add-on's `AddOnIsInvalidType` (`Session.AddOnList`);

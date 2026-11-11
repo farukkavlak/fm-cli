@@ -65,7 +65,7 @@ internal static partial class Program
 
 		void PlainHeader()
 		{
-		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Field(player, "SquadNumber")), Suffixed(Field(player, "Age"), L(" years old")),
+		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Card.ShirtNumber(Field(player, "SquadNumber"))), Suffixed(Field(player, "Age"), L(" years old")),
 			GameWords.Of(Field(player, "Nation")), GameWords.Of(Field(player, "PositionCombinedStringLong"))));
 		Console.WriteLine(Line(" · ", Prefixed(L("Value "), Field(player, "Value")), Prefixed(L("Wage "), Field(player, "Wage")),
 			Prefixed(L("Contract "), Field(player, "ContractEnds")), GameWords.Of(Field(player, "PlayingTime"))));

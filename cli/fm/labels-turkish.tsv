@@ -2781,12 +2781,12 @@ Waiting for an answer, the message open on screen:	Cevap bekleyen, ekranda açı
 The first team's match is left to the staff. The game also asks for a team for today's {0}; that match has no instant result and is played now.	A takımının maçı ekibe bırakıldı. Oyun bugünkü {0} maçı için de kadro istiyor; o maçın anında sonucu yok, şimdi oynanıyor.
 Nobody is picked for today's {0}; its staff suggest a team ('{1}').	Bugünkü {0} maçı için kimse seçilmedi; hocaları bir kadro öneriyor ('{1}').
 Use the suggested team	Önerilen kadroyu kullan
-Nobody is picked for today's {0}; its staff suggest a team in '{1}'. To use it: match --instant --pick   (or: reply "{1}")	Bugünkü {0} maçı için kimse seçilmedi; hocaları '{1}' mesajında bir kadro öneriyor. Kullanmak için: match --instant --pick   (ya da: reply "{1}")
+Nobody is picked for today's {0}; its staff suggest a team in '{1}'. To use it: match --instant --pick   (or: reply "{2}")	Bugünkü {0} maçı için kimse seçilmedi; hocaları '{1}' mesajında bir kadro öneriyor. Kullanmak için: match --instant --pick   (ya da: reply "{2}")
 No message has been opened.	Hiç mesaj açılmadı.
 {0}   (kind {1})	{0}   (tür {1})
 No player called '{0}'. Did you mean {1} ({2})?	'{0}' adında bir oyuncu yok. {1} ({2}) mı demek istedin?
 Open {0}	{0} oyuncusunu aç
-No player called '{0}'. The closest name in search: {1} ({2}); to open him: player "{1}"	'{0}' adında bir oyuncu yok. Aramada en yakın ad: {1} ({2}); açmak için: player "{1}"
+No player called '{0}'. The closest name in search: {1} ({2}); to open him: player "{3}"	'{0}' adında bir oyuncu yok. Aramada en yakın ad: {1} ({2}); açmak için: player "{3}"
 No message about players' contracts set to expire is waiting.	Oyuncu sözleşmelerinin sona erdiğini söyleyen bekleyen bir mesaj yok.
 RECOMMENDED	ÖNERİLEN
 CHOSEN	SEÇİLEN
@@ -2814,3 +2814,8 @@ Extra time under way	Uzatmalar başladı
 Half time in extra time: {0}{1}	Uzatmalarda devre arası: {0}{1}
 Second half of extra time under way	Uzatmaların ikinci yarısı başladı
 Penalty shootout: {0}{1}	Penaltı atışları: {0}{1}
+could not read	okunamadı
+… and {0} more	… ve {0} tane daha
+There is no shout list on the match screen.	Maç ekranında bağırış listesi yok.
+error: no 'Add Attribute' in the search panel	error: arama panelinde 'Özellik Ekle' yok
+{0} — training report ({1})\n	{0} — antrenman raporu ({1})\n

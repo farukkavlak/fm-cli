@@ -16,7 +16,7 @@ internal static class Card
 
 		var who = new List<string>
 		{
-			$"[bold]{Ui.Safe(F(player, "Name"))}[/]" + Prefixed("  [dim]#[/]", F(player, "SquadNumber"))
+			$"[bold]{Ui.Safe(F(player, "Name"))}[/]" + Prefixed("  [dim]#[/]", ShirtNumber(F(player, "SquadNumber")))
 			+ Prefixed("  ", Suffixed(F(player, "Age"), L(" years old"))) + Prefixed("  ", Ui.Safe(F(player, "Nation"))),
 			$"[dim]{Ui.Safe(GameWords.Of(F(player, "PositionCombinedStringLong")))}[/]",
 			"",
@@ -165,6 +165,9 @@ internal static class Card
 		value.Length > 0 ? $"[dim]{label}[/] {Ui.Safe(value)}   " : "";
 
 	private static string Prefixed(string prefix, string value) => value.Length > 0 ? prefix + value : "";
+
+	/// <summary>A squad number as shown: none for the game's "no number" (-1, a player of no squad of ours).</summary>
+	internal static string ShirtNumber(string value) => int.TryParse(value, out var n) && n < 1 ? "" : value;
 	private static string Suffixed(string value, string suffix) => value.Length > 0 ? value + suffix : "";
 
 	private static string F(JsonElement element, string name) =>

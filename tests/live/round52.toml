@@ -1,0 +1,16 @@
+# Round 52: a name a typo away from someone in search is offered, not opened (T141).
+# Run: tools/fm-round.py dry tests/live/round52.toml, then run.
+
+[[test]]
+task = "T141"
+name = "a name one typo from another club's player is not opened; the right name and one of ours are"
+at = "hunt-cup-extra-time"
+fresh = true
+repeat = 3
+steps = [
+  { run = "player 'Eray Cömart'", rc = "fail", note = "Eray Cömert of Al-Tai is offered, not opened" },
+  { run = "player 'Ali Habesoglo'", rc = "fail", note = "Ali Habeşoğlu of Samsunspor is offered, not opened" },
+  { read = "player 'Eray Cömert'", path = "Player.Name", is = "Eray Cömert", note = "negative: the name as it is opens" },
+  { read = "player 'Eray Özbek'", path = "Player.Name", is = "Eray Özbek", note = "one of ours opens" },
+  { run = "player 'Zzqx Wwyy'", rc = "fail", note = "nobody of that name" },
+]
