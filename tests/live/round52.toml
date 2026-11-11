@@ -1,4 +1,4 @@
-# Round 52: a name a typo away from someone in search is offered, not opened (T141).
+# Round 52: a name a typo away from someone, in search or in our squad, is offered, not opened (T141).
 # Run: tools/fm-round.py dry tests/live/round52.toml, then run.
 
 [[test]]
@@ -13,4 +13,6 @@ steps = [
   { read = "player 'Eray Cömert'", path = "Player.Name", is = "Eray Cömert", note = "negative: the name as it is opens" },
   { read = "player 'Eray Özbek'", path = "Player.Name", is = "Eray Özbek", note = "one of ours opens" },
   { run = "player 'Zzqx Wwyy'", rc = "fail", note = "nobody of that name" },
+  { run = "player 'Erai Özbec'", rc = "fail", note = "one of ours a typo away is offered too, not opened" },
+  { read = "player 'Özbek'", path = "Player.Name", is = "Eray Özbek", note = "a part of the name still opens" },
 ]

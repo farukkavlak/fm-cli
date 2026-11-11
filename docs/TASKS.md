@@ -584,7 +584,8 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     1 in 5 still found nobody (EN, 15 s). Not reproduced by hand (the squad there at once, twice). Then 12 fresh
     loads in a row found the player (`round49.toml` T61 + T140, EN + TR).
   - Typo offered, not opened: `round52.toml` EN 3/3, TR 3/3 ("Eray Cömart", "Ali Habesoglo" offered; the right names and
-    one of ours open; nobody of a made-up name). The Turkish line had come out in English (its label numbered the
+    one of ours open; nobody of a made-up name). One of ours a typo away is offered too ("Erai Özbec"), a part of
+    the name still opens ("Özbek"): EN 3/3, TR 3/3. The Turkish line had come out in English (its label numbered the
     repeated name as the same hole); two such labels fixed, five missing ones added. A player with no number no
     longer shows "#-1".
 - [x] T142 The contract card did not mark a term the game will not take: "Promotion wage rise: 35% (Contract length

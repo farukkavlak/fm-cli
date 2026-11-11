@@ -254,7 +254,20 @@ internal static partial class Program
 		// A typo of one of ours — unless someone elsewhere has the name as it was typed.
 		if (own.Count == 0 && Matching(squad, n => n, wanted) is { Count: > 0 } typo
 		    && !(await SearchFor(wanted)).Any(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")).Contains(folded, StringComparison.Ordinal)))
+		{
+			// One of ours only a typo away is offered, not opened, as one in search is (T141): two of a like name
+			// can be in the squad, and the one typed may be neither. Several are listed by Choose below.
+			var typed = folded.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			if (typo is [var only] && !typed.All(w => Fold(only).Split(' ', '-', '\'').Any(x => x.StartsWith(w, StringComparison.Ordinal))))
+			{
+				if (!(Ui.Interactive && Ui.Ask(L($"No player called '{wanted}'. Did you mean {only} (our squad)?"), [L($"Open {only}")], cancel: L("No")) == 0))
+				{
+					Console.Error.WriteLine(L($"No player called '{wanted}'. The closest name in our squad: {only}; to open him: player \"{only}\""));
+					return null;
+				}
+			}
 			own = typo;
+		}
 
 		string full;
 		// The search result to open, by its person's path, and for one of ours his id.
