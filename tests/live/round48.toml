@@ -1,0 +1,17 @@
+# Round 48: reply finds a message while another page is over the inbox (walk bug 4 Jan 2034). Does not reproduce
+# the bug yet: the old code passes it too (EN 3/3); kept as the test for when the moment is found.
+# Run: tools/fm-round.py dry tests/live/round48.toml, then run.
+
+[[test]]
+task = "T137"
+name = "the squad page over the inbox: reply opens the inbox itself and the message"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "#", not = "0" },
+  { run = "squad --views", note = "the squad page is put over the inbox" },
+  { run = "reply 1", note = "opens the first message although the inbox was not on screen" },
+  { run = "squad --views" },
+  { run = "reply zzqqx", rc = "fail", note = "negative: no such subject" },
+]

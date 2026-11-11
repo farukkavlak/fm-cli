@@ -540,10 +540,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   read from the talks' own screen before leaving; `contract` alone says so too. `round44.toml` EN + TR 3/3: said twice
   a run (talks on screen), not on the third (none).
 - [ ] T137 `reply` found no message while another page (the squad's) was over the inbox: "no control holds it on
-  the loaded screens" (walk, 4 Jan 2034); `fm open Messages` then `reply` worked. The list stays bound under the page,
-  but no row is drawn to press. Now, with no row to press, `reply` opens the inbox page itself (by its GUID) and draws
-  the row again. `round48.toml`.
-  - [ ] EN + TR 3/3, negative (an unknown subject still refuses).
+  the loaded screens" (walk, 4 Jan 2034); `fm open Messages` then `reply` worked.
+  - Not reproduced: `squad --views` over the inbox, then `reply 1` (`round48.toml`) passes with the old code too (EN
+    3/3), so a fix that opens the inbox when no row is drawn was not kept. Needs the walk's own moment (the squad's
+    Senior Squad Players page on top after `next`).
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the
