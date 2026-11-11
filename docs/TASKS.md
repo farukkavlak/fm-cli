@@ -693,6 +693,10 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
 - [ ] T73 `docs/MANUAL.md` images refreshed for every changed output (`tools/manual-shot.py`). `live-match.png` shows the new key line. To capture: `tools/live-capture.py … -- fm match --play --no-talk` (the `--` is needed).
 - [ ] T74 Full sweep passes after the last task: `tools/sweep.sh` (every read command) and `tools/mcp-check.py`,
   TR and EN.
+  - 11 Nov, career `scn-career-2034-06-29` (team on its end-of-season holiday): sweep 62/63 EN and TR, mcp-check
+    49/50 EN and TR. The one left is `league` before the season starts ("no stats"), an honest answer.
+    `schedule`/`prep` failed on the holiday (no session buttons drawn): they now read the week from
+    `Human.TrainingCalendar.DaysOverview` events (all Rest); in-season weeks still come from the buttons.
 - [ ] T75 `docs/AI-CHECKLIST.md` open items done or moved here.
 - [ ] T76 `docs/BACKLOG.md` ideas decided: each made a task here or dropped.
 - [ ] T77 `fm crawl` TR + EN again at the end; the report shows no event or page without a command (or a reason).
