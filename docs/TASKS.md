@@ -577,6 +577,15 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
   those the game will not take are named under the card ("The game will not take as it stands: …", `Facts.NotTaken`)
   and by `--sign`. `round49.toml` EN 3/3, TR 3/3 (two years: none; one year: the promotion wage rise).
   `fm-round` steps can be written per language (`run_tr`): a term's value is the game's word ("2 yıl").
+- [x] T143 `targets` counted players whose move is agreed as cover (Marin, the only goalkeeper, a week before he left
+  for Brentford; 22 Jun 2034). Now the game's status 14 leaves them out, named on a line of their own ("Leaving").
+  `round50.toml` EN 3/3, TR 3/3 (scenario `squad-gaps`).
+- [x] T144 `targets KL --free` listed no goalkeeper: the quick filter (free agents) took the search's place. With a
+  search, free agents are now the search's contract rule (`filterrulecontract` "Expired"); the quick filter only alone.
+  The value-limit note went to stdout and broke `--json`: now on stderr. `round50.toml` EN 3/3, TR 3/3.
+- [x] T145 `offer` on a free agent said "no 'Make An Offer'": he has no club to bid to. Now, when the menu holds the
+  game's way to sign him (`PersonApproachToSign`, or `PersonOfferContract`), it says to use `contract "<player>"`.
+  `round50.toml` EN 3/3, TR 3/3 (and `contract` opens the talks; a player with a club still gets the card).
 - [ ] T138 `match --instant` sat silent ("still on the squad screen") while the game's queue was held by its own
   warning panel (OpenPanelEventContext at the head): the eleven had ten outfield players (walk, 20 Nov 2033 and
   19 Feb 2034); `/queue?clear=1` then `--instant` named the ten and `tactic pick` fixed it. `match` should name the

@@ -291,6 +291,12 @@ internal static partial class Program
 			}
 			maxValue = limit;
 		}
+		// Free agents beside a search: the quick filter takes the search's place in the game (`targets KL --free`
+		// listed no goalkeeper, 22 Jun 2034), so then it is the search's own contract rule, expired (as the quick
+		// filter's free agents are: contract run out).
+		var freeInSearch = args.Contains("--free") && Option(args, "--filter") == null
+			&& (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null);
+		if (freeInSearch) search.Add(("filter.filterrulecontract.filtervalue", "Expired", L("Contract status")));
 		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
 		{
 			// A search is added to whatever an earlier one left on, and two positions both
@@ -310,7 +316,7 @@ internal static partial class Program
 
 		// A quick filter by the list's own value (QuickFilterValues), or by its name as the game writes it.
 		// Free agents are the players whose contract has run out (value 4).
-		if ((Option(args, "--filter") ?? (args.Contains("--free") ? "free" : null)) is { } wantedFilter)
+		if ((Option(args, "--filter") ?? (args.Contains("--free") && !freeInSearch ? "free" : null)) is { } wantedFilter)
 		{
 			var values = filters.Value.GetProperty("Values").EnumerateArray().Select(v => v.ToString()).ToList();
 			var shownNames = filters.Value.TryGetProperty("Shown", out var sh) ? sh.EnumerateArray().Select(v => v.GetString() ?? "").ToList() : filterNames;

@@ -215,7 +215,8 @@ internal static partial class Program
 				if (Money(figures[i]) is { } amount && amount <= maxValue && (at < 0 || amount > Money(figures[at]))) at = i;
 			if (at < 0 || at >= kept.Count || kept[at] == "")
 				return await Close(L($"error: {MoneyFormat.Short(maxValue.Value)} is below every figure in the value list"));
-			if (Money(figures[at]) != maxValue) Console.WriteLine(L($"(the value limit was taken as {figures[at]} from the game's list)"));
+			// A note beside the result, not part of it: on stderr, so `--json` stays one document.
+			if (Money(figures[at]) != maxValue) Console.Error.WriteLine(L($"(the value limit was taken as {figures[at]} from the game's list)"));
 			await Fm.Get("select", ("ptr", Field(amounts, "Pointer")), ("choice", figures[at]), ("fire", "1"));
 			if (!await Until(async () => (await Amounts()) is { ValueKind: JsonValueKind.Object } now && Field(now, "Value") == kept[at], seconds: 4, every: 0.25))
 				return await Close(L($"error: {figures[at]} did not fit the panel"));

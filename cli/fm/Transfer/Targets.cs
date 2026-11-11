@@ -67,6 +67,8 @@ internal static partial class Program
 	}
 
 	/// <summary>What there is to spend, and the positions with one fit player or none.</summary>
+	private const int LeavingFlag = 14;
+
 	private static async Task<int> ThinPositions(bool json, string transfer, string wage)
 	{
 		var (team, _) = await Fm.OwnTeam();
@@ -76,6 +78,10 @@ internal static partial class Program
 			.Where(p => Field(p, "LoanClub.Name") is not { Length: > 0 } club || club == team)
 			.Select(p => (Name: Field(p, "Name"), Injured: Field(p, "IsInjured") == "True", Slots: Positions(Field(p, "PositionCombined"))))
 			.ToList();
+		// A player whose move is agreed (the game's status 14: leaving for another club on a date) does not cover a
+		// position next season: Marin, the only goalkeeper, read as cover a week before he left (22 Jun 2034).
+		var leaving = (await SquadFlags()).Where(f => f.Value.Any(x => x.Id == LeavingFlag)).Select(f => f.Key).ToHashSet();
+		squad = squad.Where(p => !leaving.Contains(p.Name)).ToList();
 		var depth = DepthRows.SelectMany(r => r)
 			.Select(slot => (Slot: slot, Fit: squad.Where(p => p.Slots.Contains(slot) && !p.Injured).Select(p => p.Name).ToList(), Injured: squad.Where(p => p.Slots.Contains(slot) && p.Injured).Select(p => p.Name).ToList()))
 			.ToList();
@@ -88,12 +94,14 @@ internal static partial class Program
 				TransferBudget = transfer,
 				WageBudget = wage,
 				Thin = thin.Select(d => new { d.Slot, d.Fit, d.Injured }),
+				Leaving = leaving,
 				Depth = depth.ToDictionary(d => d.Slot, d => d.Fit.Count),
 			}));
 			return 0;
 		}
 
 		Console.WriteLine(L($"Budget: transfers {transfer} · wages {wage}"));
+		if (leaving.Count > 0) Console.WriteLine(L($"Leaving (their move is agreed; not counted): {string.Join(", ", leaving.Order())}"));
 		Console.WriteLine(thin.Count == 0 ? L("\nNo thin positions in the squad: every position has at least two fit players.") : L("\nThin positions in the squad (one fit player or none):"));
 		foreach (var (slot, fit, injured) in thin)
 		{

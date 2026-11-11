@@ -1,0 +1,43 @@
+# Round 50: building a squad that has lost its goalkeeper (career, 22 Jun 2034).
+# - `targets` leaves out the players whose move is agreed (status 14) and says who they are (T143);
+# - `targets <position> --free` keeps the position: free agents are the search's contract rule, not the quick filter (T144);
+# - `offer` on a free agent points to `contract` (the game's action is to sign him, not to bid) (T145).
+# Run: tools/fm-round.py dry tests/live/round50.toml, then run.
+
+[[test]]
+task = "T143"
+name = "players leaving on an agreed move are not counted as cover"
+at = "squad-gaps"
+fresh = true
+repeat = 3
+steps = [
+  { read = "targets", path = "Leaving", keep = "leaving", present = true, live = true },
+  { read = "targets", path = "Thin.?Slot=GK.0.Fit.#", is = "0", live = true, note = "the only goalkeeper is leaving" },
+  { read = "squad", path = "?Name=Renato Marin.0.Flags.?Id=14.#", is = "1", live = true, note = "by the game's own status" },
+  { read = "targets", path = "Thin.?Slot=DCR.#", is = "0", live = true, note = "negative: a position with cover is not thin" },
+]
+
+[[test]]
+task = "T144"
+name = "free agents in one position: every row is of that position"
+at = "squad-gaps"
+fresh = true
+repeat = 3
+steps = [
+  { read = "targets GK --free", path = "#", keep = "all", not = "0", live = true },
+  { read = "targets GK --free", path = "?PositionCombinedString=GK.#", same_as = "all", live = true },
+]
+
+[[test]]
+task = "T145"
+name = "an offer for a free agent points to contract; one for a player with a club opens the card"
+at = "squad-gaps"
+fresh = true
+repeat = 3
+steps = [
+  { run = "offer 'Kyle Groves' --dry", rc = "fail", note = "free agent: contract instead" },
+  { run = "contract 'Kyle Groves'", note = "the talks open" },
+  { run = "contract --cancel" },
+  { run = "offer 'Ahmet Doğan Yıldırım' --dry", note = "negative: a player with a club, the card opens" },
+  { run = "offer --close" },
+]

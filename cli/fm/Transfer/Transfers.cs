@@ -106,7 +106,10 @@ internal static partial class Program
 		if (await RunPlayerAction(MakeOfferAction) is not { } chose) return 1;
 		if (!chose)
 		{
-			Console.Error.WriteLine(L($"No offer can be made for {name} (the game's actions have no 'Make An Offer'; an offer may already be in, or they may be our player)."));
+			// A free agent has no club to bid to: the game offers him a contract instead (22 Jun 2034, Hami Büyük).
+			Console.Error.WriteLine(LastActions.Contains($"\"{OfferContractAction}\"", StringComparison.Ordinal) || LastActions.Contains("\"PersonApproachToSign\"", StringComparison.Ordinal)
+				? L($"{name} has no club to make an offer to: offer him a contract instead: contract \"{name}\"")
+				: L($"No offer can be made for {name} (the game's actions have no 'Make An Offer'; an offer may already be in, or they may be our player)."));
 			return 1;
 		}
 
@@ -374,6 +377,9 @@ internal static partial class Program
 	/// taken as whole. False when the menu has no such action (closed again), null when the menu
 	/// could not be used (said already).
 	/// </summary>
+	/// <summary>The actions the menu listed when the one asked for was not there: what else could be done instead.</summary>
+	private static string LastActions = "";
+
 	private static async Task<bool?> RunPlayerAction(string action)
 	{
 		await Fm.Get("actions", ("close", "1"));
@@ -391,6 +397,7 @@ internal static partial class Program
 		}, seconds: 8, every: 0.25);
 		if (!there)
 		{
+			LastActions = listed;
 			await Fm.Get("actions", ("close", "1"));
 			return false;
 		}
