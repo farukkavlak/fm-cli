@@ -328,8 +328,9 @@ def newest_message():
     return max(ids) if ids else None
 
 
-def reject_bids():
-    """In a walk the squad is kept: each incoming bid the game lets us refuse is refused. True if one was."""
+def reject_bids(hold=()):
+    """In a walk the squad is kept: each incoming bid the game lets us refuse is refused. True if one was. A bid for
+    a player named in `hold` (a promise made to him) is left for the manager and logged."""
     tried, done = set(), False
     while True:
         rc, out, _, _ = fm("offers --json")
@@ -339,6 +340,10 @@ def reject_bids():
         if not left:
             return done
         tried.add((left[0].get("Player"), left[0].get("Club")))
+        if any(h.lower() in str(left[0].get("Player", "")).lower() for h in hold):
+            print(f"  held: {left[0].get('Club')} for {left[0].get('Player')} (left for the manager)", flush=True)
+            walk_note({"moment": "held bid", "club": left[0].get("Club"), "player": left[0].get("Player"), "offer": left[0]})
+            continue
         if fm(f"offers {left[0]['No']} reject --yes")[0] == 0:
             print(f"  refused: {left[0].get('Club')} for {left[0].get('Player')}", flush=True)
             done = True
@@ -416,7 +421,7 @@ def forward(args):
             # Short of eleven (injuries, illness, loans): the youth players too, as a manager would.
             if args.answer and match_day and (fm("tactic pick")[0] == 0 or fm("tactic pick --youth")[0] == 0):
                 continue
-            if args.catch and reject_bids():
+            if args.catch and reject_bids(args.hold or ()):
                 continue
             if args.answer and answer_something():
                 answered = True
@@ -774,6 +779,7 @@ def main():
     one.add_argument("--answer", action="store_true", help="to reach a moment: opens what needs no choice, stops at a choice")
     one.add_argument("--catch", action="store_true", help="keep a scenario at each kind of moment not kept before (caught.json)")
     one.add_argument("--pool", type=int, default=0, help="keep the last N saves (each week, each match day) in the pool, and a log of the walk")
+    one.add_argument("--hold", action="append", help="a player whose bids are not refused (a promise made to him); repeatable")
     one.set_defaults(go=forward)
     one = sub.add_parser("keep")
     one.add_argument("copy")
