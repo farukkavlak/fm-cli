@@ -134,6 +134,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     Done: a list's choice is taken by the game's own value too (a playing time's code, a role's bit; an error lists
     each choice with it), the same in every language; a requirement made by values, read back, deleted; the wrong
     words and `discard --all`: TR + EN 3/3 (`round33.toml`). The type list and some roles carry no value: by word.
+  - [ ] 12 Nov: `new --choices [--json]` lists each of the form's lists with the game's values and sends nothing. FM27's
+    form opens on the out-of-possession pitch, so `--position` had put the position there and `--oop-position`
+    took it off again (the screen agreed: "Mevki (Topa Sahipken)" empty). Each pitch is now chosen by its tab
+    (`#ip-tab-button` / `#oop-tab-button`), a tile told by its frame (`#ip-pitch-frame` / `#oop-pitch-frame`).
+    `round61.toml` EN once: steps 1–17 passed (choices made nothing, role by value, both pitches, the loan word).
+    Then `delete 1 --loan` brought up the game's own fatal error (T92), 3 of 3 with that list's steps by hand;
+    deleting alone, or a both-pitch one, passes. Left: find which earlier step sets it up; then TR + EN 3/3.
 - [ ] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
   - [ ] Left: copy a plan (EventFmxSquadPlannerCopy, its data `copytype`). The list's entry sent by `select`, by a row's
     submit, and by `select` with its events queued (`fire=1`, Season After, EN 8 Nov) changes nothing in the other
@@ -817,8 +824,11 @@ not yet tried in a live terminal.
       Turkish game); the level is `#youth-level` › `#description` as shown (`/shown`; "Average" is two Turkish words on
       that page). FM26's staff counts gone. No order, no sentence, no two-reads wait. TR + EN 3/3 (`round60.toml`):
       cold, page open, another page open; a club with none lists none.
-    - [ ] `Club/Youth.cs` `youth --training`: rows by order ("primarytext, then status, position, rating"), scrolled
-      by share of length, two reads agreeing.
+    - [x] `Club/Youth.cs` `youth --training`: was rows by order, scrolled by share of length, two reads agreeing. Now no
+      page: the youth team's `TeamTraining.TrainingSquad`, each player's `PlayerTraining.TrainingRating` (with the
+      human / team / Judge context beside the rows, as the first team's training; 0 = did not train, "-"), status in
+      the game's words, the team's own `AverageTrainingRating`. TR + EN 3/3 (`round61.toml`): cold, another page,
+      the inbox; close season (nobody rated, no average).
     - [x] `Club/Resign.cs`: FM27's button is a GenericAction sending `HumanClubResign` (no dropdown, no end-of-season
       choice: `--end-of-season` is refused); its question is the dialog of Type `Confirm<action id>`, primary slot;
       done when the manager has no club. No board talk came; should one come, its lines are listed for `talk <n>`.
