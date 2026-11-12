@@ -141,8 +141,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     `round61.toml` EN once: steps 1–17 passed (choices made nothing, role by value, both pitches, the loan word).
     Then `delete 1 --loan` brought up the game's own fatal error (T92), 3 of 3 with that list's steps by hand;
     deleting alone, or a both-pitch one, passes. Left: find which earlier step sets it up; then TR + EN 3/3.
-- [ ] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
-  - [ ] Left: copy a plan (EventFmxSquadPlannerCopy, its data `copytype`). The list's entry sent by `select`, by a row's
+- [x] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
+  - [x] Left: copy a plan (EventFmxSquadPlannerCopy, its data `copytype`): broken in the game itself (below). The list's entry sent by `select`, by a row's
     submit, and by `select` with its events queued (`fire=1`, Season After, EN 8 Nov) changes nothing in the other
     season (its ST and DCR stayed). Measured EN 8 Nov (`window`): the event's data is the page variable `copytype`
     (its `BindingVariables`, beside the game's own `plantypecurrentseason` 0, `plantypenextseason` 1,
@@ -160,7 +160,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     by next's plan (the GKs gone); shown Next, 2 → current replaced too; shown Current, 1 or 2 (by `from=` the
     game's constant, `int=`, or `copytype` set and the list fired) → next and after unchanged, read back on the
     page and on screen. So the target is current whatever the value: a game bug, or something the hand-made
-    selection does that ours does not. Next: Faruk tries it by hand in his own game (Current › copy to Next).
+    selection does that ours does not. By hand (Faruk, 12 Nov, the same `window` copy, EN): Current › "Copy Current
+    Season plan to…" › Next Season leaves Next Season's GK "Unknown" too. The game's own bug in FM27 27.0.0: no
+    `planner copy` until it is fixed; to be tried again after a game update.
     The game's library: `game_plugin` (stripped; RTTI names left), the handler class
     `SQUAD_PLANNER_UI_HANDLER` (vtable at 0x54df548 in the arm64 slice), events enter at
     `i_game_plugin_send_event`; property and event ids are four-character codes (the data model's numbers).
