@@ -854,6 +854,10 @@ not yet tried in a live terminal.
     - Checked 11 Nov, nothing new: compares on `Name` are element names; `Task.Delay` calls are poll steps inside
       waits for a sign; `Club/Coaches.cs` reads a row by its shape (name, job, then checkbox + stars per area, each
       area by its record).
+    - [ ] `happiness`: the level's word ("Çok Mutlu") is read off the page's rows (scrolled, two reads agreeing), as the
+      score (`HierarchyOverallHappinessLevel`) has no word beside it. The game must map score to word somewhere: look
+      for that mapping (an enum, a string table, `HappinessString` on another type, data-model line 377) and read the
+      word from the data instead (Faruk, 12 Nov).
     - [ ] Waits on "two reads agree" (about 100 places in 45 files: `settled`, `== last`): each is a time-based sign; move to
       the game's own sign where one is known (as T93, T119 did), one by one, measured. Tried and kept as it was:
       `squad --view` (the rows keep fields of views shown before and gain the new ones over several reads, so "the
