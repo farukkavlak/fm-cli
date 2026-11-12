@@ -414,8 +414,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - [ ] The game's own fatal-error dialog (T92, 12 Nov) is told and said ("the game hit a fatal error and is closing"),
     not "FM is not responding"; `fm start` after it works; `fm-round` restarts at once instead of waiting.
   - [ ] Every death the tool's own steps can bring about is found and avoided (T11's delete sequence first).
-  - [ ] Before a step known to be risky, or after a long stretch of play, the game is saved (its own save, no copy
-    of ours), only if the player asked for it (an option, off by default) — decide with Faruk.
+  - [ ] Each kind of death's cause found (no saving around them: Faruk, 12 Nov, it slows play). Start from the
+    fatal-error dialog's moments (`Player.log`, backtrace breadcrumbs, a stack sample of the game's main thread).
   - [ ] T92 and T40 closed or each left cause written here.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
