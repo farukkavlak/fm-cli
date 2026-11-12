@@ -162,10 +162,11 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The academy at a glance, from the club's data and the Youth Setup pages' data paths
-	///: coaching and recruitment levels, the youth stadium, the youth team's staff,
-	/// the next intake and whether its candidates have come, the youngsters thought ready for the
-	/// first team, and the dressing room's mood.
+	/// The academy at a glance, from the club's data: coaching and recruitment levels, the youth stadium, the next
+	/// intake and whether its candidates have come, the youngsters the staff see as first-team prospects
+	/// (Club.DevelopmentPlayersFirstTeamCandidates), and the youth team's cohesion and atmosphere (its dynamics
+	/// feedback, in the game's words). The youth level alone has no data path: it is the #youth-level tile's
+	/// #description on the youth environment page, read as shown.
 	/// </summary>
 	private static async Task<int> Youth(bool json, string[] args)
 	{
@@ -174,73 +175,67 @@ internal static partial class Program
 		if (args.Contains("--candidates") || args.Skip(1).Any(w => w is "candidates" or "adaylar" or "aday")) return await YouthCandidates(json);
 		if (args.Skip(1).Any(w => w is "preview" or "onizleme")) return await YouthPreview(json);
 
-		// The environment tab: the youth team's staff and the academy's level are bound there.
-		List<(string Text, string Path)> details = [];
-		// FM27 moved the page under the youth team's squad (Squad Dynamics there) and dropped its staff
-		// counts and the level's path: there it is known by the mood's lines.
-		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthEnvironment, async () =>
-			(details = await YouthPaths("Team.Club.YouthCoachingLevel", "12")).Any(t => t.Path == "Team.StaffCoachingSubGroup.Count")
-			|| (details = await YouthPaths("data.Description", "12")).Any(t => t.Path == "binding.ProConsLongString"));
+		// The level as a person reads it: the tile's description in the game's own words (the same English word
+		// stands for two Turkish ones on this page, so it is not looked up).
+		var level = "";
+		async Task<bool> LevelShown() => (level = (await Fm.GetJson("shown", ("under", "youth-level"))).EnumerateArray()
+			.Where(t => Field(t, "Name") == "description").Select(t => Field(t, "Text")).FirstOrDefault() ?? "").Length > 0;
+		var opened = await OpenSubpage(Screen.YouthSetup, Screen.YouthEnvironment, LevelShown);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		string Bound(List<(string Text, string Path)> texts, string path) => texts.FirstOrDefault(t => t.Path == path).Text ?? "";
-		string Team(string group) => $"{Bound(details, $"Team.{group}.Count")}/{Bound(details, $"Team.{group}.MaxValue")}";
-		// FM27 draws the level bound to no path, as the #description of its #youth-level tile.
-		var level = Bound(details, "Team.Club.YouthCoachingLevel");
-		if (level.Length == 0)
-			await Until(async () => (level = (await Fm.GetJson("texts", ("within", "youth-level"), ("named", "description"))).EnumerateArray()
-				.Select(t => t.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "").FirstOrDefault() ?? "").Length > 0, seconds: 4, every: 0.25);
-		level = GameWords.Of(level);
-		var atmosphere = details.Where(t => t.Path is "data.Description" or "binding.ProConsLongString").Select(t => t.Text).Distinct().ToList();
+		if (level.Length == 0) await Until(LevelShown, seconds: 4, every: 0.25);
 
-		var club = await Fm.Pull("Human.Club", "YouthCoaching,YouthRecruitment,IntakeDate,YouthCandidatesCount");
+		var club = await Fm.Pull("Human.Club", "YouthCoaching,YouthRecruitment,IntakeDate,YouthCandidatesCount,AllFirstTeamYouthCandidatesCount");
 		var stadium = Field(await Fm.Pull("Human.Club.YouthStadium", "Name"), "Name");
 		var town = Field(await Fm.Pull("Human.Club.YouthStadium.City", "Name"), "Name");
 		var today = DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var d) ? d : DateTime.Today;
 		var intake = DateTime.TryParseExact(Field(club, "IntakeDate"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var i) ? i : (DateTime?)null;
 
-		// The overview page: the first-team candidates as name (binding.InitialSurname), best position and age.
-		var overview = new List<(string Text, string Path)>();
-		await OpenPage(Screen.YouthSetup);
-		// Read once a candidate's cells are drawn and two readings agree (or there is none to draw).
-		var previous = "?";
-		await Until(async () =>
+		// The prospects: the club's own list, read once it holds as many as the club counts, each filled.
+		var prospects = new List<string[]>();
+		if (int.TryParse(Field(club, "AllFirstTeamYouthCandidatesCount"), out var many) && many > 0)
 		{
-			// Held by a candidate's name, thirty levels below the page (rows nest deep); with no
-			// candidate, by the youth team's type on the same page (FM27).
-			overview = await YouthPaths("binding.InitialSurname", "30");
-			// FM27: name (primarytext), "21-year-old full-back" (Person.PlayerDescription), best position.
-			if (overview.Count == 0) overview = await YouthPaths("Person.PlayerDescription", "30");
-			if (overview.Count == 0) overview = await YouthPaths("team.TeamTypeStringTypeOnly", "30");
-			var key = string.Join("|", overview.Select(t => t.Text));
-			var settled = key == previous && overview.Count > 0
-			              && (overview.All(t => t.Path is not ("binding.InitialSurname" or "Person.PlayerDescription")) || overview.Any(t => t.Path == "binding"));
-			previous = key;
-			return settled;
-		}, seconds: 6, every: 0.5);
-		var candidates = new List<string[]>();
-		for (var at = 0; at < overview.Count; at++)
-			if (overview[at].Path == "binding.InitialSurname")
+			const string Props = "Name,PositionCombinedString,Age";
+			var whole = await Until(async () =>
 			{
-				var cells = overview.Skip(at + 1).TakeWhile(t => t.Path == "binding").Select(t => t.Text).ToList();
-				candidates.Add([overview[at].Text, cells.ElementAtOrDefault(0) ?? "", cells.ElementAtOrDefault(1) ?? ""]);
-			}
-			else if (overview[at].Path == "primarytext" && at + 2 < overview.Count && overview[at + 1].Path == "Person.PlayerDescription" && overview[at + 2].Path == "binding")
+				var read = await Fm.Pull("Human.Club.DevelopmentPlayersFirstTeamCandidates.DevelopmentPlayersFirstTeamCandidatePlayers", Props, list: true);
+				var rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().ToList() : [];
+				prospects = rows.Select(r => new[] { Field(r, "Name"), Field(r, "PositionCombinedString"), Field(r, "Age") }).ToList();
+				return prospects.Count == many && prospects.All(p => p.All(f => f.Length > 0));
+			}, seconds: 6, every: 0.3);
+			if (!whole) Console.Error.WriteLine(L($"The {many} first-team prospects could not all be read."));
+		}
+
+		// The youth team's dynamics: cohesion and atmosphere, each with its level and points, in the game's words.
+		var team = Field(await Fm.Pull("Human.Club.YouthTeam", "UniqueId"), "UniqueId").Length > 0 ? "Human.Club.YouthTeam" : "Human.Club.HighestLevelYouthTeam";
+		var dynamics = new List<(string Name, string Level, string Description, List<string> Points)>();
+		foreach (var kind in new[] { "MatchCohesionFeedback", "ClubAtmosphereFeedback" })
+		{
+			JsonElement head = default;
+			List<string> points = [];
+			// The points list's own value names each entry: read once as many have come, each with its words.
+			var read = await Until(async () =>
 			{
-				// The age is the description's number, whatever the language says around it.
-				var age = System.Text.RegularExpressions.Regex.Match(overview[at + 1].Text, @"\d+").Value;
-				candidates.Add([overview[at].Text, overview[at + 2].Text, age]);
-			}
+				head = await Fm.Pull($"{team}.{kind}", "Name,CurrentDynamicSupportStringShort,Description,DynamicsProCons", shown: "Name,CurrentDynamicSupportStringShort,Description");
+				if (Field(head, "Name").Length == 0) return false;
+				var count = Field(head, "DynamicsProCons") is { Length: > 0 } entries ? entries.Split(',').Length : 0;
+				if (count == 0) return true;
+				var rows = await Fm.Pull($"{team}.{kind}.DynamicsProCons", "ProConsLongString", list: true, shown: "ProConsLongString");
+				points = rows.ValueKind == JsonValueKind.Array ? rows.EnumerateArray().Select(r => Field(r, "ProConsLongString")).ToList() : [];
+				return points.Count == count && points.All(p => p.Length > 0);
+			}, seconds: 6, every: 0.3);
+			if (read) dynamics.Add((Field(head, "Name"), Field(head, "CurrentDynamicSupportStringShort"), Field(head, "Description"), points));
+		}
 
 		var youth = new
 		{
 			AcademyCoaching = Field(club, "YouthCoaching"), Recruitment = Field(club, "YouthRecruitment"),
 			Level = level,
 			Stadium = town.Length > 0 && stadium.Length > 0 && !stadium.Contains(town) ? $"{stadium}, {town}" : stadium,
-			Coaches = Team("StaffCoachingSubGroup"), Recruiters = Team("StaffRecruitmentSubGroup"), Medical = Team("StaffMedicalSubGroup"),
 			IntakeDate = intake?.ToString("yyyy-MM-dd") ?? "", IntakeInDays = intake is { } when ? (int)(when - today).TotalDays : (int?)null,
 			IntakeCandidates = int.TryParse(Field(club, "YouthCandidatesCount"), out var came) && came > 0 ? "arrived" : "awaited",
-			Candidates = candidates.Select(c => new { Player = c[0], Position = c[1], Age = c[2] }),
-			Atmosphere = atmosphere,
+			Candidates = prospects.Select(c => new { Player = c[0], Position = c[1], Age = c[2] }),
+			Dynamics = dynamics.Select(x => new { x.Name, x.Level, x.Description, x.Points }),
+			Atmosphere = dynamics.SelectMany(x => x.Points.Prepend(x.Description)).Where(t => t.Length > 0).ToList(),
 		};
 
 		if (json)
@@ -250,18 +245,18 @@ internal static partial class Program
 		}
 		Console.WriteLine(L($"Academy           training level {youth.AcademyCoaching} · youth recruitment {youth.Recruitment} · level {youth.Level}"));
 		Console.WriteLine(L($"Stadium           {youth.Stadium}"));
-		if (youth.Coaches != "/") Console.WriteLine(L($"Staff             coaches {youth.Coaches} · scouting {youth.Recruiters} · medical {youth.Medical}"));
 		if (intake is { } day) Console.WriteLine(L($"Youth intake      {day.Day} {Months[day.Month - 1]} {day.Year} (in {youth.IntakeInDays} days)"));
 		Console.WriteLine(youth.IntakeCandidates == "awaited" ? L("Intake candidates none yet (they are known each March with a match)") : L("Intake candidates ARRIVED — the list: youth candidates"));
-		if (candidates.Count > 0)
+		if (prospects.Count > 0)
 		{
 			Console.WriteLine(L("\nSeen as first-team prospects"));
-			Table.Write([L("PLAYER"), L("POSITION"), L("AGE")], candidates);
+			Table.Write([L("PLAYER"), L("POSITION"), L("AGE")], prospects);
 		}
-		if (atmosphere.Count > 0)
+		foreach (var x in dynamics)
 		{
-			Console.WriteLine();
-			foreach (var line in atmosphere) Console.WriteLine($"  {line}");
+			Console.WriteLine($"\n{x.Name}: {x.Level}");
+			if (x.Description.Length > 0) Console.WriteLine($"  {x.Description}");
+			foreach (var point in x.Points) Console.WriteLine($"  · {point}");
 		}
 		Console.WriteLine(L("\nThe young players' training week: youth --training"));
 		return 0;

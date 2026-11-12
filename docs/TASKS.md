@@ -800,8 +800,15 @@ not yet tried in a live terminal.
     - [x] `Club/ClubCards.cs` `CardWords`: the game's values (grades, yes/no) now in the game's words (`GameWords.Of`:
       "Hayır" where the CLI said "yok"); the kinds of supporter are the CLI's own list (by their data fields), so its
       own words (`L`).
-    - [ ] `Club/Youth.cs` overview (`youth`): first-team prospects read as "the cells after a name" (order) and the
-      age as the number in "21-year-old full-back" (a sentence); waits on two reads agreeing.
+    - [x] `Club/Youth.cs` overview (`youth`): first-team prospects from `Club.DevelopmentPlayersFirstTeamCandidates`
+      (name, `PositionCombinedString`, `Age`), read once as many as `AllFirstTeamYouthCandidatesCount`; cohesion and
+      atmosphere from the youth team's `MatchCohesionFeedback` / `ClubAtmosphereFeedback` (name, level, description,
+      `DynamicsProCons`, as many as its value names) in the game's words (the page texts gave cohesion in English in a
+      Turkish game); the level is `#youth-level` › `#description` as shown (`/shown`; "Average" is two Turkish words on
+      that page). FM26's staff counts gone. No order, no sentence, no two-reads wait. TR + EN 3/3 (`round60.toml`):
+      cold, page open, another page open; a club with none lists none.
+    - [ ] `Club/Youth.cs` `youth --training`: rows by order ("primarytext, then status, position, rating"), scrolled
+      by share of length, two reads agreeing.
     - [x] `Club/Resign.cs`: FM27's button is a GenericAction sending `HumanClubResign` (no dropdown, no end-of-season
       choice: `--end-of-season` is refused); its question is the dialog of Type `Confirm<action id>`, primary slot;
       done when the manager has no club. No board talk came; should one come, its lines are listed for `talk <n>`.

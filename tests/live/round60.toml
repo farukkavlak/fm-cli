@@ -1,0 +1,41 @@
+# Round 60 (day): T85, `youth` overview moved to identity.
+# - first-team prospects: Club.DevelopmentPlayersFirstTeamCandidates (count AllFirstTeamYouthCandidatesCount), no page order, no sentence
+# - cohesion and atmosphere: the youth team's MatchCohesionFeedback / ClubAtmosphereFeedback in the game's words
+# - level: the #youth-level tile's #description as shown
+# Run: tools/fm-round.py dry tests/live/round60.toml, then run --lang en,tr.
+
+[[test]]
+task = "T85"
+name = "youth: prospects and dynamics from the club's data, cold, page open, another page open"
+at = "career-2034-06-29"
+fresh = true
+repeat = 3
+steps = [
+  { read = "youth", path = "Candidates.#", is = "3", note = "cold" },
+  { read = "youth", path = "Candidates.0.Player", keep = "first" },
+  { read = "youth", path = "Candidates.0.Age", not = "" },
+  { read = "youth", path = "Candidates.0.Position", not = "" },
+  { read = "youth", path = "Dynamics.#", is = "2" },
+  { read = "youth", path = "Dynamics.0.Level", not = "" },
+  { read = "youth", path = "Dynamics.1.Points.#", not = "0" },
+  { read = "youth", path = "Level", not = "", note = "page open" },
+  { read = "youth", path = "Candidates.0.Player", same_as = "first" },
+  { run = "squad", note = "another page over it" },
+  { read = "youth", path = "Candidates.0.Player", same_as = "first" },
+  { read = "youth", path = "Level", not = "" },
+  { run = "inbox" },
+  { read = "youth", path = "Dynamics.0.Points.#", not = "0" },
+]
+
+[[test]]
+task = "T85"
+name = "youth: a club with no prospects lists none, dynamics still read"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "youth", path = "Candidates.#", is = "0" },
+  { read = "youth", path = "Dynamics.#", is = "2" },
+  { read = "youth", path = "Level", not = "" },
+  { read = "youth candidates", path = "#", is = "0", note = "the intake's list untouched" },
+]
