@@ -410,6 +410,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     delete 1` (the last requirement) in a row; `Player.log` had "Out of bounds index: -1" on `TransferRoomAdvertCard`
     before. Next: `fm` should tell this dialog (the game's process has it; read its text) and say "the game hit a
     fatal error", not "FM is not responding"; then see which deaths were these.
+- [ ] T148 A player's save is never put at risk by the tool. When the game dies, the days since the last save are lost.
+  - [ ] The game's own fatal-error dialog (T92, 12 Nov) is told and said ("the game hit a fatal error and is closing"),
+    not "FM is not responding"; `fm start` after it works; `fm-round` restarts at once instead of waiting.
+  - [ ] Every death the tool's own steps can bring about is found and avoided (T11's delete sequence first).
+  - [ ] Before a step known to be risky, or after a long stretch of play, the game is saved (its own save, no copy
+    of ours), only if the player asked for it (an option, off by default) — decide with Faruk.
+  - [ ] T92 and T40 closed or each left cause written here.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;
