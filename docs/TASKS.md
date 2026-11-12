@@ -164,7 +164,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
   opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
   pages no command reads (T16); a real critique line (only "no advice" seen). Measured EN 8 Nov: `spring` (31 Mar,
-  match day) and `window` with a striker in goal (effectiveness 34): "no advice" from the first read, unchanged for 10 s.
+  match day) and `window` with a striker in goal (effectiveness 34): "no advice" from the first read, unchanged for 10 s. 12 Nov: `calm` (22 Oct, mid-season) and `career-2034-06-29`: "no advice" too. The lines are the panel's own
+  `CritiquesList` items (bound tree, in the game's words); the team tactic's `EvaluationCritiques` stays unbound
+  outside the panel. Waits only for a moment with a critique.
 - [x] T15 Training week card: `schedule copy | paste | clear [this|<weeks ahead>]` by the card's own events, left by Confirm or Cancel, read back from the week's sessions; a session by `schedule set`. TR + EN: copy, paste, clear 2 ×, nothing copied, nothing to clear, a week the card does not offer.
 - [x] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
   `fm read <page>`: the page by its GUID, its texts by `/shown` (in the body on top, by the game's hit test), tables by row. TR + EN, a list of 58 tests (`tests/live/read-pages.toml`), plus 3 repeats.
@@ -368,7 +370,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
 ## 5. Robustness
 
-- [ ] T39 `fm crawl`: a popup that holds the event queue is closed and the queue let go, instead of stopping. Written; the one run over the opposition report's panels (14 pages) did not stop, but the queue was left held at its end. Check in the full crawl (T77).
+- [x] T39 `fm crawl`: a popup that holds the event queue is closed and the queue let go, instead of stopping. The queue
+  is now also let go when a page cannot be reached for it (the page reached once more) and at the walk's end. The
+  opposition report and its panels (`--only b96211c5…`): before 3 of 14 pages read, the rest "queue blocked", the
+  queue held at the end; now 17–20 of 19–20, never stopped, queue free at the end. TR 3, EN 3 (12 Nov). The pages
+  left are "nothing on screen opens" (the control's way there), not the queue. The full crawl stays T77.
 - [ ] T40 `fm stop`: the game hangs on its way out now and then (process stuck exiting, state UE, not killable,
   its window kept until a restart); cause unknown. Seen again 2 Nov after `stop --save` straight after a
   match with a press question open. `stop` no longer counts such a process as running.

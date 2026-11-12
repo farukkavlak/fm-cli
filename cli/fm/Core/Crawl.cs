@@ -104,12 +104,27 @@ internal static partial class Program
 
 		async Task<bool> QueueHeld() => (await Fm.Get("queue")).Split(' ')[0] != "0";
 
+		// The queue held: what is up is closed by its own close event, else the queue is cleared; true once it is free.
+		async Task<bool> LetGo(string after)
+		{
+			if (!await QueueHeld()) return true;
+			Console.Error.WriteLine($"   the game's event queue is held after {after}: closing what is up");
+			var close = OnScreen(await Fm.GetJson("buttons", ("json", "1"))).FirstOrDefault(b => Field(b, "Events").Split(", ").Contains("PanelHistoryClose"));
+			if (close.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
+			if (await Until(async () => !await QueueHeld(), seconds: 3, every: 0.25)) return true;
+			await Fm.Get("queue", ("clear", "1"));
+			return await Until(async () => !await QueueHeld(), seconds: 5, every: 0.25);
+		}
+
 		var pages = new List<object>();
 		for (var i = 0; i < queue.Count; i++)
 		{
 			var guid = queue[i];
 			var title = string.Join(" | ", names[guid]);
 			var opened = await Reach(guid);
+			// Reaching it can find the queue held by what the last screen left (a popup that came up late): it is let
+			// go and the page reached once more.
+			if (opened.StartsWith("error", StringComparison.Ordinal) && await QueueHeld() && await LetGo(title)) opened = await Reach(guid);
 			if (opened.StartsWith("error", StringComparison.Ordinal))
 			{
 				Console.Error.WriteLine($"{i + 1,3}/{queue.Count}  --  {title}: {opened}");
@@ -142,20 +157,10 @@ internal static partial class Program
 
 			// A screen that leaves the game's event queue held (a popup it opened) would make every page
 			// after it fail: the popup is closed and the queue let go. Only if that fails does the walk stop.
-			if (await QueueHeld())
+			if (!await LetGo(title))
 			{
-				Console.Error.WriteLine($"   the game's event queue is held after {title}: closing what is up");
-				var close = OnScreen(await Fm.GetJson("buttons", ("json", "1"))).FirstOrDefault(b => Field(b, "Events").Split(", ").Contains("PanelHistoryClose"));
-				if (close.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(close, "Pointer")));
-				if (!await Until(async () => !await QueueHeld(), seconds: 3, every: 0.25))
-				{
-					await Fm.Get("queue", ("clear", "1"));
-					if (!await Until(async () => !await QueueHeld(), seconds: 5, every: 0.25))
-					{
-						Console.Error.WriteLine($"the game's event queue stays held after {title}; stopped. Leave it out with --skip {guid}");
-						break;
-					}
-				}
+				Console.Error.WriteLine($"the game's event queue stays held after {title}; stopped. Leave it out with --skip {guid}");
+				break;
 			}
 
 			// The panels this screen opens that no menu or bar listed: one control each, up to three deep.
@@ -170,6 +175,8 @@ internal static partial class Program
 				}
 		}
 
+		// The walk's last screen can leave the queue held too (seen after the opposition report's panels).
+		if (!await LetGo("the walk")) Console.Error.WriteLine("the game's event queue stays held after the walk");
 		await File.WriteAllTextAsync(output, JsonSerializer.Serialize(pages, new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
 		Console.WriteLine($"{pages.Count} pages -> {output}");
 		return 0;
