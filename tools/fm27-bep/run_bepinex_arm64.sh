@@ -134,6 +134,12 @@ if [ ! -f "$shadow_bin" ] || [ "$executable_path" -nt "$shadow_bin" ]; then
     find "$shadow_app/Contents/MacOS" -type f ! -path "$shadow_bin" -delete
     rm -f "$shadow_app/Contents/Info.plist.backup"
     cp -f "$executable_path" "$shadow_bin"
+    # Launched hidden by fm (FMCLI_HIDDEN): no Dock icon. fm puts LSUIElement in before launching, but a
+    # game update rebuilds the bundle here from Steam's Info.plist, after that (12 Nov: the Dock icon came back).
+    if [ "${FMCLI_HIDDEN:-}" = "1" ]; then
+        /usr/libexec/PlistBuddy -c "Add :LSUIElement bool true" "$shadow_app/Contents/Info.plist" >/dev/null 2>&1 \
+            || /usr/libexec/PlistBuddy -c "Set :LSUIElement true" "$shadow_app/Contents/Info.plist"
+    fi
 
     ents="$(mktemp /tmp/fm26_ents.XXXXXX)"
     codesign -d --entitlements "$ents" --xml "$executable_path" 2>/dev/null || true

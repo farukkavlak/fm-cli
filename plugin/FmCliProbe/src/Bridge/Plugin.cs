@@ -39,18 +39,23 @@ public class Plugin : BasePlugin
 	public override void Load()
 	{
 		Log = base.Log;
+		var stage = int.TryParse(System.Environment.GetEnvironmentVariable("FMCLI_LOAD_STAGE"), out var st) ? st : 99;
+		if (stage <= 0) { Log.LogInfo("[fm-cli] stage 0"); return; }
 
 		// Without this the game pauses whenever it loses focus, so every command issued from
 		// the terminal would hang waiting for a frame that never comes.
 		Application.runInBackground = true;
+		if (stage <= 1) { Log.LogInfo("[fm-cli] stage 1"); return; }
 
 		// Out of sight before anything else, and kept so on every tick (see WindowHider).
 		WindowHider.Apply();
 		IL2CPPChainloader.MainThreadTick += WindowHider.Apply;
 		SecondCopyGuard.Start();
+		if (stage <= 2) { Log.LogInfo("[fm-cli] stage 2"); return; }
 
 		_bridge = new HttpBridge(Port, FmApi.Handle);
 		_bridge.Start();
+		if (stage <= 3) { Log.LogInfo("[fm-cli] stage 3"); return; }
 
 		// arm64: MonoMod has no macOS arm64 support and ClassInjector generics are unreliable,
 		// so we never inject a MonoBehaviour. BepInEx's main-thread tick comes from any call the

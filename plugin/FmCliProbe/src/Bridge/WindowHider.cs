@@ -39,9 +39,13 @@ internal static class WindowHider
 	internal static int Hidden;
 
 	/// <summary>Makes every window of the game transparent and click-through; cheap when they already are.</summary>
+	/// <summary>The window's opacity while hidden (FMCLI_HIDE_ALPHA, for measuring; 0 by default).</summary>
+	private static readonly double Alpha = double.TryParse(System.Environment.GetEnvironmentVariable("FMCLI_HIDE_ALPHA"),
+		System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var a) ? a : 0;
+
 	internal static void Apply()
 	{
-		if (!Wanted || _failed) return;
+		if (!Wanted || _failed || Alpha < 0) return;
 		try
 		{
 			if (_app == IntPtr.Zero)
@@ -63,8 +67,8 @@ internal static class WindowHider
 			for (ulong i = 0; i < count; i++)
 			{
 				var window = Send(windows, _objectAtIndex, i);
-				if (window == IntPtr.Zero || GetDouble(window, _alphaValue) == 0) continue;
-				SendDouble(window, _setAlphaValue, 0);
+				if (window == IntPtr.Zero || GetDouble(window, _alphaValue) == Alpha) continue;
+				SendDouble(window, _setAlphaValue, Alpha);
 				SendBool(window, _setIgnoresMouseEvents, true);
 				SendBool(window, _setHasShadow, false);
 				Hidden++;
