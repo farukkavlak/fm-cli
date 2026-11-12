@@ -153,6 +153,17 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     12 Nov: the button reads "Copy Current Season plan to…" (the shown season is the source, the list's entry the
     target). `copytype` is not a string in the game's binaries (keys are hashed); the handler is native, in
     `game_plugin` (seen in a stack sample), not in the interop types. Needs that library read (`rea`) to go on.
+    12 Nov evening (`window`, EN): the copy does work, one way. Its source is the season on screen; the event's
+    target is resolved only once the list has been used (`pluginevent?show=1`: `target=set`), and its data is
+    the page variable `copytype`, read by the context as it fires (a value put on the event alone is filled over:
+    `pluginevent` now takes `from=` / `int=` and puts it on the context). Seen: shown Next, 0 → current replaced
+    by next's plan (the GKs gone); shown Next, 2 → current replaced too; shown Current, 1 or 2 (by `from=` the
+    game's constant, `int=`, or `copytype` set and the list fired) → next and after unchanged, read back on the
+    page and on screen. So the target is current whatever the value: a game bug, or something the hand-made
+    selection does that ours does not. Next: Faruk tries it by hand in his own game (Current › copy to Next).
+    The game's library: `game_plugin` (stripped; RTTI names left), the handler class
+    `SQUAD_PLANNER_UI_HANDLER` (vtable at 0x54df548 in the arm64 slice), events enter at
+    `i_game_plugin_send_event`; property and event ids are four-character codes (the data model's numbers).
 - [x] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
   - [x] Swap two starters: `tactic player <position> <starter>` already does it (the two change places). Clear a place: `tactic player <position> --clear`, the place's `XIButton` told by its row's `PlayerIndex`, its right-click list sends `EventFmxTeamSelectionClearOrPickPlayerAuto`, read back by the place's `PlayerIndex` -1. TR + EN 3 × (list `round5`): wrong position, only that place, already empty, filled again, from another page.

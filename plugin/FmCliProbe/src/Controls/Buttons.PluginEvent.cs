@@ -40,6 +40,38 @@ internal static partial class Buttons
 				// The context resolves its target when it first fires: until the control has been used once, there is none.
 				if (target == null) return "error: the control's event has no target resolved yet (use the control once)";
 
+				// ?from=<path>: the event carries the value at that bound path instead of what its own binding holds.
+				// The squad planner's copy binds its data to a page variable that is never linked to the context, so
+				// it would always send the value it had first (T12); the game's own constant is sent instead.
+				if (!string.IsNullOrEmpty(q["from"]))
+				{
+					var source = PathKey.Of(q["from"]);
+					var b = Game.Bindings;
+					if (!b.Exists(ref source) || b.Get(ref source) is not { IsNull: false } held) return $"error: '{q["from"]}' has no value";
+					data = held;
+				}
+				// ?int=<n>[&type=int32|uint32|int64|byte|double]: the event carries that number, made as that type.
+				else if (!string.IsNullOrEmpty(q["int"]))
+				{
+					if (!long.TryParse(q["int"], out var n)) return "error: ?int= must be a whole number";
+					try
+					{
+						data = (q["type"] ?? "int32") switch
+						{
+							"uint32" => SI.Core.TypedValue.Create((uint)n),
+							"int64" => SI.Core.TypedValue.Create(n),
+							"byte" => SI.Core.TypedValue.Create((byte)n),
+							"double" => SI.Core.TypedValue.Create((double)n),
+							_ => SI.Core.TypedValue.Create((int)n),
+						};
+					}
+					catch (Exception ex) { return $"error: {ex.Message}"; }
+				}
+				if (q["show"] == "data") return $"would send {FmApi.Describe(data)}";
+				// The context fills the event again from its own value as it goes out (FillEvent), so a value of ours is
+				// put on the context too, not only on the event.
+				if (!string.IsNullOrEmpty(q["from"]) || !string.IsNullOrEmpty(q["int"]))
+					shape.Type?.GetProperty("m_bindingValueReference", BindingFlags.Public | BindingFlags.Instance)?.SetValue(typed, data);
 				var sent = new FM.GamePlugin.EventToPlugin { ID = id, Target = target, DataToSend = data };
 				if (q["dry"] == "1") return $"dry run, NOT sent: {id} to the target of '{control.Label}'";
 				var events = Game.Events;
