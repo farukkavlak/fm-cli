@@ -50,20 +50,21 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     Space (seen twice in tests); undoing it from the plugin did not work. Only a deliberate change can
     cause it: start writes a window before launch and keeps it until stop.
 
-- [ ] T149 Since FM27 27.0.1 (Steam update 12 Nov 17:26) the tool's game does not start: a black splash, then
-  `Player.log` "Addressables - Unable to find any catalog locations in the runtime data" and a NullReference in
-  `SplashScreenController.PrepareNextVideo`; the bridge says "bindings unavailable" for good.
-  - Measured: the shadow binary alone (no BepInEx) and BepInEx with no plugin in `plugins/` start every time
-    (3/3, version line "27.0.1.2503222"). With `FmCliProbe.dll` there it fails most times (about 9 of 11), even
-    with the plugin's `Load` returning at once (`FMCLI_LOAD_STAGE=0`), with the window hider off, and with the
-    preloader's scene hook renamed (load put off to its 60 s fallback: still failed at 10 s). Clearing
-    `BepInEx/cache` once let it start, then 2 of 3 failed again. One start reached the menu but `load` found no
-    tile for the save list (the menu may have changed too).
-  - Not the cause: window alpha, `SecondCopyGuard` (it closed nothing), the shadow's signature (rebuilt).
+- [ ] T149 Since FM27 27.0.1 the tool's game mostly stopped on a black splash (`Player.log`: Addressables
+  "Unable to find any catalog locations", "Keys are expected to be strings").
+  - Cause: Il2CppInterop (arm64 build) hooks `GetAssemblyTypeHandle(image, index)` instead of
+    `GetTypeInfoFromHandle(handle)`: its scan of `Image::GetType` runs past the tail call and takes the first of
+    7 targets. Its one-argument detour drops `index`, so the game gets wrong types. It happens at the first class
+    injection (the plugin's first delegate handed to the game, `FMCLI_LOAD_STAGE=4`).
+  - Measured (Player.log cleared before each start; the old "fails even at stage 0" read a stale log): no plugin
+    2/2, empty plugin 4/4, ours stages 0–3 8/8, stage 4 failed 2/3.
+  - Fix: `InteropHookFix` puts the hook on the second call of `Image::GetType` (held by the export
+    `il2cpp_image_get_class` and the two-call shape; does nothing if Il2CppInterop already picks it).
+    Full plugin 5/5 clean starts; `fm start` + save load + `squad` EN.
+  - [ ] Starts 3–5 more with Steam running, EN and TR (one `fm start` failed with Steam closed:
+    `SteamAPI_Init() failed`, not this bug).
   - Fixed on the way: a game update rebuilt the shadow bundle from Steam's Info.plist, so the game came up in the
     Dock; the launcher script now puts LSUIElement in when it rebuilds it (FMCLI_HIDDEN).
-  - Next: what BepInEx does early when a plugin is present (the patched `BepInEx.Unity.IL2CPP.dll`, arm64 bundle by
-    DadMych; its scene hook, `PreloadInteropAssemblies`); a plugin made of nothing to tell ours from any plugin.
 
 ## 1. Held by text or order (the rule above all)
 

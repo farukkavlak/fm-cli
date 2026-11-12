@@ -42,6 +42,10 @@ public class Plugin : BasePlugin
 		var stage = int.TryParse(System.Environment.GetEnvironmentVariable("FMCLI_LOAD_STAGE"), out var st) ? st : 99;
 		if (stage <= 0) { Log.LogInfo("[fm-cli] stage 0"); return; }
 
+		// Before anything injects a class (the first delegate handed to the game does): since 27.0.1
+		// Il2CppInterop hooks the wrong lookup on arm64 and most starts end on a black splash.
+		InteropHookFix.Apply();
+
 		// Without this the game pauses whenever it loses focus, so every command issued from
 		// the terminal would hang waiting for a frame that never comes.
 		Application.runInBackground = true;
@@ -66,6 +70,7 @@ public class Plugin : BasePlugin
 		// scheduler instead, where the game's UI code runs, before the frame is drawn. The tick
 		// only puts it on new panels, and stands in for it should no panel tick for a while.
 		_onUiTick = (System.Action)OnUiTick;
+		if (stage <= 4) { Log.LogInfo("[fm-cli] stage 4"); return; }
 		_lastUiTick = System.Environment.TickCount64;
 		IL2CPPChainloader.MainThreadTick += OnBepInExTick;
 		// Applying the preferences sets it back to the game's own value, and a hidden game then
