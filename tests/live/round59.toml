@@ -1,0 +1,37 @@
+# Round 59 (day): T85, two functions moved to identity.
+# - `resign`: the FM27 button by its action id (HumanClubResign as a GenericAction), its question by the dialog's
+#   Type (Confirm<action id>) and primary slot; no end-of-season choice in FM27 (refused); unemployed refuses.
+# - `dynamics`: the groups from Human.Team.SocialGroupList by kind, the standing by HierarchyInfluenceCategory.
+# Run: tools/fm-round.py dry tests/live/round59.toml, then run --lang tr,en.
+
+[[test]]
+task = "T85"
+name = "resign: not without --yes, no end of season, then resigned, then refused while unemployed"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { run = "resign", rc = 64 },
+  { run = "squad --json", note = "still employed" },
+  { run = "resign --end-of-season --yes", rc = "fail" },
+  { run = "squad --json", note = "still employed after the refused one" },
+  { run = "resign --yes" },
+  { run = "squad --json", rc = "fail", note = "no club now" },
+  { run = "resign --yes", rc = "fail", note = "unemployed" },
+]
+
+[[test]]
+task = "T85"
+name = "dynamics: groups by kind from the team's data, from the inbox and from the squad page, most influential first"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "dynamics", path = "Groups.#", not = "0" },
+  { read = "dynamics", path = "Groups.0.Players.0.Standing", keep = "top" },
+  { read = "dynamics", path = "Groups.0.Kind", present = true },
+  { run = "squad", note = "the squad page over the inbox" },
+  { read = "dynamics", path = "Groups.0.Players.0.Standing", same_as = "top" },
+  { run = "inbox", note = "the inbox over the squad page" },
+  { read = "dynamics", path = "Groups.0.Players.#", not = "0" },
+]

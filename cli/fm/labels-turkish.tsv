@@ -2823,3 +2823,10 @@ No player called '{0}'. Did you mean {1} (our squad)?	'{0}' adında bir oyuncu y
 No player called '{0}'. The closest name in our squad: {1}; to open him: player "{2}"	'{0}' adında bir oyuncu yok. Kadromuzdaki en yakın ad: {1}; açmak için: player "{2}"
 {0}'  {1} — the game did not take its tactical tweak.	{0}'  {1} — oyun bu taktik ince ayarı almadı.
   Penalties: {0}	  Penaltılar: {0}
+Core group	Çekirdek grup
+Second group	İkinci grup
+Third group	Üçüncü grup
+In no group	Grupsuz
+The game offers no resignation at the end of the season here, only now: resign --yes	Oyun burada sezon sonunda istifa sunmuyor, yalnızca hemen: resign --yes
+The board asks once more:	Yönetim bir kez daha soruyor:
+\nTo answer: talk <number>	\nCevaplamak için: talk <numara>

@@ -791,14 +791,15 @@ not yet tried in a live terminal.
       own words (`L`).
     - [ ] `Club/Youth.cs` overview (`youth`): first-team prospects read as "the cells after a name" (order) and the
       age as the number in "21-year-old full-back" (a sentence); waits on two reads agreeing.
-    - [ ] Found 11 Nov: `Club/Resign.cs` answers the board's "are you sure" talk by words in Turkish and English
-      ("niyetim", "gitmek", "korkarim", "leave", "intend", "afraid"), else the last line (text and order; any other
-      language falls to the last line). Measure the talk line's own identity at a resignation (what `SpeakToAction`
-      sends); until then, list the lines and leave the answer to `talk <n>` rather than pick one.
-      The same function picks "Immediate" / "End of Club Season" from the resign dropdown by English words: measure
-      the dropdown's own values there too, and move both at once.
-    - [ ] Found 11 Nov: `Squad/Dynamics.cs` names a social group by the text that comes between two players' rows
-      (order). Look for the groups in the team's data (a list of social groups with their members).
+    - [x] `Club/Resign.cs`: FM27's button is a GenericAction sending `HumanClubResign` (no dropdown, no end-of-season
+      choice: `--end-of-season` is refused); its question is the dialog of Type `Confirm<action id>`, primary slot;
+      done when the manager has no club. No board talk came; should one come, its lines are listed for `talk <n>`.
+      No word, no order. TR + EN 3 × (`round59.toml`): no `--yes` refused, end of season refused, resigned, refused unemployed.
+    - [x] `Squad/Dynamics.cs`: groups by kind from `Human.Team.SocialGroupList` (`CoreSocialGroupPlayersList`,
+      `SecondarySocialGroup1/2PlayersList`, `OtherSocialGroupPlayersList`), why by `Team.<Kind>SocialGroupReasons`,
+      members by `UniqueId`, most influential first by `HierarchyInfluenceCategory` (9000 / 7500 / 6000 / 0; the
+      English-word ranking is gone), the team beside the rows as `happiness` does. No page order, no two-reads wait;
+      group names are the CLI's own. TR + EN 3 ×, cold, from the squad page and the inbox (`round59.toml`).
     - Checked 11 Nov, nothing new: compares on `Name` are element names; `Task.Delay` calls are poll steps inside
       waits for a sign; `Club/Coaches.cs` reads a row by its shape (name, job, then checkbox + stars per area, each
       area by its record).
