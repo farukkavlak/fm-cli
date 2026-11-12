@@ -39,6 +39,11 @@ Steps:
   live = true              on a read: it can only be read at that moment, so a dry run does not ask it
   moment = true            on an `until` beside a match: the match ending first is a try without the moment, not a
                            failure; `tries = N` on the test bounds the tries taken to reach `repeat` passes
+  steer = true             on an `until` beside a match: our side steered towards a level score by tweaks (and our
+                           goalkeeper off when ahead from 60'), for extra time and shootouts
+  A match beside the steps that stops is answered and played on: a question by its primary button, a hurt man of
+  ours for a substitute, then the step's `again`. A game that dies in a try is started again and the try counted
+  as without the moment (T92), not as a failure.
   {name} in a command      the value kept under that name
 
 Checks read only --json and exit codes, never printed words: a test holds in every language.
@@ -62,6 +67,8 @@ RESULTS = ROOT / "tests" / "live" / "results"
 PREFIX = "scn-"
 LANGUAGES = {"en": ("english", "English"), "tr": ("turkish", "Türkçe")}
 COMMAND_LIMIT = 1800
+NOT_RUNNING = 69  # fm's exit code when the game is not running
+DEATHS = 5  # games dead under one test (T92) before it is given up for the round
 
 
 class Failed(Exception):
@@ -85,7 +92,7 @@ def fm(command, timeout=COMMAND_LIMIT):
     except subprocess.TimeoutExpired:
         result = 124, "", f"no answer in {timeout} s", time.time() - start
     if LOG:
-        LOG.write(f"{datetime.datetime.now():%H:%M:%S} fm {command} rc={result[0]} {result[3]:.1f}s\n{result[1][:1500]}{result[2][:500]}\n")
+        LOG.write(f"{datetime.datetime.now():%H:%M:%S} fm {command} rc={result[0]} {result[3]:.1f}s\n{result[1][:6000]}{result[2][:500]}\n")
         LOG.flush()
     return result
 
@@ -559,7 +566,7 @@ def load_list(path):
 
 
 STEP_KINDS = ("run", "read", "until", "start", "finish", "stop")
-READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing", "again", "moment"}
+READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing", "again", "moment", "steer"}
 
 
 def problems_in(tests):
@@ -703,10 +710,111 @@ def put_back(speeds):
             del speeds[name]
 
 
+# ---- a match beside the steps: its stops answered, its score steered
+
+
+SEEN_DIALOGS = []  # the Type of each question answered during a match this run (T29: cancelTweaks, cancelChanges)
+KEEPER = 1  # the goalkeeper's bit in the game's position mask (slot IPPosition, a player's CoachBestPosition)
+
+
+def keeper_of(subs, name):
+    """True if `name` stands in our eleven's goalkeeper slot. The planner can hold a short name for the full one."""
+    for man in subs.get("Eleven", []):
+        if (man["Name"] == name or name.endswith(" " + man["Name"])) and int(man.get("Position") or 0) & KEEPER:
+            return True
+    return False
+
+
+def bench_man(subs, keeper):
+    """A substitute: a goalkeeper for a goalkeeper, an outfield man otherwise, told by his CoachBestPosition
+    (the squad's rows by UniqueId). Any man the squad does not list is a last resort outfield choice."""
+    try:
+        squad = {p.get("UniqueId"): int(p.get("CoachBestPosition") or 0) for p in read_json("squad", 120)}
+    except Failed:
+        squad = {}
+    known = [b for b in subs.get("BenchPlayers", []) if b.get("Id") in squad]
+    fitting = [b for b in known if bool(squad[b["Id"]] & KEEPER) == keeper]
+    if fitting:
+        return fitting[0]["Name"]
+    unknown = [b for b in subs.get("BenchPlayers", []) if b.get("Id") not in squad]
+    return unknown[0]["Name"] if unknown and not keeper else None
+
+
+def answer_stop(again, kept):
+    """The match stopped beside the steps: a question answered with its primary button (its slot, not its words),
+    each hurt man of ours taken off for a substitute, then the step's own `again` (staff advice before kick-off)."""
+    try:
+        dialogs = read_json("dialog", 120)
+    except Failed:
+        dialogs = []
+    if dialogs:
+        dialog = dialogs[0]
+        SEEN_DIALOGS.append(dialog.get("Type") or "?")
+        buttons = dialog.get("Buttons", [])
+        yes = next((b for b in buttons if b.get("Slot") == "primary"), None) \
+            or next((b for b in buttons if "-primary-" in (b.get("Name") or "")), None)
+        if yes and yes.get("Label"):
+            fm(f'dialog "{yes["Label"]}"', 120)
+    try:
+        subs = read_json("sub", 120)
+    except Failed:
+        subs = {}
+    for hurt in subs.get("Injured", []):
+        if on := bench_man(subs, keeper_of(subs, hurt)):
+            fm(f'sub "{hurt}" "{on}"', 300)
+    if again:
+        fm(filled(again, kept), 120)
+
+
+# Tweaks by the game's own ids (FM.UI.TacticalTweak), for the score we have against the one we want: level.
+STEER = {"ahead": {"TakeABreather", "PressLessAggressively", "PlayOutTheBack"}, "behind": {"ThrowTheKitchenSink", "GkUpForSetPieces"},
+         "level": {"LockItDown"}}
+KEEPER_OFF = 60  # from this minute a lead takes our goalkeeper off (earlier would lose the tie outright)
+PLAYING = ("FirstHalf", "SecondHalf", "ExtraTimeFirstHalf", "ExtraTimeSecondHalf")
+
+
+def steer(memo):
+    """Our side steered towards a level score, for a moment that needs one (extra time, a shootout): ahead, we ease
+    off, and from KEEPER_OFF our goalkeeper goes off for an outfield man; behind, everything forward; level late, locked down.
+    Read from the status's numbers only; each change made once when the score's state changes."""
+    now = read_json("status", 120)
+    if now.get("Period") not in PLAYING:
+        return
+    ours, theirs = (now.get("HomeScore"), now.get("AwayScore"))
+    if now.get("HumanIsHome") != "True":
+        ours, theirs = theirs, ours
+    # At a goal the status comes without its clock for a moment: read as minute 0 it took the lock off (a 1-1 at 90').
+    if not now.get("MatchTime"):
+        return
+    try:
+        lead = int(ours) - int(theirs)
+        minute = int(now["MatchTime"].split(":")[0])
+    except (TypeError, ValueError):
+        return
+    extra = now["Period"].startswith("ExtraTime")
+    side = "ahead" if lead > 0 else "behind" if lead < 0 else "level" if minute >= 65 or extra else None
+    wanted = STEER.get(side, set())
+    if side == "ahead" and (minute >= KEEPER_OFF or extra) and not memo.get("keeper"):
+        memo["keeper"] = True
+        subs = read_json("sub", 120)
+        keeper = next((m["Name"] for m in subs.get("Eleven", []) if int(m.get("Position") or 0) & KEEPER), None)
+        if keeper and (on := bench_man(subs, keeper=False)):
+            fm(f'sub "{keeper}" "{on}"', 300)
+    if memo.get("side") == side:
+        return
+    memo["side"] = side
+    for tweak in read_json("tweak", 120):
+        if tweak.get("Id") in wanted and not tweak.get("WillBeOn"):
+            fm(f"tweak {tweak['Id']}", 120)
+        elif tweak.get("Id") in set().union(*STEER.values()) - wanted and tweak.get("WillBeOn"):
+            fm(f"tweak {tweak['Id']} --off", 120)
+
+
 def play(test):
     """One pass of a test's steps. Raises Failed with what was wrong; nothing printed is compared."""
     kept = {}
     side = None
+    steering = {}
     try:
         for number, step in enumerate(test["steps"], 1):
             if f"run_{LANG_NOW}" in step:
@@ -746,33 +854,41 @@ def play(test):
                 limit = time.time() + step.get("seconds", 300)
                 restarts = 0
                 wrong = "never asked"
+                turn = 0
                 while time.time() < limit:
-                    if side is not None and side.poll() is not None and "again" in step and restarts < 5 \
-                            and read_json("status", 120).get("DuringMatch") == "True":
-                        # The match stopped for the game's own question (staff advice before kick-off): answer it, play on.
-                        restarts += 1
-                        fm(filled(step["again"], kept), 120)
-                        side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
-                    if side is not None and side.poll() is not None:
-                        try:  # one last reading: the match ending may be what was waited for
-                            wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)
-                        except (Failed, KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
-                            wrong = str(error)
-                        if wrong is None:
-                            break
-                        if step.get("moment"):
-                            raise Missed(f"step {number} `{step['until']}` {step['path']}: the match ended before it ({wrong})")
-                        raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong}, and the match beside it ended")
+                    # The reading first: what the match stopped for (a question) may be what is waited for.
                     try:
                         wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)
                     except (Failed, KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
                         wrong = str(error)
                     if wrong is None:
                         break
-                    if "doing" in step:
-                        # A step of our own each round (a conversation of any length: `talk 1` until it is over).
-                        fm(filled(step["doing"], kept), 120)
+                    if side is not None and side.poll() is not None and restarts < 8 \
+                            and read_json("status", 120).get("DuringMatch") == "True":
+                        # The match stopped for the game's own question (staff advice before kick-off, a question
+                        # after a goal, an injury): answer it, play on.
+                        restarts += 1
+                        answer_stop(step.get("again"), kept)
+                        side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
                         continue
+                    if side is not None and side.poll() is not None:
+                        # The match is over and the reading above was the last one.
+                        if step.get("moment"):
+                            raise Missed(f"step {number} `{step['until']}` {step['path']}: the match ended before it ({wrong})")
+                        raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong}, and the match beside it ended")
+                    if step.get("steer") and side is not None:
+                        try:
+                            steer(steering)
+                        except Failed:
+                            pass  # a reading lost between two moments of the match: the next round asks again
+                    if "doing" in step:
+                        # A step of our own each round (a conversation of any length: `talk 1` until it is over);
+                        # a list is taken in turn, one entry a round, at the step's pace.
+                        doing = step["doing"] if isinstance(step["doing"], list) else [step["doing"]]
+                        fm(filled(doing[turn % len(doing)], kept), 120)
+                        turn += 1
+                        if not isinstance(step["doing"], list):
+                            continue
                     time.sleep(step.get("every", 1))  # only the pace of asking: what ends the wait is the value
                 if wrong is not None:
                     raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong} after {step.get('seconds', 300)} s")
@@ -805,6 +921,8 @@ def run(args):
         for test in sorted(tests, key=lambda t: t["at"]):  # one load per scenario where the tests allow it
             passes = []
             missed = []
+            deaths = 0
+            SEEN_DIALOGS.clear()
             # `tries` bounds the attempts a test with a moment to wait for may take to reach `repeat` passes.
             for _ in range(test.get("tries", test.get("repeat", 1))):
                 if len([p for p in passes if p is None]) >= test.get("repeat", 1):
@@ -825,6 +943,13 @@ def run(args):
                     loaded = None
                     print(f"[{lang}] missed {test['task']}: {error}", flush=True)
                 except Failed as error:
+                    if fm("status --json", 120)[0] == NOT_RUNNING and deaths < DEATHS:
+                        # The game died under the try (T92): not the test's failure. Started again by the next entry.
+                        deaths += 1
+                        missed.append(f"the game died: {error}")
+                        loaded = None
+                        print(f"[{lang}] the game died in {test['task']} ({deaths}): {error}", flush=True)
+                        continue
                     passes.append(str(error))
                     # Whatever it left behind must not fail the next test: that one starts fresh.
                     loaded = None
@@ -836,8 +961,12 @@ def run(args):
                   + (f", {len(missed)} without the moment" if missed else "") + ")", flush=True)
             for problem in bad[:2]:
                 print(f"       {problem}", flush=True)
+            extra = (f"\n  - the game died {deaths} ×" if deaths else "") \
+                + (f"\n  - questions answered in the match: {', '.join(SEEN_DIALOGS)}" if SEEN_DIALOGS else "")
+            if extra:
+                print(extra.replace("\n  - ", "\n       "), flush=True)
             rows.append(f"- {mark} {test['task']} {test['name']} ({len(passes) - len(bad)}/{len(passes)}"
-                        + (f", {len(missed)} without the moment" if missed else "") + ")" + "".join(f"\n  - {p}" for p in bad))
+                        + (f", {len(missed)} without the moment" if missed else "") + ")" + "".join(f"\n  - {p}" for p in bad) + extra)
         report = RESULTS / f"{stem}-{lang}.md"
         report.write_text(f"# {stem}, {lang}, {datetime.datetime.now():%Y-%m-%d %H:%M}\n\n" + "\n".join(rows) + "\n")
         print(f"[{lang}] written: {report}", flush=True)

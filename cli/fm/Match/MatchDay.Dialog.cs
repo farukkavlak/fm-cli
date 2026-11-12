@@ -54,7 +54,13 @@ internal static partial class Program
 			return 0;
 		}
 
-		var answered = await Fm.Get("click", ("ptr", Field(buttons[labels.IndexOf(pick)], "Pointer")));
+		// By the game's own handler when the button's slot is known: a simulated click on it is often lost and the
+		// window stays (a goal's "Confirm Tweak", 12 Nov 2026). The click is for a window the handler does not hold.
+		var button = buttons[labels.IndexOf(pick)];
+		var answered = Field(button, "Slot") is { Length: > 0 } slot
+			&& !(await Fm.Get("dialog", ("press", slot))).StartsWith("error", StringComparison.Ordinal)
+			? "ok"
+			: await Fm.Get("click", ("ptr", Field(button, "Pointer")));
 		if (answered.StartsWith("error", StringComparison.Ordinal)) return Report(answered);
 
 		// Answered means this dialog is gone; another may have taken its place, since some

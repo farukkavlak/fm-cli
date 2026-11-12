@@ -86,6 +86,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - [ ] Our own match settled by extra time or penalties: not met in simulated cup ties yet (we win them). Played
     live once from `cup-live` (won 1-0 in 90 minutes); before kick-off `match` stopped at the staff's opposition
     instruction suggestion, `dugout uygula` took it. `ResultType` on another club's fixture list reads empty, so code 2 on a `Team` fixture is not measured.
+    Played 12 Nov (EN, `round57.toml`): lost 1-2 after extra time and lost a shootout 2-2: `report` `ResultType` is 10
+    (a defeat) both times, so a loss after extra time shows no "(e.t.)"; the shootout shows by level with a winner.
+    Next: the cup list's own codes for the loser (`round58.toml` logs `stages --json` after the tie).
 - [x] T111 `stages`: after a competition with no rounds the page has no stage list and every `stages` said "did not open". The competition list is held on its own; the competition says it has no rounds. TR + EN 3 ×.
 - [x] T112 `report`: goals short of the score. One scorer's goals are one entry ("22', 31', pen 76'"), and only the last minute was kept. The game's text is now shown whole, nothing read inside it; `--json` has `HomeGoals`, `AwayGoals`. 13 played fixtures read against their scores; TR + EN list `round4`.
 - [x] T89 `tactic copy`: the copy list is the add list's one row with a submenu, chosen by its path of indices
@@ -114,9 +117,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     `--reset` takes those back. TR, paused: team, individual, all, and each scope leaves the other; after play went on, none came on.
   - Measured EN and TR: list cold, repeated, another player, unknown player, a man sent off; on / off / already on.
   - [ ] Extra time: a tweak put on, read back, taken off, a wrong one refused (`round51.toml`, scenario
-    `hunt-cup-extra-time`: EN 1 of 5 tries reached extra time, TR 1 of 4). Left: two more passes in each language. The game's periods are
+    `hunt-cup-extra-time`: EN 1 of 5 tries reached extra time, TR 1 of 4). The game's periods are
     `SI.Match.MatchPeriod` (`ExtraTimeFirstHalf`, `ExtraTimeHalfTime`, `ExtraTimeSecondHalf`, `Penalties`).
-- [x] T99 A message asked again after a team-mate failed to settle it (Ujkani, scenario `asked-again`): it offers
+    - Steered (`round57.toml`, `steer`): ahead, ease off and the goalkeeper off from 60'; behind, everything forward;
+      level from 65', Lock It Down. EN 12 Nov: extra time in 2 of 6 played tries (none in 4 before the steering was
+      right), both passed; 2 games died (T92). Left: EN 1 pass, TR 3 (`round58.toml`, night). A message asked again after a team-mate failed to settle it (Ujkani, scenario `asked-again`): it offers
   Decline / Discuss again and holds the day; `status` and `next` name it, and `next` now fails when nothing moved
   (it said so but answered 0, read by scripts and the MCP as a step taken). Answered, the day goes on; the game keeps
   `CanRespond` True on it. TR + EN 3/3 (`round39.toml`).
@@ -683,9 +688,15 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     the whole shootout (top speed); the shootout's own score not read; its whistle now said like the break, not seen.
     - Now the shootout board's own score (`PenaltyShootoutHomeScore` / `AwayScore`, by the plugin's state while the
       period is Penalties; the match's score is not there then): "Penalties: Antalyaspor 2-1 Samsunspor" each kick.
-      EN twice in `round54.toml` (5-3 and a loss), kicks' commentary shown too. TR: no shootout came yet.
+      EN twice in `round54.toml` (5-3 and a loss), kicks' commentary shown too; EN again 12 Nov (`round57.toml`, a
+      2-4 loss, each kick). TR: no shootout came yet.
   - [ ] `match --play` stops at staff advice before kick-off ("The match waits for an answer to it"): the list
-    answers `dugout apply` and plays on (`again`). An injury needing a substitute ends a test try the same way.
+    answers `dugout apply` and plays on (`again`). An injury needing a substitute: the runner now answers it
+    (`sub --json` names our hurt men, `Injured`; a bench man by his CoachBestPosition, keeper for keeper). Left:
+    `match` itself still says "carry on without a change: match" where the game will not.
+  - [ ] `dialog <answer>` presses the button by the game's handler when its slot is known: a click on a goal's
+    "Confirm Tweak" was lost and the window stayed (EN 12 Nov). The next try closed it, but the new build went in
+    at that moment: not proven which did it. Check in `round58.toml` (the questions answered are in its report).
 - [x] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
   - [x] The new manager's unveiling: its invitation answered with `reply` (Attend), every question with `talk`, the
     conference over (no answers left, `talk` then has no conversation). TR + EN 3/3 (`round24.toml`, scenario `press`).

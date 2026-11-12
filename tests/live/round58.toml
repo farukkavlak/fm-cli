@@ -1,0 +1,80 @@
+# Round 58 (night): round 57 again with more tries for extra time (round 57 EN: 1 pass in 8 tries, 2 games dead).
+# T86 also: the cup list read after the tie, for the loser's own code after extra time (`report` reads 10, a defeat).
+# Run: --lang en, then --lang tr (round 57 EN ran only T90).
+# From round 57:
+# - T90 / T63 / T86 in one tie: our side steered towards a level score (`steer`: ease off and the goalkeeper off when
+#   ahead, everything forward when behind, locked down when level late), so extra time and a shootout come more often.
+#   Extra time: a tweak on, read back, off, a wrong one refused; then the tie played out (penalties: "Penalties: …"
+#   in results/round57-<lang>.log); then the result's own code read (2 extra time, level with a winner a shootout).
+# - T29: a tactic change (mentality, back and forth) kept waiting until a goal, for the game's `cancelChanges` question.
+# - T25: round 55's card test; an injury stop is now answered by the tool's runner (a substitute), not the end of a try.
+# Every stop of the match is answered and played on; questions met are listed under each test in the report.
+# Run: tools/fm-round.py dry tests/live/round57.toml, then run --lang en, then --lang tr.
+
+[[test]]
+task = "T90"
+name = "steered to extra time: a tweak on and off, a wrong one refused, the tie played out, its result's code"
+at = "hunt-cup-extra-time"
+fresh = true
+fast = true
+repeat = 3
+tries = 15
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "status", path = "Period", is = "ExtraTimeFirstHalf", seconds = 2400, every = 15, live = true, again = "dugout apply", moment = true, steer = true, note = "level at 90' is steered to" },
+  { run = "pause" },
+  { read = "tweak", path = "?WillBeOn=False.0.Id", keep = "t", live = true },
+  { run = "tweak {t}" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "True", live = true },
+  { run = "tweak {t} --off" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "False", live = true },
+  { run = "tweak zzq", rc = "fail" },
+  { run = "resume" },
+  { until = "status", path = "DuringMatch", is = "False", seconds = 2400, every = 15, live = true, again = "dugout apply", steer = true, note = "level after extra time is steered to: a shootout" },
+  { finish = true },
+  { read = "report", path = "Fixture.HasResult", is = "True", live = true },
+  { read = "report", path = "Fixture.ResultType", keep = "how", present = true, live = true, note = "T86: 2 after extra time; a shootout reads level with a winner" },
+  { read = "report", path = "Fixture.HomeScore", keep = "home", live = true },
+  { read = "report", path = "Fixture.AwayScore", keep = "away", live = true },
+  { run = "next", rc = "any", note = "past the result screen: pages open again" },
+  { run = "stages --json", rc = "any", note = "T86: the tie's own codes, read from the log" },
+]
+
+[[test]]
+task = "T29"
+name = "a mentality change waiting when a goal goes in: the game's cancelChanges question, answered Yes"
+at = "kickoff"
+fresh = true
+fast = true
+repeat = 3
+tries = 5
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off" },
+  { read = "tactic mentality", path = "Choices.0", keep = "a" },
+  { read = "tactic mentality", path = "Choices.6", keep = "b" },
+  { until = "dialog", path = "?Type=cancelChanges.#", not = "0", seconds = 3600, every = 20, live = true, moment = true, doing = ["tactic mentality \"{a}\"", "tactic mentality \"{b}\""], note = "a goal with the change waiting; any other question is answered and played on" },
+  { read = "dialog", path = "?Type=cancelChanges.0.Buttons.?Slot=primary.0.Label", keep = "yes", live = true },
+  { run = "dialog \"{yes}\"" },
+  { read = "dialog", path = "?Type=cancelChanges.#", is = "0", live = true },
+  { stop = true },
+]
+
+[[test]]
+task = "T25"
+name = "slow speed: a dugout card applied puts a tweak on; a wrong number refused"
+at = "kickoff"
+fresh = true
+repeat = 3
+tries = 5
+steps = [
+  { run = "settings 'highlight speed' 1x" },
+  { run = "settings 'speed between highlights' 4x" },
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off; asked slowly (T92)" },
+  { read = "tweak", path = "?WillBeOn=True.#", keep = "before", live = true },
+  { until = "dugout apply", path = "TweaksOn.#", not = "0", seconds = 3600, every = 10, live = true, again = "status", moment = true, note = "an injury stop is answered with a substitute" },
+  { read = "tweak", path = "?WillBeOn=True.#", differs_from = "before", live = true },
+  { run = "dugout 99 apply", rc = "fail", note = "not a card" },
+  { stop = true },
+]

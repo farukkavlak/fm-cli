@@ -34,7 +34,23 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { OnPitch = onPitch, Bench = bench.Select(b => b.Name) }));
+			// Our eleven by the planner's slots: a man hurt badly enough has lost his menu, not his slot.
+			// Position is the game's bit mask (1 is the goalkeeper), the same as a player's CoachBestPosition.
+			var planner = await Fm.GetJson("tactic");
+			// While play goes on the planner is not loaded: then the match tactic's slots by each man's UniqueId.
+			var eleven = (planner.TryGetProperty("Slots", out var slots) ? slots.EnumerateArray().ToList() : new List<JsonElement>())
+				.Where(s => Field(s, "Player").Length > 0)
+				.Select(s => new { Name = Field(s, "Player"), Position = Field(s, "IPPosition") }).ToList();
+			if (eleven.Count == 0 && await MatchPositions() is { Count: > 0 } playing)
+				eleven = menus.Where(m => playing.ContainsKey(m.Id)).Select(m => new { m.Name, Position = playing[m.Id] }).ToList();
+			// The planner may hold a short name ("Draper") where the match has the full one.
+			bool Ours(string name) => onPitch.Contains(name) || eleven.Any(e => Named(name, e.Name));
+			var injured = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && Ours(p.Key)).Select(p => p.Key).ToList();
+			Console.WriteLine(JsonOut.Of(new
+			{
+				OnPitch = onPitch, Bench = bench.Select(b => b.Name),
+				BenchPlayers = bench.Select(b => new { b.Name, b.Id }), Eleven = eleven, Injured = injured,
+			}));
 			return 0;
 		}
 
