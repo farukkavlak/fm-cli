@@ -102,6 +102,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 - [x] T10 Tactical tweaks in a match, team tab: `fm tweak` / `fm_tweak` (list, on, `--off`), by
   `TacticalTweak` id; works once kicked off (a pre-kick-off tweak is dropped by the game).
 - [ ] T90 Tactical tweaks, rest:
+  - Extra time (`round54.toml`, a try where the tie is not level at 90' counts as without the moment): EN 3/3 (3 without),
+    TR 1/1 (8 without); with round 51, EN 4, TR 2. Left: one more TR.
   - `tweak --player <p>` and `tweak --reset team|individual|all` go through the match bar's tweaks popup
     (`tweaks-button`), no tactics panel; the popup is shut again. A player's place is his row's `Slot.Index`. While the
     ball rolls the game makes a change by itself, at a stop when play goes on; with the panel up, at its Confirm.
@@ -213,6 +215,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     `AnalysisFeedbackTweakId` / `TweakAction` on its `MatchAnalysisFeedback`, and `MatchDugoutSelectedEventTweakId`
     on the selected one. `Match.MatchAnalysisFeedback` from the root `Match` reads empty (not bound without the
     panel?). Next: read the card's tweak id where the panel is up (`match` lists every new card), apply it as a tweak.
+  - [x] Round 54 (`round54.toml`, slow speed set by the list: round 53 ran at 10x/40x left from round 51): a card that is
+    a team tweak is applied by its own id and action (`MatchDugoutSelectedEventTweakId` / `TweakAction`, read with the
+    card) through the tweak route, which needs no panel; any other card by the panel's button. Applied and read back by
+    `tweak`: EN 3/3 (Go Narrower 30', Press Less Aggressively 70', a 24' card), TR 3/3 (Daha Dar Oyna 35', 28', …), one
+    TR try with no card before the match stopped. Which route each took is not logged. EN's list failed after the
+    card: the match then waited at an injury needing a substitute (T63); `round55.toml` leaves the match after the card.
   - While the ball rolls the list can move between two calls, so a number can mean another card (T101 removes the need for numbers).
 - [x] T26 `pause` / `resume` (MatchTogglePlayPause, read back by Playing): TR and EN, both already-states; no play button (a
   talk) says `match`; at the game's own stop the button does nothing and it says `match`. `match` after `pause` plays on. `skip`
@@ -667,6 +675,9 @@ Each: crawl the screen, map it to a command, open a task for what is missing.
     EN + TR (`round51.toml`); the break's whistle seen in TR (the sides drop out there: said with the last board).
   - [ ] Penalty shootout in `match`: seen once (TR, won on penalties, said by the report). One kick's line shown of
     the whole shootout (top speed); the shootout's own score not read; its whistle now said like the break, not seen.
+    - Now the shootout board's own score (`PenaltyShootoutHomeScore` / `AwayScore`, by the plugin's state while the
+      period is Penalties; the match's score is not there then): "Penalties: Antalyaspor 2-1 Samsunspor" each kick.
+      EN twice in `round54.toml` (5-3 and a loss), kicks' commentary shown too. TR: no shootout came yet.
   - [ ] `match --play` stops at staff advice before kick-off ("The match waits for an answer to it"): the list
     answers `dugout apply` and plays on (`again`). An injury needing a substitute ends a test try the same way.
 - [x] T64 Press: every kind of press conference and media question (pre-match, post-match, transfer, unhappy player).
@@ -778,6 +789,8 @@ not yet tried in a live terminal.
       ("niyetim", "gitmek", "korkarim", "leave", "intend", "afraid"), else the last line (text and order; any other
       language falls to the last line). Measure the talk line's own identity at a resignation (what `SpeakToAction`
       sends); until then, list the lines and leave the answer to `talk <n>` rather than pick one.
+      The same function picks "Immediate" / "End of Club Season" from the resign dropdown by English words: measure
+      the dropdown's own values there too, and move both at once.
     - [ ] Found 11 Nov: `Squad/Dynamics.cs` names a social group by the text that comes between two players' rows
       (order). Look for the groups in the team's data (a list of social groups with their members).
     - Checked 11 Nov, nothing new: compares on `Name` are element names; `Task.Delay` calls are poll steps inside

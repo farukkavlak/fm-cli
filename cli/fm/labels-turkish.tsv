@@ -2821,3 +2821,5 @@ error: no 'Add Attribute' in the search panel	error: arama panelinde 'Özellik E
 {0} — training report ({1})\n	{0} — antrenman raporu ({1})\n
 No player called '{0}'. Did you mean {1} (our squad)?	'{0}' adında bir oyuncu yok. Kadromuzdaki {1} mı demek istedin?
 No player called '{0}'. The closest name in our squad: {1}; to open him: player "{2}"	'{0}' adında bir oyuncu yok. Kadromuzdaki en yakın ad: {1}; açmak için: player "{2}"
+{0}'  {1} — the game did not take its tactical tweak.	{0}'  {1} — oyun bu taktik ince ayarı almadı.
+  Penalties: {0}	  Penaltılar: {0}

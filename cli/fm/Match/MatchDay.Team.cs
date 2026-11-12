@@ -158,9 +158,25 @@ internal static partial class Program
 
 	private static string LastWhistle = "";
 
+	/// <summary>The shootout score last said ("3-2"), so each kick that moves it is said once.</summary>
+	private static string LastShootout = "";
+
 	/// <summary>Prints the score when it changes, and the whistle when the period does.</summary>
 	private static void Scoreline(JsonElement state, (string Own, string Opponent)? names, ref string period, ref string score)
 	{
+		// The shootout's own score, from the match screen's shootout board, said each time it moves
+		// (the match's own score is not read during the shootout: this comes before it).
+		if (Field(state, "Period") == "Penalties" && Field(state, "ShootoutHome") is { Length: > 0 } kicksHome
+		    && Field(state, "ShootoutAway") is { Length: > 0 } kicksAway && $"{kicksHome}-{kicksAway}" != LastShootout)
+		{
+			LastShootout = $"{kicksHome}-{kicksAway}";
+			// The sides around it as the board has them: the home side first.
+			var board = names is { } sides && Field(state, "HumanIsHome") is "True" or "False"
+				? Field(state, "HumanIsHome") == "True" ? $"{sides.Own} {LastShootout} {sides.Opponent}" : $"{sides.Opponent} {LastShootout} {sides.Own}"
+				: LastShootout;
+			Console.WriteLine(L($"  Penalties: {board}"));
+		}
+
 		var home = Field(state, "HomeScore");
 		var away = Field(state, "AwayScore");
 		if (home.Length == 0 || away.Length == 0) return;

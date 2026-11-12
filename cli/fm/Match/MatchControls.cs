@@ -275,6 +275,10 @@ internal static partial class Program
 			return 1;
 		}
 
+		// A card that is a team tweak is applied as one, by its own id and action (TacticalTweakPendingOpKind: 1 apply,
+		// 2 remove), the way `tweak` does: that needs no panel, which hides during a move and lost most tries (T25).
+		if (event_ == AcceptEvent && entry.TweakAction is "1" or "2" && await DugoutTweak(entry, json) is { } byTweak) return byTweak;
+
 		// The buttons act on whichever entry is showing, so that one is brought up first.
 		// The timeline is laid out again as the match goes on, so a mark gone stale is looked for again by its advice.
 		if (!await DugoutShowing() && !await DugoutComesBack()) return 1;
@@ -325,8 +329,39 @@ internal static partial class Program
 		return done ? 0 : 1;
 	}
 
+	/// <summary>
+	/// A card's tweak put on (or taken off) by the tweak's id, read back by the tactic's pending changes. Null when the
+	/// card's id is no team tweak the match offers (a player's, or none): the panel's button is pressed then.
+	/// </summary>
+	private static async Task<int?> DugoutTweak(DugoutEntry entry, bool json)
+	{
+		var said = await Fm.Get("tweaks", ("gen", $"d{Environment.TickCount64}"));
+		if (said.StartsWith("error", StringComparison.Ordinal)) return null;
+		var team = JsonDocument.Parse(said).RootElement.GetProperty("Team").EnumerateArray().ToList();
+		if (team.FirstOrDefault(t => t.GetProperty("Number").ToString() == entry.TweakId) is not { ValueKind: JsonValueKind.Object } row) return null;
+		var id = Field(row, "Id");
+		var off = entry.TweakAction == "2";
+		var before = (await ReadTweaks()).FirstOrDefault(t => t.Id == id);
+		if (before == null) return null;
+		var toggled = before.WillBeOn == off ? await Fm.Get("tweaks", ("toggle", id), ("off", off ? "1" : "0")) : "";
+		if (toggled.StartsWith("error", StringComparison.Ordinal)) return Report(toggled);
+		Tweak? after = null;
+		var done = await Until(async () => (after = (await ReadTweaks()).FirstOrDefault(t => t.Id == id)) is { } t && t.WillBeOn != off, seconds: 5, every: 0.25);
+		var name = after?.Name ?? before.Name;
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = !off && done ? new[] { name } : [], TweaksOff = off && done ? new[] { name } : [] }));
+			return done ? 0 : 1;
+		}
+		Console.WriteLine(done
+			? $"{entry.Minute}'  {entry.Text} — {L("applied")}."
+			: L($"{entry.Minute}'  {entry.Text} — the game did not take its tactical tweak."));
+		if (done) Console.WriteLine(off ? L($"  Tactical tweak off: {name}") : L($"  Tactical tweak on: {name}"));
+		return done ? 0 : 1;
+	}
+
 	/// <summary>One entry on the timeline, at its place there; Open while the game calls it actionable.</summary>
-	private sealed record DugoutEntry(string Minute, int Index, string Pointer, string Text, bool Open);
+	private sealed record DugoutEntry(string Minute, int Index, string Pointer, string Text, bool Open, string TweakId = "", string TweakAction = "");
 
 	/// <summary>The event on the panel's "Do it" button (`MatchDugoutConfirm` belongs to FM26).</summary>
 	private const string AcceptEvent = "DugoutAdviceAccept";
@@ -335,7 +370,7 @@ internal static partial class Program
 	private const int ScoreUpdateCard = 4;
 
 	/// <summary>The card the panel has selected, from the game's own values for it.</summary>
-	private sealed record DugoutCard(int Type, int Index, string Minute, bool Actionable, string Text)
+	private sealed record DugoutCard(int Type, int Index, string Minute, bool Actionable, string Text, string TweakId = "", string TweakAction = "")
 	{
 		public bool IsScoreUpdate => Type == ScoreUpdateCard;
 	}
@@ -386,7 +421,7 @@ internal static partial class Program
 		var showing = (await DugoutNow())?.Index;
 		foreach (var (index, pointer) in marks)
 			if (await ShowDugoutEntry(pointer, index) is { IsScoreUpdate: false, Text.Length: > 0 } card)
-				entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable));
+				entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable, card.TweakId, card.TweakAction));
 
 		// Put back the entry that was showing, so reading the list changes nothing.
 		if (marks.Count > 0 && showing != marks[^1].Index && marks.FirstOrDefault(m => m.Index == showing) is { Pointer: not null } was)
@@ -442,7 +477,8 @@ internal static partial class Program
 		var card = await Fm.GetJson("dugoutcard");
 		if (!int.TryParse(Field(card, "MatchDugoutSelectedEventIndex"), out var index)
 		    || !int.TryParse(Field(card, "MatchDugoutSelectedEventType"), out var type)) return null;
-		return new(type, index, Field(card, "AnalysisFeedbackMinute"), Field(card, "MatchDugoutIsSelectedEventActionable") == "True", await DugoutText());
+		return new(type, index, Field(card, "AnalysisFeedbackMinute"), Field(card, "MatchDugoutIsSelectedEventActionable") == "True", await DugoutText(),
+			Field(card, "MatchDugoutSelectedEventTweakId"), Field(card, "MatchDugoutSelectedEventTweakAction"));
 	}
 
 	/// <summary>The panel's sentence: advice is the content's description, a note, an analysis or a score its text.</summary>

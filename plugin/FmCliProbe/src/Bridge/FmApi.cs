@@ -312,7 +312,8 @@ internal static partial class FmApi
 	private static string DugoutCard()
 	{
 		var fields = new Dictionary<string, string>();
-		var wanted = new[] { "MatchDugoutSelectedEventIndex", "MatchDugoutSelectedEventType", "AnalysisFeedbackMinute", "MatchDugoutIsSelectedEventActionable" };
+		var wanted = new[] { "MatchDugoutSelectedEventIndex", "MatchDugoutSelectedEventType", "AnalysisFeedbackMinute", "MatchDugoutIsSelectedEventActionable",
+			"MatchDugoutSelectedEventTweakId", "MatchDugoutSelectedEventTweakAction" };
 		foreach (var (_, node) in Report.Walk())
 		{
 			var name = node.Name;

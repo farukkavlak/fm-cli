@@ -1,0 +1,52 @@
+# Round 54 (night): round 53 again, with what it taught.
+# - T90 / T63: the cup tie that goes to extra time about one try in three; a try where the match ends at 90' is one
+#   without the moment (`moment = true`), not a failure. Shootout lines ("Penalties: <home> 1-3 <away>") are in
+#   results/round54-<lang>.log when a try reaches penalties.
+# - T25: at a slow speed set by the test itself (round 53 ran at 10x/40x left from round 51); a stop at an injury is
+#   carried on by `match` (`again`); no card that can be applied in the whole match is a try without the moment.
+# Run: tools/fm-round.py dry tests/live/round54.toml, then run.
+
+[[test]]
+task = "T90"
+name = "extra time: a tweak put on and taken off, a wrong one refused, the tie played to its end"
+at = "hunt-cup-extra-time"
+fresh = true
+fast = true
+repeat = 3
+tries = 9
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "status", path = "Period", is = "ExtraTimeFirstHalf", seconds = 2400, every = 15, live = true, again = "dugout apply", moment = true, note = "only if the tie is level at 90'; staff advice before kick-off is taken" },
+  { run = "pause" },
+  { read = "tweak", path = "?WillBeOn=False.0.Id", keep = "t", live = true },
+  { run = "tweak {t}" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "True", live = true },
+  { run = "tweak {t} --off" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "False", live = true },
+  { run = "tweak zzq", rc = "fail" },
+  { run = "resume" },
+  { until = "status", path = "DuringMatch", is = "False", seconds = 2400, every = 15, live = true, again = "dugout apply", note = "through extra time (and penalties)" },
+  { finish = true },
+  { read = "report", path = "Fixture.HasResult", is = "True", live = true },
+]
+
+[[test]]
+task = "T25"
+name = "slow speed: a dugout card applied puts a tweak on; a wrong number refused"
+at = "kickoff"
+fresh = true
+repeat = 3
+tries = 5
+steps = [
+  { run = "settings 'highlight speed' 1x" },
+  { run = "settings 'speed between highlights' 4x" },
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off; asked slowly (T92)" },
+  { read = "tweak", path = "?WillBeOn=True.#", keep = "before", live = true },
+  { until = "dugout apply", path = "TweaksOn.#", not = "0", seconds = 3600, every = 10, live = true, again = "status", moment = true, note = "an injury stop is carried on by match" },
+  { read = "tweak", path = "?WillBeOn=True.#", differs_from = "before", live = true },
+  { run = "dugout 99 apply", rc = "fail", note = "not a card" },
+  { until = "status", path = "DuringMatch", is = "False", seconds = 3600, every = 15, live = true, again = "status" },
+  { finish = true },
+  { run = "dugout apply", rc = "fail", note = "no match" },
+]

@@ -116,13 +116,20 @@ internal static class State
 		["MatchHighlightCommentary"] = "Commentary",
 	};
 
+	/// <summary>The shootout's own score (MatchPenaltyShootoutReference), looked for only while the period is Penalties.</summary>
+	private static readonly Dictionary<string, string> ShootoutFields = new()
+	{
+		["PenaltyShootoutHomeScore"] = "ShootoutHome",
+		["PenaltyShootoutAwayScore"] = "ShootoutAway",
+	};
+
 	private static void Scoreboard(Dictionary<string, string> fields)
 	{
 		var missing = MatchFields.Count;
 		foreach (var (_, node) in Report.Walk())
 		{
 			var name = node.Name;
-			if (name == null || !MatchFields.TryGetValue(name, out var field) || fields.ContainsKey(field)) continue;
+			if (name == null || !(MatchFields.TryGetValue(name, out var field) || ShootoutFields.TryGetValue(name, out field)) || fields.ContainsKey(field)) continue;
 
 			string text;
 			try
@@ -135,7 +142,8 @@ internal static class State
 
 			if (string.IsNullOrEmpty(text)) continue;
 			fields[field] = text;
-			if (--missing == 0) return;
+			if (MatchFields.ContainsKey(name)) missing--;
+			if (missing == 0 && (fields.GetValueOrDefault("Period") != "Penalties" || fields.ContainsKey("ShootoutHome") && fields.ContainsKey("ShootoutAway"))) return;
 		}
 	}
 

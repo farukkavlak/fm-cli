@@ -37,6 +37,8 @@ Steps:
   start = "<command>"      runs beside the next steps (a match); `finish = true` waits for it to end
   stop = true              ends what `start` began, the match staying where it is (the next test starts fresh)
   live = true              on a read: it can only be read at that moment, so a dry run does not ask it
+  moment = true            on an `until` beside a match: the match ending first is a try without the moment, not a
+                           failure; `tries = N` on the test bounds the tries taken to reach `repeat` passes
   {name} in a command      the value kept under that name
 
 Checks read only --json and exit codes, never printed words: a test holds in every language.
@@ -64,6 +66,10 @@ COMMAND_LIMIT = 1800
 
 class Failed(Exception):
     pass
+
+
+class Missed(Exception):
+    """The moment a step waits for did not come (a match ended level-less, no card): not a failure, not a pass."""
 
 
 LANG_NOW = None  # the language a run is in, for a step written for it (run_<lang>)
@@ -553,7 +559,7 @@ def load_list(path):
 
 
 STEP_KINDS = ("run", "read", "until", "start", "finish", "stop")
-READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing", "again"}
+READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing", "again", "moment"}
 
 
 def problems_in(tests):
@@ -754,6 +760,8 @@ def play(test):
                             wrong = str(error)
                         if wrong is None:
                             break
+                        if step.get("moment"):
+                            raise Missed(f"step {number} `{step['until']}` {step['path']}: the match ended before it ({wrong})")
                         raise Failed(f"step {number} `{step['until']}` {step['path']} {wrong}, and the match beside it ended")
                     try:
                         wrong = holds(step, dig(read_json(step["until"], 120), step["path"]), kept)
@@ -796,7 +804,11 @@ def run(args):
         LOG = open(RESULTS / f"{stem}-{lang}.log", "w")
         for test in sorted(tests, key=lambda t: t["at"]):  # one load per scenario where the tests allow it
             passes = []
-            for _ in range(test.get("repeat", 1)):
+            missed = []
+            # `tries` bounds the attempts a test with a moment to wait for may take to reach `repeat` passes.
+            for _ in range(test.get("tries", test.get("repeat", 1))):
+                if len([p for p in passes if p is None]) >= test.get("repeat", 1):
+                    break
                 try:
                     if loaded != test["at"] or test.get("fresh"):
                         print(f"[{lang}] entering {test['at']}: {json.dumps(enter(test['at'], lang))}", flush=True)
@@ -808,6 +820,10 @@ def run(args):
                         restore.update(was)
                         put_back(restore)
                     passes.append(None)
+                except Missed as error:
+                    missed.append(str(error))
+                    loaded = None
+                    print(f"[{lang}] missed {test['task']}: {error}", flush=True)
                 except Failed as error:
                     passes.append(str(error))
                     # Whatever it left behind must not fail the next test: that one starts fresh.
@@ -815,11 +831,13 @@ def run(args):
                     break  # a task that fails moves to the next round: no more of its time this one
             bad = [p for p in passes if p]
             failed += bool(bad)
-            mark = "pass" if not bad else "FAIL"
-            print(f"[{lang}] {mark} {test['task']} {test['name']} ({len(passes) - len(bad)}/{len(passes)})", flush=True)
+            mark = "FAIL" if bad else "pass" if passes else "MISSED"
+            print(f"[{lang}] {mark} {test['task']} {test['name']} ({len(passes) - len(bad)}/{len(passes)}"
+                  + (f", {len(missed)} without the moment" if missed else "") + ")", flush=True)
             for problem in bad[:2]:
                 print(f"       {problem}", flush=True)
-            rows.append(f"- {mark} {test['task']} {test['name']} ({len(passes) - len(bad)}/{len(passes)})" + "".join(f"\n  - {p}" for p in bad))
+            rows.append(f"- {mark} {test['task']} {test['name']} ({len(passes) - len(bad)}/{len(passes)}"
+                        + (f", {len(missed)} without the moment" if missed else "") + ")" + "".join(f"\n  - {p}" for p in bad))
         report = RESULTS / f"{stem}-{lang}.md"
         report.write_text(f"# {stem}, {lang}, {datetime.datetime.now():%Y-%m-%d %H:%M}\n\n" + "\n".join(rows) + "\n")
         print(f"[{lang}] written: {report}", flush=True)
