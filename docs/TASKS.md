@@ -379,6 +379,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     crashes at quitting (02:02:01 and 02:12, each the moment `stop --no-save` closed the game): SIGABRT on the
     `Timer-Scheduler` thread, an exception thrown again from GameAssembly (`__cxa_rethrow`), not the GC Finalizer
     SIGBUS of before. The game was closing anyway; `stop` said "closed". Slowest stops: 37 s, 17 s, 12 s (none hung).
+    Then 06:54, TR, `round56.toml`: gone at team submission ("Kadro gönderiliyor"), the known kind; no new crash report
+    written by macOS for it.
   6 Nov, `kickoff` EN: 3 of 4 matches died at "Submitting the team" with nothing else asking (GC Finalizer, SIGSEGV
   at 0x20, GameAssembly → UnityPlayer). That day the plugin had begun reading every event context of every control
   for `Writes` on each `buttons?json=1`, which the submission asks many times; `Writes` is now only read when asked
