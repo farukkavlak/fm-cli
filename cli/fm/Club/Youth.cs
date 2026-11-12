@@ -102,55 +102,38 @@ internal static partial class Program
 		return 0;
 	}
 
-	private static async Task<List<(string Text, string Path)>> YouthPaths(string anchorPath, string up) =>
-		(await Fm.GetJson("texts", ("anchorpath", anchorPath), ("up", up), ("paths", "1"), ("most", "1"))).EnumerateArray()
-			.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
-
 	/// <summary>
-	/// The youth team's training ratings, FM27: the youth team's squad (the club's YouthTeam, else its
-	/// highest youth team) is opened and Individual Training chosen on its own bar. Each row is a name
-	/// (primarytext), the squad status (Person.FullContract.AgreedPlayingTime.DisplayValue), the position
-	/// (Value) and the rating, drawn without a path ("-" when he did not train). The table draws only the
-	/// rows in view, so it is read at five places down it. Null when the bar does not list the page (FM26).
+	/// The youth team's training ratings, FM27 (FM26's Youth Performance page is gone): the youth team (the club's
+	/// YouthTeam, else its highest youth team), its training squad (TeamTraining.TrainingSquad), each player's status
+	/// (his contract's agreed playing time, in the game's words), positions and his PlayerTraining.TrainingRating
+	/// (0 when he did not train: "-"); the average is the team's own (AverageTrainingRating). No page is opened.
 	/// </summary>
 	private static async Task<int?> YouthTrainingOnBar(bool json)
 	{
-		var team = Field(await Fm.Pull("Human.Club.YouthTeam", "UniqueId"), "UniqueId") is { Length: > 0 } youngest ? youngest
-			: Field(await Fm.Pull("Human.Club.HighestLevelYouthTeam", "UniqueId"), "UniqueId");
+		var team = Field(await Fm.Pull("Human.Club.YouthTeam", "UniqueId"), "UniqueId").Length > 0 ? "Human.Club.YouthTeam"
+			: Field(await Fm.Pull("Human.Club.HighestLevelYouthTeam", "UniqueId"), "UniqueId").Length > 0 ? "Human.Club.HighestLevelYouthTeam" : "";
 		if (team.Length == 0) return null;
-		const string Status = "Person.FullContract.AgreedPlayingTime.DisplayValue";
-		async Task<List<(string Text, string Path)>> Read() => await YouthPaths(Status, "30");
-		var opened = await OpenSubpage(Screen.Squad, Screen.IndividualTraining, async () => (await Read()).Any(t => t.Path == Status), team, bar: true);
-		if (opened.StartsWith("error", StringComparison.Ordinal))
+		var squad = $"{team}.TeamTraining.TrainingSquad";
+		var training = await PlayersTraining("TrainingRating", squad, team);
+		if (training.Count == 0) return null;
+		// Status and positions of the same players, by id, the status in the game's words.
+		var about = new Dictionary<string, (string Status, string Position)>();
+		await Until(async () =>
 		{
-			if (opened.Contains(Screen.IndividualTraining, StringComparison.OrdinalIgnoreCase)) return null;
-			Console.Error.WriteLine(L("The youth training table did not open."));
-			return 1;
-		}
+			var read = await Fm.Pull(squad, "UniqueId,FullContract.AgreedPlayingTime.DisplayValue,PositionCombinedString", list: true, shown: "FullContract.AgreedPlayingTime.DisplayValue");
+			if (read.ValueKind != JsonValueKind.Array) return false;
+			about = read.EnumerateArray().ToDictionary(r => Field(r, "UniqueId"), r => (Field(r, "FullContract.AgreedPlayingTime.DisplayValue"), Field(r, "PositionCombinedString")));
+			return training.All(t => about.TryGetValue(t.Row.Id, out var a) && a.Status.Length > 0 && a.Position.Length > 0);
+		}, seconds: 6, every: 0.3);
 
-		var players = new Dictionary<string, string[]>();
-		foreach (var at in new[] { 0, 0.25, 0.5, 0.75, 1 })
-		{
-			await Fm.Get("scroll", ("anchorpath", Status), ("to", at.ToString(System.Globalization.CultureInfo.InvariantCulture)));
-			List<(string Text, string Path)> texts = [];
-			var previous = "";
-			await Until(async () =>
-			{
-				var now = string.Join("|", (texts = await Read()).Select(t => t.Text));
-				var same = now == previous && texts.Any(t => t.Path == Status);
-				previous = now;
-				return same;
-			}, seconds: 4, every: 0.25);
-			for (var i = 0; i + 3 < texts.Count; i++)
-				if (texts[i].Path == "primarytext" && texts[i + 1].Path == Status && texts[i + 2].Path == "Value" && texts[i + 3].Path.Length == 0)
-					players[texts[i].Text] = [texts[i].Text, GameWords.Of(texts[i + 1].Text), texts[i + 2].Text, texts[i + 3].Text];
-		}
-		await Fm.Get("scroll", ("anchorpath", Status), ("to", "0"));
-
-		double Rating(string text) => double.TryParse(text.Replace(',', '.'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1;
-		var rows = players.Values.OrderByDescending(r => Rating(r[3])).ToList();
-		var rated = rows.Select(r => Rating(r[3])).Where(v => v >= 0).ToList();
-		var average = rated.Count > 0 ? GameNumbers.Of(rated.Average(), "0.00") : "";
+		double Rating(string text) => double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
+		var rows = training
+			.Select(t => (t.Row.Name, About: about.GetValueOrDefault(t.Row.Id), Rating: Rating(Field(t.Data, "TrainingRating"))))
+			.OrderByDescending(r => r.Rating).ThenBy(r => r.Name)
+			.Select(r => new[] { r.Name, r.About.Status ?? "", r.About.Position ?? "", r.Rating > 0 ? GameNumbers.Of(r.Rating, "0.00") : "-" })
+			.ToList();
+		var mean = Rating(Field(await Fm.Pull($"{team}.TeamTraining", "AverageTrainingRating"), "AverageTrainingRating"));
+		var average = mean > 0 ? GameNumbers.Of(mean, "0.00") : "";
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new { Average = average, Players = rows.Select(r => new { Player = r[0], Status = r[1], Position = r[2], Rating = r[3] }) }));

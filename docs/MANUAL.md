@@ -389,7 +389,7 @@ fm shortlist [add|remove <player> --for <length>]
 fm transferroom [--loan]    # clubs' adverts for players you could offer
 fm transferroom offer <no or club> [player]   # send one; activity lists those sent
 fm transferroom wanted | responses            # your own requirements and the replies
-fm transferroom new --position "ST (C)" [--role <r>] [--max-age <n>] [--time <t>] [--type <t>]
+fm transferroom new --position "ST (C)" [--role <r>] [--max-age <n>] [--time <t>] [--type <t>]   # --choices: what each list offers, by value
 fm transferroom delete <no>
 fm transferroom agents | discard <player> | discard --all    # players agents offered
 fm planner [--season current|next|after] [--position <p>]    # the Squad Planner

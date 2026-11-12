@@ -131,19 +131,19 @@ internal static partial class Program
 	/// </summary>
 	private static readonly (string Variable, string From)[] TrainingContext = [("human", "Human"), ("team", "Human.Team"), ("Judge", "Human")];
 
-	private static async Task<List<(TrainingRow Row, JsonElement Data)>> PlayersTraining(string props)
+	private static async Task<List<(TrainingRow Row, JsonElement Data)>> PlayersTraining(string props, string players = "Human.Team.Players", string team = "Human.Team")
 	{
-		JsonElement players;
-		try { players = await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true); }
+		JsonElement squad;
+		try { squad = await Fm.Pull(players, "Name,UniqueId", list: true); }
 		catch (FmError) { return []; }
-		if (players.ValueKind != JsonValueKind.Array) return [];
-		var rows = players.EnumerateArray().Select(p => (Name: Field(p, "Name"), Id: Field(p, "UniqueId"), Row: Field(p, "Row")))
+		if (squad.ValueKind != JsonValueKind.Array) return [];
+		var rows = squad.EnumerateArray().Select(p => (Name: Field(p, "Name"), Id: Field(p, "UniqueId"), Row: Field(p, "Row")))
 			.Where(r => r.Row.Contains('.') && r.Name.Length > 0).ToList();
 		if (rows.Count == 0) return [];
 
 		var under = rows[0].Row[..rows[0].Row.LastIndexOf('.')];
 		// The variable is bound by this very call when nothing has bound it yet: then a frame later.
-		foreach (var (variable, from) in TrainingContext)
+		foreach (var (variable, from) in TrainingContext.Select(c => c.Variable == "team" ? (c.Variable, team) : c))
 			if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.2))
 				return [];
 

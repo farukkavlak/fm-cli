@@ -143,6 +143,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     event carries it (`pluginevent?show=1`), and still nothing reaches the other season: not a striker added to
     the current plan, not one removed from the next, not with his row ticked (`SelectedPlayers` set), not after
     the page is opened again. No question is asked. Next: what else the handler (`Team.Manager.SquadPlanner`) reads.
+    12 Nov: the button reads "Copy Current Season plan to…" (the shown season is the source, the list's entry the
+    target). `copytype` is not a string in the game's binaries (keys are hashed); the handler is native, in
+    `game_plugin` (seen in a stack sample), not in the interop types. Needs that library read (`rea`) to go on.
 - [x] T13 Tactic: personalised roles (`EventFmxTogglePositionPersonalisedRole`), swap two players
   (`EventFmxSwapPlayers`), clear a slot (`EventFmxTeamSelectionClearPlayer`).
   - [x] Swap two starters: `tactic player <position> <starter>` already does it (the two change places). Clear a place: `tactic player <position> --clear`, the place's `XIButton` told by its row's `PlayerIndex`, its right-click list sends `EventFmxTeamSelectionClearOrPickPlayerAuto`, read back by the place's `PlayerIndex` -1. TR + EN 3 × (list `round5`): wrong position, only that place, already empty, filled again, from another page.
@@ -393,6 +396,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   Later the same night: round22 EN died once more at submission (GC Finalizer, `status` asked every 10 s); TR 3 of 3
   fine. Rarer, not gone. `shown`'s `Under` is also only read when asked (`remap=1`).
   A lead: every death that night was in an English run; the Turkish runs (6 of 6 in rounds 22–23) never died.
+  - 12 Nov 15:06, TR (`calm`, by hand): not a crash. The game's own logic (`game_plugin`) hit a fatal error and put up
+    its modal "Uygulama Hatası: Ciddi bir hata oluştu ve uygulama şu an kapatılacak" (an `NSAlert`, read through
+    System Events; the main thread sat in `NSAlert runModal`, so the bridge answered nothing). The hidden window
+    hides it too, so nobody sees it; this is why some deaths left no `.ips`. Moment: the second `transferroom
+    delete 1` (the last requirement) in a row; `Player.log` had "Out of bounds index: -1" on `TransferRoomAdvertCard`
+    before. Next: `fm` should tell this dialog (the game's process has it; read its text) and say "the game hit a
+    fatal error", not "FM is not responding"; then see which deaths were these.
 - [x] T88 `tactic clear`: the delete question (`deleteTacticConfirmation`) was answered by a simulated click,
   which often closed nothing; now by the game's dialog handler (`dialog?press=primary`). `tactic slot` lists
   every slot's name from the tactic's own `TacticSlot{n}Name` / `…Valid`. Copy then clear: TR 6/6, EN 3/3;

@@ -37,7 +37,7 @@ internal static partial class Program
 			"offer" => await RoomOffer(rest, args, loan),
 			"wanted" => await RoomWanted(json, loan),
 			"responses" => await RoomResponses(json, loan),
-			"new" => await RoomNew(args),
+			"new" => await RoomNew(args, json),
 			"delete" => await RoomDelete(rest, loan),
 			"agents" => await RoomAgentOffers(json),
 			"discard" => await RoomDiscard(rest, args),
@@ -327,12 +327,16 @@ internal static partial class Program
 		return 0;
 	}
 
-	private static async Task<int> RoomNew(string[] args)
+	/// <summary>The form's lists, each by the advert field it binds, with the flag that sets it.</summary>
+	private static readonly (string Flag, string Binds)[] RoomFormLists =
+		[("--role", "advert.rolevalue"), ("--oop-role", "advert.OOPRoleValue"), ("--min-age", "advert.minagevalue"), ("--max-age", "advert.maxagevalue"), ("--time", "advert.playingtimevalue"), ("--type", "advert.transferoffertype")];
+
+	private static async Task<int> RoomNew(string[] args, bool json)
 	{
 		var position = Option(args, "--position");
 		if (position == null)
 		{
-			Console.Error.WriteLine(L("usage: transferroom new --position <position> [--oop-position <position>] [--role <role>] [--oop-role <role>] [--min-age <n>] [--max-age <n>] [--time <playing time>] [--type <type>]"));
+			Console.Error.WriteLine(L("usage: transferroom new --position <position> [--oop-position <position>] [--role <role>] [--oop-role <role>] [--min-age <n>] [--max-age <n>] [--time <playing time>] [--type <type>] [--choices]"));
 			return 64;
 		}
 		await RoomCloseForm();
@@ -344,6 +348,7 @@ internal static partial class Program
 		var confirm = await RoomButton(b => Field(b, "Events").Contains("EventFmxTransferRoomAddAdvertConfirm", StringComparison.Ordinal));
 		if (confirm.ValueKind != JsonValueKind.Object) return Report("error: the requirement's form did not open");
 
+		if (args.Contains("--choices")) return await RoomChoices(args, position, json);
 		var problem = await RoomFillForm(args, position);
 		confirm = await RoomButton(b => Field(b, "Events").Contains("EventFmxTransferRoomAddAdvertConfirm", StringComparison.Ordinal));
 		if (problem == null && Field(confirm, "Enabled") != "True") problem = L("The game does not accept this requirement.");
@@ -377,25 +382,71 @@ internal static partial class Program
 
 	private static async Task<string?> RoomFillForm(string[] args, string position)
 	{
-		if (await RoomFormPosition(position) is { } first) return first;
+		if (await RoomFormPosition(position, oop: false) is { } first) return first;
 		// A position chosen lets the form be sent, and narrows its role list.
 		await RoomButton(b => Field(b, "Events").Contains("EventFmxTransferRoomAddAdvertConfirm", StringComparison.Ordinal) && Field(b, "Enabled") == "True", seconds: 4);
-		if (Option(args, "--oop-position") is { } oop)
-		{
-			var tab = await RoomButton(b => Field(b, "Name") == "oop-tab-button");
-			if (tab.ValueKind != JsonValueKind.Object) return L("The form has no out-of-possession tab.");
-			await Fm.Get("click", ("ptr", Field(tab, "Pointer")));
-			if (await RoomFormPosition(oop) is { } second) return second;
-		}
-		foreach (var (flag, binds) in new[] { ("--role", "advert.rolevalue"), ("--oop-role", "advert.OOPRoleValue"), ("--min-age", "advert.minagevalue"), ("--max-age", "advert.maxagevalue"), ("--time", "advert.playingtimevalue"), ("--type", "advert.transferoffertype") })
+		if (Option(args, "--oop-position") is { } oop && await RoomFormPosition(oop, oop: true) is { } second) return second;
+		foreach (var (flag, binds) in RoomFormLists)
 			if (Option(args, flag) is { } value && await RoomFormChoice(binds, value) is { } wrong) return wrong;
 		return null;
 	}
 
-	private static async Task<string?> RoomFormPosition(string typed)
+	/// <summary>
+	/// What each of the form's lists offers once the position (and the out-of-possession one) is chosen: the words
+	/// as shown and the game's own value, which a flag takes the same in every language. Nothing is sent: the
+	/// form is closed again.
+	/// </summary>
+	private static async Task<int> RoomChoices(string[] args, string position, bool json)
 	{
-		var tiles = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Where(b => Field(b, "Visible") == "True" && Field(b, "Page") == RoomForm && Field(b, "Events").Contains("EventFmxSelectPosition", StringComparison.Ordinal)).ToList();
+		var problem = await RoomFormPosition(position, oop: false);
+		if (problem == null) await RoomButton(b => Field(b, "Events").Contains("EventFmxTransferRoomAddAdvertConfirm", StringComparison.Ordinal) && Field(b, "Enabled") == "True", seconds: 4);
+		if (problem == null && Option(args, "--oop-position") is { } oop) problem = await RoomFormPosition(oop, oop: true);
+		var lists = new List<(string Flag, List<(string Text, string Value)> Choices)>();
+		if (problem == null)
+		{
+			var shown = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Where(d => Field(d, "Visible") != "False").ToList();
+			foreach (var (flag, binds) in RoomFormLists)
+			{
+				var list = shown.FirstOrDefault(d => Field(d, "Binds") == binds);
+				if (list.ValueKind != JsonValueKind.Object) continue;
+				var texts = list.GetProperty("Shown").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
+				var values = list.TryGetProperty("Values", out var v) && v.ValueKind == JsonValueKind.Array
+					? v.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.Number ? x.GetRawText() : "").ToList() : [];
+				if (values.Count != texts.Count) values = texts.Select(_ => "").ToList();
+				lists.Add((flag, texts.Zip(values).ToList()));
+			}
+		}
+		await RoomCloseForm();
+		if (problem != null)
+		{
+			Console.Error.WriteLine(problem);
+			return 1;
+		}
+		if (json)
+		{
+			Console.WriteLine(JsonOut.Of(lists.ToDictionary(l => l.Flag.TrimStart('-'), l => l.Choices.Select(c => new { c.Text, c.Value }))));
+			return 0;
+		}
+		foreach (var (flag, choices) in lists)
+			Console.WriteLine($"{flag}  {string.Join(", ", choices.Select(c => c.Value.Length > 0 ? $"{c.Text} ({c.Value})" : c.Text))}");
+		return 0;
+	}
+
+	/// <summary>
+	/// A position on one of the form's two pitches. FM27's form opens on the out-of-possession one: each pitch is
+	/// shown by its tab (#ip-tab-button / #oop-tab-button), and a tile is told by the pitch frame it sits in
+	/// (#ip-pitch-frame / #oop-pitch-frame in its source), not by which is up first.
+	/// </summary>
+	private static async Task<string?> RoomFormPosition(string typed, bool oop)
+	{
+		var (tabName, frame) = oop ? ("oop-tab-button", ".oop-pitch-frame") : ("ip-tab-button", ".ip-pitch-frame");
+		var tab = await RoomButton(b => Field(b, "Name") == tabName && Field(b, "Page") == RoomForm);
+		if (tab.ValueKind != JsonValueKind.Object) return oop ? L("The form has no out-of-possession tab.") : L("The form has no in-possession tab.");
+		await Fm.Get("click", ("ptr", Field(tab, "Pointer")));
+		List<JsonElement> tiles = [];
+		await Until(async () => (tiles = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Visible") == "True" && Field(b, "Page") == RoomForm && Field(b, "Events").Contains("EventFmxSelectPosition", StringComparison.Ordinal)
+				&& Field(b, "Source").Contains(frame, StringComparison.Ordinal)).ToList()).Count > 0, seconds: 4, every: 0.2);
 		var hit = tiles.Where(t => string.Equals(Field(t, "Label"), typed, StringComparison.OrdinalIgnoreCase)).ToList();
 		if (hit.Count != 1) return L($"'{typed}' is not a position here. They are: {string.Join(", ", tiles.Select(t => Field(t, "Label")))}");
 		if (Field(hit[0], "Enabled") != "True") return L($"'{typed}' cannot be chosen now.");

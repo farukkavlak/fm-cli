@@ -1,0 +1,68 @@
+# Round 61 (day): group A.
+# - T85 `youth --training`: the youth team's TeamTraining.TrainingSquad, each player's PlayerTraining.TrainingRating
+#   (context human / team / Judge beside the rows), the team's AverageTrainingRating; no page, no order, no scroll.
+# Run: tools/fm-round.py dry tests/live/round61.toml, then run --lang en,tr.
+
+[[test]]
+task = "T85"
+name = "youth --training: ratings from the players' data, cold, another page open, from the inbox"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "youth --training", path = "Players.#", is = "13", note = "cold" },
+  { read = "youth --training", path = "Average", not = "" },
+  { read = "youth --training", path = "Players.0.Player", keep = "best" },
+  { read = "youth --training", path = "Players.0.Rating", not = "-" },
+  { read = "youth --training", path = "Players.12.Rating", is = "-", note = "one did not train" },
+  { read = "youth --training", path = "Players.0.Status", not = "" },
+  { run = "squad", note = "another page over it" },
+  { read = "youth --training", path = "Players.0.Player", same_as = "best" },
+  { run = "inbox" },
+  { read = "youth --training", path = "Players.#", is = "13" },
+]
+
+[[test]]
+task = "T85"
+name = "youth --training: close season, nobody rated, no average"
+at = "career-2034-06-29"
+fresh = true
+repeat = 3
+steps = [
+  { read = "youth --training", path = "Players.#", is = "6" },
+  { read = "youth --training", path = "Average", is = "" },
+  { read = "youth --training", path = "Players.0.Rating", is = "-" },
+]
+
+# - T11 `transferroom new`: `--choices` reads each list's offers with the game's value and sends nothing; a position is
+#   put on the pitch its flag names (#ip- / #oop-pitch-frame, by its tab), FM27's form opening on the out-of-possession one.
+
+[[test]]
+task = "T11"
+name = "transferroom new: choices send nothing; role by value; position and oop position on their own pitches; loan by its word"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { read = "transferroom new --position {position} --choices", path = "role.0.Value", is = "0" },
+  { read = "transferroom new --position {position} --choices", path = "role.1.Value", keep = "role" },
+  { read = "transferroom new --position {position} --choices", path = "type.1.Text", keep = "loan" },
+  { read = "transferroom wanted", path = "#", is = "0", note = "choices made nothing" },
+  { run = "transferroom new --position {position} --role {role}" },
+  { read = "transferroom wanted", path = "0.Position", same_as = "position", live = true },
+  { read = "transferroom wanted", path = "0.Role", not = "-", live = true },
+  { read = "transferroom wanted", path = "0.OutOfPossession", is = "-", live = true },
+  { run = "transferroom new --position {position} --oop-position {position}" },
+  { read = "transferroom wanted", path = "1.Position", same_as = "position", live = true },
+  { read = "transferroom wanted", path = "1.OutOfPossession", same_as = "position", live = true },
+  { read = "transferroom wanted", path = "1.Role", is = "-", live = true },
+  { run = "transferroom new --position {position} --oop-position zzzq", rc = "fail" },
+  { run = "transferroom new --position {position} --type \"{loan}\"" },
+  { read = "transferroom wanted --loan", path = "#", is = "1", live = true },
+  { read = "transferroom wanted", path = "#", is = "2" },
+  { run = "transferroom delete 1 --loan" },
+  { run = "transferroom delete 2" },
+  { run = "transferroom delete 1" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+]
