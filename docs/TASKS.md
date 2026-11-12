@@ -50,7 +50,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     Space (seen twice in tests); undoing it from the plugin did not work. Only a deliberate change can
     cause it: start writes a window before launch and keeps it until stop.
 
-- [ ] T149 Since FM27 27.0.1 the tool's game mostly stopped on a black splash (`Player.log`: Addressables
+- [x] T149 Since FM27 27.0.1 the tool's game mostly stopped on a black splash (`Player.log`: Addressables
   "Unable to find any catalog locations", "Keys are expected to be strings").
   - Cause: Il2CppInterop (arm64 build) hooks `GetAssemblyTypeHandle(image, index)` instead of
     `GetTypeInfoFromHandle(handle)`: its scan of `Image::GetType` runs past the tail call and takes the first of
@@ -61,8 +61,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - Fix: `InteropHookFix` puts the hook on the second call of `Image::GetType` (held by the export
     `il2cpp_image_get_class` and the two-call shape; does nothing if Il2CppInterop already picks it).
     Full plugin 5/5 clean starts; `fm start` + save load + `squad` EN.
-  - [ ] Starts 3–5 more with Steam running, EN and TR (one `fm start` failed with Steam closed:
-    `SteamAPI_Init() failed`, not this bug).
+  - [x] `fm start` with Steam running: EN 3/3, TR 3/3, each with the save loaded and the hook placed (one start
+    with Steam closed ended in `SteamAPI_Init() failed`, not this bug).
   - Fixed on the way: a game update rebuilt the shadow bundle from Steam's Info.plist, so the game came up in the
     Dock; the launcher script now puts LSUIElement in when it rebuilds it (FMCLI_HIDDEN).
 

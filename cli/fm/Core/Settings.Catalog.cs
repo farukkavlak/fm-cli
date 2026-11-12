@@ -46,7 +46,7 @@ internal static partial class Program
 			Hint: L("how often Continue stops to show you things")),
 		new(L("match scheduling"), L("Processing"), "match_scheduling_mode", SettingKind.Dropdown,
 			Hint: L("whether matches are moved for broadcasting")),
-		new(L("unread messages"), L("Processing"), "continue_button_legacy_mode", SettingKind.Dropdown,
+		new(L("unread messages"), L("Processing"), "continue_button_cycle_messages", SettingKind.Dropdown,
 			Hint: L("whether Continue waits until every message is read")),
 	];
 
