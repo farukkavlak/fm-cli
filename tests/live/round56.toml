@@ -1,0 +1,28 @@
+# Round 56 (early morning): T90 / T63 in Turkish once more: one more pass of extra time, and a shootout if one comes
+# ("Penaltılar: …" lines in results/round56-tr.log). Same test as round 54's.
+# Run: tools/fm-round.py dry tests/live/round56.toml, then run --lang tr.
+
+[[test]]
+task = "T90"
+name = "extra time: a tweak put on and taken off, a wrong one refused, the tie played to its end"
+at = "hunt-cup-extra-time"
+fresh = true
+fast = true
+repeat = 2
+tries = 8
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "status", path = "Period", is = "ExtraTimeFirstHalf", seconds = 2400, every = 15, live = true, again = "dugout apply", moment = true, note = "only if the tie is level at 90'; staff advice before kick-off is taken" },
+  { run = "pause" },
+  { read = "tweak", path = "?WillBeOn=False.0.Id", keep = "t", live = true },
+  { run = "tweak {t}" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "True", live = true },
+  { run = "tweak {t} --off" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "False", live = true },
+  { run = "tweak zzq", rc = "fail" },
+  { run = "resume" },
+  { until = "status", path = "DuringMatch", is = "False", seconds = 2400, every = 15, live = true, again = "dugout apply", note = "through extra time (and penalties)" },
+  { finish = true },
+  { read = "report", path = "Fixture.HasResult", is = "True", live = true },
+]
+

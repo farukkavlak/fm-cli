@@ -103,7 +103,7 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   `TacticalTweak` id; works once kicked off (a pre-kick-off tweak is dropped by the game).
 - [ ] T90 Tactical tweaks, rest:
   - Extra time (`round54.toml`, a try where the tie is not level at 90' counts as without the moment): EN 3/3 (3 without),
-    TR 1/1 (8 without); with round 51, EN 4, TR 2. Left: one more TR.
+    TR 1/1 (8 without); with round 51, EN 4, TR 2. `round56.toml` TR: 8 more, none level at 90'. Left: one more TR.
   - `tweak --player <p>` and `tweak --reset team|individual|all` go through the match bar's tweaks popup
     (`tweaks-button`), no tactics panel; the popup is shut again. A player's place is his row's `Slot.Index`. While the
     ball rolls the game makes a change by itself, at a stop when play goes on; with the panel up, at its Confirm.
@@ -375,6 +375,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - 11 Nov, U19 friendly after an instant result (`round47.toml`): lost 5 times in about 13 runs while the match
     loaded, then 2 in 5 with nothing asked beside it, so asking is not the whole cause. The sides are now read only
     once a period is under way (`status`, `match`), and with that the list's own test ran 3/3 in EN and TR. Open.
+  - 12 Nov night (rounds 53–54, about 25 `stop --no-save` and as many loads): no crash while playing or loading. Two
+    crashes at quitting (02:02:01 and 02:12, each the moment `stop --no-save` closed the game): SIGABRT on the
+    `Timer-Scheduler` thread, an exception thrown again from GameAssembly (`__cxa_rethrow`), not the GC Finalizer
+    SIGBUS of before. The game was closing anyway; `stop` said "closed". Slowest stops: 37 s, 17 s, 12 s (none hung).
   6 Nov, `kickoff` EN: 3 of 4 matches died at "Submitting the team" with nothing else asking (GC Finalizer, SIGSEGV
   at 0x20, GameAssembly → UnityPlayer). That day the plugin had begun reading every event context of every control
   for `Writes` on each `buttons?json=1`, which the submission asks many times; `Writes` is now only read when asked
