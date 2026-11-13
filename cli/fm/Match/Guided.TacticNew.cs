@@ -19,6 +19,13 @@ internal static partial class Program
 		var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
 		var current = Field(list!.Value, "Label");
 
+		// Read only: what it holds and offers, as the planner's list gives it (also while the game has it shut).
+		if (wanted == null && Ui.Json)
+		{
+			Console.WriteLine(JsonOut.Of(new { Value = current, Choices = choices }));
+			return 0;
+		}
+
 		// After a shout the game shuts the list for a while; choosing from it then does nothing.
 		if (Field(list!.Value, "Enabled") != "True")
 		{
