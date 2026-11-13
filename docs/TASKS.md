@@ -52,13 +52,21 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T22 `players --filter`
 - [x] T23 `shortlist` lists
 - [x] T24 `inbox --read-all`
-- [ ] T25 `dugout` cards: apply puts a tweak on. Left: TR + EN 3/3 at slow speed (`round66.toml`).
+- [x] T25 `dugout` cards: apply puts a tweak or team instruction on, read back; a wrong number refused. TR 2/2, EN 2/2.
+- [ ] T157 `dugout` cards, what is left after T25:
+  - [ ] A mentality card ("Set team mentality") is read back from the match tactic's `Mentality` now: see one live
+  - [ ] A 28' advice card ("tell them to be more patient") Open, Do-it pressed 3 times, never taken: why
+  - [ ] Each apply waits up to 60 s for the panel hidden during a move (60–100 s calls at slow speed)
+  - [ ] "Press less aggressively" read back "Pressing Intensity: Much More Intense" among its changes: check
+- [x] T155 Team instruction names in a Turkish game came out in English: shown through `GameWords` (TR and EN checked)
+- [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
+  so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
 - [x] T26 `pause` / `resume`
 - [x] T27 `holiday --jobs`
 - [x] T28 `youth candidates`
-- [ ] T29 A goal with a change waiting: the game's question (`cancelChanges`), answered Yes.
-  - TR 2/2 (13 Nov): asked only for a team instruction change (taken at the next dead ball); a mentality change is
-    taken at once and never waits. Needs slow speed: at full speed 1 in 4 matches. Left: EN 2/2 (`round66.toml`).
+- [x] T29 A goal with a change waiting: the game's question (`cancelChanges`), answered Yes. TR 2/2, EN 2/2.
+  - Asked only for a team instruction change (taken at the next dead ball); a mentality change is taken at once.
+    A penalty goal never asks (the kick is a dead ball). Needs slow speed.
 - [x] T97 The match bar's Tactics button
 - [x] T113 `talk --json` order
 - [x] T114 Deadline day date
@@ -102,7 +110,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [ ] T92 The game dies now and then. Every death has one stack: GameAssembly 0x7547c8 → 0x519950 → 0x1964b70 → UnityPlayer 0x29840.
   - Found 13 Nov: a start hung with the same path on the loading thread. BepInEx's tick fires on any thread's
     runtime_invoke; the plugin touched Unity there. Fixed (c5c8b63): ticks do nothing off the main thread.
-  - [ ] Watch: since the fix 10 starts and 5 matches, no death, no hang. Close after a long night round with none.
+  - [ ] Watch: since the fix 10 starts and 5 matches, no death, no hang; 13 Nov evening round (5 h, 9 matches) none too.
+    Close after a long night round with none.
   - [ ] Name the methods: deploy plugin `whatis` (built), ask `whatis?anchor=6e77dc&rva=1964b2c,4de7298,519950`
   - [ ] Read UnityPlayer's table slot +0x1d97980 with the game running
   - [ ] Fix, or write the cause here

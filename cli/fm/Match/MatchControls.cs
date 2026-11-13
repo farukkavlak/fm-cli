@@ -206,13 +206,19 @@ internal static partial class Program
 			// Its entries are drawn a moment after it shows.
 			await Until(async () => (entries = await DugoutEntries()).Count > 0, seconds: 3, every: 0.25);
 		}
+		var words = Words(args).ToList();
 		if (entries.Count == 0)
 		{
+			// Only a look at the list is answered by an empty one; an entry asked for is not there.
+			if (words.Count > 0)
+			{
+				Console.Error.WriteLine(L("The assistant has no advice right now."));
+				return 1;
+			}
 			Console.WriteLine(L("The assistant has no advice right now."));
 			return 0;
 		}
 
-		var words = Words(args).ToList();
 		if (json && words.Count == 0)
 		{
 			Console.WriteLine(JsonOut.Of(entries.Select(e => new { e.Minute, e.Text, CanDo = e.Open })));
@@ -308,6 +314,8 @@ internal static partial class Program
 			catalogue = await TeamInstructionCatalogue(false);
 			instructionsBefore = await TeamInstructionsNow(catalogue);
 		}
+		// A card that sets the mentality ("Very Defensive") changes the match tactic's Mentality, a number.
+		var mentalityBefore = event_ == AcceptEvent && matchTactic != null ? await MatchMentality() : null;
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
@@ -326,14 +334,18 @@ internal static partial class Program
 				if (before.FirstOrDefault(b => b.Id == tweak.Id) is { } was && was.WillBeOn != tweak.WillBeOn)
 					(tweak.WillBeOn ? tweaksOn : tweaksOff).Add(tweak.Name);
 		var instructions = new List<string>();
+		if (done && instructionsBefore.Count > 0) await AskInstructionWords(catalogue);
 		if (done && instructionsBefore.Count > 0)
 			foreach (var (id, option) in await TeamInstructionsNow(catalogue))
 				if (instructionsBefore.TryGetValue(id, out var was) && was != option && catalogue.FirstOrDefault(c => c.Id == id) is { } i)
 					instructions.Add($"{GameWords.Of(i.Name)}: {GameWords.Of(i.Options.FirstOrDefault(o => o.Id == option).Name ?? option.ToString())}");
+		var mentality = new List<string>();
+		if (done && mentalityBefore != null && await MatchMentality() is { } mentalityAfter && mentalityAfter.Number != mentalityBefore.Value.Number)
+			mentality.Add($"{GameWords.Of(mentalityBefore.Value.Name)} → {GameWords.Of(mentalityAfter.Name)}");
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff,
-				InstructionsChanged = instructions, Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).ToList() }));
+				InstructionsChanged = instructions, MentalityChanged = mentality, Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).ToList() }));
 			return done ? 0 : 1;
 		}
 		Console.WriteLine(done
@@ -342,7 +354,21 @@ internal static partial class Program
 		foreach (var name in tweaksOn) Console.WriteLine(L($"  Tactical tweak on: {name}"));
 		foreach (var name in tweaksOff) Console.WriteLine(L($"  Tactical tweak off: {name}"));
 		foreach (var change in instructions) Console.WriteLine(L($"  Team instruction: {change}"));
+		foreach (var change in mentality) Console.WriteLine(L($"  Mentality: {change}"));
 		return done ? 0 : 1;
+	}
+
+	/// <summary>The match tactic's mentality: the game's number for it and its name (the plugin's English).</summary>
+	private static async Task<(int Number, string Name)?> MatchMentality()
+	{
+		if (matchTactic == null) return null;
+		var scope = $"fmcli.mm{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
+		if ((await Fm.Get("pathset", ("to", $"{scope}.tac"), ("from", matchTactic))).StartsWith("error", StringComparison.Ordinal)) return null;
+		var read = (await PullEach([($"{scope}.tac", "Mentality,MentalityString")])).FirstOrDefault();
+		if (read.ValueKind != JsonValueKind.Object || !int.TryParse(Field(read, "Mentality"), out var number)) return null;
+		var name = Field(read, "MentalityString");
+		await GameWords.Ask(Fm, name);
+		return (number, name);
 	}
 
 	/// <summary>

@@ -29,6 +29,10 @@ internal static partial class Program
 		(L("Out of possession"), false, [8, 9, 15, 10, 25, 11, 12, 22, 23]),
 	];
 
+	/// <summary>Learns the game's words for the instructions' and their settings' names (one call; none in an English game).</summary>
+	private static Task AskInstructionWords(List<TeamInstruction> catalogue) =>
+		GameWords.Ask(Fm, [.. catalogue.Select(i => i.Name), .. catalogue.SelectMany(i => i.Options.Select(o => o.Name))]);
+
 	private static async Task<int> TacticInstructions(List<string> words, bool oop, bool dry, bool refresh)
 	{
 		if (!await Fm.InGame())
@@ -54,13 +58,16 @@ internal static partial class Program
 			return 1;
 		}
 		string Setting(TeamInstruction i) => now.TryGetValue(i.Id, out var o) ? i.Options.FirstOrDefault(x => x.Id == o).Name ?? o.ToString() : "?";
+		// The names are the plugin's English (kept in a file); they are shown in the game's words.
+		await AskInstructionWords(catalogue);
+		string Shown(string name) => GameWords.Of(name);
 
 		if (words.Count == 0)
 		{
 			var shown = catalogue.Where(i => !oop || !i.WithBall).ToList();
 			if (Ui.Json)
 			{
-				Console.WriteLine(JsonOut.Of(shown.Select(i => new { Phase = i.Group, WithBall = i.WithBall, Label = i.Name, Value = Setting(i), Choices = i.Options.Select(o => o.Name) })));
+				Console.WriteLine(JsonOut.Of(shown.Select(i => new { Phase = i.Group, WithBall = i.WithBall, Label = i.Name, ShownLabel = Shown(i.Name), Value = Setting(i), ShownValue = Shown(Setting(i)), Choices = i.Options.Select(o => o.Name), ShownChoices = i.Options.Select(o => Shown(o.Name)) })));
 				return 0;
 			}
 			var first = true;
@@ -73,8 +80,8 @@ internal static partial class Program
 				{
 					if (group.Key) { if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(phase.Key)}[/]"); else Console.WriteLine(phase.Key); }
 					foreach (var i in phase)
-						if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(i.Name),-30}[/] [yellow]{Ui.Safe(Setting(i))}[/]");
-						else Console.WriteLine($"  {i.Name}: {Setting(i)}");
+						if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(Shown(i.Name)),-30}[/] [yellow]{Ui.Safe(Shown(Setting(i)))}[/]");
+						else Console.WriteLine($"  {Shown(i.Name)}: {Shown(Setting(i))}");
 				}
 			}
 			Console.WriteLine(L("\nTo change: tactic instructions \"<instruction>\" [<value>]"));
@@ -93,28 +100,28 @@ internal static partial class Program
 		string choice;
 		if (words.Count > 1)
 		{
-			if (Choose(choices, string.Join(" ", words.Skip(1)), target.Name) is not { } picked) return 1;
+			if (Choose(choices, string.Join(" ", words.Skip(1)), Shown(target.Name)) is not { } picked) return 1;
 			choice = picked;
 		}
 		else if (Ui.Interactive && !dry)
 		{
-			if (Ui.Ask(target.Name, choices, current: choices.IndexOf(current), cancel: L("Cancel")) is not { } picked) return 0;
+			if (Ui.Ask(Shown(target.Name), choices.Select(Shown).ToList(), current: choices.IndexOf(current), cancel: L("Cancel")) is not { } picked) return 0;
 			choice = choices[picked];
 		}
 		else if (Ui.Json)
 		{
-			Console.WriteLine(JsonOut.Of(new { Instruction = target.Name, Value = current, Choices = choices }));
+			Console.WriteLine(JsonOut.Of(new { Instruction = target.Name, ShownInstruction = Shown(target.Name), Value = current, ShownValue = Shown(current), Choices = choices, ShownChoices = choices.Select(Shown) }));
 			return 0;
 		}
 		else
 		{
-			Console.WriteLine(L($"{target.Name}: {current}\nOptions: {string.Join(" · ", choices)}"));
+			Console.WriteLine(L($"{Shown(target.Name)}: {Shown(current)}\nOptions: {string.Join(" · ", choices.Select(Shown))}"));
 			return 0;
 		}
 
 		if (dry || choice == current)
 		{
-			Console.WriteLine(dry ? L($"(dry run) {target.Name}: {current} → {choice}") : L($"{target.Name} is already {choice}."));
+			Console.WriteLine(dry ? L($"(dry run) {Shown(target.Name)}: {Shown(current)} → {Shown(choice)}") : L($"{Shown(target.Name)} is already {Shown(choice)}."));
 			return 0;
 		}
 
@@ -130,7 +137,7 @@ internal static partial class Program
 		long? after = null;
 		var took = await Until(async () => (after = (await TeamInstructionsNow([target])).GetValueOrDefault(target.Id)) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Instruction = target.Name, Was = current, Value = took ? choice : Setting(target), Changed = took }));
-		else Console.WriteLine(took ? $"{target.Name}: {current} → {choice}{Stoppage()}" : L($"{target.Name}: the game did not take the change."));
+		else Console.WriteLine(took ? $"{Shown(target.Name)}: {Shown(current)} → {Shown(choice)}{Stoppage()}" : L($"{Shown(target.Name)}: the game did not take the change."));
 		return took ? 0 : 1;
 	}
 }
