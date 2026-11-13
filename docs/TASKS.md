@@ -464,8 +464,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     (`HumanPortalLastSelectedMessageReference`), the inbox's Unread (18) stayed. Under "Continue Processing" the
     same state went on at once (20:45 → 22:00); setting put back. The code has `ContinueFlowState.NextUnreadMessage`
     and `MessagesStreamedObjectList.GetOldestUnreadMessageIndex` (the list on screen picks the next one): measure
-    whether the hidden window's list holds the unread ones. Ask Faruk: should `next` read each message (open it
-    through the inbox) or say "set unread messages to Continue Processing"?
+    whether the hidden window's list holds the unread ones.
+    Then the inbox's `MarkAllReadButton` (`EventFmxMarkAllHumanMessagesAsRead`): flow `CanContinue` at once and
+    `next` went on (22 → 23 Oct), stopping at `Messages` again as new ones came. So the flow waits for every unread
+    message to be read. Ask Faruk which: `next` marks them read by that event (it lists the new titles anyway;
+    nothing is answered), opens each through the inbox, or says "set unread messages to Continue Processing".
 - [ ] T148 A player's save is never put at risk by the tool. When the game dies, the days since the last save are lost.
   - [ ] The game's own fatal-error dialog (T92, 12 Nov) is told and said ("the game hit a fatal error and is closing"),
     not "FM is not responding"; `fm start` after it works; `fm-round` restarts at once instead of waiting.
