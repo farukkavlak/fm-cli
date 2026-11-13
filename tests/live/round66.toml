@@ -17,9 +17,9 @@ steps = [
   { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off" },
   { read = "tactic mentality", path = "Choices.0", keep = "a" },
   { read = "tactic mentality", path = "Choices.6", keep = "b" },
-  { until = "dialog", path = "?Type=cancelChanges.#", not = "0", seconds = 3600, every = 20, live = true, moment = true, doing = ["tactic mentality \"{a}\"", "tactic mentality \"{b}\""], note = "a goal with the change waiting; any other question is answered and played on" },
+  { until = "dialog", path = "?Type=cancelChanges.#", not = "0", seconds = 3600, every = 20, live = true, moment = true, doing = ["tactic mentality {a}", "tactic mentality {b}"], note = "a goal with the change waiting; any other question is answered and played on" },
   { read = "dialog", path = "?Type=cancelChanges.0.Buttons.?Slot=primary.0.Label", keep = "yes", live = true },
-  { run = "dialog \"{yes}\"" },
+  { run = "dialog {yes}" },
   { read = "dialog", path = "?Type=cancelChanges.#", is = "0", live = true },
   { stop = true },
 ]

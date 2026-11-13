@@ -633,6 +633,10 @@ def problems_in(tests):
         kept = set()
         running = False
         for number, step in enumerate(test.get("steps", []), 1):
+            # A kept value is put in already quoted: quotes around it make the command see the quotes (13 Nov, twice).
+            for text in [v for k, v in step.items() if isinstance(v, str)] + [d for d in step.get("doing", []) if isinstance(d, str)]:
+                if re.search(r"""["']\{\w+\}["']""", text):
+                    found.append(f"{where} step {number}: no quotes around a kept value, it comes quoted: {text}")
             kinds = [k for k in STEP_KINDS if k in step]
             if len(kinds) != 1:
                 found.append(f"{where} step {number}: one of {STEP_KINDS}, found {kinds}")
