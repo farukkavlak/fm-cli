@@ -294,6 +294,12 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     the card fills in 3–4 steps over 0.4–0.6 s. The game's binding queues (`Bindings.m_dirtyNodes`, `m_pendingOpen`)
     are empty before the card is done (its rows come at layout), so they are not the sign. `Binder.IsReady` is per
     binder and held only by a few element kinds. Two readings agreeing passes every test so far; kept.
+    Then deeper: each `SI.Bindable.SIText` carries its own `m_binder` (`m_isPending`, `IsReady`) and
+    `m_finalTextSet`; sections their `UISection.DependenciesResolved`. Traced on 4 cards: the texts' binders are
+    pending while the card fills and all clear at its end (2 cards exactly; 2 had one more piece 0.1–0.3 s later, a
+    list row drawn at layout). Plugin `/attachment?state=1` reads them (a question route); `reply`/`inbox` now take
+    the card once none is pending or unresolved and two readings agree. By hand TR: 3 cards (a transfer table,
+    rules, scout suggestions), whole, 3–6 s each. Left: the test round, TR + EN 3 ×.
   - [x] A figure and its label are one line ("88 · Done Deals"): one of a set of look-alike items (siblings built
     of the same element types, two texts or more each) is one line however deep its texts sit. By shape only,
     no names or words; Fitness tests, Staffing Advice and Scouting update came out the same as before (EN).

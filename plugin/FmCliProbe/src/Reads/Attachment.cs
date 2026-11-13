@@ -18,6 +18,69 @@ internal static class Attachment
 	/// its data path; the body (<c>newsitem.NewsBodyString</c>) is left out. A table's whole length is its Count:
 	/// it lays out only the rows in view.
 	/// </summary>
+	/// <summary>
+	/// Whether the attachment is still being built (T117): its UI sections whose dependencies are not resolved yet
+	/// (<c>SI.UI.UISection.DependenciesResolved</c>, the flag the game shows a section by) and its grids' content still
+	/// waiting (<c>BindableGridLayoutElement.m_pendingDynamicContent</c>, <c>m_isBuiltContentStale</c>). A question route.
+	/// </summary>
+	public static string State()
+	{
+#if FM26
+		return "error: FM27 only";
+#else
+		VisualElement root = null;
+		foreach (var e in Buttons.Elements())
+		{
+			try
+			{
+				if (e.name == "MessageAttachments" && e.panel != null && e.worldBound.width > 0 && e.resolvedStyle.display != DisplayStyle.None) { root = e; break; }
+			}
+			catch { }
+		}
+		if (root == null) return "error: no message attachment is shown";
+		int sections = 0, unresolved = 0, grids = 0, pending = 0, stale = 0, uninitialised = 0, elements = 0;
+		int texts = 0, bound = 0, waiting = 0, notReady = 0, notFinal = 0, styling = 0;
+		var stack = new Stack<VisualElement>();
+		stack.Push(root);
+		while (stack.Count > 0 && elements < 20000)
+		{
+			var e = stack.Pop();
+			elements++;
+			try
+			{
+				if (e.TryCast<SI.UI.UISection>() is { } section)
+				{
+					sections++;
+					if (!section.DependenciesResolved) unresolved++;
+				}
+				if (e.TryCast<BindableGridLayoutElement>() is { } grid)
+				{
+					grids++;
+					pending += grid.m_pendingDynamicContent?.Count ?? 0;
+					if (grid.m_isBuiltContentStale) stale++;
+					if (!grid.m_gridInitialised) uninitialised++;
+				}
+				if (e.TryCast<SI.Bindable.SIText>() is { } text)
+				{
+					texts++;
+					if (text.m_binder is { } binder)
+					{
+						bound++;
+						if (binder.m_isPending) waiting++;
+						if (!binder.IsReady) notReady++;
+					}
+					if (!text.m_finalTextSet) notFinal++;
+					if (text.m_requestedStyling) styling++;
+				}
+				var h = e.hierarchy;
+				for (var i = 0; i < h.childCount; i++) stack.Push(h.ElementAt(i));
+			}
+			catch { }
+		}
+		return $"{{\"Sections\": {sections}, \"Unresolved\": {unresolved}, \"Grids\": {grids}, \"Pending\": {pending}, \"Stale\": {stale}, \"Uninitialised\": {uninitialised}, \"Elements\": {elements}, \"Texts\": {texts}, \"Bound\": {bound}, \"Waiting\": {waiting}, \"NotReady\": {notReady}, \"NotFinal\": {notFinal}, \"Styling\": {styling}}}";
+#endif
+	}
+
 	public static string Read()
 	{
 #if FM26

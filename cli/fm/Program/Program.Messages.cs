@@ -20,13 +20,18 @@ internal static partial class Program
 	{
 		JsonElement blocks = default;
 		var previous = "";
-		// Taken once two readings agree: a card fills its parts a moment after the message opens.
+		// A card fills its parts a moment after the message opens. Taken once the game's own flags say nothing is still
+		// being bound (each text's binder, each section's dependencies: plugin /attachment?state=1) and two readings
+		// agree: the flags clear when its texts are bound, and a list row can still come a frame after (13 Nov, 4 cards).
 		await Until(async () =>
 		{
 			var answer = await Fm.Get("attachment");
 			if (answer.StartsWith("error", StringComparison.Ordinal)) return false;
+			var state = await Fm.GetJson("attachment", ("state", "1"));
+			var building = state.ValueKind == JsonValueKind.Object
+				&& (JsonRead.RawText(state, "Waiting") != "0" || JsonRead.RawText(state, "NotReady") != "0" || JsonRead.RawText(state, "Unresolved") != "0");
 			var now = answer.Trim();
-			var settled = now == previous;
+			var settled = !building && now == previous;
 			previous = now;
 			if (settled) blocks = JsonDocument.Parse(now).RootElement;
 			return settled;
