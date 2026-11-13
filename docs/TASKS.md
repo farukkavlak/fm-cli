@@ -449,7 +449,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     fatal error", not "FM is not responding"; then see which deaths were these.
   - 13 Nov night, after 771a3c3 (`round62.toml`): U19 friendly EN 5 runs, every game process died: 2 at "Leaving
     the match" (GC Finalizer SIGBUS), 3 at the `stop --no-save` after (Timer-Scheduler SIGABRT). TR 5 runs: none.
-    Kick-off EN + TR: the team went in, the match got under way, no death. English again (see the lead above).
+    Kick-off EN + TR: the team went in, the match got under way, no death. Run again in EN (03:50–05:19): U19 5/5,
+    kick-off 5/5, T11 3/3, no death at all. So not the language: every death came between 00:55 and 02:08, then
+    none in 160 minutes. Deaths come in a stretch of time, then stop; what changes is not known. `fm-round` now
+    keeps the dead game's `Player.log` in `tests/live/results/` (`…-deathN.Player.log`) for the next one.
 - [ ] T150 FM27 27.0.1 changed Continue. The pref `continue_button_legacy_mode` became
   `continue_button_cycle_messages` (true = "Read Messages": each press opens the next unread message). On match day
   `ContinueGameEvent` no longer passes Fixtures; the game's `continue-button` (event `ContinueGame`) does.

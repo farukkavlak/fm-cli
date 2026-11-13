@@ -70,6 +70,16 @@ COMMAND_LIMIT = 1800
 NOT_RUNNING = 69  # fm's exit code when the game is not running
 FATAL = 70  # fm's exit code when the game sits in its own fatal-error window (T148)
 DEATHS = 5  # games dead under one test (T92) before it is given up for the round
+PLAYER_LOG = pathlib.Path.home() / "Library/Logs/Sports Interactive/Football Manager 27/Player.log"
+
+
+def keep_log(name):
+    """The dead game's Player.log, before the next start writes over it (T92)."""
+    try:
+        shutil.copy(PLAYER_LOG, RESULTS / name)
+        return f" (its log: {name})"
+    except OSError:
+        return ""
 
 
 class Failed(Exception):
@@ -949,6 +959,7 @@ def run(args):
                     # The game's own fatal error (T148): closed at once and started again by the next entry.
                     fm("stop --no-save", 120)
                     deaths += 1
+                    error = f"{error}{keep_log(f'{stem}-{lang}-death{deaths}.Player.log')}"
                     missed.append(f"the game hit a fatal error: {error}")
                     loaded = None
                     print(f"[{lang}] the game hit a fatal error in {test['task']} ({deaths}): {error}", flush=True)
@@ -963,6 +974,7 @@ def run(args):
                     if fm("status --json", 120)[0] == NOT_RUNNING and deaths < DEATHS:
                         # The game died under the try (T92): not the test's failure. Started again by the next entry.
                         deaths += 1
+                        error = f"{error}{keep_log(f'{stem}-{lang}-death{deaths}.Player.log')}"
                         missed.append(f"the game died: {error}")
                         loaded = None
                         print(f"[{lang}] the game died in {test['task']} ({deaths}): {error}", flush=True)
