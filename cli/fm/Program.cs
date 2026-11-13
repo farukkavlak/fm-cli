@@ -308,6 +308,11 @@ internal static partial class Program
 		}
 		catch (FmBusy)
 		{
+			if (await Launcher.FatalErrorUp())
+			{
+				Console.Error.WriteLine(L("The game hit a fatal error and is closing (its own error window is up); what was not saved is lost. Start it again: fm stop, then fm start."));
+				return 70; // EX_SOFTWARE
+			}
 			Console.Error.WriteLine(L("FM did not answer — it may be busy (loading, a match). Try again; if it stays so, the game has frozen: fm stop, then fm start."));
 			return 75; // EX_TEMPFAIL
 		}

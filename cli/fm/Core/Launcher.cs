@@ -285,6 +285,15 @@ internal static class Launcher
 	/// </summary>
 	public static async Task<bool> Stop(Bridge fm)
 	{
+		// The game's own fatal-error window holds its main thread: nothing it is asked is ever
+		// answered, and only ending the process closes it.
+		if (await FatalErrorUp())
+		{
+			await Pkill(["-9"]);
+			var ended = await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(10));
+			if (ended) RestoreDisplay(forget: true);
+			return ended;
+		}
 		try
 		{
 			await fm.Get("quit");
@@ -342,6 +351,54 @@ internal static class Launcher
 			if (state.Length > 0 && !state.Contains('E')) return true;
 		}
 		return false;
+	}
+
+	/// <summary>
+	/// Whether the game sits in its own fatal-error window ("a serious error occurred and the
+	/// application will now close", put up by the game's logic): its main thread is then inside
+	/// AppKit's modal alert. Told by that function's name in a one-second sample of the process,
+	/// the same in every language; never by the window's text.
+	/// </summary>
+	public static async Task<bool> FatalErrorUp()
+	{
+		foreach (var pid in await LivePids())
+		{
+			try
+			{
+				using var sample = Process.Start(new ProcessStartInfo("/usr/bin/sample", [pid, "1", "-mayDie", "-file", "/dev/stdout"])
+				{ UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true });
+				if (sample == null) continue;
+				var report = await sample.StandardOutput.ReadToEndAsync();
+				await sample.WaitForExitAsync();
+				if (MainThreadInAlert(report)) return true;
+			}
+			catch (Exception) { }
+		}
+		return false;
+	}
+
+	/// <summary>The main thread's call tree of a `sample` report reaches `-[NSAlert runModal]`.</summary>
+	private static bool MainThreadInAlert(string report)
+	{
+		var lines = report.Split('\n');
+		var main = Array.FindIndex(lines, l => l.Contains("Thread_", StringComparison.Ordinal) && l.Contains("com.apple.main-thread", StringComparison.Ordinal));
+		if (main < 0) return false;
+		for (var i = main + 1; i < lines.Length; i++)
+		{
+			// The next thread's tree starts at the same depth as the main thread's own line.
+			if (lines[i].Contains("Thread_", StringComparison.Ordinal)) break;
+			if (lines[i].Contains("[NSAlert runModal]", StringComparison.Ordinal)) return true;
+		}
+		return false;
+	}
+
+	private static async Task<List<string>> LivePids()
+	{
+		using var pgrep = Process.Start(new ProcessStartInfo("/usr/bin/pgrep", ["-f", AppBundle]) { UseShellExecute = false, RedirectStandardOutput = true });
+		if (pgrep == null) return [];
+		var pids = (await pgrep.StandardOutput.ReadToEndAsync()).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+		await pgrep.WaitForExitAsync();
+		return pids;
 	}
 
 	private static async Task Pkill(string[] flags)

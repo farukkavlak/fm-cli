@@ -68,11 +68,16 @@ PREFIX = "scn-"
 LANGUAGES = {"en": ("english", "English"), "tr": ("turkish", "Türkçe")}
 COMMAND_LIMIT = 1800
 NOT_RUNNING = 69  # fm's exit code when the game is not running
+FATAL = 70  # fm's exit code when the game sits in its own fatal-error window (T148)
 DEATHS = 5  # games dead under one test (T92) before it is given up for the round
 
 
 class Failed(Exception):
     pass
+
+
+class Fatal(Exception):
+    """The game put up its own fatal-error window: not a step's failure, and not caught where a step waits."""
 
 
 class Missed(Exception):
@@ -94,6 +99,8 @@ def fm(command, timeout=COMMAND_LIMIT):
     if LOG:
         LOG.write(f"{datetime.datetime.now():%H:%M:%S} fm {command} rc={result[0]} {result[3]:.1f}s\n{result[1][:6000]}{result[2][:500]}\n")
         LOG.flush()
+    if result[0] == FATAL:
+        raise Fatal(f"fm {command}: {result[2].strip()[:200]}")
     return result
 
 
@@ -938,6 +945,16 @@ def run(args):
                         restore.update(was)
                         put_back(restore)
                     passes.append(None)
+                except Fatal as error:
+                    # The game's own fatal error (T148): closed at once and started again by the next entry.
+                    fm("stop --no-save", 120)
+                    deaths += 1
+                    missed.append(f"the game hit a fatal error: {error}")
+                    loaded = None
+                    print(f"[{lang}] the game hit a fatal error in {test['task']} ({deaths}): {error}", flush=True)
+                    if deaths >= DEATHS:
+                        break
+                    continue
                 except Missed as error:
                     missed.append(str(error))
                     loaded = None
