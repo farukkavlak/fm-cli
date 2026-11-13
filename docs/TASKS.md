@@ -220,28 +220,6 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   (media) 3 × both ways, one group, nothing to do, unknown name; TR 3 rounds. Undo / redo not needed: every change is
   confirmed at once, and a failed one is undone with Reset.
 - [x] T20 `coaches --clear` (`EventFmxClearCoaches`), read back; TR + EN 3 runs with `--auto` between.
-- [ ] T21 (waits for a moment: the game filling the list itself, e.g. the staff scouting the next opponent)
-  Opposition scouting priorities: prioritise / cancel. Tactics › Oppo. › Team Report Priorities
-  (`6e8ea46097c185d468f2723d4931e63b`, opened with `open?guid=&bar=1` from Oppo.). Buttons `EventFmxPrioritiseScoutingTeam`,
-  `EventFmxCancelScoutingTeam`, list `scout`. TR, 30 Aug 2028: the list is empty and both are off; needs a game with assignments.
-  EN `calm` 7 Nov: empty too. FM27 has no club right-click menu: league table rows and a club's own page carry only
-  person menus (`actions?menus=1`; `ClubButton` has no right-click events), so `ScoutTeam` is not reached that way.
-  Next: find where the game fills `ScoutTeamPriorities.SpecificallyScoutedTeams` (scouting staff, a date with fixtures ahead).
-  EN `spring` 8 Nov (match day): the page says no team report, "request a member of your recruitment team"; the
-  next opponent's page has no scouting button; `EventFmxHumanScoutFixture` is in the game but on no crawled page.
-  EN `spring` 8 Nov, round 36: a club's page opens from `search` (`searchopen?path=<ClubPath>`); its Team Report
-  tab (Overview, Formation / Goal / Team Analysis) has no scouting or request button, only "Analysis Staff Rating";
-  a club search row raises no menu (`actions?open=1&path=`). `ScoutTeam` is an `ActionID`, but on no menu seen.
-  13 Nov, `window` TR: the fixtures page's rows raise no menu (`actions?menus=1` empty); no staff responsibility
-  names opposition scouting; the UI bundles are compressed, so the event's name or hash is not found in them.
-  8 Nov, `bonuses` (EN): `send ?event=GenericActionEvent&ID=ScoutTeam&ActionData=path:<the opponent>` reaches the
-  game's handler (`FM.Game.PluginContextActionsModule.HandleActionEvent`), which wants `ActionData` as a `Record`
-  (the menu entries' action data), not a team: "Unable to cast TeamReference to Record". Next: read the record a
-  menu's scouting entry carries (a player's `ScoutPlayer`, its keys), build one with the team (a plugin route), send.
-  10 Nov, `press` (TR, Helmond 2030): a player of another club (Haaland) has no team scouting entry either. His
-  "Scout Player" and "Report > Assign Scout > <scout> > 1 Week" both run `PersonAssignScoutToPlayersClub` /
-  `PersonScoutPlayersClub` (a player scouted, the name read "players' club"), data: days (`1684434273` 7), a cost
-  (`1131299171` 1691), flags; no team in it. Not a way to a team report.
 - [x] T22 `players --filter` by the quick list's own values (`SelectedQuickFilter`; `--free` is value 4 and failed in
   Turkish before), `--scouted / --unscouted` (`EventFmxFilterSetScoutedOnly`); `staff find --own / --no-own`
   (`EventFmxFilterSetIncludeOwnStaff`), its `--filter` on its own list (`SelectedExcludeOption`; it took the player
@@ -942,3 +920,28 @@ not yet tried in a live terminal.
       the game's own sign where one is known (as T93, T119 did), one by one, measured. Tried and kept as it was:
       `squad --view` (the rows keep fields of views shown before and gain the new ones over several reads, so "the
       columns changed" is not a sign that the view has landed; TR + EN, `round18.toml`).
+
+## 13. Later (v2): not needed for the first release
+
+- [ ] T21 (waits for a moment: the game filling the list itself, e.g. the staff scouting the next opponent)
+  Opposition scouting priorities: prioritise / cancel. Tactics › Oppo. › Team Report Priorities
+  (`6e8ea46097c185d468f2723d4931e63b`, opened with `open?guid=&bar=1` from Oppo.). Buttons `EventFmxPrioritiseScoutingTeam`,
+  `EventFmxCancelScoutingTeam`, list `scout`. TR, 30 Aug 2028: the list is empty and both are off; needs a game with assignments.
+  EN `calm` 7 Nov: empty too. FM27 has no club right-click menu: league table rows and a club's own page carry only
+  person menus (`actions?menus=1`; `ClubButton` has no right-click events), so `ScoutTeam` is not reached that way.
+  Next: find where the game fills `ScoutTeamPriorities.SpecificallyScoutedTeams` (scouting staff, a date with fixtures ahead).
+  EN `spring` 8 Nov (match day): the page says no team report, "request a member of your recruitment team"; the
+  next opponent's page has no scouting button; `EventFmxHumanScoutFixture` is in the game but on no crawled page.
+  EN `spring` 8 Nov, round 36: a club's page opens from `search` (`searchopen?path=<ClubPath>`); its Team Report
+  tab (Overview, Formation / Goal / Team Analysis) has no scouting or request button, only "Analysis Staff Rating";
+  a club search row raises no menu (`actions?open=1&path=`). `ScoutTeam` is an `ActionID`, but on no menu seen.
+  13 Nov, `window` TR: the fixtures page's rows raise no menu (`actions?menus=1` empty); no staff responsibility
+  names opposition scouting; the UI bundles are compressed, so the event's name or hash is not found in them.
+  8 Nov, `bonuses` (EN): `send ?event=GenericActionEvent&ID=ScoutTeam&ActionData=path:<the opponent>` reaches the
+  game's handler (`FM.Game.PluginContextActionsModule.HandleActionEvent`), which wants `ActionData` as a `Record`
+  (the menu entries' action data), not a team: "Unable to cast TeamReference to Record". Next: read the record a
+  menu's scouting entry carries (a player's `ScoutPlayer`, its keys), build one with the team (a plugin route), send.
+  10 Nov, `press` (TR, Helmond 2030): a player of another club (Haaland) has no team scouting entry either. His
+  "Scout Player" and "Report > Assign Scout > <scout> > 1 Week" both run `PersonAssignScoutToPlayersClub` /
+  `PersonScoutPlayersClub` (a player scouted, the name read "players' club"), data: days (`1684434273` 7), a cost
+  (`1131299171` 1691), flags; no team in it. Not a way to a team report.
