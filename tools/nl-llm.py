@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""An LLM as the planner of a sentence: a router for tools/nl-score.py (docs/LLM-EXPERIMENT.md).
+"""An LLM as the planner of a sentence: a router for tools/nl-score.py (docs/AI.md).
 
 fm __route --model gives each ask its candidate tools; the LLM picks the steps and their arguments
 from those candidates only. The answer is held to a JSON schema built from the candidates' MCP

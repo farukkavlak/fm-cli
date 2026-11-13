@@ -126,7 +126,7 @@ tools/smoke.sh            # build + plugin + tests + published CLI
 tools/ci.sh               # without the game (same as CI)
 ```
 
-Test checklist: `docs/PLAYTEST.md`. Porting notes: `docs/PORTING.md`.
+Porting notes: `docs/PORTING.md`. Open work: `docs/TASKS.md`.
 
 ```bash
 dotnet test tests/FmCli.Tests/FmCli.Tests.csproj -c Release

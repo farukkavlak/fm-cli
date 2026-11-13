@@ -1,6 +1,6 @@
 # LLM benches
 
-For the local LLM experiment ([docs/LLM-EXPERIMENT.md](../../docs/LLM-EXPERIMENT.md)).
+For the local LLM experiment ([docs/AI.md](../../docs/AI.md)).
 Planning and arguments use the NL test set and `tools/nl-score.py`; these files are the rest.
 
 | File | What |

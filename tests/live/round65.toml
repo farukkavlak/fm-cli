@@ -11,6 +11,7 @@ at = "window"
 fresh = true
 repeat = 3
 steps = [
+  { run = "inbox", note = "the numbers reply takes are the ones inbox last showed" },
   { run = "reply 1", note = "the league's signings: a table" },
   { read = "inbox --attachment", path = "?Kind=head.#", is = "1" },
   { read = "inbox --attachment", path = "?Kind=row.#", not = "0" },

@@ -1,12 +1,9 @@
 # fm-cli manual
 
-A terminal client for Football Manager 26. The game stays open in the background; `fm` reads its
-data and sends its own events. This guide shows the main workflows with screenshots. The full
-command list is in [USAGE.md](USAGE.md) or `fm help`.
+The main workflows, with screenshots. Every command: `fm help`.
 
-Screenshots come from real games, mostly with the game in Turkish: labels follow the language the
-game is set to. Names and numbers are illustrative. The current English wording of every command is
-in [USAGE.md](USAGE.md).
+- The game stays open in the background; `fm` reads its data and sends its events.
+- Screenshots are mostly from a Turkish game: labels follow the game's language.
 
 ## 1. Start and status
 
@@ -422,7 +419,7 @@ fm saves · fm save · fm load
 history, scouting, the medical centre, the data hub's analysis…); `fm read club-honours` reads one. What it prints is what
 the page shows, in the game's language.
 
-`fm help` lists every command and flag; [USAGE.md](USAGE.md) has the full text.
+`fm help` lists every command and flag.
 
 ## 13. Everything else
 
@@ -439,5 +436,5 @@ fm news [#]
 fm inbox --all
 ```
 
-A command that is not here: `fm help <command>` or [USAGE.md](USAGE.md). If a screen is missing a
+A command that is not here: `fm help <command>`. If a screen is missing a
 command, `pages` / `buttons` / `press` reach it.

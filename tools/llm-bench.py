@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Conversation, memory and cost benches for a local LLM (docs/LLM-EXPERIMENT.md, tests/llm/README.md).
+"""Conversation, memory and cost benches for a local LLM (docs/AI.md, tests/llm/README.md).
 
   tools/llm-bench.py --gguf ~/.cache/fm-cli/llm/FILE.gguf --snapshot ~/.cache/fm-cli/llm/snapshot-2029-08-04 \
       [--plan-log FILE] --save NAME
