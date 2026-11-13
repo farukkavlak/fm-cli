@@ -62,7 +62,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T114 Deadline day date
 - [x] T115 Inbox keeps older messages
 - [x] T116 `status` with the vision meeting open
-- [ ] T117 Message attachments: taken once the game's text binders are ready and two reads agree. Left: TR + EN 3/3 (`round65.toml`).
+- [x] T117 Message attachments: taken once the game's text binders are ready and two reads agree (`round65` EN + TR 3/3)
 - [x] T118 `tour` waiting on the screen
 - [x] T119 `news <no>`
 - [x] T120 `table` after a match
