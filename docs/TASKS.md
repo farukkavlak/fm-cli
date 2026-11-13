@@ -458,7 +458,14 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   `ContinueGameEvent` no longer passes Fixtures; the game's `continue-button` (event `ContinueGame`) does.
   - [x] `match` on match day presses the game's button until Tactics / team submission, a press counted as taken when
     the opened message changes too. `kickoff` EN: 69 messages, about 45 s; EN + TR reached the team talk (`round62`).
-  - [ ] `next` and every other `/next` user under "Read Messages": one message per press? Measure, then same way.
+  - [ ] `next` under "Read Messages" does not move time (13 Nov, `calm`, EN, 18 unread). The first press ends in
+    flow `Messages` (`/continueflags` Flags `Messages`, button `continue-button` named "Messages"); then neither the
+    event nor 40 clicks of the game's button moved the clock: each click only changed the open message now and then
+    (`HumanPortalLastSelectedMessageReference`), the inbox's Unread (18) stayed. Under "Continue Processing" the
+    same state went on at once (20:45 → 22:00); setting put back. The code has `ContinueFlowState.NextUnreadMessage`
+    and `MessagesStreamedObjectList.GetOldestUnreadMessageIndex` (the list on screen picks the next one): measure
+    whether the hidden window's list holds the unread ones. Ask Faruk: should `next` read each message (open it
+    through the inbox) or say "set unread messages to Continue Processing"?
 - [ ] T148 A player's save is never put at risk by the tool. When the game dies, the days since the last save are lost.
   - [ ] The game's own fatal-error dialog (T92, 12 Nov) is told and said ("the game hit a fatal error and is closing"),
     not "FM is not responding"; `fm start` after it works; `fm-round` restarts at once instead of waiting.
