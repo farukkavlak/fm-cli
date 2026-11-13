@@ -201,16 +201,6 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     The toggle by its event and its row's PlayerIndex; on/off and the read-back by the game's value beside it
     (`Tactic.PositionRoleOverride`, 0 off), not by its colour. TR + EN (`round11.toml`): fresh load, another page,
     the page open, already on, wrong position, wrong word, `--dry` changes nothing; 3 ×.
-- [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
-  Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
-  opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
-  pages no command reads (T16); a real critique line (only "no advice" seen). Measured EN 8 Nov: `spring` (31 Mar,
-  match day) and `window` with a striker in goal (effectiveness 34): "no advice" from the first read, unchanged for 10 s. 12 Nov: `calm` (22 Oct, mid-season) and `career-2034-06-29`: "no advice" too. The lines are the panel's own
-  `CritiquesList` items (bound tree, in the game's words); the team tactic's `EvaluationCritiques` stays unbound
-  outside the panel. Waits only for a moment with a critique.
-  13 Nov, `window` TR: the Advice list sits under the planner's `InPossessionSetter`; with the pitch on Out of
-  Possession (its tab pressed, the screen agreed) "no advice" too. The phase is not why; the critiques are made in
-  the game's native code. Still waits for a moment.
 - [x] T15 Training week card: `schedule copy | paste | clear [this|<weeks ahead>]` by the card's own events, left by Confirm or Cancel, read back from the week's sessions; a session by `schedule set`. TR + EN: copy, paste, clear 2 ×, nothing copied, nothing to clear, a week the card does not offer.
 - [x] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
   `fm read <page>`: the page by its GUID, its texts by `/shown` (in the body on top, by the game's hit test), tables by row. TR + EN, a list of 58 tests (`tests/live/read-pages.toml`), plus 3 repeats.
@@ -541,6 +531,16 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
 
 ## 8. Moments the crawl has not seen (crawl them when they come: `fm crawl out.json --here`)
 
+- [ ] T14 `tactic advice [evaluation | xi | opposition]`: the planner's Advice list by its event, choices by `FM.UI.AdviceOption`.
+  Evaluation reads the panel's `CritiquesList` and closes it; xi is a conversation, `talk 1` changes the eleven (read back);
+  opposition is `opponent`. TR and EN: 3 × evaluation, xi, opposition, wrong word. Left: upcoming match (2) and Data Hub (4) open
+  pages no command reads (T16); a real critique line (only "no advice" seen). Measured EN 8 Nov: `spring` (31 Mar,
+  match day) and `window` with a striker in goal (effectiveness 34): "no advice" from the first read, unchanged for 10 s. 12 Nov: `calm` (22 Oct, mid-season) and `career-2034-06-29`: "no advice" too. The lines are the panel's own
+  `CritiquesList` items (bound tree, in the game's words); the team tactic's `EvaluationCritiques` stays unbound
+  outside the panel. Waits only for a moment with a critique.
+  13 Nov, `window` TR: the Advice list sits under the planner's `InPossessionSetter`; with the pitch on Out of
+  Possession (its tab pressed, the screen agreed) "no advice" too. The phase is not why; the critiques are made in
+  the game's native code. Still waits for a moment.
 Each: crawl the screen, map it to a command, open a task for what is missing.
 
 - [ ] T55 Season's end: club vision meeting, end-of-season awards, players whose contracts end, retirements.
