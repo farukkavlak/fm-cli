@@ -981,7 +981,10 @@ def run(args):
             deaths = 0
             SEEN_DIALOGS.clear()
             # `tries` bounds the attempts a test with a moment to wait for may take to reach `repeat` passes.
-            for _ in range(test.get("tries", test.get("repeat", 1))):
+            # A game that died (or never reached the menu) costs no try: DEATHS bounds those on their own.
+            tries_left = test.get("tries", test.get("repeat", 1))
+            while tries_left > 0:
+                tries_left -= 1
                 if len([p for p in passes if p is None]) >= test.get("repeat", 1):
                     break
                 try:
@@ -1005,6 +1008,7 @@ def run(args):
                     print(f"[{lang}] the game hit a fatal error in {test['task']} ({deaths}): {error}", flush=True)
                     if deaths >= DEATHS:
                         break
+                    tries_left += 1
                     continue
                 except Missed as error:
                     missed.append(str(error))
@@ -1018,6 +1022,7 @@ def run(args):
                         missed.append(f"the game died: {error}")
                         loaded = None
                         print(f"[{lang}] the game died in {test['task']} ({deaths}): {error}", flush=True)
+                        tries_left += 1
                         continue
                     passes.append(str(error))
                     # Whatever it left behind must not fail the next test: that one starts fresh.

@@ -139,9 +139,12 @@ internal static partial class Program
 			{
 				// The tile that opens the save list, by the event it sends (its own words are this
 				// language's, so the English sentence it used to be clicked by matched nothing).
-				var tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-					.FirstOrDefault(b => Field(b, "Events").Contains("LoadGameTileSelection", StringComparison.Ordinal));
-				if (tile!.ValueKind != JsonValueKind.Object)
+				// Drawn a while after the menu answers when the Mac is short of memory (13 Nov: three loads lost): waited for.
+				JsonElement tile = default;
+				await Until(async () => (tile = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+					.FirstOrDefault(b => Field(b, "Events").Contains("LoadGameTileSelection", StringComparison.Ordinal))).ValueKind == JsonValueKind.Object,
+					seconds: 90, every: 0.5);
+				if (tile.ValueKind != JsonValueKind.Object)
 				{
 					Console.Error.WriteLine(L("Could not find the tile that opens the save list on the loading screen."));
 					return 1;
