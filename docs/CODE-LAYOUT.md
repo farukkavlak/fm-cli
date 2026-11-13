@@ -1,133 +1,34 @@
 # Code layout
 
-## Layers
+## CLI (`cli/fm/`)
 
-| Layer | Where | Job |
-|---|---|---|
-| CLI entry | `cli/fm/Program.cs` | `main`, command routing, session, version check |
-| CLI commands | `cli/fm/{Core,Match,Squad,Transfer,Club}/` | one command or read; all are part of the `Program` partial |
-| Game bridge | `cli/fm/Core/Bridge.cs` | HTTP, port, errors, timeouts, `Batch` (many requests in one game frame) |
-| Game reads | `cli/fm/Core/Reads*.cs`, `Core/Clock*.cs`, `Match/Guided*.cs`, `Match/MatchDay*.cs` | data paths, pages, match flow |
-| Formatting | `cli/fm/Core/Table.cs`, `Ui.cs`, `MoneyFormat.cs`, `JsonOut.cs`, `InboxView.cs` | tables, terminal, money and numbers |
-| Text | `cli/fm/Core/Labels.cs`, `Lang.cs`, `GameWords.cs`, `EngineTexts.cs` | English source, Turkish catalog, language choice, the game's words |
-| Infrastructure | `cli/fm/Core/Launcher.cs`, `Session.cs`, `Screens.cs`, `GameFolders.cs`, `InstallDoctor.cs` | launch, folders, install checks |
-| Plugin | `plugin/FmCliProbe/src/{Bridge,Controls,Reads}/` | IL2CPP side: HTTP, controls, texts, pages |
-| Tools | `tools/` | install, package, publish, test, dumps |
-| Docs | `docs/` | usage, porting notes, layout, test checklist |
+- `Program.cs`: entry point and routing only. Every command is a file of the `Program` partial.
+- `Core/`: bridge (`Bridge.cs`), clock (`next`, `status`), labels and game words, launch, saves, settings, MCP.
+- `Match/`: match day, live panel, radar, report, fixtures, table, calendar, tactics planner, talks.
+- `Squad/`: squad, health, training, tactics files, set pieces, registration, captains, mentoring.
+- `Transfer/`: offers, contract talks, scouting, shortlist, targets, TransferRoom, planner.
+- `Club/`: club, board, finances, staff, vision, responsibilities, youth, jobs.
+- `Nl/`: sentences instead of commands (router, embedder, rules).
+- `Program/`: inbox, reply, messages, help, buttons and pages.
 
-## Folders
+Help text: `Core/HelpEnglish.cs`. It is one entry in `labels-turkish.tsv`: change its Turkish value with it.
+Every user-facing word: `L($"…")` plus its line in `labels-turkish.tsv`.
 
-- `Core/` — bridge, reads, clock, formatting, labels, launch, session, MCP, settings, saves.
-- `Match/` — match day, narration, calendar, fixtures, table, opponent report, stages.
-- `Squad/` — squad, fitness, morale, contracts, tactics, training, set pieces, registration.
-- `Transfer/` — offers, contract talks, scouting, shortlist, targets.
-- `Club/` — club, board, finances, staff, facilities, career, jobs, resign.
-- `Nl/` — sentences in place of commands: `Router.cs` (rules, several asks, confidence),
-  `Rules.cs` + `Ctx.cs` + `Lexicons.cs` (argument readers), `Embedder.cs` (ONNX and tokenizer),
-  `Neighbours.cs` (nearest examples), `Assistant.cs` (choices, questions, approval),
-  `ModelDownload.cs` (install-time download).
-- `Program/` — large `Program` partials that do not belong to one folder.
+## Plugin (`plugin/FmCliProbe/src/`)
 
-## `Program` partials
+- `Bridge/`: HTTP surface (`FmApi`), frame scheduling (`HttpBridge`), game state, radar, interop fixes.
+- `Controls/`: buttons, dropdowns, menus, dialogs, table rows, text boxes, pitch tiles.
+- `Reads/`: texts, pages, panels, player card, talks, tweaks, attachments, crash-frame names (`WhatIs`).
 
-`Program.cs` holds only the entry point and routing. Large blocks are split by responsibility:
+## Tools (`tools/`)
 
-- `Program/Program.Squad.cs` — squad reads and views.
-- `Program/Program.Inbox.cs` — inbox and message choice; `Program.Reply.cs` — reply command.
-- `Program/Program.Messages.cs` — attachment body and unknown attachments;
-  `Messages.Attachments.cs` — shared helpers; `Messages.Cards.cs` — captaincy, match report,
-  season review, opponent, training, data hub, scout, injury and player cards;
-  `Messages.FrontOffice.cs` — budgets, vision, responsibilities, win bonuses;
-  `Messages.SquadCards.cs` — internationals, expiring contracts, recommendations, match prep,
-  bid card; `Messages.Inbox.cs` — message reading and number memory.
-- `Program/Program.Ui.cs` — button/page commands; `Program.Ui.Helpers.cs` — press/select helpers;
-  `Program.Help.cs` + `Core/HelpEnglish.cs` — help text. The help is one entry in
-  `labels-turkish.tsv`; update its Turkish value when the English text changes.
+- Install and publish: `install.sh`, `package.sh`, `publish.sh`, `ci.sh`.
+- Tests: `fm-round.py` (live lists in `tests/live/`), `sweep.sh`, `mcp-check.py`, `smoke.sh`.
+- Game data: `sigdump/` (types), `metadump`, `identity-check.py`.
+- Sentences: `nl-*.py`, `nl-release.sh`. Radar and panel looks: `radar-*.py`, `live-*.py`, `catalog/`.
 
-## Other splits
+## Rules for new code
 
-- `Match/Guided.cs` — tour and talks; `Guided.SetPieces.cs` — set-piece wizard;
-  `Guided.Tactic*.cs` — tactic planner and settings.
-- `Core/Reads.cs` — search and player; `Reads.Squad.cs` — squad views; `Reads.League.cs` — league,
-  fixtures, progress; `Reads.Player.cs` — player card and history.
-- `Match/MatchDay.cs` — main loop; `MatchLive.cs` — score/clock/event panel at a terminal;
-  `MatchRadar.cs` — reading and parsing the `/radar` frame; `RadarStyles.cs` — the flat radar
-  looks (pixel, braille, coloured and plain ASCII) fitted to the room left; `RadarScene.cs` — the 3D
-  ones (iso, raycast, voxel), ported from `tools/catalog/scene.py`/`voxel.py`, drawn by `Raster3D.cs`
-  (camera, polygon fill, shrink and sharpen, no packages); `RadarCells.cs` — colour
-  (24-bit or 256), the character grid, braille, half blocks and sextants; `RadarSample.cs` — a real frame for
-  the settings preview;
-  `PanelConfig.cs` + `PanelSettings.cs` — the panel file and `fm settings panel`;
-  `MatchDay.Instant.cs` — instant result; `MatchDay.Team.cs` — lineups; `MatchDay.Substitute.cs` —
-  substitutions; `MatchDay.Dialog.cs` — confirmations.
-- `Transfer/ContractTalks.cs` — command and terms; `ContractTalks.Terms.cs` — terminal loop and
-  agent answers; `ContractTalks.Screen.cs` — screen reads, exit, renewal.
-- `Transfer/ScoutFocus.cs` + `.Team.cs` + `.Form.cs` — focus list, staff, new-focus form.
-- `Squad/TrainingSchedule.cs` + `.Catalogue.cs` + `.Calendar.cs` — schedule changes, catalog, grid.
-- `Squad/Mentoring.cs` + `Mentoring.New.cs` — groups and new-group flow.
-- `Club/StaffSearch.cs` + `.Catalog.cs` + `.Rules.cs` — command, names, rule sending.
-- `Club/Responsibilities.cs` + `Responsibilities.Delegate.cs` — duty list and delegation.
-- `Core/Saves.cs` + `.SaveAs.cs` + `.Files.cs` — list, save as, delete/load.
-- `Core/Clock.cs` + `.Status.cs` + `.Fixtures.cs` — `next`, status, fixtures.
-- `Core/Mcp.cs` + `Mcp.Tools.cs` — protocol and tool catalog.
-- `Core/Settings.cs` + `.Catalog.cs` + `.Preferences.cs` + `.Draw.cs` — command, catalog, navigation,
-  matching and drawing.
-- `tools/radar-capture.py` + `radar-styles.py` + `radar-gif.py` — capture `/radar` frames and render
-  them in the pixel, braille and isometric styles (see `docs/experiments/radar-styles`).
-- `tools/radar-catalog.py` + `tools/catalog/` + `tools/mock_match.py` — the visualization catalog from
-  mock data, as PNGs, terminal previews and real ANSI output (see `docs/experiments/catalog-draft`).
-- `tools/live-capture.py` — plays `fm match --play` in a pty, keeps every panel redraw as a frame and
-  types keys on a schedule or from `OUT/keys.in` (prompts, `r`, `a`, `s`).
-- `tools/live-gif.py` — captured live-panel frames to a GIF (title strip, goal-centred slice, a frame
-  range, the capture's own timing).
-- `tools/nl-*.py` — the sentence test set: check, noisy variants, scoring, training, a Python router
-  (see `tests/nl/README.md`); `tools/nl-release.sh` publishes the model.
-
-- Add a command in a new file of the `Program` partial; do not grow `Program.cs`.
-- Keep the reads and writes of one command together.
-- Reuse `Table`/`Ui` before adding a formatter.
-
-## Plugin
-
-- `Bridge/` — `FmApi` (HTTP surface) + `FmApi.System.cs`, `HttpBridge`, `Plugin`, `Game`, `State`,
-  `Send`, `Schema`, interop; `Radar.cs` — the live `MatchSimulationData` read.
-- `Controls/` — `Buttons` + `Buttons.Controls.cs` (catalog/click/queue) + `Buttons.Runtime.cs`
-  (render, shape, pointer), forms, radios, rows, submenus, dialogs.
-- `Reads/` — pages, panels, text/translation, player card, offer, tactics, saves.
-
-- A new read: take the data path in `KeyPaths`/`Path`; never key on screen text or row number.
-- A new write: send the game's event; wait for the queue to drain.
-
-## Nullable
-
-- Flow analysis is on. Dereference, value and null bugs were fixed.
-- Five categories remain at the dynamic JSON boundary (`CS8600`, `CS8603`, `CS8604`, `CS8619`,
-  `CS8620`); reads go through `JsonRead`/`Field` and runtime checks. They are suppressed at project
-  level in `cli/fm/fm.csproj`. Replace with typed DTOs before removing the list.
-
-## Rules
-
-- **Language and screen independent:** data path, event name, GUID, id. No `press "Confirm"`, no
-  `up=N`, no row numbers.
-- **No fixed waits:** wait for the game's signal; time is only an upper bound.
-- **One screen at a time:** a command opens the screen it needs; do not assume another screen's data.
-- **No silent failures:** return `rc` and a short reason; an empty table is not "no data".
-- **Small changes:** fix one behaviour; do not refactor unrelated code in the same file.
-
-## Build and check
-
-```bash
-dotnet build cli/fm/fm.csproj -c Release
-dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release
-tools/install.sh          # plugin + fm + doctor
-fm doctor --install
-fm status                 # bridge and save
-tools/smoke.sh            # build + plugin + tests + published CLI
-tools/ci.sh               # without the game (same as CI)
-```
-
-Porting notes: `docs/PORTING.md`. Open work: `docs/TASKS.md`.
-
-```bash
-dotnet test tests/FmCli.Tests/FmCli.Tests.csproj -c Release
-```
+- A new command goes in its own file, not in `Program.cs`.
+- Keep one command's reads and writes together.
+- Reuse `Table` / `Ui` before writing a formatter.

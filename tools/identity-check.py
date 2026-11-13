@@ -5,7 +5,7 @@ The CLI and the plugin reach the game by identity: page GUIDs, event names, elem
 names, data-model properties, enum members, the plugin's private fields, and (weakest) the game's
 English words. The FM26 reference catalogs in docs/reference/ hold every one the game had. This
 crosses them with the string literals in the code, so a new game's catalogs can be checked in one
-pass instead of command by command (docs/PORTING.md, "First day with FM27").
+pass instead of command by command (docs/PORTING.md, "FM27 on Apple Silicon").
 
     tools/identity-check.py uses                 # write docs/reference/identities.tsv from the code
     tools/identity-check.py catalog DIR          # dump the running game's catalogs into DIR
