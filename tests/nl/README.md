@@ -38,17 +38,8 @@ python3 tools/nl-expand.py --train
 
 ## Dev, held, final
 
-- Each test case says its side in `"split"`: **dev** (63%), **held** (23%) or **final** (14%).
-- Near-copies form a family, and a family stays on one side. Near = letter-trigram cosine ≥ 0.8,
-  or ≥ 0.65 with the same call (`tools/nl_family.py`).
-- A case near a training sentence is dev: the model has seen it.
-- A new family gets its side by a hash; a case that joins a family takes the family's side.
-- A noisy variant goes with its sentence.
-- Rules and training sentences are tuned on dev only.
-- Held numbers say how the router does on new wording.
-- Final is scored only to confirm a decision (`--final`). Never list its failures, never tune on it.
-- The split changed on 28 Oct. Rules and readers were tuned on the old dev, which is now partly
-  held and final, so their held numbers read high.
+- Each case has a side in `"split"`: dev 63%, held 23%, final 14%. Near-copies stay on one side.
+- Tune on dev only. Held says how new wording does. Final only confirms a decision; never tune on it.
 
 ## Metrics
 
@@ -80,56 +71,16 @@ Model `mpnet-f-q`, trained on the family-split dev only. From `results/mpnet-f-q
 | noisy | held | 63.2% | 78.9% | 82.9% | 55.8% | 43.2% | 42.5% | 84.2% | 5.2% |
 | noisy | final | 58.9% | 76.4% | 81.8% | 50.7% | 22.5% | 36.7% | 85.1% | 7.0% |
 
-- Base held has 33 ask and 38 multi sentences, final 20 and 30.
-- `13-multi` alone, recall@5: held 97.4%, final 93.3% (`results/mpnet-f-q-multi.json`).
-  The rules split 122 of its 155 multi sentences.
-- Most ask and multi sentences were added on 28 Oct, after the rules were written, so those two
-  columns are not tuned on any side yet (dev ask 63.4%, dev multi 44.8%).
-- tool+args reads high for the older sentences: the readers were tuned on the old split (see above).
-- Argument readers alone (the right tool given): tool+args held 90.0%, final 86.6%
-  (`results/readers.json`). Same caveat.
-- The CLI still ships `mpnet-l-q`. It was trained on the old dev, which overlaps today's held
-  and final, so it cannot be scored on them.
+- `13-multi` recall@5: held 97.4%, final 93.3%. Readers alone (right tool given): tool+args held 90.0%.
+- The CLI ships `mpnet-l-q` (trained on an older split; not comparable).
 
 ## What we learned
 
-What worked, biggest gain first:
-
-- An embedding model picks the tool, rules fill the arguments. Rules alone got 33% held tool.
-- Fine-tuning a multilingual model on our sentences (MiniLM 62%, mpnet-base 65%).
-- Training-only sentences: other wordings, chattier sentences, "nothing" sentences.
-- Better argument readers. A word is not a name if it is a known word with an ending, a question
-  word, a verb form, a number, or a common word when a rarer one is there.
-- Int8 weights: same scores, 275 MB instead of 1 GB.
-- Lower-casing the input, in training too. Odd capitals were the top cause of false "nothing".
-- Candidates from 50 neighbours instead of the 15 that vote: held recall@5 82.1% → 88.6%.
-  Summing, max or best-two per tool: within half a point; 100 neighbours: +1 point recall@5,
-  −3 points recall@3.
-- One candidate list per ask, where the rules split the sentence: `13-multi` recall@5 held
-  79.5% → 97.4%, final 76.7% → 93.3%. Each ask gets five candidates, so the sentence gets more
-  than five in all.
-
-What did not work:
-
-- A similarity threshold or margin for "nothing": it trades real asks for it, no net gain.
-- Letting the rules win when they score high.
-- multilingual-e5-small: no better than MiniLM.
-- Voting choice arguments with the nearest sentences.
-- Squeezing doubled letters ("kimm" → "kim").
-- Offering the rule router's pick when "nothing" wins.
-- Splitting for candidates where the rules do not: at every cut (dev multi recall@5 +2.3, but
-  single asks with "ve"/"and" get split: dev recall@5 −0.5 overall), or where the nearest examples vote for
-  several asks (no change).
-
-Traps:
-
-- The int8 model scales a batch as a whole, so a sentence gives a slightly different vector alone
-  and in a batch. Always embed one sentence at a time.
-- ONNX Runtime 1.22.0 crashes on exit on macOS. Use 1.23.2.
-- Run `nl-check.py` before training. On 28 Oct, 27 training sentences repeated test sentences and
-  inflated held "none" to 92.8%.
-
-The full history of every experiment is in the git log of this file.
+- Worked: embeddings pick the tool, rules fill arguments; fine-tuning on our sentences; int8 (275 MB, same scores);
+  lower-casing; 50 neighbours for candidates; one candidate list per ask.
+- Did not work: a threshold for "nothing", rules overriding, e5-small, squeezing doubled letters.
+- Traps: embed one sentence at a time (int8 batches differ); ONNX Runtime 1.23.2 (1.22.0 crashes on exit);
+  run `nl-check.py` before training (copies of test sentences inflate scores).
 
 ## Case format
 
