@@ -1,0 +1,45 @@
+# Round 63: T150, `next` under the game's "unread messages" preference (27.0.1).
+# - "Read Messages": the Messages flow waits for every unread message; `next` opens them oldest first, then goes on.
+#   The messages that come in on the way bring the flow back to Messages: the clock having moved is the check.
+# - "Continue Processing" (negative): `next` reads nothing and goes on; the oldest unread stays unread.
+# The preference is the game's, not the save's: each test puts it back. Its two choices are taken by place in the
+# game's own list (the same order in every language): 0 Read Messages, 1 Continue Processing.
+# Run: tools/fm-round.py dry tests/live/round63.toml, then run --lang en,tr.
+
+[[test]]
+task = "T150"
+name = "next under Read Messages reads the unread messages, then the clock moves"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "settings 'unread messages'", path = "Value", keep = "mode" },
+  { read = "settings 'unread messages'", path = "Choices.0", keep = "readmode" },
+  { run = "settings 'unread messages' {readmode}" },
+  { read = "status", path = "Clock", keep = "clock" },
+  { read = "inbox --all", path = "?NewsItemHasBeenRead=False.0.UniqueId", keep = "first" },
+  { run = "next" },
+  { read = "status", path = "Clock", differs_from = "clock" },
+  { read = "inbox --all", path = "?UniqueId={first}.0.NewsItemHasBeenRead", is = "True" },
+  { run = "settings 'unread messages' {mode}" },
+  { read = "settings 'unread messages'", path = "Value", same_as = "mode" },
+]
+
+[[test]]
+task = "T150"
+name = "negative: next under Continue Processing reads nothing and goes on"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "settings 'unread messages'", path = "Value", keep = "mode" },
+  { read = "settings 'unread messages'", path = "Choices.1", keep = "goon" },
+  { run = "settings 'unread messages' {goon}" },
+  { read = "status", path = "Clock", keep = "clock" },
+  { read = "inbox --all", path = "?NewsItemHasBeenRead=False.0.UniqueId", keep = "first" },
+  { run = "next" },
+  { read = "status", path = "Clock", differs_from = "clock" },
+  { read = "inbox --all", path = "?UniqueId={first}.0.NewsItemHasBeenRead", is = "False" },
+  { run = "settings 'unread messages' {mode}" },
+  { read = "settings 'unread messages'", path = "Value", same_as = "mode" },
+]

@@ -21,7 +21,9 @@ fm next --until match    # on to match day (or the first thing that wants an ans
 
 `status` names injured players when the next match is today or tomorrow, and says when the game is
 on the post-match results screen. `next` stops for an unanswered message, a press conference, match
-day, or a question left after a match.
+day, or a question left after a match. With the game's "unread messages: Read Messages" setting,
+`next` opens the unread messages oldest first, as the game's Continue does, and lists each (`read: …`)
+before the clock moves; `inbox --read-all` marks them all read at once.
 
 ### Asking in a sentence
 

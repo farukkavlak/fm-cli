@@ -59,6 +59,7 @@ import shutil
 import subprocess
 import sys
 import time
+import threading
 import tomllib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -73,13 +74,43 @@ DEATHS = 5  # games dead under one test (T92) before it is given up for the roun
 PLAYER_LOG = pathlib.Path.home() / "Library/Logs/Sports Interactive/Football Manager 27/Player.log"
 
 
+def watch_memory(file, stop):
+    """The game's memory (its phys_footprint, what macOS charges it; `ps` shows the compressed part only) and the Mac's
+    swap, a line a minute while a round runs, so growth over a long-lived game can be seen (T92). Measuring only."""
+    with open(file, "a") as out:
+        out.write("time\tpid\tgame_mb\tswap_used\n")
+        while not stop.is_set():
+            try:
+                pid = subprocess.run(["pgrep", "-f", "fm27_bep/fm.app/Contents/MacOS/Football Manager"],
+                                     capture_output=True, text=True, timeout=10).stdout.split()
+                mb = ""
+                if pid:
+                    found = re.search(r"Footprint: (\d+) MB", subprocess.run(["/usr/bin/footprint", "-p", pid[0]],
+                                                                              capture_output=True, text=True, timeout=60).stdout)
+                    mb = found.group(1) if found else ""
+                swap = re.search(r"used = ([\d.]+M)", subprocess.run(["sysctl", "vm.swapusage"], capture_output=True,
+                                                                      text=True, timeout=10).stdout)
+                out.write(f"{datetime.datetime.now():%H:%M:%S}\t{pid[0] if pid else ''}\t{mb}\t{swap.group(1) if swap else ''}\n")
+                out.flush()
+            except (OSError, subprocess.SubprocessError):
+                pass
+            stop.wait(60)
+
+
 def keep_log(name):
     """The dead game's Player.log, before the next start writes over it (T92)."""
     try:
         shutil.copy(PLAYER_LOG, RESULTS / name)
-        return f" (its log: {name})"
     except OSError:
         return ""
+    # The Mac's memory at that moment: an 8 GB Mac ran 4.9 GB into swap the night deaths came in a row (T92).
+    try:
+        memory = subprocess.run("sysctl vm.swapusage; memory_pressure | tail -1; top -l 1 -o mem -n 8 -stats command,mem",
+                                shell=True, capture_output=True, text=True, timeout=30).stdout
+        (RESULTS / f"{name}.memory.txt").write_text(memory)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return f" (its log: {name})"
 
 
 class Failed(Exception):
@@ -935,6 +966,8 @@ def run(args):
         rows = []
         loaded = None
         LOG = open(RESULTS / f"{stem}-{lang}.log", "w")
+        stop_watch = threading.Event()
+        threading.Thread(target=watch_memory, args=(RESULTS / f"{stem}-{lang}.memory.tsv", stop_watch), daemon=True).start()
         for test in sorted(tests, key=lambda t: t["at"]):  # one load per scenario where the tests allow it
             passes = []
             missed = []
@@ -998,6 +1031,7 @@ def run(args):
                         + (f", {len(missed)} without the moment" if missed else "") + ")" + "".join(f"\n  - {p}" for p in bad) + extra)
         report = RESULTS / f"{stem}-{lang}.md"
         report.write_text(f"# {stem}, {lang}, {datetime.datetime.now():%Y-%m-%d %H:%M}\n\n" + "\n".join(rows) + "\n")
+        stop_watch.set()
         print(f"[{lang}] written: {report}", flush=True)
     if restore:
         print(f"NOT PUT BACK, a match is still on: {restore}. When it ends: fm settings \"<name>\" <value>")

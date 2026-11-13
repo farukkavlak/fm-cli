@@ -453,22 +453,21 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     kick-off 5/5, T11 3/3, no death at all. So not the language: every death came between 00:55 and 02:08, then
     none in 160 minutes. Deaths come in a stretch of time, then stop; what changes is not known. `fm-round` now
     keeps the dead game's `Player.log` in `tests/live/results/` (`…-deathN.Player.log`) for the next one.
-- [ ] T150 FM27 27.0.1 changed Continue. The pref `continue_button_legacy_mode` became
+  - Lead, 13 Nov 11:40: this Mac has 8 GB; with the game (3 GB), Chrome, VS Code and node open, 4.9 GB of 6 GB
+    swap was in use and loads went from 85 s to 150–200 s. The crash reports carry no memory figures. `fm-round`
+    now writes the memory and swap beside each kept log (`….memory.txt`). Next: a run with the other apps closed.
+- [x] T150 FM27 27.0.1 changed Continue. The pref `continue_button_legacy_mode` became
   `continue_button_cycle_messages` (true = "Read Messages": each press opens the next unread message). On match day
   `ContinueGameEvent` no longer passes Fixtures; the game's `continue-button` (event `ContinueGame`) does.
   - [x] `match` on match day presses the game's button until Tactics / team submission, a press counted as taken when
     the opened message changes too. `kickoff` EN: 69 messages, about 45 s; EN + TR reached the team talk (`round62`).
-  - [ ] `next` under "Read Messages" does not move time (13 Nov, `calm`, EN, 18 unread). The first press ends in
-    flow `Messages` (`/continueflags` Flags `Messages`, button `continue-button` named "Messages"); then neither the
-    event nor 40 clicks of the game's button moved the clock: each click only changed the open message now and then
-    (`HumanPortalLastSelectedMessageReference`), the inbox's Unread (18) stayed. Under "Continue Processing" the
-    same state went on at once (20:45 → 22:00); setting put back. The code has `ContinueFlowState.NextUnreadMessage`
-    and `MessagesStreamedObjectList.GetOldestUnreadMessageIndex` (the list on screen picks the next one): measure
-    whether the hidden window's list holds the unread ones.
-    Then the inbox's `MarkAllReadButton` (`EventFmxMarkAllHumanMessagesAsRead`): flow `CanContinue` at once and
-    `next` went on (22 → 23 Oct), stopping at `Messages` again as new ones came. So the flow waits for every unread
-    message to be read. Ask Faruk which: `next` marks them read by that event (it lists the new titles anyway;
-    nothing is answered), opens each through the inbox, or says "set unread messages to Continue Processing".
+  - [x] `next` under "Read Messages": the Messages flow (or `NextUnreadMessage`) waits for every unread message,
+    and the game's own button seldom opens one with the window hidden (40 presses, none read). `next` opens them
+    through the inbox, oldest first, each held by its id (`HumanPortalLastSelectedMessageReference`), says each
+    (`read: …`), then presses on; a press that only brought the Messages page up is not counted. Faruk's choice:
+    like the game; `inbox --read-all` stays the separate way to mark all read. `round63.toml`: Read Messages EN 3/3,
+    TR 3/3 (oldest unread read, clock moved); negative, Continue Processing: nothing read, clock moved, EN 3/3,
+    TR 3/3; the setting put back each time. 5–12 s a press with a few messages; a season's backlog (67) about 90 s.
 - [ ] T148 A player's save is never put at risk by the tool. When the game dies, the days since the last save are lost.
   - [ ] The game's own fatal-error dialog (T92, 12 Nov) is told and said ("the game hit a fatal error and is closing"),
     not "FM is not responding"; `fm start` after it works; `fm-round` restarts at once instead of waiting.

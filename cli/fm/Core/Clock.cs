@@ -92,6 +92,14 @@ internal static partial class Program
 				continue;
 			}
 
+			// The game wants its unread messages read before it goes on: read, as a player pressing on would.
+			if (flow is "Messages" or "NextUnreadMessage" && ++reads <= UntilSteps && await ReadUnread() > 0)
+			{
+				moved = true;
+				taken--;
+				continue;
+			}
+
 			if (!Passable(flow))
 			{
 				await Explain(state, taken == 0 ? Console.Error : Console.Out, flow);
@@ -118,6 +126,15 @@ internal static partial class Program
 			{
 				Console.Error.WriteLine(L("The game has been processing for three minutes; I stopped waiting. For the state: status"));
 				return 75;
+			}
+
+			// The press only brought the unread messages up (straight after a load the game calls itself free to
+			// continue): they are read on the next turn, and the press after them is the step asked for.
+			if (Field(now, "State") is "Messages" or "NextUnreadMessage" && flow is not ("Messages" or "NextUnreadMessage")
+			    && Field(now, "Date") == Field(state, "Date") && Field(now, "Clock") == Field(state, "Clock") && reads < UntilSteps)
+			{
+				taken--;
+				continue;
 			}
 
 			// Every other press after a stop is swallowed: the date, the hour and the state all
@@ -247,6 +264,51 @@ internal static partial class Program
 	private static bool Passable(string flow) =>
 		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld"
 			or "CompetitionHub" or "ManagerVacancies" or "TransferHub" or "NewsForYou" or "CompetitionOverview" or "DataHub" or "YouthSetup";
+
+	/// <summary>
+	/// Under the game's "unread messages: read messages" preference, the Messages flow waits until every unread
+	/// message has been read (13 Nov, `calm`: marking them all read freed it at once). The game's button opens the
+	/// next one itself only now and then with its window hidden (40 presses, none read), so each is opened through
+	/// the inbox, oldest first as that button does, and its title said. Held by the message's id: the row is
+	/// pressed and the game's record of the one last opened must name it. The flow is `Messages`, or
+	/// `NextUnreadMessage` once one has been opened. The number read.
+	/// </summary>
+	private static async Task<int> ReadUnread()
+	{
+		static bool Unread(JsonElement m) => Field(m, "NewsItemHasBeenRead") != "True" && Field(m, "UniqueId").Length > 0;
+		async Task<bool> Waiting() => Field(await Fm.GetJson("state"), "State") is "Messages" or "NextUnreadMessage";
+		var read = 0;
+		// Each message is pressed once: one opened and still unread is not read by opening, and is left.
+		var tried = new HashSet<string>();
+		// The inbox's first window is read once and its unread opened in turn; the whole inbox (a long scroll) only
+		// when the game still waits after those.
+		var whole = false;
+		while (read < UntilSteps && await Waiting())
+		{
+			var listed = whole ? await AllInbox() : (await TopInbox()).EnumerateArray().Select(m => m.Clone()).ToList();
+			var unread = listed.Where(m => Unread(m) && !tried.Contains(Field(m, "UniqueId"))).OrderBy(Id).ToList();
+			if (unread.Count == 0)
+			{
+				if (whole) break;
+				whole = true;
+				continue;
+			}
+			foreach (var message in unread)
+			{
+				if (read >= UntilSteps || (read > 0 && !await Waiting())) break;
+				var id = Field(message, "UniqueId");
+				var title = Field(message, "NewsTitleString");
+				tried.Add(id);
+				if (!await DrawMessage(id)) continue;
+				var pressed = await Arriving("press", [("has", title), ("name", "NewsItemButton"), ("any", "1")]);
+				if (pressed.StartsWith("error", StringComparison.Ordinal)) continue;
+				if (!await Until(async () => await OpenedMessageId() == id, seconds: 8, every: 0.25)) continue;
+				Console.WriteLine(L($"  read: {GameWords.Of(title)}"));
+				read++;
+			}
+		}
+		return read;
+	}
 
 	/// <summary>The game's own id of the message last opened, "" when none is.</summary>
 	private static async Task<string> OpenedMessageId() =>
