@@ -31,6 +31,22 @@ public class Plugin : BasePlugin
 	/// <summary>When a panel's scheduler last ran the bridge, and when panels were last looked for.</summary>
 	private static long _lastUiTick, _lastLook;
 
+	/// <summary>
+	/// Whether this is the app's main thread (macOS's own answer). BepInEx's MainThreadTick fires from its
+	/// il2cpp_runtime_invoke hook, and the game calls runtime_invoke from other threads too: the loading thread
+	/// and the GC finalizer. A tick there that touched Unity (FindObjectsOfTypeAll, runInBackground) hung the start
+	/// (the loading thread waiting on the main one, which waited on it) or crashed on the finalizer thread: every
+	/// T92 death's stack, GameAssembly 0x7547c8 → 0x519950 → 0x1964b70 → UnityPlayer 0x29840 (13 Nov).
+	/// </summary>
+	[System.Runtime.InteropServices.DllImport("libSystem.dylib")]
+	private static extern int pthread_main_np();
+
+	internal static bool OnMainThread()
+	{
+		try { return pthread_main_np() == 1; }
+		catch { return true; }
+	}
+
 	private static bool _inPump, _toldFallback, _fromUi;
 
 	/// <summary>Where the request being answered is run from, for health: "ui" is the safe way, "tick" the stand-in.</summary>
@@ -90,6 +106,7 @@ public class Plugin : BasePlugin
 
 	private static void OnUiTick()
 	{
+		if (!OnMainThread()) return;
 		_lastUiTick = System.Environment.TickCount64;
 		var frame = Time.frameCount;
 		if (frame == _lastFrame) return;
@@ -99,6 +116,7 @@ public class Plugin : BasePlugin
 
 	private static void OnBepInExTick()
 	{
+		if (!OnMainThread()) return;
 		var now = System.Environment.TickCount64;
 		// Screens are built and taken down as the game goes: new panels are looked for once a second.
 		if (now - _lastLook >= 1000)
@@ -149,6 +167,7 @@ public class Plugin : BasePlugin
 
 	private static void KeepRunning()
 	{
+		if (!OnMainThread()) return;
 		if (!Application.runInBackground)
 		{
 			Application.runInBackground = true;

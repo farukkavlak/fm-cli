@@ -45,7 +45,8 @@ internal static class WindowHider
 
 	internal static void Apply()
 	{
-		if (!Wanted || _failed || Alpha < 0) return;
+		// AppKit windows are the main thread's only; BepInEx's tick also fires on the game's other threads.
+		if (!Wanted || _failed || Alpha < 0 || !Plugin.OnMainThread()) return;
 		try
 		{
 			if (_app == IntPtr.Zero)
