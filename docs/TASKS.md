@@ -56,7 +56,9 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T26 `pause` / `resume`
 - [x] T27 `holiday --jobs`
 - [x] T28 `youth candidates`
-- [ ] T29 A goal with a change waiting: the game's question. Left: `cancelChanges` (a tactic change) TR + EN (`round66.toml`).
+- [ ] T29 A goal with a change waiting: the game's question (`cancelChanges`), answered Yes.
+  - TR 2/2 (13 Nov): asked only for a team instruction change (taken at the next dead ball); a mentality change is
+    taken at once and never waits. Needs slow speed: at full speed 1 in 4 matches. Left: EN 2/2 (`round66.toml`).
 - [x] T97 The match bar's Tactics button
 - [x] T113 `talk --json` order
 - [x] T114 Deadline day date
@@ -97,7 +99,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T95 `next` past FM27's look-only pages
 - [x] T96 Names typed as several words
 - [x] T91 `fm start` with a dead game on the port
-- [ ] T92 The game dies now and then. Every death has one stack: the GC Finalizer → GameAssembly 0x1964b70 → UnityPlayer 0x29840 → bad jump. Not memory (one died at 535 MB).
+- [ ] T92 The game dies now and then. Every death has one stack: GameAssembly 0x7547c8 → 0x519950 → 0x1964b70 → UnityPlayer 0x29840.
+  - Found 13 Nov: a start hung with the same path on the loading thread. BepInEx's tick fires on any thread's
+    runtime_invoke; the plugin touched Unity there. Fixed (c5c8b63): ticks do nothing off the main thread.
+  - [ ] Watch: since the fix 10 starts and 5 matches, no death, no hang. Close after a long night round with none.
   - [ ] Name the methods: deploy plugin `whatis` (built), ask `whatis?anchor=6e77dc&rva=1964b2c,4de7298,519950`
   - [ ] Read UnityPlayer's table slot +0x1d97980 with the game running
   - [ ] Fix, or write the cause here
