@@ -299,6 +299,15 @@ internal static partial class Program
 		// What an applied card does is a tactical tweak on the match's tactic (the button's event context
 		// carries the tweak's id): the tweak list before and after says which, when it is one.
 		var before = event_ == AcceptEvent ? await ReadTweaks() : [];
+		// A card that adds a team instruction ("Pass Into Space") changes the match's tactic, not a tweak: its
+		// instructions are read before and after (by their numbers, the game's own) to say which changed.
+		List<TeamInstruction> catalogue = [];
+		Dictionary<int, long> instructionsBefore = [];
+		if (event_ == AcceptEvent && await FindMatchTactic() && matchTactic != null)
+		{
+			catalogue = await TeamInstructionCatalogue(false);
+			instructionsBefore = await TeamInstructionsNow(catalogue);
+		}
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
@@ -316,9 +325,15 @@ internal static partial class Program
 			foreach (var tweak in await ReadTweaks())
 				if (before.FirstOrDefault(b => b.Id == tweak.Id) is { } was && was.WillBeOn != tweak.WillBeOn)
 					(tweak.WillBeOn ? tweaksOn : tweaksOff).Add(tweak.Name);
+		var instructions = new List<string>();
+		if (done && instructionsBefore.Count > 0)
+			foreach (var (id, option) in await TeamInstructionsNow(catalogue))
+				if (instructionsBefore.TryGetValue(id, out var was) && was != option && catalogue.FirstOrDefault(c => c.Id == id) is { } i)
+					instructions.Add($"{GameWords.Of(i.Name)}: {GameWords.Of(i.Options.FirstOrDefault(o => o.Id == option).Name ?? option.ToString())}");
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff }));
+			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff,
+				InstructionsChanged = instructions, Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).ToList() }));
 			return done ? 0 : 1;
 		}
 		Console.WriteLine(done
@@ -326,6 +341,7 @@ internal static partial class Program
 			: L($"{entry.Minute}'  {entry.Text} — the button was pressed, but the game {(event_ == AcceptEvent ? L("does not show the advice as applied") : L("did not remove the advice from the list"))}."));
 		foreach (var name in tweaksOn) Console.WriteLine(L($"  Tactical tweak on: {name}"));
 		foreach (var name in tweaksOff) Console.WriteLine(L($"  Tactical tweak off: {name}"));
+		foreach (var change in instructions) Console.WriteLine(L($"  Team instruction: {change}"));
 		return done ? 0 : 1;
 	}
 
@@ -350,7 +366,9 @@ internal static partial class Program
 		var name = after?.Name ?? before.Name;
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = !off && done ? new[] { name } : [], TweaksOff = off && done ? new[] { name } : [] }));
+			var on = !off && done ? new[] { name } : [];
+			var gone = off && done ? new[] { name } : [];
+			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = on, TweaksOff = gone, InstructionsChanged = Array.Empty<string>(), Applied = on.Concat(gone).ToList() }));
 			return done ? 0 : 1;
 		}
 		Console.WriteLine(done
