@@ -6,7 +6,7 @@
 
 [[test]]
 task = "T29"
-name = "a mentality change waiting when a goal goes in: the game's cancelChanges question, answered Yes"
+name = "a change waiting when a goal goes in (mentality or a team instruction): the game's cancelChanges question, answered Yes"
 at = "kickoff"
 fresh = true
 fast = true
@@ -17,7 +17,10 @@ steps = [
   { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off" },
   { read = "tactic mentality", path = "Choices.0", keep = "a" },
   { read = "tactic mentality", path = "Choices.6", keep = "b" },
-  { until = "dialog", path = "?Type=cancelChanges.#", not = "0", seconds = 3600, every = 5, live = true, moment = true, doing = ["tactic mentality {a}", "tactic mentality {b}"], note = "a goal with the change waiting; any other question is answered and played on" },
+  { read = "tactic instructions", path = "0.Label", keep = "ins", note = "a team instruction: the match's tactic takes it at the next dead ball, so it waits" },
+  { read = "tactic instructions", path = "0.Choices.0", keep = "x" },
+  { read = "tactic instructions", path = "0.Choices.1", keep = "y" },
+  { until = "dialog", path = "?Type=cancelChanges.#", not = "0", seconds = 3600, every = 5, live = true, moment = true, doing = ["tactic mentality {a}", "tactic instructions {ins} {x}", "tactic mentality {b}", "tactic instructions {ins} {y}"], note = "a goal with the change waiting; any other question is answered and played on" },
   { read = "dialog", path = "?Type=cancelChanges.0.Buttons.?Slot=primary.0.Label", keep = "yes", live = true },
   { run = "dialog {yes}" },
   { read = "dialog", path = "?Type=cancelChanges.#", is = "0", live = true },
