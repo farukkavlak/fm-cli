@@ -16,26 +16,20 @@ fm next --until match    # on to match day (or the first thing that wants an ans
 
 ![fm status](manual/img/start/status.png)
 
-`status` names injured players when the next match is today or tomorrow, and says when the game is
-on the post-match results screen. `next` stops for an unanswered message, a press conference, match
-day, or a question left after a match. With the game's "unread messages: Read Messages" setting,
-`next` opens the unread messages oldest first, as the game's Continue does, and lists each (`read: …`)
-before the clock moves; `inbox --read-all` marks them all read at once.
+- `status` names injured players when the match is today or tomorrow.
+- `next` stops for an unanswered message, a press conference, match day, or a question after a match.
+- With the game's "Read Messages" setting, `next` first opens the unread messages, oldest first, as the game does.
+- `inbox --read-all` marks every message read at once.
 
 ### Asking in a sentence
 
-A sentence works in place of a command, in Turkish or English, in a session or after `fm`:
-`önümüzdeki maç ne zaman`, `rinaldiyi sat`, `who is injured`. The command it became is shown
-dimmed and runs. When the language model is not sure it offers the likeliest commands with their
-share of the vote (three, five when it is far from sure); a number picks one, Enter none. What a
-command needs and the sentence leaves open is asked (`maça çık` asks how). A command that spends,
-signs, sells, lets someone go or cannot be taken back (offer, contract, propose, release, resign,
-load, …) is shown and runs only on a yes. A one-word line, a line starting with a command's
-name and a line with `--options` stay commands. The language model behind it (~290 MB) is
-downloaded once by the install (`fm doctor --install`, which `install.sh` runs) into
-`~/.cache/fm-cli/nl/`; `FM_NL_MODEL` points at another. The first sentence takes about half a
-minute to get it ready. The questions and their choices are in the game's language
-(`maça çık` → "Maçı nasıl oynamak istersin? 1. Anında sonuç …").
+- Turkish or English: `önümüzdeki maç ne zaman`, `rinaldiyi sat`, `who is injured`.
+- The command it became is shown, then runs.
+- Not sure: it offers 3–5 commands; a number picks one, Enter none.
+- Missing details are asked (`maça çık` asks how).
+- Anything that spends, signs, sells or cannot be undone runs only on a yes.
+- One word, a command's name first, or `--options`: it stays a command.
+- The model (~290 MB) comes with `fm doctor --install`. The first sentence takes ~30 s.
 
 ![a sentence the model is not sure of](manual/img/ask/options.png)
 
@@ -50,7 +44,7 @@ fm lang auto       # follow the game
 FM_LANG=english fm status
 ```
 
-The choice is kept in `~/.config/fm-cli/language-choice`; `fm lang auto` removes it.
+Kept in `~/.config/fm-cli/language-choice`.
 
 ## 2. Inbox, replies and talks
 
@@ -66,7 +60,8 @@ fm talk               # the open conversation: what was said and what can be sai
 
 ![fm inbox --tasks](manual/img/inbox/inbox-tasks.png)
 
-Messages that need an answer block `next`. A message with no answer is read and closed.
+- A message that needs an answer stops `next`.
+- A message with no answer is read and closed.
 
 ![fm reply](manual/img/inbox/reply.png)
 
@@ -134,7 +129,7 @@ fm query "age<23 and potential>140" [--sort field] [--asc]
 ## 5. Tactics and training
 
 ```bash
-fm tactic                    # shape, style, mentality, roles, familiarity
+fm tactic                    # shape, style, mentality, roles, effectiveness
 fm tactic pick               # let the game pick the eleven
 fm tactic pick --youth       # youth players too, when the first team is short
 fm tactic advice             # the assistant's evaluation of the tactic; also: xi, opposition
@@ -191,44 +186,30 @@ fm report            # the last match: score, scorers, player of the match, stat
 fm opponent          # the next opponent: form, formation, key players, news
 ```
 
-`tweak` lists the team's tactical tweaks in the game's words, with the ones that are on. `tweak <x>`
-puts one on and `--off` takes it off; while the ball is rolling the game makes the change within
-seconds, at a break when play goes on. The game itself takes off a tweak that does not go with the
-new one. Tweaks work once the match has kicked off. `--player` and `--reset` need the match screen, so
-they do not work on a talk screen.
-
-- `--player` lists what the game offers that player: a goalkeeper gets fewer. One the game has greyed out
-  is marked and cannot be put on.
-- `--reset` also takes back changes still waiting to go on.
+- `tweak` lists the team's tweaks; `tweak <x>` puts one on, `--off` takes it off.
+- The game applies it within seconds, or at the next break.
+- Tweaks work after kick-off. `--player` and `--reset` need the match screen.
+- `--player`: what the game offers that player; greyed ones cannot be put on.
+- `--reset` also takes back changes still waiting.
+- A goal with a change waiting: the game asks; `match` stops and says `dialog`.
 - After `pause`, `match` carries on as `resume` does.
-
-- A change left waiting when a goal goes in: the game asks "Proceed with tweak after this goal?". `match`
-  stops and says `dialog`; Yes keeps the waiting changes, No drops them.
 
 ![Tactical tweaks of one player](manual/img/match/tweak.png)
 
-At a terminal, `match --play` draws a live panel: score, clock, period, the radar (or the shape pitch
-when the radar is off), the last events and the commands that work during the match. A redirected
-run or an MCP call keeps the plain line-by-line output. Keys during play: `s` substitution, `h` shout, `t` tactic
-(mentality or role), `v` view (full, key moments, score only), `a` radar on/off, `r` radar style, `+`/`-` speed (when the match screen offers it; otherwise it points to settings). The pitch
-refreshes after a substitution; at an injury stop it names the player and asks who comes on. The
-radar draws the ball and every player from the game's own match simulation, so it shows the real
-shape rather than a sketch. It comes in seven styles, `r` cycling through them: `pixel` (a retro
-pitch with little players in their kits; needs 24-bit colour), three 3D scenes that need 24-bit
-colour and follow the ball — `iso` (isometric stadium), `raycast` (a low camera on the pitch) and
-`voxel` (little cubes) — then `braille` (fine dots, any terminal), `colour` (coloured ASCII on mown
-stripes) and `ascii` (plain). The 3D scenes use sextant blocks (six pixels a cell) in Ghostty, kitty,
-WezTerm, iTerm2 and VS Code and half blocks elsewhere (`FM_SEXTANTS=0` or `1` overrides); without
-24-bit colour they say so and show braille. `auto`, the default, is `pixel` where
-the terminal has 24-bit colour and `braille` otherwise. The radar takes the panel's width (up to 86
-columns); when the window is too small for the chosen style it says how much room it needs, and
-pressing `r` turns colour on if it was off and the next style needs it. Live possession/shots are not in the game's bindings during
-a match, so they appear in `report` after the whistle.
+`match --play` at a terminal draws a live panel: score, clock, radar, last events.
+Scripts and MCP get plain lines.
+
+- Keys: `s` sub, `h` shout, `t` tactic, `v` view, `a` radar on/off, `r` radar style, `+`/`-` speed, `:` any command.
+- At an injury stop it names the player and asks who comes on.
+- The radar draws the ball and every player from the game's own simulation.
+- Seven styles: `pixel`, `iso`, `raycast`, `voxel` (24-bit colour), `braille`, `colour`, `ascii` (any terminal).
+- `auto` (default): `pixel` with 24-bit colour, else `braille`.
+- Too small a window: it says how much room it needs.
+- No live possession or shots in a match; `report` has them after.
 
 ![fm match --play](manual/img/match/live-match.png)
 
-*The live panel with the `iso` radar (Empoli – Avellino, 4 March 2029).* The seven radar styles, each
-from `fm settings panel radar <style>`, which previews a frame from a real match:
+The seven radar styles (`fm settings panel radar <style>` previews one):
 
 | | |
 |---|---|
@@ -237,10 +218,7 @@ from `fm settings panel radar <style>`, which previews a frame from a real match
 | `braille` ![braille](manual/img/match/radar-braille.png) | `colour` ![colour](manual/img/match/radar-colour.png) |
 | `ascii` ![ascii](manual/img/match/radar-ascii.png) | |
 
-Moving versions from real matches are in `docs/experiments/live-gifs/`. Screenshots are drawn with
-`tools/manual-shot.py` (a command in a 24-bit colour pty, or a frame from `tools/live-capture.py`).
-
-The panel's own settings live in `~/.config/fm-cli/panel.json`; change them with `fm settings`:
+Screenshots: `tools/manual-shot.py`. Panel settings (`~/.config/fm-cli/panel.json`):
 
 ```bash
 fm settings panel                              # show them
@@ -249,9 +227,6 @@ fm settings panel pitch off events 5 colour off radar on
 fm settings panel radar braille                # pixel, iso, raycast, voxel, braille, colour, ascii or auto; shows a preview
 fm settings panel reset
 ```
-
-`view` sets the first view of the `v` cycle; the keys still cycle for the session.
-
 
 
 ![fm report](manual/img/match/report.png)
@@ -366,8 +341,7 @@ fm settings                    # the game's preferences
 fm settings "<setting>" [<value>]
 ```
 
-Settings change the game itself. The CLI's own language is set with `fm lang` (see above), not by
-`fm settings`.
+`fm settings` changes the game. The CLI's own language: `fm lang`.
 
 ## 11. MCP and scripts
 
@@ -377,8 +351,8 @@ python3 tools/mcp-check.py # a real MCP client check (needs: pip install mcp)
 tools/sweep.sh             # run every read-only command against the game
 ```
 
-Every command has `--json` (and often `--csv` / `--md`) for scripts. Writes that cannot be undone
-ask at a terminal and need `--yes` in a script.
+- Reads have `--json` (often `--csv` / `--md`).
+- Writes that cannot be undone ask at a terminal; scripts pass `--yes`.
 
 ## 12. More commands
 
@@ -415,11 +389,7 @@ fm saves · fm save · fm load
 
 ![fm read](manual/img/club/read.png)
 
-`fm read` lists the pages (club history, honours, records, career, competition rules and past winners, transfer
-history, scouting, the medical centre, the data hub's analysis…); `fm read club-honours` reads one. What it prints is what
-the page shows, in the game's language.
-
-`fm help` lists every command and flag.
+`fm read` lists the look-only pages (history, honours, records, rules…); `fm read club-honours` reads one.
 
 ## 13. Everything else
 
@@ -436,5 +406,4 @@ fm news [#]
 fm inbox --all
 ```
 
-A command that is not here: `fm help <command>`. If a screen is missing a
-command, `pages` / `buttons` / `press` reach it.
+Not here: `fm help <command>`. A screen with no command: `pages`, `buttons`, `press`.
