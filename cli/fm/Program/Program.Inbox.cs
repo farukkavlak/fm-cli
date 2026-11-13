@@ -266,6 +266,25 @@ internal static partial class Program
 
 		// `--open`: the message last opened, with its kind, the game's own number for what the message is
 		// (`NewsItemId`: 125 "contracts set to expire", player's or staff's). The list's rows do not bind it.
+		// The open message's attachment as the game draws it, once drawn (`reply` shows the same): blocks of texts.
+		if (args.Contains("--attachment"))
+		{
+			var blocks = await ReadyAttachment();
+			if (blocks.ValueKind != JsonValueKind.Array)
+			{
+				Console.Error.WriteLine(L("The open message has no attachment."));
+				return 1;
+			}
+			if (json) Console.WriteLine(JsonOut.Of(blocks.EnumerateArray().Select(b => new
+			{
+				Kind = Field(b, "Kind"),
+				Texts = b.TryGetProperty("Texts", out var t) ? t.EnumerateArray().Select(x => GameWords.Of(Field(x, "Text"))).ToList() : [],
+			})));
+			else foreach (var b in blocks.EnumerateArray())
+				if (b.TryGetProperty("Texts", out var t)) Console.WriteLine("  " + string.Join(" · ", t.EnumerateArray().Select(x => GameWords.Of(Field(x, "Text")))));
+			return 0;
+		}
+
 		if (args.Contains("--open"))
 		{
 			if (await LastOpenedMessage() is not { } open)

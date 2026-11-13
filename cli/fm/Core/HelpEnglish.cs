@@ -60,6 +60,7 @@ internal static partial class Program
 			    --all         every message the inbox holds, not only the ones loaded
 			    --tasks       only the messages under the inbox's Tasks filter
 			    --open        the message last opened, with the game's number for its kind
+			    --attachment  the open message's attachment, once the game has drawn it
 			  news [#]        what the press writes: the headlines on the news site, in the page's own order; with a number, the whole story
 			  reply <#>       open a message: its full text and answers; in a terminal the answer is chosen with the arrow keys
 			  reply <#> <no>  answer a message (a number or part of the answer)

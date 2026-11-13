@@ -18,6 +18,14 @@ internal static partial class Program
 	/// </summary>
 	private static async Task AttachmentRows(HashSet<string> answers)
 	{
+		var blocks = await ReadyAttachment();
+		if (blocks.ValueKind != JsonValueKind.Array || blocks.GetArrayLength() == 0) return;
+		await WriteAttachmentBlocks(blocks, answers);
+	}
+
+	/// <summary>The open message's attachment once it is drawn (plugin /attachment's blocks); default when none is shown.</summary>
+	internal static async Task<JsonElement> ReadyAttachment()
+	{
 		JsonElement blocks = default;
 		var previous = "";
 		// A card fills its parts a moment after the message opens. Taken once the game's own flags say nothing is still
@@ -36,7 +44,11 @@ internal static partial class Program
 			if (settled) blocks = JsonDocument.Parse(now).RootElement;
 			return settled;
 		}, seconds: 4, every: 0.3);
-		if (blocks.ValueKind != JsonValueKind.Array || blocks.GetArrayLength() == 0) return;
+		return blocks;
+	}
+
+	private static async Task WriteAttachmentBlocks(JsonElement blocks, HashSet<string> answers)
+	{
 
 		static List<string> TextsOf(JsonElement block) =>
 			block.GetProperty("Texts").EnumerateArray().Select(t => Field(t, "Text")).Where(t => t.Length > 0).ToList();

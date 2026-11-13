@@ -126,6 +126,7 @@ internal static partial class FmApi
 		"dropdowns" => Buttons.Dropdowns(q),
 		"select" => Buttons.Select(q),
 		"queue" => Buttons.Queue(q),
+		"whatis" => WhatIs.Handle(q),
 		"elements" => Elements.Around(q),
 		"pages" => Pages.Catalog(),
 		"open" => Pages.Open(q),

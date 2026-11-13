@@ -1,0 +1,44 @@
+# Round 66 (day, beside the T92 reading): round 58's T29 and T25 again, after 27.0.1 and the type-lookup fix.
+# - T29: a mentality change waiting when a goal goes in: the game's cancelChanges question, answered Yes.
+# - T25: at slow speed a dugout card applied puts a tweak on; a wrong number refused.
+# T25 sets the highlight speeds (the game's own preferences): the run around it reads them first and puts them back.
+# Run: tools/fm-round.py dry tests/live/round66.toml, then run --lang en,tr.
+
+[[test]]
+task = "T29"
+name = "a mentality change waiting when a goal goes in: the game's cancelChanges question, answered Yes"
+at = "kickoff"
+fresh = true
+fast = true
+repeat = 3
+tries = 5
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off" },
+  { read = "tactic mentality", path = "Choices.0", keep = "a" },
+  { read = "tactic mentality", path = "Choices.6", keep = "b" },
+  { until = "dialog", path = "?Type=cancelChanges.#", not = "0", seconds = 3600, every = 20, live = true, moment = true, doing = ["tactic mentality \"{a}\"", "tactic mentality \"{b}\""], note = "a goal with the change waiting; any other question is answered and played on" },
+  { read = "dialog", path = "?Type=cancelChanges.0.Buttons.?Slot=primary.0.Label", keep = "yes", live = true },
+  { run = "dialog \"{yes}\"" },
+  { read = "dialog", path = "?Type=cancelChanges.#", is = "0", live = true },
+  { stop = true },
+]
+
+[[test]]
+task = "T25"
+name = "slow speed: a dugout card applied puts a tweak on; a wrong number refused"
+at = "kickoff"
+fresh = true
+repeat = 3
+tries = 5
+steps = [
+  { run = "settings 'highlight speed' 1x" },
+  { run = "settings 'speed between highlights' 4x" },
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off; asked slowly (T92)" },
+  { read = "tweak", path = "?WillBeOn=True.#", keep = "before", live = true },
+  { until = "dugout apply", path = "TweaksOn.#", not = "0", seconds = 3600, every = 10, live = true, again = "status", moment = true, note = "an injury stop is answered with a substitute" },
+  { read = "tweak", path = "?WillBeOn=True.#", differs_from = "before", live = true },
+  { run = "dugout 99 apply", rc = "fail", note = "not a card" },
+  { stop = true },
+]

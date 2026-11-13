@@ -454,6 +454,13 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     UnityPlayer 0x29840 → 0x5deaf4 →` a bad address. The game had 535 MB then (`memory.tsv`), so not memory. One
     kind of death: a finalizer calls into Unity and jumps to a broken pointer. Next: name 0x1964b70 and 0x519950
     (which finalizer), and whether the object is one of the plugin's (injected class, a delegate kept alive or not).
+  - Read so far (13 Nov, static): the frame 0x1964b70 returns from a call to 0x4de7298, a managed method that takes
+    an instance from a getter (0x4de6f9c) and calls a virtual method of it (vtable +376) as a tail call; that lands
+    in UnityPlayer 0x29804, a bridge that calls a function from a table filled at runtime (UnityPlayer +0x1d97980,
+    args 0, &out, the object) and then 0x561c40, which leads to the bad jump. So: a finalizer hands an object to a
+    manager that frees it on the native side, and the native side jumps through a broken pointer. Next (game free):
+    plugin `whatis?anchor=6e77dc&rva=…` (new, built, not yet deployed) names the managed methods; the table slot's
+    target read with the game running.
 - [x] T150 FM27 27.0.1 changed Continue. The pref `continue_button_legacy_mode` became
   `continue_button_cycle_messages` (true = "Read Messages": each press opens the next unread message). On match day
   `ContinueGameEvent` no longer passes Fixtures; the game's `continue-button` (event `ContinueGame`) does.

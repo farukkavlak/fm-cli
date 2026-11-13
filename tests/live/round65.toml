@@ -1,0 +1,28 @@
+# Round 65: T117, a message's attachment is taken once the game says it is drawn: no text binder pending, no section
+# unresolved (plugin /attachment?state=1), and two readings agreeing. Three kinds of card in `window`: the league's
+# signings (a table: a heading and rows), the rules (lines), the scouting update (a long list). A second reading must
+# be the same; with another page over the inbox none is shown (negative).
+# Run: tools/fm-round.py dry tests/live/round65.toml, then run --lang en,tr.
+
+[[test]]
+task = "T117"
+name = "attachments read whole the first time: a table, lines, a long list; none once another page is up"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { run = "reply 1", note = "the league's signings: a table" },
+  { read = "inbox --attachment", path = "?Kind=head.#", is = "1" },
+  { read = "inbox --attachment", path = "?Kind=row.#", not = "0" },
+  { read = "inbox --attachment", path = "#", keep = "table" },
+  { read = "inbox --attachment", path = "#", same_as = "table" },
+  { run = "reply 3", note = "the league's rules: lines" },
+  { read = "inbox --attachment", path = "#", not = "0", keep = "rules" },
+  { read = "inbox --attachment", path = "#", same_as = "rules" },
+  { run = "reply 13", note = "the scouting update: a long list" },
+  { read = "inbox --attachment", path = "#", keep = "scouts" },
+  { read = "inbox --attachment", path = "?Kind=row.#", not = "0" },
+  { read = "inbox --attachment", path = "#", same_as = "scouts" },
+  { run = "squad", note = "another page over the inbox" },
+  { run = "inbox --attachment", rc = "fail", note = "negative: no message open, no attachment" },
+]
