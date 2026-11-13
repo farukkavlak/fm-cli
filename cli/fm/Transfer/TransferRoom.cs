@@ -18,7 +18,7 @@ internal static partial class Program
 	private const string RoomForm = "47a49f4ce1392d8468e5721382d62ab4";
 	private const string RoomData = "Human.Club.TransferRoom";
 	private const string AgentList = "Human.HumanPlayersOfferedByVariousAgentsOnTDD.TddAgentOfferedPlayerReferenceList";
-	private const string AdvertProps = "Club.Name,Club.DomesticDivision.Name,PositionString,RoleString,OOPPositionString,OOPRoleString,AgeRange,PlayingTime,ResponsesCountString";
+	private const string AdvertProps = "Club.Name,Club.DomesticDivision.Name,PositionString,RoleString,OOPPositionString,OOPRoleString,AgeRange,PlayingTime,ResponsesCountString,ResponsesCount";
 	private static readonly string[] RoomValueFlags = ["--position", "--oop-position", "--role", "--oop-role", "--min-age", "--max-age", "--time", "--type"];
 
 	private sealed record RoomRow(int Index, JsonElement Data);
@@ -154,18 +154,21 @@ internal static partial class Program
 		return (pointer, rows.Values.ToList());
 	}
 
+	// In the game's words, as the table shows them (T124): the plugin answers in English ("Future Prospect", "Any").
 	private static object AdvertJson(RoomRow r) => new
 	{
 		No = r.Index + 1,
-		Club = Field(r.Data, "Club.Name"),
-		Division = Field(r.Data, "Club.DomesticDivision.Name"),
-		Position = Field(r.Data, "PositionString"),
-		Role = Field(r.Data, "RoleString"),
-		OutOfPossession = Field(r.Data, "OOPPositionString"),
-		OutOfPossessionRole = Field(r.Data, "OOPRoleString"),
-		Age = Field(r.Data, "AgeRange"),
-		PlayingTime = Field(r.Data, "PlayingTime"),
-		Recommended = Field(r.Data, "ResponsesCountString"),
+		Club = GameWords.Of(Field(r.Data, "Club.Name")),
+		Division = GameWords.Of(Field(r.Data, "Club.DomesticDivision.Name")),
+		Position = GameWords.Of(Field(r.Data, "PositionString")),
+		Role = GameWords.Of(Field(r.Data, "RoleString")),
+		OutOfPossession = GameWords.Of(Field(r.Data, "OOPPositionString")),
+		OutOfPossessionRole = GameWords.Of(Field(r.Data, "OOPRoleString")),
+		Age = GameWords.Of(Field(r.Data, "AgeRange")),
+		PlayingTime = GameWords.Of(Field(r.Data, "PlayingTime")),
+		Recommended = GameWords.Of(Field(r.Data, "ResponsesCountString")),
+		// The same as the game's number: how many of ours the advert lists to offer (several are a list to choose from).
+		RecommendedCount = int.TryParse(Field(r.Data, "ResponsesCount"), out var count) ? count : 0,
 	};
 
 	private static int WriteAdverts(bool json, List<RoomRow> rows, bool withClub)
@@ -241,11 +244,18 @@ internal static partial class Program
 			var choices = many.GetProperty("Choices").EnumerateArray().Select((c, i) => (Text: c.GetString() ?? "", At: i)).ToList();
 			if (typed == null)
 			{
+				// As the game writes each entry: a script passes one back whole, the same in every language.
+				if (args.Contains("--json"))
+				{
+					Console.WriteLine(JsonOut.Of(choices.Select(c => new { No = c.At + 1, c.Text })));
+					return 0;
+				}
 				Console.WriteLine(L($"{Field(wanted.Data, "Club.Name")} · {Field(wanted.Data, "PositionString")}: name one of them:"));
 				foreach (var c in choices) Console.WriteLine($"  {c.Text}");
 				return 0;
 			}
-			var hits = Matching(choices, c => c.Text, typed);
+			var exact = choices.Where(c => string.Equals(c.Text, typed, StringComparison.OrdinalIgnoreCase)).ToList();
+			var hits = exact.Count == 1 ? exact : Matching(choices, c => c.Text, typed);
 			if (hits.Count != 1)
 			{
 				Console.Error.WriteLine(hits.Count == 0 ? L($"'{typed}' is not among this advert's players.") : L($"'{typed}' matches {hits.Count} players."));
@@ -320,7 +330,7 @@ internal static partial class Program
 		if (await RoomView(RoomIn, RoomOut, "HumanAdvertsResponsesTabString", loan) is { } failed) return Report(failed);
 		var name = loan ? "responses-loans-table" : "responses-transfers-table";
 		var (_, rows) = await RoomRows(name, "binding.PositionCombinedString", "Person.Name,Person.PositionCombinedString,Person.Age,Person.Club.Name,IsDofRecommendation");
-		var players = rows.Select(r => new { Player = Field(r.Data, "Person.Name"), Position = Field(r.Data, "Person.PositionCombinedString"), Age = Field(r.Data, "Person.Age"), Club = Field(r.Data, "Person.Club.Name") }).ToList();
+		var players = rows.Select(r => new { Player = Field(r.Data, "Person.Name"), Position = GameWords.Of(Field(r.Data, "Person.PositionCombinedString")), Age = Field(r.Data, "Person.Age"), Club = Field(r.Data, "Person.Club.Name") }).ToList();
 		if (json) { Console.WriteLine(JsonOut.Of(players)); return 0; }
 		if (players.Count == 0) { Console.WriteLine(L("No response to your requirements yet.")); return 0; }
 		Table.Write([L("PLAYER"), L("POSITION"), L("AGE"), L("CLUB")], players.Select(p => new[] { p.Player, p.Position, p.Age, p.Club }).ToList());
@@ -450,8 +460,20 @@ internal static partial class Program
 		var hit = tiles.Where(t => string.Equals(Field(t, "Label"), typed, StringComparison.OrdinalIgnoreCase)).ToList();
 		if (hit.Count != 1) return L($"'{typed}' is not a position here. They are: {string.Join(", ", tiles.Select(t => Field(t, "Label")))}");
 		if (Field(hit[0], "Enabled") != "True") return L($"'{typed}' cannot be chosen now.");
+		// The out-of-possession role list is narrowed to the position a moment after the tile is pressed (40 roles,
+		// then 4 for D (R), 13 Nov): read before that, a choice's place was the full list's and the select refused it.
+		// The list having changed is the sign; a position whose list stays the same only spends the bound.
+		var roles = oop ? await RoomListShown("advert.OOPRoleValue") : null;
 		await Fm.Get("click", ("ptr", Field(hit[0], "Pointer")));
+		if (roles != null) await Until(async () => await RoomListShown("advert.OOPRoleValue") != roles, seconds: 4, every: 0.2);
 		return null;
+	}
+
+	/// <summary>What a form list bound to <paramref name="binds"/> offers now, as one string; "" when it is not drawn.</summary>
+	private static async Task<string> RoomListShown(string binds)
+	{
+		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Binds") == binds && Field(d, "Visible") != "False");
+		return list.ValueKind == JsonValueKind.Object && list.TryGetProperty("Shown", out var shown) ? shown.ToString() : "";
 	}
 
 	private static async Task<string?> RoomFormChoice(string binds, string typed)
@@ -525,8 +547,8 @@ internal static partial class Program
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		var players = (await AgentOffered()).Select(p => new
 		{
-			Player = Field(p, "Person.Name"), Age = Field(p, "Person.Age"), Position = Field(p, "Person.PositionCombinedString"), Club = Field(p, "Person.Club.Name"),
-			Value = Field(p, "Person.TransferValueRange.TransferValueRangeString"), Wage = Field(p, "EstimatedWageDemandsString"), Status = Field(p, "TddOfferedPlayerStatusShortString"),
+			Player = Field(p, "Person.Name"), Age = Field(p, "Person.Age"), Position = GameWords.Of(Field(p, "Person.PositionCombinedString")), Club = Field(p, "Person.Club.Name"),
+			Value = Field(p, "Person.TransferValueRange.TransferValueRangeString"), Wage = Field(p, "EstimatedWageDemandsString"), Status = GameWords.Of(Field(p, "TddOfferedPlayerStatusShortString")),
 		}).ToList();
 		if (json) { Console.WriteLine(JsonOut.Of(players)); return 0; }
 		if (players.Count == 0) { Console.WriteLine(L("No agent has offered a player.")); return 0; }

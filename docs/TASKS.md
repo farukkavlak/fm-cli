@@ -143,14 +143,14 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   `CanRespond` True on it. TR + EN 3/3 (`round39.toml`).
 - [ ] T11 TransferRoom: `fm transferroom`. Adverts (transfer, loan, every row), offer a player, requirements (new, read, delete), agents' players (read, discard). TR + EN 3 × with the negatives (`tests/live/round2.toml`).
   - A player whose question has two answers: `offer` leaves the talk open for the player to answer.
-  - [ ] Left: `responses` and `activity --loan` hold their tables by names not seen yet (`responses-transfers-table`, `responses-loans-table`, `activity-loans-table`); no such rows in the scenario. Offer through a list of several players: measured by hand once, EN only. `discard --all` and a wrong word to `--time`, `--type`, `--oop-role`: TR + EN (list `round5`). A real value through `--oop-position`, `--oop-role`, `--role`, `--time`, `--type`: not run yet. Measured EN 8 Nov
+  - [x] Before: `responses` and `activity --loan` hold their tables by names not seen yet (moved below). Offer through a list of several players: measured by hand once, EN only. `discard --all` and a wrong word to `--time`, `--type`, `--oop-role`: TR + EN (list `round5`). A real value through `--oop-position`, `--oop-role`, `--role`, `--time`, `--type`: not run yet. Measured EN 8 Nov
     (`window`): the lists take the game's words only ("Squad Player"), no number, so one test cannot run in both
     languages; a read of each list's choices (`transferroom new --position <p> --choices --json`) would let a test
     keep one. `--role` with a wrong word listed every role, not the position's.
     Done: a list's choice is taken by the game's own value too (a playing time's code, a role's bit; an error lists
     each choice with it), the same in every language; a requirement made by values, read back, deleted; the wrong
     words and `discard --all`: TR + EN 3/3 (`round33.toml`). The type list and some roles carry no value: by word.
-  - [ ] 12 Nov: `new --choices [--json]` lists each of the form's lists with the game's values and sends nothing. FM27's
+  - [x] 12 Nov: `new --choices [--json]` lists each of the form's lists with the game's values and sends nothing. FM27's
     form opens on the out-of-possession pitch, so `--position` had put the position there and `--oop-position`
     took it off again (the screen agreed: "Mevki (Topa Sahipken)" empty). Each pitch is now chosen by its tab
     (`#ip-tab-button` / `#oop-tab-button`), a tile told by its frame (`#ip-pitch-frame` / `#oop-pitch-frame`).
@@ -159,6 +159,16 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     deleting alone, or a both-pitch one, passes.
   - [x] 13 Nov, after the type-lookup hook fix (771a3c3, T149): the same list (`round62.toml`) EN 3/3, TR 3/3, no
     fatal error at `delete 1 --loan`; the negative (nothing left to delete) refused. Wrong types were the set-up.
+  - [x] 13 Nov, `round64.toml` EN 3/3, TR 3/3 each: round61's list in full; an out-of-possession role, a playing
+    time and ages by value, read back; a goalkeeper's role refused for a defender; an advert listing several of ours
+    offered through. Fixed on the way: the out-of-possession role list is narrowed a moment after its position is
+    chosen (40 roles, then 4), so a value was taken from the full list and refused ("index 11 is outside 0..3"); the
+    change of the list is now waited for. `wanted`, `responses`, `agents` `--json` were English in a Turkish game
+    ("Future Prospect", "Any"): now the game's words, as the table (T124). Adverts carry `RecommendedCount` (the
+    game's `ResponsesCount`); `offer <no> --json` lists the game's entries, one passed back whole. Each entry's
+    `NewsActionData.ActionDataReferences` holds the player (a `PersonReference`): a way to choose him by identity.
+  - [ ] Left: `responses` and `activity --loan` tables (`responses-transfers-table`, `responses-loans-table`,
+    `activity-loans-table`) wait for a game with such rows.
 - [x] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
   - [x] Left: copy a plan (EventFmxSquadPlannerCopy, its data `copytype`): broken in the game itself (below). The list's entry sent by `select`, by a row's
     submit, and by `select` with its events queued (`fire=1`, Season After, EN 8 Nov) changes nothing in the other
@@ -456,6 +466,11 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   - Lead, 13 Nov 11:40: this Mac has 8 GB; with the game (3 GB), Chrome, VS Code and node open, 4.9 GB of 6 GB
     swap was in use and loads went from 85 s to 150–200 s. The crash reports carry no memory figures. `fm-round`
     now writes the memory and swap beside each kept log (`….memory.txt`). Next: a run with the other apps closed.
+  - 13 Nov 13:04, TR, `round64`: died while loading `window`, 95 s after the start, before any step (`load_retry`).
+    Same stack as every GC Finalizer death: `GameAssembly 0x7547c8 → 0x7548e4 → 0x519950 → 0x1964b70 →
+    UnityPlayer 0x29840 → 0x5deaf4 →` a bad address. The game had 535 MB then (`memory.tsv`), so not memory. One
+    kind of death: a finalizer calls into Unity and jumps to a broken pointer. Next: name 0x1964b70 and 0x519950
+    (which finalizer), and whether the object is one of the plugin's (injected class, a delegate kept alive or not).
 - [x] T150 FM27 27.0.1 changed Continue. The pref `continue_button_legacy_mode` became
   `continue_button_cycle_messages` (true = "Read Messages": each press opens the next unread message). On match day
   `ContinueGameEvent` no longer passes Fixtures; the game's `continue-button` (event `ContinueGame`) does.

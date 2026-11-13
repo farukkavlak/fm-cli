@@ -268,6 +268,13 @@ internal static class Submenus
 			var name = Schema.NameOf(key);
 			sb.AppendLine($"{indent}{key.ID,12}  {name,-32} {FmApi.Describe(entry)}");
 			if (depth < 2 && name != "ChildList" && entry?.Get()?.TryCast<DynamicReference>() != null) DumpRecord(entry, indent + "    ", depth + 1, sb);
+			// A list's items too (an offer row's ActionDataReferences, T11): each one dumped as a record.
+			else if (depth < 3 && name != "ChildList" && entry?.Get()?.TryCast<Il2CppSystem.Collections.Generic.List<SI.Core.TypedValue>>() is { } items)
+				for (var i = 0; i < items.Count && i < 8; i++)
+				{
+					sb.AppendLine($"{indent}    [{i}]");
+					DumpRecord(items[i], indent + "        ", depth + 1, sb);
+				}
 		}
 	}
 

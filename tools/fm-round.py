@@ -30,7 +30,7 @@ A test list (tests/live/*.toml):
 
 Steps:
   run = "<command>"        rc = 0 (default), a number, "fail" (any non-zero) or "any"; within = seconds it must answer in
-  read = "<command>"       run with --json; path = "A.B.0.C", "#" is a list's length, "?Field" keeps a list's entries with it set. Then is / not / same_as /
+  read = "<command>"       run with --json; path = "A.B.0.C", "#" is a list's length, "?Field" keeps a list's entries with it set, "?Field=v" with that value, "?Field>n" above n. Then is / not / same_as /
                            differs_from / present = true, and keep = "<name>" remembers the value
   until = "<command>"      a read asked again until it holds; seconds = the upper bound (default 300), every = the pace of asking (default 1)
                            doing = "<command>" runs between the readings instead of waiting (`talk 1` until the talk is over)
@@ -167,10 +167,13 @@ def saves_folder():
 
 def dig(data, path):
     """A value by its path; "#" is a list's length, "?Field" a list's entries with it set, "?Field=value" those with
-    that value. Raises KeyError when the path is not there."""
+    that value, "?Field>n" those with a number above n. Raises KeyError when the path is not there."""
     for part in path.split(".") if path else []:
         if part == "#":
             data = len(data)
+        elif part.startswith("?") and ">" in part:
+            field, value = part[1:].split(">", 1)
+            data = [entry for entry in data if float(entry.get(field) or 0) > float(value)]
         elif part.startswith("?") and "=" in part:
             field, value = part[1:].split("=", 1)
             data = [entry for entry in data if str(entry.get(field)) == value]

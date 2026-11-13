@@ -1,0 +1,74 @@
+# Round 64: T11, what is left of the TransferRoom.
+# - round61's list in full (it stopped at the fatal error T149 fixed): choices, role by value, both pitches, loan.
+# - real values: an out-of-possession role (the list is narrowed to the position a moment after it is chosen: now
+#   waited for), a playing time, an age range; read back in the game's words; a role the position's list has not refused.
+# - an advert with several of our players: `offer <no> --json` lists the game's entries, one is passed back whole.
+# Run: tools/fm-round.py dry tests/live/round64.toml, then run --lang en,tr.
+
+[[test]]
+task = "T11"
+name = "transferroom new: choices send nothing; role by value; position and oop position on their own pitches; loan"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { read = "transferroom new --position {position} --choices", path = "role.0.Value", is = "0" },
+  { read = "transferroom new --position {position} --choices", path = "role.1.Value", keep = "role" },
+  { read = "transferroom new --position {position} --choices", path = "type.1.Text", keep = "loan" },
+  { read = "transferroom wanted", path = "#", is = "0", note = "choices made nothing" },
+  { run = "transferroom new --position {position} --role {role}" },
+  { read = "transferroom wanted", path = "0.Position", same_as = "position", live = true },
+  { read = "transferroom wanted", path = "0.Role", not = "-", live = true },
+  { read = "transferroom wanted", path = "0.OutOfPossession", is = "-", live = true },
+  { run = "transferroom new --position {position} --oop-position {position}" },
+  { read = "transferroom wanted", path = "1.Position", same_as = "position", live = true },
+  { read = "transferroom wanted", path = "1.OutOfPossession", same_as = "position", live = true },
+  { read = "transferroom wanted", path = "1.Role", is = "-", live = true },
+  { run = "transferroom new --position {position} --oop-position zzzq", rc = "fail" },
+  { run = "transferroom new --position {position} --type {loan}" },
+  { read = "transferroom wanted --loan", path = "#", is = "1", live = true },
+  { read = "transferroom wanted", path = "#", is = "2" },
+  { run = "transferroom delete 1 --loan" },
+  { run = "transferroom delete 2" },
+  { run = "transferroom delete 1" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+]
+
+[[test]]
+task = "T11"
+name = "transferroom new with an oop role, a playing time and ages by value, read back in the game's words"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { read = "transferroom new --position {position} --oop-position {position} --choices", path = "oop-role.2.Value", keep = "oprole" },
+  { read = "transferroom new --position {position} --choices", path = "time.2.Value", keep = "time" },
+  { read = "transferroom new --position {position} --choices", path = "time.2.Text", keep = "timetext" },
+  { run = "transferroom new --position {position} --oop-position {position} --oop-role {oprole} --time {time} --min-age 18 --max-age 25" },
+  { read = "transferroom wanted", path = "0.OutOfPossessionRole", not = "-", live = true },
+  { read = "transferroom wanted", path = "0.PlayingTime", same_as = "timetext", live = true },
+  { read = "transferroom wanted", path = "0.Age", is = "18-25", live = true },
+  { run = "transferroom new --position {position} --oop-position {position} --oop-role 1", rc = "fail", note = "negative: a goalkeeper's role is not in a defender's list" },
+  { read = "transferroom wanted", path = "#", is = "1" },
+  { run = "transferroom delete 1" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+]
+
+[[test]]
+task = "T11"
+name = "transferroom offer through an advert listing several of our players"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { read = "transferroom", path = "?RecommendedCount>1.0.No", keep = "advert" },
+  { read = "transferroom offer {advert}", path = "#", not = "1" },
+  { read = "transferroom offer {advert}", path = "1.Text", keep = "who" },
+  { run = "transferroom offer {advert} zzzq", rc = "fail", note = "negative: nobody of that name" },
+  { read = "transferroom activity", path = "#", keep = "offered" },
+  { run = "transferroom offer {advert} {who}" },
+  { run = "talk 1", rc = "any", note = "some players' question has two answers, and offer leaves that to the player" },
+  { read = "transferroom activity", path = "#", differs_from = "offered" },
+]
