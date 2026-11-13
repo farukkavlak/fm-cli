@@ -2832,3 +2832,5 @@ The board asks once more:	Yönetim bir kez daha soruyor:
 \nTo answer: talk <number>	\nCevaplamak için: talk <numara>
 The {0} first-team prospects could not all be read.	A takıma aday {0} gencin hepsi okunamadı.
 The form has no in-possession tab.	Formda top bizdeyken sekmesi yok.
+The game hit a fatal error and is closing (its own error window is up); what was not saved is lost. Start it again: fm stop, then fm start.	Oyun ölümcül bir hataya düştü ve kapanıyor (kendi hata penceresi açık); kaydedilmeyenler kayboldu. Yeniden başlatmak için: fm stop, sonra fm start.
+  on to the match: {0} presses (unread messages first)	  maça doğru: {0} basış (önce okunmamış mesajlar)

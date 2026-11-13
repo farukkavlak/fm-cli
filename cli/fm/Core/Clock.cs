@@ -248,6 +248,25 @@ internal static partial class Program
 		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld"
 			or "CompetitionHub" or "ManagerVacancies" or "TransferHub" or "NewsForYou" or "CompetitionOverview" or "DataHub" or "YouthSetup";
 
+	/// <summary>The game's own id of the message last opened, "" when none is.</summary>
+	private static async Task<string> OpenedMessageId() =>
+		await LastOpenedMessage() is { } open ? Field(open, "UniqueId") : "";
+
+	/// <summary>
+	/// Presses the game's Continue: its own button (element `continue-button`, sending `ContinueGame`) when it is
+	/// drawn, else the event. Since 27.0.1 the event alone no longer takes a match day past Today's Fixtures to
+	/// the team selection; the button does (13 Nov, `kickoff`).
+	/// </summary>
+	internal static async Task<string> PressContinue()
+	{
+		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Name") == "continue-button" && Field(b, "Events").Split(',', StringSplitOptions.TrimEntries).Contains("ContinueGame")
+				&& Field(b, "Enabled") == "True");
+		return button.ValueKind == JsonValueKind.Object
+			? await Fm.Get("click", ("ptr", Field(button, "Pointer")))
+			: await Fm.Get("next");
+	}
+
 	/// <summary>
 	/// The state once the game has dealt with a Continue press, or null if it was still at it after
 	/// three minutes. <paramref name="before"/> is the state read before the press.
@@ -264,6 +283,10 @@ internal static partial class Program
 		var flow = Field(before, "State");
 		JsonElement now = before;
 		JsonElement module = default;
+		// With the game's "unread messages: read messages" preference (27.0.1's default), each press on the
+		// messages opens the next unread one and nothing else changes: the game's record of the message last
+		// opened is then the sign the press was taken.
+		var opened = flow == "Messages" ? await OpenedMessageId() : null;
 		async Task Read()
 		{
 			now = await Fm.GetJson("state");
@@ -275,7 +298,8 @@ internal static partial class Program
 		if (!await Until(async () =>
 		    {
 			    await Read();
-			    return Working() || Field(now, "State") != flow || Field(now, "Date") != Field(before, "Date") || Field(now, "Clock") != Field(before, "Clock");
+			    return Working() || Field(now, "State") != flow || Field(now, "Date") != Field(before, "Date") || Field(now, "Clock") != Field(before, "Clock")
+				    || (opened != null && await OpenedMessageId() != opened);
 		    }, seconds: 8, every: 0.1))
 			return now;
 

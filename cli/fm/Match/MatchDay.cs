@@ -225,11 +225,22 @@ internal static partial class Program
 		var inMatch = Field(state, "DuringMatch") == "True";
 		// On a match day the flow can rest on a page the game only wants looked at (Fixtures, after a settings
 		// page was left): the next fixture being today is the game's own word that Continue goes to the squad.
+		// With the game's "read messages" preference each press first opens the next unread message (69 of them in
+		// `kickoff`), then Today's Fixtures, then the team selection: pressed until the game is there, each press
+		// once the game has dealt with the one before.
 		if (!inMatch && Passable(Field(state, "State")) && await DaysToNextMatch() == 0)
 		{
-			await Fm.Get("next");
-			await Until(async () => Field(state = await Fm.GetJson("state"), "State") is "Tactics" or "SubmitTeam" or "SquadNumbers"
-				|| Field(state, "DuringMatch") == "True", seconds: 30, every: 0.25);
+			for (var press = 0; press < 300; press++)
+			{
+				var before = state;
+				await PressContinue();
+				if (await Settled(before) is not { } now) break;
+				state = now;
+				if (Field(state, "State") is "Tactics" or "SubmitTeam" or "SquadNumbers" || Field(state, "DuringMatch") == "True") break;
+				if (!Passable(Field(state, "State"))) break;
+				if (press > 0 && press % 10 == 0) Ui.Progress(L($"  on to the match: {press} presses (unread messages first)"));
+			}
+			Ui.Progress(null);
 			inMatch = Field(state, "DuringMatch") == "True";
 		}
 		if (!inMatch && Field(state, "State") is not ("Tactics" or "SubmitTeam" or "SquadNumbers"))

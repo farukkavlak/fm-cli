@@ -156,7 +156,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     (`#ip-tab-button` / `#oop-tab-button`), a tile told by its frame (`#ip-pitch-frame` / `#oop-pitch-frame`).
     `round61.toml` EN once: steps 1–17 passed (choices made nothing, role by value, both pitches, the loan word).
     Then `delete 1 --loan` brought up the game's own fatal error (T92), 3 of 3 with that list's steps by hand;
-    deleting alone, or a both-pitch one, passes. Left: find which earlier step sets it up; then TR + EN 3/3.
+    deleting alone, or a both-pitch one, passes.
+  - [x] 13 Nov, after the type-lookup hook fix (771a3c3, T149): the same list (`round62.toml`) EN 3/3, TR 3/3, no
+    fatal error at `delete 1 --loan`; the negative (nothing left to delete) refused. Wrong types were the set-up.
 - [x] T12 Squad Planner: `fm planner`. Seasons, positions (new plugin route `pitchtiles`, a tile by its element name), add, move, remove, suggest. TR + EN 3 × with the negatives. Best XI and contracts: `fm read best-xi`, `planner-contracts`.
   - [x] Left: copy a plan (EventFmxSquadPlannerCopy, its data `copytype`): broken in the game itself (below). The list's entry sent by `select`, by a row's
     submit, and by `select` with its events queued (`fire=1`, Season After, EN 8 Nov) changes nothing in the other
@@ -445,10 +447,23 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     delete 1` (the last requirement) in a row; `Player.log` had "Out of bounds index: -1" on `TransferRoomAdvertCard`
     before. Next: `fm` should tell this dialog (the game's process has it; read its text) and say "the game hit a
     fatal error", not "FM is not responding"; then see which deaths were these.
+  - 13 Nov night, after 771a3c3 (`round62.toml`): U19 friendly EN 5 runs, every game process died: 2 at "Leaving
+    the match" (GC Finalizer SIGBUS), 3 at the `stop --no-save` after (Timer-Scheduler SIGABRT). TR 5 runs: none.
+    Kick-off EN + TR: the team went in, the match got under way, no death. English again (see the lead above).
+- [ ] T150 FM27 27.0.1 changed Continue. The pref `continue_button_legacy_mode` became
+  `continue_button_cycle_messages` (true = "Read Messages": each press opens the next unread message). On match day
+  `ContinueGameEvent` no longer passes Fixtures; the game's `continue-button` (event `ContinueGame`) does.
+  - [x] `match` on match day presses the game's button until Tactics / team submission, a press counted as taken when
+    the opened message changes too. `kickoff` EN: 69 messages, about 45 s; EN + TR reached the team talk (`round62`).
+  - [ ] `next` and every other `/next` user under "Read Messages": one message per press? Measure, then same way.
 - [ ] T148 A player's save is never put at risk by the tool. When the game dies, the days since the last save are lost.
   - [ ] The game's own fatal-error dialog (T92, 12 Nov) is told and said ("the game hit a fatal error and is closing"),
     not "FM is not responding"; `fm start` after it works; `fm-round` restarts at once instead of waiting.
-  - [ ] Every death the tool's own steps can bring about is found and avoided (T11's delete sequence first).
+    Written 13 Nov: told by the game's main thread sitting in `NSAlert runModal` (`sample`, any language); a busy
+    command then says so (exit 70), `stop` kills the process at once, `fm-round` counts a death and goes on.
+    Left: seen on a real dialog (T11's no longer brings one).
+  - [ ] Every death the tool's own steps can bring about is found and avoided (T11's delete sequence first: gone
+    since 771a3c3, EN + TR 3/3).
   - [ ] Each kind of death's cause found (no saving around them: Faruk, 12 Nov, it slows play). Start from the
     fatal-error dialog's moments (`Player.log`, backtrace breadcrumbs, a stack sample of the game's main thread).
   - [ ] T92 and T40 closed or each left cause written here.

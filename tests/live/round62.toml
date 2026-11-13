@@ -1,0 +1,56 @@
+# Round 62 (night): the crash moments again, now that Il2CppInterop's type lookup hook is on the right function
+# (771a3c3, T149). Before it, on arm64 the hook took a function with another argument list; whether that was so before
+# 27.0.1 too is not known, and wrong types are one way to the GC Finalizer crashes of T92.
+# - T11: round 61's TransferRoom list; `delete 1 --loan` brought the game's fatal error 3 of 3 on 12 Nov.
+# - T92: round 47's instant result with the U19 friendly (lost 5 in about 13 while the match loaded).
+# - T92: team submission at kick-off, an instant result (died 3 of 4 on 6 Nov at "Submitting the team").
+# Run: tools/fm-round.py dry tests/live/round62.toml, then run --lang en, then --lang tr.
+
+[[test]]
+task = "T11"
+name = "transferroom new and delete with a loan requirement: no fatal error at delete --loan"
+at = "window"
+fresh = true
+repeat = 3
+steps = [
+  { read = "transferroom", path = "0.Position", keep = "position" },
+  { read = "transferroom new --position {position} --choices", path = "type.1.Text", keep = "loan" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+  { run = "transferroom new --position {position}" },
+  { run = "transferroom new --position {position} --type {loan}", note = "kept words come quoted already" },
+  { read = "transferroom wanted --loan", path = "#", is = "1", live = true },
+  { read = "transferroom wanted", path = "#", is = "1" },
+  { run = "transferroom delete 1 --loan" },
+  { read = "transferroom wanted --loan", path = "#", is = "0", live = true },
+  { run = "transferroom delete 1" },
+  { read = "transferroom wanted", path = "#", is = "0" },
+  { run = "transferroom delete 1", rc = "fail", note = "negative: nothing left to delete" },
+]
+
+[[test]]
+task = "T92"
+name = "instant result with the U19 friendly the same day: the match loads and plays through"
+at = "hunt-t135-u19"
+fresh = true
+repeat = 5
+fast = true
+steps = [
+  { start = "match --instant --no-talk --pick" },
+  { finish = true, note = "the instant result can be over before a reading sees the match under way" },
+  { run = "next", rc = "any" },
+  { read = "fixtures", path = "?Date=2034-03-19.0.Played", is = "True" },
+]
+
+[[test]]
+task = "T92"
+name = "team submission at kick-off: the match gets under way and the game lives"
+at = "kickoff"
+fresh = true
+repeat = 5
+fast = true
+steps = [
+  { start = "match --no-talk" },
+  { until = "status", path = "DuringMatch", is = "True", seconds = 600, every = 10, live = true },
+  { read = "status", path = "State", present = true, live = true, note = "the game still answers; OpponentSide is not in status at the team talk" },
+  { stop = true },
+]
