@@ -9,10 +9,13 @@ task = "T29"
 name = "a change waiting when a goal goes in (mentality or a team instruction): the game's cancelChanges question, answered Yes"
 at = "kickoff"
 fresh = true
-fast = true
 repeat = 2  # Faruk, 13 Nov: a moment that takes luck, 2 a language is enough for this one
+# Slow, as T25: a change waits only until the next dead ball; at full speed that is gone in a moment of real time,
+# so goals mostly fell between changes (1 in 4 matches). Slow, a change is nearly always waiting.
 tries = 5
 steps = [
+  { run = "settings 'highlight speed' 1x" },
+  { run = "settings 'speed between highlights' 4x" },
   { start = "match --play --no-talk" },
   { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off" },
   { read = "tactic mentality", path = "Choices.0", keep = "a" },
