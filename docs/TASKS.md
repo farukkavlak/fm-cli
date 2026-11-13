@@ -208,6 +208,9 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   match day) and `window` with a striker in goal (effectiveness 34): "no advice" from the first read, unchanged for 10 s. 12 Nov: `calm` (22 Oct, mid-season) and `career-2034-06-29`: "no advice" too. The lines are the panel's own
   `CritiquesList` items (bound tree, in the game's words); the team tactic's `EvaluationCritiques` stays unbound
   outside the panel. Waits only for a moment with a critique.
+  13 Nov, `window` TR: the Advice list sits under the planner's `InPossessionSetter`; with the pitch on Out of
+  Possession (its tab pressed, the screen agreed) "no advice" too. The phase is not why; the critiques are made in
+  the game's native code. Still waits for a moment.
 - [x] T15 Training week card: `schedule copy | paste | clear [this|<weeks ahead>]` by the card's own events, left by Confirm or Cancel, read back from the week's sessions; a session by `schedule set`. TR + EN: copy, paste, clear 2 ×, nothing copied, nothing to clear, a week the card does not offer.
 - [x] T16 Analysis pages (read only): Data Hub, Tactical Effectiveness, Tactics Feedback, Team / Formation /
   `fm read <page>`: the page by its GUID, its texts by `/shown` (in the body on top, by the game's hit test), tables by row. TR + EN, a list of 58 tests (`tests/live/read-pages.toml`), plus 3 repeats.
@@ -239,6 +242,8 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
   EN `spring` 8 Nov, round 36: a club's page opens from `search` (`searchopen?path=<ClubPath>`); its Team Report
   tab (Overview, Formation / Goal / Team Analysis) has no scouting or request button, only "Analysis Staff Rating";
   a club search row raises no menu (`actions?open=1&path=`). `ScoutTeam` is an `ActionID`, but on no menu seen.
+  13 Nov, `window` TR: the fixtures page's rows raise no menu (`actions?menus=1` empty); no staff responsibility
+  names opposition scouting; the UI bundles are compressed, so the event's name or hash is not found in them.
   8 Nov, `bonuses` (EN): `send ?event=GenericActionEvent&ID=ScoutTeam&ActionData=path:<the opponent>` reaches the
   game's handler (`FM.Game.PluginContextActionsModule.HandleActionEvent`), which wants `ActionData` as a `Record`
   (the menu entries' action data), not a team: "Unable to cast TeamReference to Record". Next: read the record a
@@ -317,6 +322,10 @@ How to work through this list: "Work in rounds" in `CLAUDE.md`.
     an opposition scout report.
   - [ ] A sign that the card is drawn (the open message's `NewsItem.DynamicCardId` node is there but unbound): taken
     now once two readings agree.
+    13 Nov, `window` TR, three cards traced every 30 ms: the open message's id and `DynamicCardId` come first, then
+    the card fills in 3–4 steps over 0.4–0.6 s. The game's binding queues (`Bindings.m_dirtyNodes`, `m_pendingOpen`)
+    are empty before the card is done (its rows come at layout), so they are not the sign. `Binder.IsReady` is per
+    binder and held only by a few element kinds. Two readings agreeing passes every test so far; kept.
   - [x] A figure and its label are one line ("88 · Done Deals"): one of a set of look-alike items (siblings built
     of the same element types, two texts or more each) is one line however deep its texts sit. By shape only,
     no names or words; Fitness tests, Staffing Advice and Scouting update came out the same as before (EN).
