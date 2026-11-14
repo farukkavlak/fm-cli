@@ -25,15 +25,13 @@ speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }  # mov
 
 [[scenario]]
 at = "hunt-cup-extra-time"
-serves = ["T90", "T156"]
+serves = ["T156", "T160", "T163"]
 speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
-steer = true  # towards a level score: extra time
 
 [[scenario]]
 at = "cup"
-serves = ["T90", "T156"]
+serves = ["T156", "T160", "T163"]
 speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
-steer = true
 
 [[moment]]
 task = "T160"
@@ -55,7 +53,7 @@ name = "a team instruction card in a TR match (pressing the one asked) reads bac
 probe = "dugout apply"
 seen = "Changes.?Kind=instruction.#"
 not = "0"
-quota = { tr = 2 }
+quota = {}  # passed live TR 14-15 Nov (4 cards)
 checks = [
   { path = "Done", is = "True" },
   { path = "InstructionsChanged.#", not = "0" },
@@ -69,7 +67,7 @@ name = "a player card applied names the player and his instruction, from and to"
 probe = "dugout apply"
 seen = "Changes.?Kind=player.#"
 not = "0"
-quota = { en = 2, tr = 2 }
+quota = { tr = 2 }  # EN passed live 2/2, 14 Nov
 checks = [
   { path = "Done", is = "True" },
   { path = "PlayerInstructionsChanged.#", not = "0" },
@@ -90,7 +88,7 @@ name = "extra time: a tweak on and off, read back each time, a wrong one refused
 probe = "status"
 seen = "Period"
 is = "ExtraTimeFirstHalf"
-quota = { tr = 1 }
+quota = {}  # closed by review 14 Nov; steering towards extra time put on tweaks that made the staff's cards refused
 steps = [
   { run = "pause" },
   { read = "tweak", path = "?WillBeOn=False.0.Id", keep = "t" },

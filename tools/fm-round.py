@@ -1125,7 +1125,7 @@ def hunt_problems(spec):
             found.append(f"{where}: probe is `dugout apply`, `status` or `injury`")
         if moment.get("probe") != "injury" and ("seen" not in moment or not {"is", "not"} & set(moment)):
             found.append(f"{where}: seen = <path> with is / not")
-        if not any(moment.get("task") in s.get("serves", []) for s in spec.get("scenario", [])):
+        if moment.get("quota") and not any(moment.get("task") in s.get("serves", []) for s in spec.get("scenario", [])):
             found.append(f"{where}: no scenario serves it")
         kept = set()
         for check in moment.get("checks", []):
