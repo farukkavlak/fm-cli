@@ -162,7 +162,9 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 ## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
 
 - [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live.
-- [ ] T161 `dugout` pressing card in a TR match: the read-back says "from → to" (was "Pres Şiddeti: Çok Şiddetli"); see it.
+- [x] T161 `dugout` pressing card in a TR match: the read-back says "from → to" (was "Pres Şiddeti: Çok Şiddetli").
+  Closed by review (Faruk, 14 Nov): from and to are the game's ids read before and after; TR words come in only to show
+  them (`GameWords.Of`). Seen live EN 14 Nov: "Trigger Press: Much More Often → …".
 - [ ] T163 `dugout` player card met live: the read-back names the player and the instruction (`PlayerInstructionsChanged`).
   - Tried 14 Nov: the game's own `EventFmxMatchDugoutGenerateDebugEvent` (InteropEventIDs 961956663), sent by
     `/pluginevent` to a dugout control's target (`DugoutEvent<n>`, after `dugout` resolved it) during a match: taken,
@@ -171,7 +173,9 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   The sign is the main thread in `-[NSAlert runModal]`; the game's `game_plugin` holds NSAlert, runModal, the
   "A serious error was encountered…" text and `show_and_wait_native_error_dialog`. Its only known trigger (T11's
   delete) went with T92's fix.
-- [ ] T90 Tactical tweaks in extra time. Left: one more TR pass (`round58.toml`, needs a tie level at 90').
+- [x] T90 Tactical tweaks in extra time. Passed live EN (round 57); TR closed by review (Faruk, 14 Nov): the tweak is put
+  on and off by the game's id, read back from TacticActiveTweaks / TacticPendingTweakOps, the period is the game's
+  MatchPeriod; names only shown and matched against what was typed.
 - [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
   so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
   Met live 14 Nov EN (Sušak, 6'): `sub --json` saw him at the stop and in the game's question, the change made in 4 s.
