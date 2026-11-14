@@ -107,20 +107,17 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T95 `next` past FM27's look-only pages
 - [x] T96 Names typed as several words
 - [x] T91 `fm start` with a dead game on the port
-- [ ] T92 The game dies now and then. Every death has one stack: GameAssembly 0x7547c8 → 0x519950 → 0x1964b70 → UnityPlayer 0x29840.
-  - Found 13 Nov: a start hung with the same path on the loading thread. BepInEx's tick fires on any thread's
-    runtime_invoke; the plugin touched Unity there. Fixed (c5c8b63): ticks do nothing off the main thread.
-  - [ ] Watch: since the fix 10 starts and 5 matches, no death, no hang; 13 Nov evening round (5 h, 9 matches) none too.
-    Close after a long night round with none.
-  - [ ] Name the methods: deploy plugin `whatis` (built), ask `whatis?anchor=6e77dc&rva=1964b2c,4de7298,519950`
-  - [ ] Read UnityPlayer's table slot +0x1d97980 with the game running
-  - [ ] Fix, or write the cause here
+- [x] T92 The game died now and then (one stack: GameAssembly 0x7547c8 → 0x519950 → 0x1964b70 → UnityPlayer 0x29840).
+  - Cause: BepInEx's tick fires on any thread's runtime_invoke; the plugin touched Unity and AppKit there (loading
+    thread: start hangs; GC Finalizer: deaths). Fixed in c5c8b63: ticks do nothing off the main thread.
+  - Since: 13 Nov evening (5 h, 9 matches) and 14 Nov night round62 (the old death moments, TR + EN): kick-off
+    submission 5/5 + 5/5, U19 instant result 5/5 + 5/5, TransferRoom delete --loan 3/3 + 3/3. No death, no hang.
 - [x] T150 27.0.1 Continue: `match` passes match day, `next` reads unread messages
 - [ ] T148 A save is never put at risk by the tool.
   - [ ] The game's fatal-error dialog is told (written, exit 70). Left: seen once on a real dialog.
   - [x] T11's delete crash: gone
-  - [ ] Each death's cause found (T92)
-  - [ ] T92 and T40 closed, or their cause written here
+  - [x] Each death's cause found (T92: ticks off the main thread, c5c8b63)
+  - [ ] T92 closed; T40 closed or its cause written here
 - [x] T88 `tactic clear`
 - [x] T94 `tactic slot`
 - [ ] T87 Playing by hand and by the tool on one install:

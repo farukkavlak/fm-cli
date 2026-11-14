@@ -887,6 +887,14 @@ def play(test):
                 side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
             elif "finish" in step:
                 side.wait(timeout=COMMAND_LIMIT)
+                # The match command also ends where the match stops for something (a card, an injury, a question):
+                # the stop is answered and the match carried on, until the game is out of the match.
+                restarts = 0
+                while restarts < 12 and read_json("status", 120).get("DuringMatch") == "True":
+                    restarts += 1
+                    answer_stop(step.get("again"), kept)
+                    side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                    side.wait(timeout=COMMAND_LIMIT)
                 side = None
             elif "stop" in step:
                 side.terminate()
