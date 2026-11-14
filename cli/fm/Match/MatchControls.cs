@@ -206,6 +206,7 @@ internal static partial class Program
 		if (entries.Count == 0 && !await DugoutShowing())
 		{
 			var marks = TimelineMarks(await Fm.GetJson("buttons", ("json", "1")));
+			if (marks.Count == 0) ForgetTimelines();
 			if (marks.Count > 0 && SeenCards(Field(await Fm.GetJson("state"), "Date"), marks) is { } seen)
 				(entries, fromMemory) = (seen, true);
 			else if (marks.Count > 0)
@@ -305,8 +306,10 @@ internal static partial class Program
 			Console.Error.WriteLine(L("The advice could not be opened in the panel; the list may have changed: dugout"));
 			return 1;
 		}
+		// The panel is drawn twice and both copies' buttons can be enabled: only the one on show acts (pressing the other
+		// did nothing, the card stayed open: T157). The game marks it so (Visible), whatever the listing's order.
 		var button = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(b => Field(b, "Events").Contains(event_, StringComparison.Ordinal) && Field(b, "Enabled") == "True");
+			.FirstOrDefault(b => Field(b, "Events").Contains(event_, StringComparison.Ordinal) && Field(b, "Enabled") == "True" && Field(b, "Visible") == "True");
 		if (button!.ValueKind != JsonValueKind.Object)
 		{
 			Console.Error.WriteLine(L("That button is closed for this advice right now."));
@@ -354,7 +357,11 @@ internal static partial class Program
 		if (done && instructionsBefore.Count > 0)
 			foreach (var (id, option) in await TeamInstructionsNow(catalogue))
 				if (instructionsBefore.TryGetValue(id, out var was) && was != option && catalogue.FirstOrDefault(c => c.Id == id) is { } i)
-					instructions.Add($"{GameWords.Of(i.Name)}: {GameWords.Of(i.Options.FirstOrDefault(o => o.Id == option).Name ?? option.ToString())}");
+				{
+					// Where it was too: a change read the wrong way (pressing less read back as "much more intense", T157) is seen whole.
+					string Named(long value) => GameWords.Of(i.Options.FirstOrDefault(o => o.Id == value).Name ?? value.ToString());
+					instructions.Add($"{GameWords.Of(i.Name)}: {Named(was)} → {Named(option)}");
+				}
 		var mentality = new List<string>();
 		if (done && mentalityBefore != null && await MatchMentality() is { } mentalityAfter && mentalityAfter.Number != mentalityBefore.Value.Number)
 			mentality.Add($"{GameWords.Of(mentalityBefore.Value.Name)} → {GameWords.Of(mentalityAfter.Name)}");
@@ -495,14 +502,15 @@ internal static partial class Program
 			if (known.FirstOrDefault(c => c.Index == index && !c.Open) is { } closed)
 			{
 				cards.Add(closed);
-				if (closed.Type != ScoreUpdateCard) entries.Add(new(closed.Minute, index, pointer, closed.Text, false, closed.TweakId, closed.TweakAction));
+				if (closed.Type != ScoreUpdateCard && closed.Text.Length > 0) entries.Add(new(closed.Minute, index, pointer, closed.Text, false, closed.TweakId, closed.TweakAction));
 				continue;
 			}
 			if (!pressed) showing = (await DugoutNow())?.Index;
 			pressed = true;
-			if (await ShowDugoutEntry(pointer, index) is not { Text.Length: > 0 } card) continue;
+			// A card with no sentence (an analysis drawn as a chart) is still a card of this timeline: kept, not listed.
+			if (await ShowDugoutEntry(pointer, index) is not { } card) continue;
 			cards.Add(new(index, minute, card.Type, card.Actionable, card.Text, card.TweakId, card.TweakAction));
-			if (!card.IsScoreUpdate) entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable, card.TweakId, card.TweakAction));
+			if (!card.IsScoreUpdate && card.Text.Length > 0) entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable, card.TweakId, card.TweakAction));
 		}
 		if (cards.Count == marks.Count) RememberTimeline(date, layout, cards);
 
@@ -558,12 +566,22 @@ internal static partial class Program
 		catch (IOException) { }
 	}
 
+	/// <summary>
+	/// An empty timeline in a match is a match's start: what was kept belongs to another one (a save played again
+	/// is the same day), so it goes; a later match could otherwise meet a timeline laid out the same.
+	/// </summary>
+	internal static void ForgetTimelines()
+	{
+		try { if (File.Exists(SeenTimelinesFile)) File.Delete(SeenTimelinesFile); }
+		catch (IOException) { }
+	}
+
 	/// <summary>The advice on this very timeline when it was read whole before; null when it was not (then the panel is waited for).</summary>
 	private static List<DugoutEntry>? SeenCards(string date, List<(int Index, string Minute)> marks)
 	{
 		var layout = Layout(marks);
 		if (date.Length == 0 || LoadTimelines().FirstOrDefault(t => t.Date == date && t.Layout == layout) is not { } seen) return null;
-		return seen.Cards.Where(c => c.Type != ScoreUpdateCard).Select(c => new DugoutEntry(c.Minute, c.Index, "", c.Text, c.Open, c.TweakId, c.TweakAction)).ToList();
+		return seen.Cards.Where(c => c.Type != ScoreUpdateCard && c.Text.Length > 0).Select(c => new DugoutEntry(c.Minute, c.Index, "", c.Text, c.Open, c.TweakId, c.TweakAction)).ToList();
 	}
 
 	private static string Mark(DugoutEntry entry) => entry.Open ? L("  [can be applied]") : "";

@@ -1,0 +1,23 @@
+# Round 67b: round 67 once in Turkish after its last fixes. the dugout without its panel (T157). Slow speed, as T25: a card applied reads back its change;
+# while the panel is hidden the list and "nothing to apply" come at once (the log keeps each call's time).
+# Run: tools/fm-round.py dry tests/live/round67.toml, then run --lang tr,en.
+
+[[test]]
+task = "T157"
+name = "slow speed: a dugout card applied reads back its change; no answer waits a minute for the panel"
+at = "kickoff"
+fresh = true
+repeat = 1  # 14 Nov: the TR pass again after the last fixes (Faruk: one match is enough)
+tries = 5
+steps = [
+  { run = "settings 'highlight speed' 1x" },
+  { run = "settings 'speed between highlights' 4x" },
+  { start = "match --play --no-talk" },
+  { until = "tweak", path = "#", not = "0", seconds = 600, every = 10, live = true, again = "dugout apply", note = "kicked off" },
+  { until = "dugout apply", path = "Applied.#", not = "0", seconds = 3600, every = 10, live = true, again = "status", moment = true, note = "a card applied, read back by the command; an injury stop is answered with a substitute" },
+  { run = "dugout", within = 20, note = "the list: from the panel or the timeline last read, never the minute's wait" },
+  { run = "dugout", within = 20 },
+  { run = "dugout", within = 20 },
+  { run = "dugout 99 apply", rc = "fail", within = 20, note = "not a card" },
+  { stop = true },
+]

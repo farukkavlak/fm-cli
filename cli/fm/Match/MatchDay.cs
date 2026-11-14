@@ -524,6 +524,7 @@ internal static partial class Program
 			// New advice from the assistant lands on the Dugout timeline under its minute. The
 			// panel shows the newest entry, and only between highlights.
 			var marks = DugoutMarks(controls);
+			if (marks.Count == 0 && InPlay(state)) ForgetTimelines();
 			if (marks.Count > 0 && marks.Any(m => !advised.Contains(m)))
 			{
 				// Every new card, not only the selected one: two can land between looks. A hidden panel, or one

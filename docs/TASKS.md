@@ -36,7 +36,6 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 ## 2. New in FM27
 
 - [x] T10 Tactical tweaks (`fm tweak`)
-- [ ] T90 Tactical tweaks in extra time. Left: one more TR pass (`round58.toml`, needs a tie level at 90').
 - [x] T11 TransferRoom (`fm transferroom`): adverts, offers, requirements, agents. Waiting part: T154.
 - [x] T12 Squad Planner (`fm planner`). Copy is broken in the game itself.
 - [x] T13 Personalised roles, swap two players
@@ -55,12 +54,14 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T25 `dugout` cards: apply puts a tweak or team instruction on, read back; a wrong number refused. TR 2/2, EN 2/2.
 - [ ] T157 `dugout` cards, what is left after T25:
   - [ ] A mentality card ("Set team mentality") is read back from the match tactic's `Mentality` now: see one live
-  - [ ] A 28' advice card ("tell them to be more patient") Open, Do-it pressed 3 times, never taken: why
-  - [ ] Each apply waits up to 60 s for the panel hidden during a move (60–100 s calls at slow speed).
-    Measured 14 Nov: the timeline (`Match.MatchDugoutTimelineEvent0..5`) is bound only with the panel up, nowhere else.
-    Tweak cards already go without it; instruction and mentality cards still need the panel. Left: another way, or keep it.
-  - [x] "Press less aggressively" read back reversed: not seen again. Live 14 Nov EN, the tweak on: Trigger Press
-    Much More Often → More Often, Line of Engagement High Press → Low Block (right way); back at the whistle
+  - [x] A card pressed and never taken: the panel is drawn twice and the hidden copy's button was pressed; now only
+    the one the game shows (`Visible`). Round 67 (14 Nov): EN 2/2 (3 cards), TR 2/2 (3 cards), each taken at once
+  - [x] The minute's wait: the timeline's marks stay listed with the panel away and the whole timeline last read is
+    kept, so the list and "nothing to apply" come in 1–5 s (were 60–100 s); a card is done when its change reads back.
+    Left as it is: a mark never read with the panel up, or an instruction or mentality card to press, waits for the panel
+  - [ ] Pressing less read back in TR as "Pres Şiddeti: Çok Şiddetli" (EN: Trigger Press More Often, the right way).
+    The read-back now says "from → to": see it in a TR match
+  - [ ] A player card ("Tell Salifou: Shoot Less Often") is taken but nothing is read back: player instructions
 - [x] T155 Team instruction names in a Turkish game came out in English: shown through `GameWords` (TR and EN checked)
 - [x] T26 `pause` / `resume`
 - [x] T27 `holiday --jobs`
@@ -103,9 +104,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 - [x] T39 `fm crawl` closes a popup that holds the queue
 - [ ] T40 `fm stop`: the game sometimes hangs on its way out (process stuck, not killable). Cause unknown.
-  - [ ] Watch: since T92's fix (ticks off the main thread, c5c8b63) 30+ stops on 13–14 Nov, none hung (all under 45 s).
-    14 Nov: one load did not reach the main menu at first, the retry did (300 s in all).
-    Maybe the same cause; close after more rounds with none.
+  - [x] Since T92's fix (c5c8b63) 65 stops and loads in the round logs, none hung (longest 45 s): the hangs were T92's.
+  - [ ] Crash reports: the GC Finalizer deaths (T92) stopped with the fix; a SIGABRT on the game's `Timer-Scheduler`
+    thread is still written now and then as the game quits (4 since the fix, each 10–20 s after a stop). Saves are
+    written before the quit. Left: does macOS show a "quit unexpectedly" window to the player?
 - [x] T41 `settings language`
 - [x] T42 `status` with a held queue
 - [x] T43 Squad numbers and list at a season's start
@@ -155,10 +157,12 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 ## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
 
+- [ ] T90 Tactical tweaks in extra time. Left: one more TR pass (`round58.toml`, needs a tie level at 90').
 - [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
   so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
-  Not met on 14 Nov (one match, no injury). The test tool now keeps the run before (`*.prev.log`) and prints
-  why `sub` was not read at a stop: that log was written over before.
+  Met live 14 Nov EN (Sušak, 6'): `sub --json` saw him at the stop and in the game's question, the change made in 4 s.
+  Likely cause: fm-round picked the substitute through `squad`, which cannot open in a match, so the first man
+  (the goalkeeper) was sent; `sub --json` now gives each substitute's position. Left: one test stop that takes him off.
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique.
 - [ ] T55 Season's end: vision meeting, awards, contracts ending, retirements
 - [x] T56 Transfer window and deadline day
