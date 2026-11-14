@@ -137,6 +137,6 @@ internal static partial class Program
 	/// <summary>Why the game's FM menu is not there: most often a screen with no menus at all (the results after a match).</summary>
 	private static async Task<string?> FmMenuMissing() =>
 		(await Fm.GetJson("pages")).GetArrayLength() == 0
-			? Lf("The game is on a screen without a menu ({0}); the FM menu cannot be opened. To go past it: next", Field(await Fm.GetJson("state"), "State"))
+			? await PagesClosed()
 			: L("The game's FM menu was not found.");
 }

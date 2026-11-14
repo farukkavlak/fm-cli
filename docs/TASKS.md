@@ -56,11 +56,16 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [ ] T157 `dugout` cards, what is left after T25:
   - [ ] A mentality card ("Set team mentality") is read back from the match tactic's `Mentality` now: see one live
   - [ ] A 28' advice card ("tell them to be more patient") Open, Do-it pressed 3 times, never taken: why
-  - [ ] Each apply waits up to 60 s for the panel hidden during a move (60–100 s calls at slow speed)
-  - [ ] "Press less aggressively" read back "Pressing Intensity: Much More Intense" among its changes: check
+  - [ ] Each apply waits up to 60 s for the panel hidden during a move (60–100 s calls at slow speed).
+    Measured 14 Nov: the timeline (`Match.MatchDugoutTimelineEvent0..5`) is bound only with the panel up, nowhere else.
+    Tweak cards already go without it; instruction and mentality cards still need the panel. Left: another way, or keep it.
+  - [x] "Press less aggressively" read back reversed: not seen again. Live 14 Nov EN, the tweak on: Trigger Press
+    Much More Often → More Often, Line of Engagement High Press → Low Block (right way); back at the whistle
 - [x] T155 Team instruction names in a Turkish game came out in English: shown through `GameWords` (TR and EN checked)
 - [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
   so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
+  Not met on 14 Nov (one match, no injury). The test tool now keeps the run before (`*.prev.log`) and prints
+  why `sub` was not read at a stop: that log was written over before.
 - [x] T26 `pause` / `resume`
 - [x] T27 `holiday --jobs`
 - [x] T28 `youth candidates`
@@ -86,7 +91,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T30 Active tactic's name
 - [x] T31 `scout player --cancel`
 - [x] T32 `training --trait-suggest` (not in FM27)
-- [ ] T151 `squad` on match day (before kick-off) fails: "'GeneralInfo' view chosen but no 'Wage' data".
+- [x] T151 `squad` on match day: reads (cold, twice, after `fixtures`, after `tactic`; TR and EN). In the pre-match
+  talk the game has no menus: it now says the match's commands and `talk`, not `next` (3/3 TR, 3/3 EN)
 
 ## 4. Pages no command read
 
@@ -102,6 +108,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T39 `fm crawl` closes a popup that holds the queue
 - [ ] T40 `fm stop`: the game sometimes hangs on its way out (process stuck, not killable). Cause unknown.
   - [ ] Watch: since T92's fix (ticks off the main thread, c5c8b63) 30+ stops on 13–14 Nov, none hung (all under 45 s).
+    14 Nov: one load did not reach the main menu at first, the retry did (300 s in all).
     Maybe the same cause; close after more rounds with none.
 - [x] T41 `settings language`
 - [x] T42 `status` with a held queue

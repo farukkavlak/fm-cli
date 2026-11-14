@@ -198,6 +198,18 @@ internal static partial class Program
 	}
 
 	/// <summary>
+	/// Why no page can be opened: a screen of its own (the round's results after a European night, a press
+	/// conference) takes the menus away until it is moved past; in a match, its talks too, the pages wait for it to end.
+	/// </summary>
+	internal static async Task<string> PagesClosed()
+	{
+		var state = await Fm.GetJson("state");
+		return Field(state, "DuringMatch") == "True"
+			? L("Pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role, talk; to go on: match")
+			: Lf("The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next", Field(state, "State"));
+	}
+
+	/// <summary>
 	/// Right after a match the navigation is rebuilt and the page list is empty for a while
 	///; it is waited for rather than reported as no such page. Now and then the
 	/// game is laying out its screen when the page is asked for, and refuses to add the panel
@@ -208,14 +220,7 @@ internal static partial class Program
 	{
 		if (!await Until(async () => (await Fm.GetJson("pages")).GetArrayLength() > 0, seconds: 5, every: 0.5))
 		{
-			// A screen of its own — the round's results after a European night, a press
-			// conference — takes the menus away until it is moved past.
-			var state = await Fm.GetJson("state");
-			// In a match the pages wait for it to end; what can be done meanwhile is the match's own.
-			if (Field(state, "DuringMatch") == "True")
-				return L("error: pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role; to go on: match");
-			var flow = Field(state, "State");
-			return L($"error: the game is on a screen without a menu ({flow}); pages cannot be opened. To go past it: next");
+			return "error: " + await PagesClosed();
 		}
 
 		var answer = "";

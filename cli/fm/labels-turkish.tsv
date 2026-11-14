@@ -1392,7 +1392,6 @@ Fouls	Faul
 {0}% of the wage budget	maaş bütçesindeki payı %{0}
 {0} places free	{0} boş yer
 error: {0}, but the page did not show what was expected	error: {0}, ama sayfa beklenen içeriği göstermedi
-error: the game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next	error: oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next
 age	yaş
 nation	ülke
 contract	sözleşme
@@ -1945,7 +1944,6 @@ Do not send, leave the screen open	Gönderme, ekranı açık bırak
 A new tactic will be built in a free slot and made active; the active one ({0}) stays in its slot.	Yeni taktik boş bir yuvada kurulup etkin olacak; şimdiki ({0}) kendi yuvasında kalır.
 The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next	Oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next
 Ready: {0} ({1}).	Hazır: {0} ({1}).
-The game is on a screen without a menu ({0}); the FM menu cannot be opened. To go past it: next	Oyun menüsüz bir ekranda ({0}); FM menüsü açılamıyor. Geçmek için: next
 The game does not take number changes right now: numbers are saved at the start of the season or when a new signing arrives, and then do not change until the end of the season.	Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince kaydediliyor, sonra sezon sonuna kadar değişmiyor.
 HEIGHT	BOY
 their name	adı
@@ -1995,7 +1993,6 @@ AST	AS
 MATCH ({0})	MAÇ ({0})
 , crowd {0}	, {0} seyirci
 , {0} shown	, ekranda görünen {0}
-error: pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role; to go on: match	error: maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role; sürdürmek: match
 first XI	ilk 11
 There is an open contract talk with {0}. Finish or cancel it first: contract --cancel   (then: contract {0} --agent)	{0} ile açık bir sözleşme görüşmesi var. Önce onu bitir ya da iptal et: contract --cancel   (sonra: contract {0} --agent)
 Our ratings (live): {0}   ·   official: report	Puanlarımız (canlı): {0}   ·   resmî: report
@@ -2838,3 +2835,4 @@ The game hit a fatal error and is closing (its own error window is up); what was
 The open message has no attachment.	Açık mesajın eki yok.
   Team instruction: {0}	  Takım talimatı: {0}
   Mentality: {0}	  Mentalite: {0}
+Pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role, talk; to go on: match	Maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role, talk; sürdürmek: match

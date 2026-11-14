@@ -812,8 +812,10 @@ def answer_stop(again, kept):
             fm(f'dialog "{yes["Label"]}"', 120)
     try:
         subs = read_json("sub", 120)
-    except Failed:
+    except Failed as error:
         subs = {}
+        if dialogs:
+            print(f"       at a {dialogs[0].get('Type')} stop, `sub` was not read: {str(error)[:200]}", flush=True)
     for hurt in subs.get("Injured", []):
         if on := bench_man(subs, keeper_of(subs, hurt)):
             fm(f'sub "{hurt}" "{on}"', 300)
@@ -980,7 +982,11 @@ def run(args):
         LANG_NOW = lang
         rows = []
         loaded = None
-        LOG = open(RESULTS / f"{stem}-{lang}.log", "w")
+        # The run before is kept beside it: an injury stop once seen only there was lost when a second run wrote over it (T156).
+        log_file = RESULTS / f"{stem}-{lang}.log"
+        if log_file.exists():
+            log_file.replace(log_file.with_suffix(".prev.log"))
+        LOG = open(log_file, "w")
         stop_watch = threading.Event()
         threading.Thread(target=watch_memory, args=(RESULTS / f"{stem}-{lang}.memory.tsv", stop_watch), daemon=True).start()
         for test in sorted(tests, key=lambda t: t["at"]):  # one load per scenario where the tests allow it

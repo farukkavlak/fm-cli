@@ -287,7 +287,7 @@ internal static partial class Program
 		{
 			if (!await Until(async () => Sent(await OpenPage(Screen.Squad))))
 				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
-					? Lf("The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next", Field(await Fm.GetJson("state"), "State"))
+					? await PagesClosed()
 					: L("The 'First Team' page could not be opened."));
 
 			if (!await Until(() => Choose(view)))
