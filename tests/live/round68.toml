@@ -63,6 +63,7 @@ steps = [
 [[test]]
 task = "T153"
 name = "a refused opposition change at its first step changes nothing"
+repeat = 3
 at = "calm"
 fresh = true
 steps = [

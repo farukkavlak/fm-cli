@@ -132,14 +132,14 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [ ] After a Steam update the tool says so and puts BepInEx back (or says how)
   - [ ] A game left on a dialog or another screen: every command gets past it
   - [ ] The tool changes for good only what the player asked
-- [ ] T153 AI safety (from `AI.md`; rules in `AI.md` Safety):
+- [x] T153 AI safety (from `AI.md`; rules in `AI.md` Safety):
   - [x] Every tool marked read-only, reversible or high-impact, next to its definition
   - [x] CLI, MCP and sentences follow the same rules
   - [x] A bench: nothing that changes the game runs without approval (`SafetyTests.cs`; `round68.toml`: read-only tools change nothing, EN + TR)
   - [x] A run that fails half way says what was done (sentence chains, `opposition`, contract terms; seen in EN + TR)
-  - [ ] `round68.toml` half-way tests pass in TR through the test tool: blocked by T159
-- [ ] T159 `opposition --json` right after a load gives one placeholder row ("A01") before the card is filled:
-  the CLI takes any row as ready. Find the sign the rows are bound (plugin `Opposition.cs`), then rerun `round68.toml`.
+  - [x] `round68.toml` passes EN + TR (3/3 each half-way test)
+- [x] T159 `opposition` right after a load: the club's name over the card took the first row's lists ("A01").
+  Each list now goes with its own row; a half-drawn card reads empty. Checked cold, card open, other page open (TR); round68 EN + TR.
 
 ## 6. Plugin API changes in FM27
 
