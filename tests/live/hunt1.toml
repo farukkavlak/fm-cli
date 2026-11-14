@@ -1,0 +1,89 @@
+# Hunt 1 (14 Nov night): every match moment still open in one hunt (fm-round.py hunt).
+# Each match is watched for all of them at once: every dugout card applied and told by what it changed
+# (the game's ids in `dugout apply --json` Changes), every stop answered, a hurt man taken off and read back,
+# extra time met by its period. Rare moments: 2 a language (Faruk, 13 Nov); T90 needs only its TR pass.
+# Run: tools/fm-round.py hunt tests/live/hunt1.toml --dry, then hunt ... --lang en,tr --hours 6.
+
+[[scenario]]
+at = "kickoff"
+serves = ["T160", "T161", "T163", "T156"]
+speeds = { "highlight speed" = "1x", "speed between highlights" = "4x" }  # slow: a card stays to be taken (T25)
+
+[[scenario]]
+at = "hunt-cup-extra-time"
+serves = ["T90", "T156"]
+fast = true
+steer = true  # towards a level score: extra time
+
+[[scenario]]
+at = "cup"
+serves = ["T90", "T156"]
+fast = true
+steer = true
+
+[[moment]]
+task = "T160"
+name = "a mentality card applied reads back the match tactic's mentality, from and to"
+probe = "dugout apply"
+seen = "Changes.?Kind=mentality.#"
+not = "0"
+quota = { en = 2, tr = 2 }
+checks = [
+  { path = "Done", is = "True" },
+  { path = "MentalityChanged.#", not = "0" },
+  { path = "Changes.?Kind=mentality.0.From", keep = "from", present = true },
+  { path = "Changes.?Kind=mentality.0.To", differs_from = "from" },
+]
+
+[[moment]]
+task = "T161"
+name = "a team instruction card in a TR match (pressing the one asked) reads back from and to"
+probe = "dugout apply"
+seen = "Changes.?Kind=instruction.#"
+not = "0"
+quota = { tr = 2 }
+checks = [
+  { path = "Done", is = "True" },
+  { path = "InstructionsChanged.#", not = "0" },
+  { path = "Changes.?Kind=instruction.0.From", keep = "from", present = true },
+  { path = "Changes.?Kind=instruction.0.To", differs_from = "from" },
+]
+
+[[moment]]
+task = "T163"
+name = "a player card applied names the player and his instruction, from and to"
+probe = "dugout apply"
+seen = "Changes.?Kind=player.#"
+not = "0"
+quota = { en = 2, tr = 2 }
+checks = [
+  { path = "Done", is = "True" },
+  { path = "PlayerInstructionsChanged.#", not = "0" },
+  { path = "Changes.?Kind=player.0.Player", present = true },
+  { path = "Changes.?Kind=player.0.From", keep = "from", present = true },
+  { path = "Changes.?Kind=player.0.To", differs_from = "from" },
+]
+
+[[moment]]
+task = "T156"
+name = "a hurt man of ours at a stop: taken off for a substitute of his kind, out of the eleven after"
+probe = "injury"
+quota = { en = 2, tr = 2 }
+
+[[moment]]
+task = "T90"
+name = "extra time: a tweak on and off, read back each time, a wrong one refused"
+probe = "status"
+seen = "Period"
+is = "ExtraTimeFirstHalf"
+quota = { tr = 1 }
+steps = [
+  { run = "pause" },
+  { read = "tweak", path = "?WillBeOn=False.0.Id", keep = "t" },
+  { run = "tweak {t}" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "True" },
+  { run = "tweak {t} --off" },
+  { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "False" },
+  { run = "tweak zzq", rc = "fail" },
+  { run = "resume" },
+]

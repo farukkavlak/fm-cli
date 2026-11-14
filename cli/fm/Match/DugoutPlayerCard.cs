@@ -61,13 +61,15 @@ internal static partial class Program
 	}
 
 	/// <summary>The settings that moved, as "Player · Instruction: was → now" in the game's words.</summary>
-	private static async Task<List<string>> PlayerInstructionChanges(List<PiWatch> watches, Dictionary<string, long> before)
+	private static async Task<List<string>> PlayerInstructionChanges(List<PiWatch> watches, Dictionary<string, long> before, List<object> changes)
 	{
 		var after = await PlayerInstructionsOf(watches);
 		var moved = watches.Where(w => before.TryGetValue(w.Scope, out var was) && after.TryGetValue(w.Scope, out var now) && was != now).ToList();
 		if (moved.Count == 0) return [];
 		await GameWords.Ask(Fm, [.. moved.Select(w => w.Group.Name), .. moved.SelectMany(w => w.Group.Options.Select(o => o.Name))]);
 		string Named(PlayerInstructionGroup g, long value) => GameWords.Of(g.Options.FirstOrDefault(o => o.Id == value).Name ?? value.ToString());
+		foreach (var w in moved)
+			changes.Add(new { Kind = "player", Id = w.Group.Id.ToString(), Name = w.Group.Name, w.Player, From = before[w.Scope].ToString(), To = after[w.Scope].ToString() });
 		return moved.Select(w => $"{w.Player} · {GameWords.Of(w.Group.Name)}: {Named(w.Group, before[w.Scope])} → {Named(w.Group, after[w.Scope])}").ToList();
 	}
 }

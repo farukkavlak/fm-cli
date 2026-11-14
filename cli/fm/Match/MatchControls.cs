@@ -172,15 +172,28 @@ internal static partial class Program
 		// room waits for it to be answered.
 		if (await StaffSuggestion() is { } advice)
 		{
+			// There is one suggestion; a number given with the answer (as the dugout's entries take) names it.
+			var answer = Words(args).Select(Fold).FirstOrDefault(w => !int.TryParse(w, out _));
 			if (json)
 			{
-				Console.WriteLine(JsonOut.Of(new { Before = true, advice.Change, advice.Says }));
+				// Asked with an answer, it is carried out first: `dugout apply --json` only read it back, and the
+				// match waited at the team talk for ever (14 Nov, the hunt).
+				if (answer is "uygula" or "apply" or "do" or "evet" or "yes")
+				{
+					var taken = await ApplyStaffSuggestion(advice, quiet: true);
+					Console.WriteLine(JsonOut.Of(new { Before = true, advice.Change, advice.Says, Done = taken }));
+					return taken ? 0 : 1;
+				}
+				if (answer != null)
+				{
+					Console.Error.WriteLine(L("Before the match the suggestion can only be applied; the game's other button opens the tactics."));
+					return 1;
+				}
+				Console.WriteLine(JsonOut.Of(new { Before = true, advice.Change, advice.Says, Done = false }));
 				return 0;
 			}
 			Console.WriteLine($"  {advice.Change}");
 			if (advice.Says.Length > 0) Console.WriteLine($"  {advice.Says}");
-			// There is one suggestion; a number given with the answer (as the dugout's entries take) names it.
-			var answer = Words(args).Select(Fold).FirstOrDefault(w => !int.TryParse(w, out _));
 			if (answer == null)
 			{
 				if (Ui.Ask(L("Apply it?"), [L("Apply")], cancel: L("Leave it")) is null)
@@ -350,12 +363,21 @@ internal static partial class Program
 			var same = (await DugoutEntries()).FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
 			return event_ == AcceptEvent ? same is { Open: false } : same == null;
 		}, seconds: 60, every: 1);
+		// The card closes at once, but a team instruction reaches the match's tactic only at the next dead ball: the
+		// change itself is waited for too, or it is read back as nothing ("Pass Into Space", 14 Nov EN).
+		if (done && event_ == AcceptEvent && !await Changed()) await Until(Changed, seconds: 45, every: 1);
 		var tweaksOn = new List<string>();
 		var tweaksOff = new List<string>();
+		var tweakIds = new List<(string Id, string Name, bool On)>();
 		if (done && event_ == AcceptEvent)
 			foreach (var tweak in await ReadTweaks())
 				if (before.FirstOrDefault(b => b.Id == tweak.Id) is { } was && was.WillBeOn != tweak.WillBeOn)
+				{
 					(tweak.WillBeOn ? tweaksOn : tweaksOff).Add(tweak.Name);
+					tweakIds.Add((tweak.Id, tweak.Name, tweak.WillBeOn));
+				}
+		// The same changes by the game's own ids, for a reader that must not go by words (the hunt's checks, T160–T163).
+		var changes = new List<object>();
 		var instructions = new List<string>();
 		if (done && instructionsBefore.Count > 0) await AskInstructionWords(catalogue);
 		if (done && instructionsBefore.Count > 0)
@@ -365,16 +387,21 @@ internal static partial class Program
 					// Where it was too: a change read the wrong way (pressing less read back as "much more intense", T157) is seen whole.
 					string Named(long value) => GameWords.Of(i.Options.FirstOrDefault(o => o.Id == value).Name ?? value.ToString());
 					instructions.Add($"{GameWords.Of(i.Name)}: {Named(was)} → {Named(option)}");
+					changes.Add(new { Kind = "instruction", Id = id.ToString(), i.Name, From = was.ToString(), To = option.ToString() });
 				}
 		var mentality = new List<string>();
 		if (done && mentalityBefore != null && await MatchMentality() is { } mentalityAfter && mentalityAfter.Number != mentalityBefore.Value.Number)
+		{
 			mentality.Add($"{GameWords.Of(mentalityBefore.Value.Name)} → {GameWords.Of(mentalityAfter.Name)}");
-		var players = done && playersBefore.Count > 0 ? await PlayerInstructionChanges(playerWatches, playersBefore) : [];
+			changes.Add(new { Kind = "mentality", Id = "", Name = "", From = mentalityBefore.Value.Number.ToString(), To = mentalityAfter.Number.ToString() });
+		}
+		var players = done && playersBefore.Count > 0 ? await PlayerInstructionChanges(playerWatches, playersBefore, changes) : [];
+		foreach (var (tweakId, name, on) in tweakIds) changes.Add(new { Kind = "tweak", Id = tweakId, Name = name, From = (!on).ToString(), To = on.ToString() });
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff,
 				InstructionsChanged = instructions, MentalityChanged = mentality, PlayerInstructionsChanged = players,
-				Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).Concat(players).ToList() }));
+				Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).Concat(players).ToList(), Changes = changes }));
 			return done ? 0 : 1;
 		}
 		Console.WriteLine(done
@@ -424,7 +451,8 @@ internal static partial class Program
 		{
 			var on = !off && done ? new[] { name } : [];
 			var gone = off && done ? new[] { name } : [];
-			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = on, TweaksOff = gone, InstructionsChanged = Array.Empty<string>(), Applied = on.Concat(gone).ToList() }));
+			var changes = done ? new[] { new { Kind = "tweak", Id = id, Name = name, From = off.ToString(), To = (!off).ToString() } } : [];
+			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = on, TweaksOff = gone, InstructionsChanged = Array.Empty<string>(), Applied = on.Concat(gone).ToList(), Changes = changes }));
 			return done ? 0 : 1;
 		}
 		Console.WriteLine(done
@@ -468,7 +496,7 @@ internal static partial class Program
 		return new(Field(doIt, "Pointer"), Of("content.Description"), Of("content.Text"));
 	}
 
-	internal static async Task<bool> ApplyStaffSuggestion(StaffAdvice advice)
+	internal static async Task<bool> ApplyStaffSuggestion(StaffAdvice advice, bool quiet = false)
 	{
 		var said = await Fm.Get("press", ("ptr", advice.Pointer));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said) == 0;
@@ -477,7 +505,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{advice.Change} — the button was pressed, but the suggestion is still there."));
 			return false;
 		}
-		Console.WriteLine(L($"Applied: {advice.Change}"));
+		if (!quiet) Console.WriteLine(L($"Applied: {advice.Change}"));
 		return true;
 	}
 

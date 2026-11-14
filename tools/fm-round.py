@@ -8,6 +8,8 @@
   fm-round.py enter <scenario> [--lang en]    a fresh copy of it, loaded, in that language
   fm-round.py dry <list.toml>                 check a test list; changes nothing in the game
   fm-round.py run <list.toml> [--lang en,tr] [--only T106 | a piece of a test's name]
+  fm-round.py hunt <hunt.toml> [--lang en,tr] [--hours 6] [--dry]
+                                              matches played and watched for every rare moment at once (below)
   fm-round.py home "<save>"                   back to a real save after a round
 
 Scenarios are kept outside the game's folder, so nothing can write over them. Each entry copies one in as
@@ -45,6 +47,22 @@ Steps:
   ours for a substitute, then the step's `again`. A game that dies in a try is started again and the try counted
   as without the moment (T92), not as a failure.
   {name} in a command      the value kept under that name
+
+A hunt list (tests/live/hunt*.toml): scenarios taken in turn while a moment they serve is short of its quota;
+each match played to its end, every card applied, every stop answered, each moment checked when it shows:
+
+  [[scenario]]
+  at = "kickoff"
+  serves = ["T160", "T156"]
+  speeds = { "highlight speed" = "1x" }   # or fast = true; steer = true for a level score
+  [[moment]]
+  task = "T160"
+  name = "a mentality card read back"
+  probe = "dugout apply"   # or "status" (read each look), "injury" (a hurt man taken off at a stop)
+  seen = "Changes.?Kind=mentality.#"
+  not = "0"
+  quota = { en = 2, tr = 2 }
+  checks = [ { path = "Done", is = "True" } ]   # on the same reading; steps = [...] run / read after it
 
 Checks read only --json and exit codes, never printed words: a test holds in every language.
 """
@@ -814,11 +832,22 @@ def answer_stop(again, kept):
         subs = {}
         if dialogs:
             print(f"       at a {dialogs[0].get('Type')} stop, `sub` was not read: {str(error)[:200]}", flush=True)
+    taken = []
     for hurt in subs.get("Injured", []):
         if on := bench_man(subs, keeper_of(subs, hurt)):
-            fm(f'sub "{hurt}" "{on}"', 300)
+            rc = fm(f'sub "{hurt}" "{on}"', 300)[0]
+            # Read back: the hurt man is out of the eleven (the game often says yes and does nothing).
+            try:
+                eleven = [m["Name"] for m in read_json("sub", 120).get("Eleven", [])]
+            except Failed as error:
+                eleven = [f"not read: {error}"]
+            still = any(name == hurt or hurt.endswith(" " + name) for name in eleven)
+            taken.append({"hurt": hurt, "on": on, "rc": rc, "still_on": still, "eleven": eleven})
+        else:
+            taken.append({"hurt": hurt, "on": None, "rc": None, "still_on": True, "eleven": [], "no_substitute": True})
     if again:
         fm(filled(again, kept), 120)
+    return taken
 
 
 # Tweaks by the game's own ids (FM.UI.TacticalTweak), for the score we have against the one we want: level.
@@ -865,6 +894,30 @@ def steer(memo):
             fm(f"tweak {tweak['Id']} --off", 120)
 
 
+def plain_step(number, step, kept):
+    """A `run` or a `read` step, its command already filled. Raises Failed with what was wrong."""
+    if "run" in step:
+        rc, out, err, took = fm(step["run"])
+        wanted = step.get("rc", 0)
+        if wanted != "any" and ((wanted == "fail" and rc == 0) or (wanted != "fail" and rc != wanted)):
+            raise Failed(f"step {number} `{step['run']}`: rc={rc}, wanted {wanted}: {(err or out).strip()[:200]}")
+        if "within" in step and took > step["within"]:
+            raise Failed(f"step {number} `{step['run']}`: took {took:.0f} s, wanted within {step['within']} s")
+        return
+    try:
+        value = dig(read_json(step["read"]), re.sub(r"\{(\w+)\}", lambda m: str(kept[m.group(1)]), step["path"]))
+    except (KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
+        if step.get("absent"):
+            return  # the step asks for the path not to be there
+        raise Failed(f"step {number} `{step['read']}` {step['path']}: not there ({error})") from error
+    if step.get("absent"):
+        raise Failed(f"step {number} `{step['read']}` {step['path']} is {value!r}, wanted it not there")
+    if "keep" in step:
+        kept[step["keep"]] = value
+    if wrong := holds(step, value, kept):
+        raise Failed(f"step {number} `{step['read']}` {step['path']} {wrong}")
+
+
 def play(test):
     """One pass of a test's steps. Raises Failed with what was wrong; nothing printed is compared."""
     kept = {}
@@ -875,13 +928,8 @@ def play(test):
             if f"run_{LANG_NOW}" in step:
                 step = {**step, "run": step[f"run_{LANG_NOW}"]}
             step = {k: filled(v, kept) if k in ("run", "read", "until", "start") else v for k, v in step.items()}
-            if "run" in step:
-                rc, out, err, took = fm(step["run"])
-                wanted = step.get("rc", 0)
-                if wanted != "any" and ((wanted == "fail" and rc == 0) or (wanted != "fail" and rc != wanted)):
-                    raise Failed(f"step {number} `{step['run']}`: rc={rc}, wanted {wanted}: {(err or out).strip()[:200]}")
-                if "within" in step and took > step["within"]:
-                    raise Failed(f"step {number} `{step['run']}`: took {took:.0f} s, wanted within {step['within']} s")
+            if "run" in step or "read" in step:
+                plain_step(number, step, kept)
             elif "start" in step:
                 started = step["start"]
                 side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -900,19 +948,6 @@ def play(test):
                 side.terminate()
                 side.wait(timeout=60)
                 side = None
-            elif "read" in step:
-                try:
-                    value = dig(read_json(step["read"]), re.sub(r"\{(\w+)\}", lambda m: str(kept[m.group(1)]), step["path"]))
-                except (KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
-                    if step.get("absent"):
-                        continue  # the step asks for the path not to be there
-                    raise Failed(f"step {number} `{step['read']}` {step['path']}: not there ({error})") from error
-                if step.get("absent"):
-                    raise Failed(f"step {number} `{step['read']}` {step['path']} is {value!r}, wanted it not there")
-                if "keep" in step:
-                    kept[step["keep"]] = value
-                if wrong := holds(step, value, kept):
-                    raise Failed(f"step {number} `{step['read']}` {step['path']} {wrong}")
             elif "until" in step:
                 limit = time.time() + step.get("seconds", 300)
                 restarts = 0
@@ -1063,6 +1098,284 @@ def run(args):
     return 1 if failed else 0
 
 
+# ---- the hunt: matches played and watched for every rare moment at once
+
+
+HUNT_KEYS = {"task", "name", "probe", "seen", "is", "not", "quota", "checks", "steps"}
+
+
+def hunt_problems(spec):
+    """The hunt list's own shape, told without the game."""
+    found = []
+    tasks = {m.get("task") for m in spec.get("moment", [])}
+    for scenario in spec.get("scenario", []):
+        if not (STORE / f"{scenario.get('at')}.fm").exists():
+            found.append(f"no scenario '{scenario.get('at')}'")
+        for task in scenario.get("serves", []):
+            if task not in tasks:
+                found.append(f"scenario {scenario.get('at')} serves {task}, which no moment names")
+    for moment in spec.get("moment", []):
+        where = f"moment {moment.get('task')}"
+        if set(moment) - HUNT_KEYS:
+            found.append(f"{where}: unknown {sorted(set(moment) - HUNT_KEYS)}")
+        if moment.get("probe") not in ("dugout apply", "status", "injury"):
+            found.append(f"{where}: probe is `dugout apply`, `status` or `injury`")
+        if moment.get("probe") != "injury" and ("seen" not in moment or not {"is", "not"} & set(moment)):
+            found.append(f"{where}: seen = <path> with is / not")
+        if not any(moment.get("task") in s.get("serves", []) for s in spec.get("scenario", [])):
+            found.append(f"{where}: no scenario serves it")
+        kept = set()
+        for check in moment.get("checks", []):
+            for key in ("same_as", "differs_from"):
+                if key in check and check[key] not in kept:
+                    found.append(f"{where}: check {key} '{check[key]}' was not kept before")
+            if "keep" in check:
+                kept.add(check["keep"])
+        for step in moment.get("steps", []):
+            if not {"run", "read"} & set(step):
+                found.append(f"{where}: a moment's steps are run / read only")
+    return found
+
+
+def hunt_check(moment, data):
+    """The moment's checks on the reading that showed it. None when all hold, else what was wrong."""
+    kept = {}
+    for check in moment.get("checks", []):
+        try:
+            value = dig(data, check["path"])
+        except (KeyError, IndexError, ValueError, TypeError, AttributeError) as error:
+            return f"{check['path']}: not there ({error})"
+        if "keep" in check:
+            kept[check["keep"]] = value
+        if wrong := holds(check, value, kept):
+            return f"{check['path']} {wrong}"
+    return None
+
+
+class Hunt:
+    def __init__(self, spec, lang, stem):
+        self.moments = spec["moment"]
+        self.lang = lang
+        self.passes = {m["task"]: 0 for m in self.moments}
+        self.tries = {m["task"]: [] for m in self.moments}
+        self.evidence = open(RESULTS / f"{stem}-{lang}.evidence.jsonl", "a")
+        self.cards = 0
+        self.unread = []
+
+    def need(self, task):
+        moment = next(m for m in self.moments if m["task"] == task)
+        return self.passes[task] < moment.get("quota", {}).get(self.lang, 0)
+
+    def open_tasks(self):
+        return [m["task"] for m in self.moments if self.need(m["task"])]
+
+    def note(self, task, wrong, data, minute):
+        entry = {"at": datetime.datetime.now().isoformat(timespec="seconds"), "lang": self.lang, "task": task,
+                 "pass": wrong is None, "wrong": wrong, "minute": minute, "data": data}
+        self.evidence.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        self.evidence.flush()
+        if wrong is None:
+            self.passes[task] += 1
+        self.tries[task].append(wrong)
+        quota = next(m for m in self.moments if m["task"] == task).get("quota", {}).get(self.lang, 0)
+        print(f"[{self.lang}] CAUGHT {task} {'pass' if wrong is None else 'FAIL'} ({self.passes[task]}/{quota}) at {minute}'"
+              + (f": {wrong}" if wrong else ""), flush=True)
+
+    def seen(self, probe, data, minute):
+        """Each moment of this probe the reading shows, checked; a moment met is checked even when its quota is full."""
+        for moment in self.moments:
+            if moment["probe"] != probe or moment.get("quota", {}).get(self.lang, 0) == 0:
+                continue
+            try:
+                value = dig(data, moment["seen"])
+            except (KeyError, IndexError, ValueError, TypeError, AttributeError):
+                continue
+            if holds(moment, value, {}) is not None:
+                continue
+            wrong = hunt_check(moment, data)
+            if wrong is None and moment.get("steps"):
+                kept = {}
+                try:
+                    for number, step in enumerate(moment["steps"], 1):
+                        step = {k: filled(v, kept) if k in ("run", "read") else v for k, v in step.items()}
+                        plain_step(number, step, kept)
+                except Failed as error:
+                    wrong = str(error)
+                    fm("resume", 120)  # a step that failed between a pause and its resume must not leave the match held
+            self.note(moment["task"], wrong, data, minute)
+
+    def injuries(self, taken, minute):
+        for man in taken:
+            wrong = None if not man["still_on"] and man["rc"] == 0 else \
+                "no substitute fitting him" if man.get("no_substitute") else f"`sub` rc={man['rc']}, still in the eleven: {man['still_on']}"
+            for moment in self.moments:
+                if moment["probe"] == "injury" and moment.get("quota", {}).get(self.lang, 0):
+                    self.note(moment["task"], wrong, man, minute)
+
+    def report(self):
+        rows = []
+        for moment in self.moments:
+            task = moment["task"]
+            quota = moment.get("quota", {}).get(self.lang, 0)
+            if not quota:
+                continue
+            bad = [t for t in self.tries[task] if t]
+            mark = "FAIL" if bad else "pass" if self.passes[task] >= quota else "MISSED" if not self.tries[task] else "part"
+            rows.append(f"- {mark} {task} {moment['name']} ({self.passes[task]}/{quota}, met {len(self.tries[task])} ×)"
+                        + "".join(f"\n  - {b}" for b in bad[:3]))
+        return rows
+
+
+def take_card(hunt, minute):
+    """Every card is taken: what it changed says which moment it was, by the game's ids."""
+    rc, out, _, _ = fm("dugout apply --json", 180)
+    if not out.lstrip().startswith("{"):
+        return
+    data = json.loads(out)
+    if data.get("Before"):
+        return  # the staff's advice before kick-off: answered, no card of the match
+    hunt.cards += 1
+    if not data.get("Changes"):
+        hunt.unread.append({"minute": minute, "rc": rc, "data": data})
+        print(f"[{hunt.lang}] a card taken without a change read back (rc={rc}) at {minute}': {out[:300]}", flush=True)
+    hunt.seen("dugout apply", data, minute)
+
+
+def watch_match(scenario, hunt, limit):
+    """One match played to its end, every stop answered, every card applied and each moment checked as it comes."""
+    started = "match --play --no-talk"
+    side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    steering = {}
+    once = set()
+    restarts = 0
+    end = time.time() + limit
+    minute = "?"
+    try:
+        while time.time() < end:
+            if side.poll() is not None:
+                now = read_json("status", 120)
+                if now.get("DuringMatch") != "True":
+                    return "ended"
+                if restarts >= 30:
+                    return "stuck at its stops"
+                restarts += 1
+                hunt.injuries(answer_stop(None, {}), minute)
+                take_card(hunt, minute)  # the staff's advice before kick-off holds the match until it is answered
+                side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                continue
+            try:
+                now = read_json("status", 120)
+            except Failed:
+                time.sleep(5)
+                continue
+            minute = (now.get("MatchTime") or "?").split(":")[0]
+            if now.get("Period") in PLAYING:
+                # A moment read off the status (extra time) is taken once a match.
+                period = now.get("Period")
+                if period not in once:
+                    before = sum(hunt.tries[t].__len__() for t in hunt.tries)
+                    hunt.seen("status", now, minute)
+                    if sum(hunt.tries[t].__len__() for t in hunt.tries) != before:
+                        once.add(period)
+                if scenario.get("steer"):
+                    try:
+                        steer(steering)
+                    except Failed:
+                        pass
+                take_card(hunt, minute)
+            time.sleep(scenario.get("every", 8))  # only the pace of looking: what is seen decides
+        return "too long"
+    finally:
+        if side.poll() is None:
+            side.terminate()
+            side.wait(timeout=60)
+
+
+def hunt_run(args):
+    with open(args.list, "rb") as file:
+        spec = tomllib.load(file)
+    if problems := hunt_problems(spec):
+        for problem in problems:
+            print(f"  ! {problem}")
+        print("The hunt list is broken: nothing was run.")
+        return 1
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    stem = pathlib.Path(args.list).stem
+    global LOG, LANG_NOW
+    for lang in args.lang.split(","):
+        LANG_NOW = lang
+        log_file = RESULTS / f"{stem}-{lang}.log"
+        if log_file.exists():
+            log_file.replace(log_file.with_suffix(f".{int(time.time())}.log"))
+        LOG = open(log_file, "w")
+        stop_watch = threading.Event()
+        threading.Thread(target=watch_memory, args=(RESULTS / f"{stem}-{lang}.memory.tsv", stop_watch), daemon=True).start()
+        hunt = Hunt(spec, lang, stem)
+        SEEN_DIALOGS.clear()
+        deadline = time.time() + args.hours * 3600
+        matches = deaths = 0
+        turn = 0
+        ends = []
+        while time.time() < deadline and hunt.open_tasks() and deaths < DEATHS * 2:
+            serving = [sc for sc in spec["scenario"] if set(sc.get("serves", [])) & set(hunt.open_tasks())]
+            scenario = serving[turn % len(serving)]
+            turn += 1
+            restore = {}
+            try:
+                print(f"[{lang}] match {matches + 1} in {scenario['at']} for {sorted(set(scenario['serves']) & set(hunt.open_tasks()))}: "
+                      f"{json.dumps(enter(scenario['at'], lang))}", flush=True)
+                if scenario.get("fast"):
+                    restore = fast_matches()
+                for name, value in scenario.get("speeds", {}).items():
+                    restore.setdefault(name, read_json(f'settings "{name}"')["Value"])
+                    must(f'settings "{name}" "{value}"')
+                matches += 1
+                how = watch_match(scenario, hunt, scenario.get("minutes", 100) * 60)
+                ends.append(how)
+                print(f"[{lang}] match {matches} {how}; open: {hunt.open_tasks()}; cards {hunt.cards}", flush=True)
+            except Fatal as error:
+                deaths += 1
+                fm("stop --no-save", 120)
+                print(f"[{lang}] the game hit a fatal error ({deaths}): {error}{keep_log(f'{stem}-{lang}-death{deaths}.Player.log')}", flush=True)
+            except Failed as error:
+                if fm("status --json", 120)[0] == NOT_RUNNING:
+                    deaths += 1
+                    print(f"[{lang}] the game died ({deaths}): {error}{keep_log(f'{stem}-{lang}-death{deaths}.Player.log')}", flush=True)
+                else:
+                    print(f"[{lang}] the match could not be played: {error}", flush=True)
+                    deaths += 1  # bounded the same way: a hunt that cannot start a match must not spin all night
+            finally:
+                if restore:
+                    put_back(restore)
+        rows = hunt.report()
+        extra = [f"- {matches} matches ({', '.join(ends)}), {hunt.cards} cards taken, the game died {deaths} ×",
+                 f"- questions answered in the matches: {', '.join(sorted(set(SEEN_DIALOGS))) or 'none'}"]
+        extra += [f"- a card taken without a change read back at {u['minute']}': {json.dumps(u['data'], ensure_ascii=False)[:300]}" for u in hunt.unread]
+        report = RESULTS / f"{stem}-{lang}.md"
+        report.write_text(f"# {stem}, {lang}, {datetime.datetime.now():%Y-%m-%d %H:%M}\n\n" + "\n".join(rows + extra) + "\n")
+        stop_watch.set()
+        print("\n".join(rows + extra), flush=True)
+        print(f"[{lang}] written: {report}", flush=True)
+    return 0
+
+
+def hunt_dry(args):
+    with open(args.list, "rb") as file:
+        spec = tomllib.load(file)
+    found = hunt_problems(spec)
+    for moment in spec.get("moment", []):
+        for step in moment.get("steps", []):
+            command = step.get("run") or step.get("read")
+            word = shlex.split(command)[0]
+            rc, out, _, _ = fm(f"{word} --help", 30)
+            if rc == 64 and not out.strip():
+                found.append(f"{moment['task']}: `{word}` has no help; is it a command?")
+    for problem in found:
+        print(f"  ! {problem}")
+    print(f"{len(spec.get('moment', []))} moments, {len(spec.get('scenario', []))} scenarios, {len(found)} problems.")
+    return 1 if found else 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="what", required=True)
@@ -1096,6 +1409,12 @@ def main():
     one.add_argument("--lang", default="en,tr")
     one.add_argument("--only")
     one.set_defaults(go=run)
+    one = sub.add_parser("hunt", help="matches watched for every rare moment at once, until each moment's quota is met")
+    one.add_argument("list")
+    one.add_argument("--lang", default="en,tr")
+    one.add_argument("--hours", type=float, default=6, help="upper bound for each language")
+    one.add_argument("--dry", action="store_true", help="check the list only")
+    one.set_defaults(go=lambda a: hunt_dry(a) if a.dry else hunt_run(a))
     one = sub.add_parser("home")
     one.add_argument("save")
     one.set_defaults(go=home)
