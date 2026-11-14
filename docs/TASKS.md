@@ -103,11 +103,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 ## 5. Robustness
 
 - [x] T39 `fm crawl` closes a popup that holds the queue
-- [ ] T40 `fm stop`: the game sometimes hangs on its way out (process stuck, not killable). Cause unknown.
+- [x] T40 `fm stop`: the game sometimes hung on its way out (process stuck, not killable). Cause: T92's deaths.
   - [x] Since T92's fix (c5c8b63) 65 stops and loads in the round logs, none hung (longest 45 s): the hangs were T92's.
-  - [ ] Crash reports: the GC Finalizer deaths (T92) stopped with the fix; a SIGABRT on the game's `Timer-Scheduler`
+  - [x] Crash reports: the GC Finalizer deaths (T92) stopped with the fix; a SIGABRT on the game's `Timer-Scheduler`
     thread is still written now and then as the game quits (4 since the fix, each 10–20 s after a stop). Saves are
-    written before the quit. Left: does macOS show a "quit unexpectedly" window to the player?
+    written before the quit; 14 Nov 2 more stops: no report, no window on the screen (`/shot` of the desktop).
 - [x] T41 `settings language`
 - [x] T42 `status` with a held queue
 - [x] T43 Squad numbers and list at a season's start
@@ -124,7 +124,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [ ] The game's fatal-error dialog is told (written, exit 70). Left: seen once on a real dialog.
   - [x] T11's delete crash: gone
   - [x] Each death's cause found (T92: ticks off the main thread, c5c8b63)
-  - [ ] T92 closed; T40 closed or its cause written here
+  - [x] T92 closed; T40 closed or its cause written here
 - [x] T88 `tactic clear`
 - [x] T94 `tactic slot`
 - [ ] T87 Playing by hand and by the tool on one install:
