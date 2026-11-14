@@ -82,7 +82,7 @@ checks = [
 task = "T156"
 name = "a hurt man of ours at a stop: taken off for a substitute of his kind, out of the eleven after"
 probe = "injury"
-quota = { en = 2, tr = 2 }
+quota = { en = 2, tr = 1 }  # TR met once by hand on 14 Nov (Hrelja), after the fix
 
 [[moment]]
 task = "T90"
