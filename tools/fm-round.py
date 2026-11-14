@@ -1161,6 +1161,7 @@ class Hunt:
         self.evidence = open(RESULTS / f"{stem}-{lang}.evidence.jsonl", "a")
         self.cards = 0
         self.unread = []
+        self.refused = {}
 
     def need(self, task):
         moment = next(m for m in self.moments if m["task"] == task)
@@ -1228,12 +1229,24 @@ class Hunt:
 
 def take_card(hunt, minute):
     """Every card is taken: what it changed says which moment it was, by the game's ids."""
-    rc, out, _, _ = fm("dugout apply --json", 180)
+    rc, out, _, _ = fm("dugout apply --json --play-on", 180)
     if not out.lstrip().startswith("{"):
         return
     data = json.loads(out)
     if data.get("Before"):
         return  # the staff's advice before kick-off: answered, no card of the match
+    if not data.get("Done"):
+        # A card the game would not take stays open, and the match stops at it again and again: twice is enough,
+        # then it is put away by its place on the list (the list's own Minute and CanDo, no words).
+        key = (data.get("Minute"), data.get("Text"))
+        hunt.refused[key] = hunt.refused.get(key, 0) + 1
+        if hunt.refused[key] >= 2:
+            try:
+                listed = read_json("dugout", 120)
+                at = next(i for i, e in enumerate(listed, 1) if e.get("CanDo") and (e.get("Minute"), e.get("Text")) == key)
+                fm(f"dugout {at} dismiss", 180)
+            except (Failed, StopIteration):
+                pass
     hunt.cards += 1
     if not data.get("Changes"):
         hunt.unread.append({"minute": minute, "rc": rc, "data": data})
@@ -1243,7 +1256,8 @@ def take_card(hunt, minute):
 
 def watch_match(scenario, hunt, limit):
     """One match played to its end, every stop answered, every card applied and each moment checked as it comes."""
-    started = "match --play --no-talk"
+    # The match stops itself at a card that can be applied (paused), so a card is taken at any speed.
+    started = "match --play --no-talk --stop-at-advice"
     side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
     steering = {}
     once = set()
@@ -1256,11 +1270,14 @@ def watch_match(scenario, hunt, limit):
                 now = read_json("status", 120)
                 if now.get("DuringMatch") != "True":
                     return "ended"
-                if restarts >= 30:
+                if restarts >= 120:
                     return "stuck at its stops"
                 restarts += 1
                 hunt.injuries(answer_stop(None, {}), minute)
-                take_card(hunt, minute)  # the staff's advice before kick-off holds the match until it is answered
+                # The card taken while the match is held (played on first, it closed within seconds at full speed:
+                # 14 Nov); --play-on plays the match on once it is pressed, for a team instruction reaches the
+                # match's tactic only at a dead ball. The staff's advice before kick-off is taken here too.
+                take_card(hunt, minute)
                 side = subprocess.Popen(["fm", *shlex.split(started)], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)
                 continue
             try:

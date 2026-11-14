@@ -162,6 +162,8 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> Dugout(bool json, string[] args)
 	{
+		var playOn = args.Contains("--play-on");
+		args = args.Where(a => a != "--play-on").ToArray();
 		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True")
 		{
 			Console.Error.WriteLine(L("The assistant's in-match advice is only during a match."));
@@ -224,7 +226,7 @@ internal static partial class Program
 				(entries, fromMemory) = (seen, true);
 			else if (marks.Count > 0)
 			{
-				if (!await DugoutComesBack()) return 1;
+				if (!await DugoutComesBack(playOn)) return 1;
 				// Its entries are drawn a moment after it shows.
 				await Until(async () => (entries = await DugoutEntries()).Count > 0, seconds: 3, every: 0.25);
 			}
@@ -311,7 +313,7 @@ internal static partial class Program
 
 		// The buttons act on whichever entry is showing, so that one is brought up first.
 		// The timeline is laid out again as the match goes on, so a mark gone stale is looked for again by its advice.
-		if (!await DugoutShowing() && !await DugoutComesBack()) return 1;
+		if (!await DugoutShowing() && !await DugoutComesBack(playOn)) return 1;
 		if ((entry.Pointer.Length > 0 ? await ShowDugoutEntry(entry.Pointer, entry.Index) : null)?.Text != entry.Text
 		    && ((await DugoutEntries()).FirstOrDefault(e => e.Text == entry.Text) is not { } again
 		        || (await ShowDugoutEntry((entry = again).Pointer, entry.Index))?.Text != entry.Text))
@@ -356,15 +358,29 @@ internal static partial class Program
 			|| (instructionsBefore.Count > 0 && (await TeamInstructionsNow(catalogue)).Any(n => instructionsBefore.TryGetValue(n.Key, out var was) && was != n.Value))
 			|| (mentalityBefore != null && await MatchMentality() is { } m && m.Number != mentalityBefore.Value.Number)
 			|| (playersBefore.Count > 0 && (await PlayerInstructionsOf(playerWatches)).Any(n => playersBefore.TryGetValue(n.Key, out var was) && was != n.Value));
-		var done = await Until(async () =>
+		async Task<bool> Taken()
 		{
 			if (event_ == AcceptEvent && await Changed()) return true;
 			if (!await DugoutShowing()) return false;
 			var same = (await DugoutEntries()).FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
 			return event_ == AcceptEvent ? same is { Open: false } : same == null;
-		}, seconds: 60, every: 1);
+		}
+		// --play-on with the match held: some cards (a mentality, 14 Nov) are taken only once play goes on, the card
+		// staying open while it is held. A few seconds held, then played on, and the same signs waited for.
+		var held = playOn && event_ == AcceptEvent && Field(await Fm.GetJson("state"), "Playing") != "True";
+		var done = await Until(Taken, seconds: held ? 8 : 60, every: 1);
+		if (!done && held)
+		{
+			await Quietly(MatchPause("resume"));
+			done = await Until(Taken, seconds: 60, every: 1);
+		}
 		// The card closes at once, but a team instruction reaches the match's tactic only at the next dead ball: the
 		// change itself is waited for too, or it is read back as nothing ("Pass Into Space", 14 Nov EN).
+		// --play-on: a match held (paused) to take the card is played on once the card has closed, for a team
+		// instruction reaches the match's tactic only at a dead ball; held, it would never come. Played on before
+		// the card closed, the panel hid during the moves and the card was never seen closing (14 Nov).
+		if (done && event_ == AcceptEvent && playOn && !await Changed() && Field(await Fm.GetJson("state"), "Playing") != "True")
+			await Quietly(MatchPause("resume"));
 		if (done && event_ == AcceptEvent && !await Changed()) await Until(Changed, seconds: 45, every: 1);
 		var tweaksOn = new List<string>();
 		var tweaksOff = new List<string>();
@@ -626,9 +642,17 @@ internal static partial class Program
 		(await Fm.GetJson("texts", ("within", "Dugout"))).GetArrayLength() > 0;
 
 	/// <summary>Waits out a move being played. Says so if the panel stays away.</summary>
-	private static async Task<bool> DugoutComesBack()
+	private static async Task<bool> DugoutComesBack(bool playOn = false)
 	{
-		// Paused in the middle of a move it stays away until play goes on.
+		// Paused in the middle of a move it stays away until play goes on. With --play-on the move is played out and
+		// the match held again as soon as the panel is up (a match stopped at a card was often held mid-move, 14 Nov).
+		if (Field(await Fm.GetJson("state"), "Playing") != "True" && playOn)
+		{
+			await Quietly(MatchPause("resume"));
+			if (!await Until(DugoutShowing, seconds: 60, every: 0.25)) return false;
+			await Quietly(MatchPause("pause"));
+			return await Until(DugoutShowing, seconds: 5, every: 0.25);
+		}
 		if (Field(await Fm.GetJson("state"), "Playing") != "True")
 		{
 			Console.Error.WriteLine(L("The dugout panel is hidden while this move is paused: resume, then dugout"));

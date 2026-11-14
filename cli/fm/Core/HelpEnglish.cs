@@ -74,6 +74,7 @@ internal static partial class Program
 			    --play        watch the match: commentary, goals, result; asks what to say in the talks
 			                  (in a script it stops at a talk: talk <no>, then match)
 			    --no-talk     skip the talks
+			    --stop-at-advice   pause and stop when the assistant gives advice that can be applied (for scripts)
 			    --instant     do not play it, leave it to the assistants: the game simulates it in a few seconds
 			    --pick        another of our teams playing the same day with nobody picked (the U19s): use its staff's suggested team
 			  shout [<x>]     shout from the touchline during a match (Well Done, Up Your Game, Calm Down…)
@@ -82,6 +83,7 @@ internal static partial class Program
 			  sub             during a match: on the pitch and on the bench;  sub <off> <on>: make a substitution
 			  pause / resume  during a match: pause it, play on;  skip: skip the replay that is playing
 			  dugout          during a match, the assistant's advice;  dugout apply (the newest one, says what it turned on);  dugout <no> apply | dismiss
+			    --play-on     a match paused to take it plays on, so a team instruction it sets is read back
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen
 			  meeting         hold a team meeting; answer it with talk

@@ -284,6 +284,7 @@ internal static partial class Program
 		// spot; a script is handed the choice and the match left waiting, unless told to pass
 		// the talks by.
 		var passTalks = args.Contains("--no-talk");
+		var stopAtAdvice = args.Contains("--stop-at-advice");
 		// The sides are read from the match once a period is under way (below), never while it loads (T92).
 		sidesFromMatch = false;
 		var names = Field(state, "Period").Length > 0 || Field(state, "DuringMatch") != "True" ? await MatchNames() : null;
@@ -540,6 +541,14 @@ internal static partial class Program
 						else Console.WriteLine(L($"  {card.Minute,5}'  Assistant: {card.Text}  (dugout)"));
 					}
 					foreach (var mark in marks) advised.Add(mark);
+					// --stop-at-advice: the match held at a card that can be applied, so a script takes it before it
+					// closes (at full speed a card closes within moments of real time: 0 of ~10 taken, 14 Nov).
+					if (stopAtAdvice && cards.Any(c => c.Open))
+					{
+						await Quietly(MatchPause("pause"));
+						Console.WriteLine(L("Stopped at the assistant's advice. To apply: dugout apply; to carry on: match"));
+						return 0;
+					}
 				}
 			}
 

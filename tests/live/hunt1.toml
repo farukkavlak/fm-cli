@@ -7,18 +7,18 @@
 [[scenario]]
 at = "kickoff"
 serves = ["T160", "T161", "T163", "T156"]
-speeds = { "highlight speed" = "1x", "speed between highlights" = "4x" }  # slow: a card stays to be taken (T25)
+speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }  # moves fast; between them, where the dugout panel shows, slow (at full speed the panel hardly showed: cards seen 20 minutes late, 14 Nov)
 
 [[scenario]]
 at = "hunt-cup-extra-time"
 serves = ["T90", "T156"]
-fast = true
+speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
 steer = true  # towards a level score: extra time
 
 [[scenario]]
 at = "cup"
 serves = ["T90", "T156"]
-fast = true
+speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
 steer = true
 
 [[moment]]
