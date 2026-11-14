@@ -52,15 +52,12 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T23 `shortlist` lists
 - [x] T24 `inbox --read-all`
 - [x] T25 `dugout` cards: apply puts a tweak or team instruction on, read back; a wrong number refused. TR 2/2, EN 2/2.
-- [ ] T157 `dugout` cards, what is left after T25:
-  - [ ] A mentality card ("Set team mentality") is read back from the match tactic's `Mentality` now: see one live
+- [ ] T157 `dugout` cards, what is left after T25 (its two live sightings are under moments, T160 and T161):
   - [x] A card pressed and never taken: the panel is drawn twice and the hidden copy's button was pressed; now only
     the one the game shows (`Visible`). Round 67 (14 Nov): EN 2/2 (3 cards), TR 2/2 (3 cards), each taken at once
   - [x] The minute's wait: the timeline's marks stay listed with the panel away and the whole timeline last read is
     kept, so the list and "nothing to apply" come in 1–5 s (were 60–100 s); a card is done when its change reads back.
     Left as it is: a mark never read with the panel up, or an instruction or mentality card to press, waits for the panel
-  - [ ] Pressing less read back in TR as "Pres Şiddeti: Çok Şiddetli" (EN: Trigger Press More Often, the right way).
-    The read-back now says "from → to": see it in a TR match
   - [ ] A player card ("Tell Salifou: Shoot Less Often") is taken but nothing is read back: player instructions
 - [x] T155 Team instruction names in a Turkish game came out in English: shown through `GameWords` (TR and EN checked)
 - [x] T26 `pause` / `resume`
@@ -160,6 +157,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 ## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
 
+- [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live.
+- [ ] T161 `dugout` pressing card in a TR match: the read-back says "from → to" (was "Pres Şiddeti: Çok Şiddetli"); see it.
 - [ ] T158 The game's own fatal-error window, met for real: the tool says so (exit 70) and `fm stop` ends it.
   The sign is the main thread in `-[NSAlert runModal]`; the game's `game_plugin` holds NSAlert, runModal, the
   "A serious error was encountered…" text and `show_and_wait_native_error_dialog`. Its only known trigger (T11's
