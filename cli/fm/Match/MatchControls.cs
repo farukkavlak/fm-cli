@@ -329,6 +329,9 @@ internal static partial class Program
 		}
 		// A card that sets the mentality ("Very Defensive") changes the match tactic's Mentality, a number.
 		var mentalityBefore = event_ == AcceptEvent && matchTactic != null ? await MatchMentality() : null;
+		// A card for one player ("Tell Salifou: Shoot Less Often") changes his player instruction: everyone's are read.
+		var playerWatches = event_ == AcceptEvent ? await WatchPlayerInstructions() : [];
+		var playersBefore = await PlayerInstructionsOf(playerWatches);
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
@@ -338,7 +341,8 @@ internal static partial class Program
 		async Task<bool> Changed() =>
 			(before.Count > 0 && (await ReadTweaks()).Any(t => before.FirstOrDefault(b => b.Id == t.Id) is { } was && was.WillBeOn != t.WillBeOn))
 			|| (instructionsBefore.Count > 0 && (await TeamInstructionsNow(catalogue)).Any(n => instructionsBefore.TryGetValue(n.Key, out var was) && was != n.Value))
-			|| (mentalityBefore != null && await MatchMentality() is { } m && m.Number != mentalityBefore.Value.Number);
+			|| (mentalityBefore != null && await MatchMentality() is { } m && m.Number != mentalityBefore.Value.Number)
+			|| (playersBefore.Count > 0 && (await PlayerInstructionsOf(playerWatches)).Any(n => playersBefore.TryGetValue(n.Key, out var was) && was != n.Value));
 		var done = await Until(async () =>
 		{
 			if (event_ == AcceptEvent && await Changed()) return true;
@@ -365,10 +369,12 @@ internal static partial class Program
 		var mentality = new List<string>();
 		if (done && mentalityBefore != null && await MatchMentality() is { } mentalityAfter && mentalityAfter.Number != mentalityBefore.Value.Number)
 			mentality.Add($"{GameWords.Of(mentalityBefore.Value.Name)} → {GameWords.Of(mentalityAfter.Name)}");
+		var players = done && playersBefore.Count > 0 ? await PlayerInstructionChanges(playerWatches, playersBefore) : [];
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff,
-				InstructionsChanged = instructions, MentalityChanged = mentality, Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).ToList() }));
+				InstructionsChanged = instructions, MentalityChanged = mentality, PlayerInstructionsChanged = players,
+				Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).Concat(players).ToList() }));
 			return done ? 0 : 1;
 		}
 		Console.WriteLine(done
@@ -378,6 +384,7 @@ internal static partial class Program
 		foreach (var name in tweaksOff) Console.WriteLine(L($"  Tactical tweak off: {name}"));
 		foreach (var change in instructions) Console.WriteLine(L($"  Team instruction: {change}"));
 		foreach (var change in mentality) Console.WriteLine(L($"  Mentality: {change}"));
+		foreach (var change in players) Console.WriteLine(L($"  Player instruction: {change}"));
 		return done ? 0 : 1;
 	}
 

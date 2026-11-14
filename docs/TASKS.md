@@ -52,13 +52,17 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T23 `shortlist` lists
 - [x] T24 `inbox --read-all`
 - [x] T25 `dugout` cards: apply puts a tweak or team instruction on, read back; a wrong number refused. TR 2/2, EN 2/2.
-- [ ] T157 `dugout` cards, what is left after T25 (its two live sightings are under moments, T160 and T161):
+- [x] T157 `dugout` cards, what is left after T25 (live sightings under moments: T160, T161, T163):
   - [x] A card pressed and never taken: the panel is drawn twice and the hidden copy's button was pressed; now only
     the one the game shows (`Visible`). Round 67 (14 Nov): EN 2/2 (3 cards), TR 2/2 (3 cards), each taken at once
   - [x] The minute's wait: the timeline's marks stay listed with the panel away and the whole timeline last read is
     kept, so the list and "nothing to apply" come in 1–5 s (were 60–100 s); a card is done when its change reads back.
     Left as it is: a mark never read with the panel up, or an instruction or mentality card to press, waits for the panel
-  - [ ] A player card ("Tell Salifou: Shoot Less Often") is taken but nothing is read back: player instructions
+  - [x] A player card ("Tell Salifou: Shoot Less Often") changes a player instruction (PI_SHOOT_LESS), not a tweak:
+    everyone's instructions on the pitch are read before and after (one batch, ~1.2 s) and the moved one said,
+    "Player · Instruction: was → now" in the game's words. Measured with a changed instruction in a match, TR + EN, negative case too
+- [ ] T162 `tactic pi` in a TR game: lists names in Turkish but takes only English ones ("Şut" refused); the group's
+  English differs by game language ("Shots" in TR, "Shooting" in EN) and the choices come out in English
 - [x] T155 Team instruction names in a Turkish game came out in English: shown through `GameWords` (TR and EN checked)
 - [x] T26 `pause` / `resume`
 - [x] T27 `holiday --jobs`
@@ -159,6 +163,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 - [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live.
 - [ ] T161 `dugout` pressing card in a TR match: the read-back says "from → to" (was "Pres Şiddeti: Çok Şiddetli"); see it.
+- [ ] T163 `dugout` player card met live: the read-back names the player and the instruction (`PlayerInstructionsChanged`).
 - [ ] T158 The game's own fatal-error window, met for real: the tool says so (exit 70) and `fm stop` ends it.
   The sign is the main thread in `-[NSAlert runModal]`; the game's `game_plugin` holds NSAlert, runModal, the
   "A serious error was encountered…" text and `show_and_wait_native_error_dialog`. Its only known trigger (T11's
