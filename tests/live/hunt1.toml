@@ -4,6 +4,20 @@
 # extra time met by its period. Rare moments: 2 a language (Faruk, 13 Nov); T90 needs only its TR pass.
 # Run: tools/fm-round.py hunt tests/live/hunt1.toml --dry, then hunt ... --lang en,tr --hours 6.
 
+# Before each kick-off our side is set to run itself into the ground (Faruk, 14 Nov: at full tempo at both ends men
+# get hurt), and to the most attacking mentality, where the staff's mentality advice is likelier. By the plugin's
+# names, the same in every language.
+setup = [
+  { run = 'tactic instructions "Tempo" "Much Higher"' },
+  { run = 'tactic instructions "Line of Engagement" "High Press"' },
+  { run = 'tactic instructions "Defensive Line" "Much Higher"' },
+  { run = 'tactic instructions "Trigger Press" "Much More Often"' },
+  { run = 'tactic instructions "Defensive Transition" "Counter-Press"' },
+  { run = 'tactic instructions "Tackling" "Get Stuck In"' },
+  { read = "tactic mentality", path = "Choices.6", keep = "attacking" },
+  { run = "tactic mentality {attacking}" },
+]
+
 [[scenario]]
 at = "kickoff"
 serves = ["T160", "T161", "T163", "T156"]

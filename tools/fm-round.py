@@ -8,7 +8,7 @@
   fm-round.py enter <scenario> [--lang en]    a fresh copy of it, loaded, in that language
   fm-round.py dry <list.toml>                 check a test list; changes nothing in the game
   fm-round.py run <list.toml> [--lang en,tr] [--only T106 | a piece of a test's name]
-  fm-round.py hunt <hunt.toml> [--lang en,tr] [--hours 6] [--dry]
+  fm-round.py hunt <hunt.toml> [--lang en,tr] [--hours 12] [--dry]
                                               matches played and watched for every rare moment at once (below)
   fm-round.py home "<save>"                   back to a real save after a round
 
@@ -1108,6 +1108,9 @@ def hunt_problems(spec):
     """The hunt list's own shape, told without the game."""
     found = []
     tasks = {m.get("task") for m in spec.get("moment", [])}
+    for step in spec.get("setup", []):
+        if not {"run", "read"} & set(step):
+            found.append("the setup is run / read steps only")
     for scenario in spec.get("scenario", []):
         if not (STORE / f"{scenario.get('at')}.fm").exists():
             found.append(f"no scenario '{scenario.get('at')}'")
@@ -1309,6 +1312,8 @@ def watch_match(scenario, hunt, limit):
 
 
 def hunt_run(args):
+    """Matches in the languages taken in turn (en, tr, en …): a moment counts in whichever comes first, so neither
+    language waits hours on the other (Faruk, 14 Nov). The whole hunt shares one upper bound, --hours."""
     with open(args.list, "rb") as file:
         spec = tomllib.load(file)
     if problems := hunt_problems(spec):
@@ -1319,60 +1324,72 @@ def hunt_run(args):
     RESULTS.mkdir(parents=True, exist_ok=True)
     stem = pathlib.Path(args.list).stem
     global LOG, LANG_NOW
-    for lang in args.lang.split(","):
+    log_file = RESULTS / f"{stem}.log"
+    if log_file.exists():
+        log_file.replace(log_file.with_suffix(f".{int(time.time())}.log"))
+    LOG = open(log_file, "w")
+    stop_watch = threading.Event()
+    threading.Thread(target=watch_memory, args=(RESULTS / f"{stem}.memory.tsv", stop_watch), daemon=True).start()
+    langs = args.lang.split(",")
+    hunts = {lang: Hunt(spec, lang, stem) for lang in langs}
+    SEEN_DIALOGS.clear()
+    deadline = time.time() + args.hours * 3600
+    matches = deaths = 0
+    turn = {lang: 0 for lang in langs}
+    ends = []
+    while time.time() < deadline and deaths < DEATHS * 2:
+        open_langs = [lang for lang in langs if hunts[lang].open_tasks()]
+        if not open_langs:
+            break
+        lang = open_langs[matches % len(open_langs)]
         LANG_NOW = lang
-        log_file = RESULTS / f"{stem}-{lang}.log"
-        if log_file.exists():
-            log_file.replace(log_file.with_suffix(f".{int(time.time())}.log"))
-        LOG = open(log_file, "w")
-        stop_watch = threading.Event()
-        threading.Thread(target=watch_memory, args=(RESULTS / f"{stem}-{lang}.memory.tsv", stop_watch), daemon=True).start()
-        hunt = Hunt(spec, lang, stem)
-        SEEN_DIALOGS.clear()
-        deadline = time.time() + args.hours * 3600
-        matches = deaths = 0
-        turn = 0
-        ends = []
-        while time.time() < deadline and hunt.open_tasks() and deaths < DEATHS * 2:
-            serving = [sc for sc in spec["scenario"] if set(sc.get("serves", [])) & set(hunt.open_tasks())]
-            scenario = serving[turn % len(serving)]
-            turn += 1
-            restore = {}
-            try:
-                print(f"[{lang}] match {matches + 1} in {scenario['at']} for {sorted(set(scenario['serves']) & set(hunt.open_tasks()))}: "
-                      f"{json.dumps(enter(scenario['at'], lang))}", flush=True)
-                if scenario.get("fast"):
-                    restore = fast_matches()
-                for name, value in scenario.get("speeds", {}).items():
-                    restore.setdefault(name, read_json(f'settings "{name}"')["Value"])
-                    must(f'settings "{name}" "{value}"')
-                matches += 1
-                how = watch_match(scenario, hunt, scenario.get("minutes", 100) * 60)
-                ends.append(how)
-                print(f"[{lang}] match {matches} {how}; open: {hunt.open_tasks()}; cards {hunt.cards}", flush=True)
-            except Fatal as error:
+        hunt = hunts[lang]
+        serving = [sc for sc in spec["scenario"] if set(sc.get("serves", [])) & set(hunt.open_tasks())]
+        scenario = serving[turn[lang] % len(serving)]
+        turn[lang] += 1
+        restore = {}
+        try:
+            print(f"[{lang}] match {matches + 1} in {scenario['at']} for {sorted(set(scenario['serves']) & set(hunt.open_tasks()))}: "
+                  f"{json.dumps(enter(scenario['at'], lang))}", flush=True)
+            if scenario.get("fast"):
+                restore = fast_matches()
+            for name, value in scenario.get("speeds", {}).items():
+                restore.setdefault(name, read_json(f'settings "{name}"')["Value"])
+                must(f'settings "{name}" "{value}"')
+            # The list's own setup before kick-off (everything at full tempo: hurt men and the staff's advice come sooner).
+            kept = {}
+            for number, step in enumerate(spec.get("setup", []), 1):
+                plain_step(number, {k: filled(v, kept) if k in ("run", "read") else v for k, v in step.items()}, kept)
+            matches += 1
+            how = watch_match(scenario, hunt, scenario.get("minutes", 100) * 60)
+            ends.append(f"{lang} {how}")
+            print(f"[{lang}] match {matches} {how}; open: " + "; ".join(f"{l} {hunts[l].open_tasks()}" for l in langs)
+                  + f"; cards {sum(h.cards for h in hunts.values())}", flush=True)
+        except Fatal as error:
+            deaths += 1
+            fm("stop --no-save", 120)
+            print(f"[{lang}] the game hit a fatal error ({deaths}): {error}{keep_log(f'{stem}-death{deaths}.Player.log')}", flush=True)
+        except Failed as error:
+            if fm("status --json", 120)[0] == NOT_RUNNING:
                 deaths += 1
-                fm("stop --no-save", 120)
-                print(f"[{lang}] the game hit a fatal error ({deaths}): {error}{keep_log(f'{stem}-{lang}-death{deaths}.Player.log')}", flush=True)
-            except Failed as error:
-                if fm("status --json", 120)[0] == NOT_RUNNING:
-                    deaths += 1
-                    print(f"[{lang}] the game died ({deaths}): {error}{keep_log(f'{stem}-{lang}-death{deaths}.Player.log')}", flush=True)
-                else:
-                    print(f"[{lang}] the match could not be played: {error}", flush=True)
-                    deaths += 1  # bounded the same way: a hunt that cannot start a match must not spin all night
-            finally:
-                if restore:
-                    put_back(restore)
-        rows = hunt.report()
-        extra = [f"- {matches} matches ({', '.join(ends)}), {hunt.cards} cards taken, the game died {deaths} ×",
-                 f"- questions answered in the matches: {', '.join(sorted(set(SEEN_DIALOGS))) or 'none'}"]
-        extra += [f"- a card taken without a change read back at {u['minute']}': {json.dumps(u['data'], ensure_ascii=False)[:300]}" for u in hunt.unread]
-        report = RESULTS / f"{stem}-{lang}.md"
-        report.write_text(f"# {stem}, {lang}, {datetime.datetime.now():%Y-%m-%d %H:%M}\n\n" + "\n".join(rows + extra) + "\n")
-        stop_watch.set()
-        print("\n".join(rows + extra), flush=True)
-        print(f"[{lang}] written: {report}", flush=True)
+                print(f"[{lang}] the game died ({deaths}): {error}{keep_log(f'{stem}-death{deaths}.Player.log')}", flush=True)
+            else:
+                print(f"[{lang}] the match could not be played: {error}", flush=True)
+                deaths += 1  # bounded the same way: a hunt that cannot start a match must not spin all night
+        finally:
+            if restore:
+                put_back(restore)
+    rows = []
+    for lang in langs:
+        rows += [f"## {lang}"] + hunts[lang].report()
+        rows += [f"- a card taken without a change read back at {u['minute']}': {json.dumps(u['data'], ensure_ascii=False)[:300]}" for u in hunts[lang].unread]
+    extra = [f"- {matches} matches ({', '.join(ends)}), {sum(h.cards for h in hunts.values())} cards taken, the game died {deaths} ×",
+             f"- questions answered in the matches: {', '.join(sorted(set(SEEN_DIALOGS))) or 'none'}"]
+    report = RESULTS / f"{stem}.md"
+    report.write_text(f"# {stem}, {datetime.datetime.now():%Y-%m-%d %H:%M}\n\n" + "\n".join(rows + extra) + "\n")
+    stop_watch.set()
+    print("\n".join(rows + extra), flush=True)
+    print(f"written: {report}", flush=True)
     return 0
 
 
@@ -1429,7 +1446,7 @@ def main():
     one = sub.add_parser("hunt", help="matches watched for every rare moment at once, until each moment's quota is met")
     one.add_argument("list")
     one.add_argument("--lang", default="en,tr")
-    one.add_argument("--hours", type=float, default=6, help="upper bound for each language")
+    one.add_argument("--hours", type=float, default=12, help="upper bound for the whole hunt")
     one.add_argument("--dry", action="store_true", help="check the list only")
     one.set_defaults(go=lambda a: hunt_dry(a) if a.dry else hunt_run(a))
     one = sub.add_parser("home")
