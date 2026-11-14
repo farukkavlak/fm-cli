@@ -164,6 +164,9 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live.
 - [ ] T161 `dugout` pressing card in a TR match: the read-back says "from → to" (was "Pres Şiddeti: Çok Şiddetli"); see it.
 - [ ] T163 `dugout` player card met live: the read-back names the player and the instruction (`PlayerInstructionsChanged`).
+  - Tried 14 Nov: the game's own `EventFmxMatchDugoutGenerateDebugEvent` (InteropEventIDs 961956663), sent by
+    `/pluginevent` to a dugout control's target (`DugoutEvent<n>`, after `dugout` resolved it) during a match: taken,
+    no card made (likely shut in the release build). Not tried: a payload or another target; `…ClearDebugEvent` beside it.
 - [ ] T158 The game's own fatal-error window, met for real: the tool says so (exit 70) and `fm stop` ends it.
   The sign is the main thread in `-[NSAlert runModal]`; the game's `game_plugin` holds NSAlert, runModal, the
   "A serious error was encountered…" text and `show_and_wait_native_error_dialog`. Its only known trigger (T11's
