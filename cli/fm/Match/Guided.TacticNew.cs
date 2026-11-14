@@ -443,7 +443,8 @@ internal static partial class Program
 		Console.Error.WriteLine(close.Count == 0
 			? L($"{what}: there is no option '{pick}'. Options:")
 			: L($"{what}: '{pick}' matches more than one option:"));
-		foreach (var choice in close.Count == 0 ? choices : close) Console.Error.WriteLine($"  {choice}");
+		// Listed in the game's words, as they are shown everywhere else (T162).
+		foreach (var choice in close.Count == 0 ? choices : close) Console.Error.WriteLine($"  {GameWords.Of(choice)}");
 		return null;
 	}
 

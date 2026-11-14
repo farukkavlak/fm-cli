@@ -51,6 +51,10 @@ internal static partial class Program
 			return 1;
 		}
 		string Setting(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) ? g.Options.FirstOrDefault(o => o.Id == n.Option).Name ?? n.Option.ToString() : "?";
+		// The names are the plugin's English (kept in a file, and not the same English in every game language:
+		// "Shots" in a Turkish game, "Shooting" in an English one); they are shown, and matched, in the game's words (T162).
+		await GameWords.Ask(Fm, [.. groups.Select(g => g.Name), .. groups.SelectMany(g => g.Options.Select(o => o.Name))]);
+		string Shown(string name) => GameWords.Of(name);
 		bool Fixed(PlayerInstructionGroup g) => now.TryGetValue(g.Id, out var n) && n.Locked;
 		var roles = slot.Role.Length > 0 ? L($"{slot.Player} · {slot.Role} / out of possession {slot.RoleWithoutBall}") : slot.Player;
 
@@ -61,7 +65,8 @@ internal static partial class Program
 				Console.WriteLine(JsonOut.Of(new
 				{
 					Position = spot, slot.Player, slot.Role, slot.RoleWithoutBall,
-					Instructions = groups.Select(g => new { Label = g.Name, WithBall = g.WithBall, Value = Setting(g), ByRole = Fixed(g), Choices = g.Options.Select(o => o.Name) }),
+					Instructions = groups.Select(g => new { Id = g.Id, Label = g.Name, ShownLabel = Shown(g.Name), WithBall = g.WithBall, Value = Setting(g), ShownValue = Shown(Setting(g)), ByRole = Fixed(g),
+						Choices = g.Options.Select(o => o.Name), ShownChoices = g.Options.Select(o => Shown(o.Name)) }),
 				}));
 				return 0;
 			}
@@ -70,8 +75,8 @@ internal static partial class Program
 			{
 				if (Ui.Rich) Ui.Line($"[bold]{(side.Key ? L("In possession") : L("Out of possession"))}[/]"); else Console.WriteLine(side.Key ? L("In possession") : L("Out of possession"));
 				foreach (var g in side)
-					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(g.Name),-22}[/] [yellow]{Ui.Safe(Setting(g))}[/]{(Fixed(g) ? L(" [dim](from the role)[/]") : "")}");
-					else Console.WriteLine($"  {g.Name}: {Setting(g)}{(Fixed(g) ? L(" (from the role)") : "")}");
+					if (Ui.Rich) Ui.Line($"  [dim]{Ui.Safe(Shown(g.Name)),-22}[/] [yellow]{Ui.Safe(Shown(Setting(g)))}[/]{(Fixed(g) ? L(" [dim](from the role)[/]") : "")}");
+					else Console.WriteLine($"  {Shown(g.Name)}: {Shown(Setting(g))}{(Fixed(g) ? L(" (from the role)") : "")}");
 			}
 			Console.WriteLine(L($"\nTo change: tactic pi {spot} \"<instruction>\" <value>   (those from the role change when the role does)"));
 			return 0;
@@ -79,11 +84,11 @@ internal static partial class Program
 
 		if (Choose(groups.Select(g => g.Name).ToList(), words[1], spot) is not { } named) return 1;
 		var group = groups.First(g => g.Name == named);
-		var name = $"{spot} · {group.Name}";
+		var name = $"{spot} · {Shown(group.Name)}";
 		var current = Setting(group);
 		if (Fixed(group))
 		{
-			Console.Error.WriteLine(L($"{name}: {current} — part of the role{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")}, cannot be changed. To change the role: tactic role {spot}{(group.WithBall ? "" : " --oop")}"));
+			Console.Error.WriteLine(L($"{name}: {Shown(current)} — part of the role{(slot.Role.Length > 0 ? $" ({(group.WithBall ? slot.Role : slot.RoleWithoutBall)})" : "")}, cannot be changed. To change the role: tactic role {spot}{(group.WithBall ? "" : " --oop")}"));
 			return 1;
 		}
 		// Some settings are not on offer to every role ("Cut Inside" for a centre-back), as on the card.
@@ -98,23 +103,23 @@ internal static partial class Program
 		}
 		else if (Ui.Interactive && !dry)
 		{
-			if (Ui.Ask(name, choices, current: choices.IndexOf(current), cancel: L("Cancel")) is not { } picked) return 0;
+			if (Ui.Ask(name, choices.Select(Shown).ToList(), current: choices.IndexOf(current), cancel: L("Cancel")) is not { } picked) return 0;
 			choice = choices[picked];
 		}
 		else if (Ui.Json)
 		{
-			Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Value = current, Choices = choices }));
+			Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, ShownInstruction = Shown(group.Name), Value = current, ShownValue = Shown(current), Choices = choices, ShownChoices = choices.Select(Shown) }));
 			return 0;
 		}
 		else
 		{
-			Console.WriteLine(L($"{name}: {current}\nOptions: {string.Join(" · ", choices)}"));
+			Console.WriteLine(L($"{name}: {Shown(current)}\nOptions: {string.Join(" · ", choices.Select(Shown))}"));
 			return 0;
 		}
 
 		if (dry || choice == current)
 		{
-			Console.WriteLine(dry ? L($"(dry run) {name}: {current} → {choice}") : L($"{name} is already {choice}."));
+			Console.WriteLine(dry ? L($"(dry run) {name}: {Shown(current)} → {Shown(choice)}") : L($"{name} is already {Shown(choice)}."));
 			return 0;
 		}
 
@@ -128,7 +133,7 @@ internal static partial class Program
 		long? after = null;
 		var took = await Until(async () => (after = (await PlayerInstructionsNow(index, [group])).GetValueOrDefault(group.Id)?.Option) == option, seconds: 5, every: 0.3);
 		if (Ui.Json) Console.WriteLine(JsonOut.Of(new { Position = spot, Instruction = group.Name, Was = current, Value = took ? choice : current, Changed = took }));
-		else Console.WriteLine(took ? $"{name}: {current} → {choice}{Stoppage()}" : L($"{name}: the game did not take the change."));
+		else Console.WriteLine(took ? $"{name}: {Shown(current)} → {Shown(choice)}{Stoppage()}" : L($"{name}: the game did not take the change."));
 		return took ? 0 : 1;
 	}
 

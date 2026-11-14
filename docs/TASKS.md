@@ -61,8 +61,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] A player card ("Tell Salifou: Shoot Less Often") changes a player instruction (PI_SHOOT_LESS), not a tweak:
     everyone's instructions on the pitch are read before and after (one batch, ~1.2 s) and the moved one said,
     "Player · Instruction: was → now" in the game's words. Measured with a changed instruction in a match, TR + EN, negative case too
-- [ ] T162 `tactic pi` in a TR game: lists names in Turkish but takes only English ones ("Şut" refused); the group's
-  English differs by game language ("Shots" in TR, "Shooting" in EN) and the choices come out in English
+- [x] T162 `tactic pi` in a TR game took only the plugin's English ("Şut" refused) and listed choices in English:
+  the game's words are now asked for and shown, and matched (as `tactic instructions` since T155). TR + EN, 4 changes each, wrong name refused
 - [x] T155 Team instruction names in a Turkish game came out in English: shown through `GameWords` (TR and EN checked)
 - [x] T26 `pause` / `resume`
 - [x] T27 `holiday --jobs`
