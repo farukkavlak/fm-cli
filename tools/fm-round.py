@@ -782,11 +782,9 @@ def keeper_of(subs, name):
 
 def bench_man(subs, keeper):
     """A substitute: a goalkeeper for a goalkeeper, an outfield man otherwise, told by his CoachBestPosition
-    (the squad's rows by UniqueId). Any man the squad does not list is a last resort outfield choice."""
-    try:
-        squad = {p.get("UniqueId"): int(p.get("CoachBestPosition") or 0) for p in read_json("squad", 120)}
-    except Failed:
-        squad = {}
+    (`sub`'s own Position, from the team's data: the squad page cannot open in a match, so a squad reading there
+    left every man unknown and the first, often the goalkeeper, was sent on). Any man unknown is a last resort outfield choice."""
+    squad = {b.get("Id"): int(b["Position"]) for b in subs.get("BenchPlayers", []) if str(b.get("Position") or "").isdigit()}
     known = [b for b in subs.get("BenchPlayers", []) if b.get("Id") in squad]
     fitting = [b for b in known if bool(squad[b["Id"]] & KEEPER) == keeper]
     if fitting:

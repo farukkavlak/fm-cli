@@ -198,13 +198,22 @@ internal static partial class Program
 			return await ApplyStaffSuggestion(advice) ? 0 : 1;
 		}
 
-		// The panel is put away while a highlight plays and comes back between them.
+		// The panel is put away while a highlight plays and comes back between them. Its timeline marks stay
+		// listed while it is away, and a new piece of advice is marked only once it is back: no mark, no advice.
+		// Marks whose cards were read while it was up are told from memory; only a mark never read waits for it.
 		var entries = await DugoutEntries();
+		var fromMemory = false;
 		if (entries.Count == 0 && !await DugoutShowing())
 		{
-			if (!await DugoutComesBack()) return 1;
-			// Its entries are drawn a moment after it shows.
-			await Until(async () => (entries = await DugoutEntries()).Count > 0, seconds: 3, every: 0.25);
+			var marks = TimelineMarks(await Fm.GetJson("buttons", ("json", "1")));
+			if (marks.Count > 0 && SeenCards(Field(await Fm.GetJson("state"), "Date"), marks) is { } seen)
+				(entries, fromMemory) = (seen, true);
+			else if (marks.Count > 0)
+			{
+				if (!await DugoutComesBack()) return 1;
+				// Its entries are drawn a moment after it shows.
+				await Until(async () => (entries = await DugoutEntries()).Count > 0, seconds: 3, every: 0.25);
+			}
 		}
 		var words = Words(args).ToList();
 		if (entries.Count == 0)
@@ -221,9 +230,10 @@ internal static partial class Program
 
 		if (json && words.Count == 0)
 		{
-			Console.WriteLine(JsonOut.Of(entries.Select(e => new { e.Minute, e.Text, CanDo = e.Open })));
+			Console.WriteLine(JsonOut.Of(entries.Select(e => new { e.Minute, e.Text, CanDo = e.Open, AsLastSeen = fromMemory })));
 			return 0;
 		}
+		if (fromMemory && words.Count == 0) Console.WriteLine(L("(as last seen: the dugout panel is hidden while a move is played)"));
 
 		if (words.Count == 0)
 		{
@@ -288,7 +298,7 @@ internal static partial class Program
 		// The buttons act on whichever entry is showing, so that one is brought up first.
 		// The timeline is laid out again as the match goes on, so a mark gone stale is looked for again by its advice.
 		if (!await DugoutShowing() && !await DugoutComesBack()) return 1;
-		if ((await ShowDugoutEntry(entry.Pointer, entry.Index))?.Text != entry.Text
+		if ((entry.Pointer.Length > 0 ? await ShowDugoutEntry(entry.Pointer, entry.Index) : null)?.Text != entry.Text
 		    && ((await DugoutEntries()).FirstOrDefault(e => e.Text == entry.Text) is not { } again
 		        || (await ShowDugoutEntry((entry = again).Pointer, entry.Index))?.Text != entry.Text))
 		{
@@ -321,8 +331,14 @@ internal static partial class Program
 
 		// Taken advice keeps its place but stops being actionable; dismissed advice leaves the timeline.
 		// A hidden panel lists nothing, which says nothing: only a panel that is up counts, however long a move takes.
+		// The change itself is a sign of its own, read while the panel is away: a tweak, an instruction or the mentality moved.
+		async Task<bool> Changed() =>
+			(before.Count > 0 && (await ReadTweaks()).Any(t => before.FirstOrDefault(b => b.Id == t.Id) is { } was && was.WillBeOn != t.WillBeOn))
+			|| (instructionsBefore.Count > 0 && (await TeamInstructionsNow(catalogue)).Any(n => instructionsBefore.TryGetValue(n.Key, out var was) && was != n.Value))
+			|| (mentalityBefore != null && await MatchMentality() is { } m && m.Number != mentalityBefore.Value.Number);
 		var done = await Until(async () =>
 		{
+			if (event_ == AcceptEvent && await Changed()) return true;
 			if (!await DugoutShowing()) return false;
 			var same = (await DugoutEntries()).FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
 			return event_ == AcceptEvent ? same is { Open: false } : same == null;
@@ -451,26 +467,103 @@ internal static partial class Program
 		return true;
 	}
 
-	/// <summary>Every piece of advice on the Dugout timeline, oldest first; score updates are left out.</summary>
+	/// <summary>
+	/// Every piece of advice on the Dugout timeline, oldest first; score updates are left out. A card already read
+	/// on this same timeline and closed (a score, a note, advice taken) is told from memory: closed cards do not open again.
+	/// </summary>
 	private static async Task<List<DugoutEntry>> DugoutEntries()
 	{
 		// The screen holds a second copy of the timeline that is never enabled.
 		var marks = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$") && Field(b, "Enabled") == "True")
-			.Select(b => (Index: int.Parse(Field(b, "Name")["DugoutEvent".Length..]), Pointer: Field(b, "Pointer")))
+			.Select(b => (Index: int.Parse(Field(b, "Name")["DugoutEvent".Length..]), Minute: Field(b, "Label"), Pointer: Field(b, "Pointer")))
+			.DistinctBy(m => m.Index)
 			.OrderBy(m => m.Index)
 			.ToList();
+		// A mark pressed with the panel away selects nothing: each would be waited on in vain.
+		if (marks.Count == 0 || !await DugoutShowing()) return [];
 
+		var date = Field(await Fm.GetJson("state"), "Date");
+		var layout = Layout(marks.Select(m => (m.Index, m.Minute)));
+		var known = LoadTimelines().FirstOrDefault(t => t.Date == date && t.Layout == layout)?.Cards ?? [];
 		var entries = new List<DugoutEntry>();
-		var showing = (await DugoutNow())?.Index;
-		foreach (var (index, pointer) in marks)
-			if (await ShowDugoutEntry(pointer, index) is { IsScoreUpdate: false, Text.Length: > 0 } card)
-				entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable, card.TweakId, card.TweakAction));
+		var cards = new List<SeenCard>();
+		int? showing = null;
+		var pressed = false;
+		foreach (var (index, minute, pointer) in marks)
+		{
+			if (known.FirstOrDefault(c => c.Index == index && !c.Open) is { } closed)
+			{
+				cards.Add(closed);
+				if (closed.Type != ScoreUpdateCard) entries.Add(new(closed.Minute, index, pointer, closed.Text, false, closed.TweakId, closed.TweakAction));
+				continue;
+			}
+			if (!pressed) showing = (await DugoutNow())?.Index;
+			pressed = true;
+			if (await ShowDugoutEntry(pointer, index) is not { Text.Length: > 0 } card) continue;
+			cards.Add(new(index, minute, card.Type, card.Actionable, card.Text, card.TweakId, card.TweakAction));
+			if (!card.IsScoreUpdate) entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable, card.TweakId, card.TweakAction));
+		}
+		if (cards.Count == marks.Count) RememberTimeline(date, layout, cards);
 
 		// Put back the entry that was showing, so reading the list changes nothing.
-		if (marks.Count > 0 && showing != marks[^1].Index && marks.FirstOrDefault(m => m.Index == showing) is { Pointer: not null } was)
+		if (pressed && showing != marks[^1].Index && marks.FirstOrDefault(m => m.Index == showing) is { Pointer: not null } was)
 			await ShowDugoutEntry(was.Pointer, was.Index);
 		return entries;
+	}
+
+	/// <summary>A card read off the panel, at its place on the timeline.</summary>
+	private sealed record SeenCard(int Index, string Minute, int Type, bool Open, string Text, string TweakId, string TweakAction);
+
+	/// <summary>
+	/// A whole timeline as it was read: the match's day, each place's minute, and the cards. The timeline only moves on
+	/// with the panel up and only grows, so the same places with the same minutes are the same cards.
+	/// </summary>
+	private sealed record SeenTimeline(string Date, string Layout, List<SeenCard> Cards);
+
+	private static string SeenTimelinesFile => CacheFile("dugout-seen.json");
+
+	private static string Layout(IEnumerable<(int Index, string Minute)> marks) => string.Join("|", marks.Select(m => $"{m.Index}:{m.Minute}"));
+
+	/// <summary>
+	/// The timeline's marks by place and minute (the game's own numbers), from a listing of the screen's buttons; they stay
+	/// listed with the panel away. Of its two copies one can lag behind: at each place the later minute is the timeline's now.
+	/// </summary>
+	private static List<(int Index, string Minute)> TimelineMarks(JsonElement buttons) =>
+		buttons.EnumerateArray().Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$"))
+			.Select(b => (Index: int.Parse(Field(b, "Name")["DugoutEvent".Length..]), Minute: Field(b, "Label")))
+			.GroupBy(m => m.Index).Select(g => g.OrderByDescending(m => MinuteOrder(m.Minute)).First())
+			.OrderBy(m => m.Index).ToList();
+
+	/// <summary>"90+2" after "90", both after "89".</summary>
+	private static (int, int) MinuteOrder(string minute)
+	{
+		var parts = minute.Split('+');
+		return (int.TryParse(parts[0], out var main) ? main : -1, parts.Length > 1 && int.TryParse(parts[1], out var added) ? added : 0);
+	}
+
+	private static List<SeenTimeline> LoadTimelines()
+	{
+		try { return File.Exists(SeenTimelinesFile) ? JsonSerializer.Deserialize<List<SeenTimeline>>(File.ReadAllText(SeenTimelinesFile)) ?? [] : []; }
+		catch (Exception e) when (e is JsonException or IOException or NotSupportedException) { return []; }
+	}
+
+	/// <summary>A timeline just read, kept over the same one read before; another day's are let go, and only the latest few kept.</summary>
+	private static void RememberTimeline(string date, string layout, List<SeenCard> cards)
+	{
+		if (date.Length == 0) return;
+		var kept = LoadTimelines().Where(t => t.Date == date && t.Layout != layout).TakeLast(30).ToList();
+		kept.Add(new(date, layout, cards));
+		try { File.WriteAllText(SeenTimelinesFile, JsonSerializer.Serialize(kept)); }
+		catch (IOException) { }
+	}
+
+	/// <summary>The advice on this very timeline when it was read whole before; null when it was not (then the panel is waited for).</summary>
+	private static List<DugoutEntry>? SeenCards(string date, List<(int Index, string Minute)> marks)
+	{
+		var layout = Layout(marks);
+		if (date.Length == 0 || LoadTimelines().FirstOrDefault(t => t.Date == date && t.Layout == layout) is not { } seen) return null;
+		return seen.Cards.Where(c => c.Type != ScoreUpdateCard).Select(c => new DugoutEntry(c.Minute, c.Index, "", c.Text, c.Open, c.TweakId, c.TweakAction)).ToList();
 	}
 
 	private static string Mark(DugoutEntry entry) => entry.Open ? L("  [can be applied]") : "";

@@ -62,10 +62,6 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] "Press less aggressively" read back reversed: not seen again. Live 14 Nov EN, the tweak on: Trigger Press
     Much More Often → More Often, Line of Engagement High Press → Low Block (right way); back at the whistle
 - [x] T155 Team instruction names in a Turkish game came out in English: shown through `GameWords` (TR and EN checked)
-- [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
-  so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
-  Not met on 14 Nov (one match, no injury). The test tool now keeps the run before (`*.prev.log`) and prints
-  why `sub` was not read at a stop: that log was written over before.
 - [x] T26 `pause` / `resume`
 - [x] T27 `holiday --jobs`
 - [x] T28 `youth candidates`
@@ -159,6 +155,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 ## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
 
+- [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
+  so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
+  Not met on 14 Nov (one match, no injury). The test tool now keeps the run before (`*.prev.log`) and prints
+  why `sub` was not read at a stop: that log was written over before.
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique.
 - [ ] T55 Season's end: vision meeting, awards, contracts ending, retirements
 - [x] T56 Transfer window and deadline day

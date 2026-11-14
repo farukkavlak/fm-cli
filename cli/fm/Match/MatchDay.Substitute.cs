@@ -46,10 +46,19 @@ internal static partial class Program
 			// The planner may hold a short name ("Draper") where the match has the full one.
 			bool Ours(string name) => onPitch.Contains(name) || eleven.Any(e => Named(name, e.Name));
 			var injured = (await MatchPlayers(atStop: true)).Where(p => p.Value.Injury != 0 && Ours(p.Key)).Select(p => p.Key).ToList();
+			// Each substitute's best position by the same bit mask (BestPositionMask), from the team's data (the squad page cannot open in a match):
+			// a goalkeeper is told from an outfield man without it.
+			var best = new Dictionary<string, string>();
+			try
+			{
+				foreach (var p in (await Fm.Pull("Human.Team.Players", "UniqueId,BestPositionMask", list: true)).EnumerateArray())
+					best.TryAdd(Field(p, "UniqueId"), Field(p, "BestPositionMask"));
+			}
+			catch (FmError) { }
 			Console.WriteLine(JsonOut.Of(new
 			{
 				OnPitch = onPitch, Bench = bench.Select(b => b.Name),
-				BenchPlayers = bench.Select(b => new { b.Name, b.Id }), Eleven = eleven, Injured = injured,
+				BenchPlayers = bench.Select(b => new { b.Name, b.Id, Position = best.GetValueOrDefault(b.Id, "") }), Eleven = eleven, Injured = injured,
 			}));
 			return 0;
 		}
