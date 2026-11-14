@@ -101,6 +101,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 - [x] T39 `fm crawl` closes a popup that holds the queue
 - [ ] T40 `fm stop`: the game sometimes hangs on its way out (process stuck, not killable). Cause unknown.
+  - [ ] Watch: since T92's fix (ticks off the main thread, c5c8b63) 30+ stops on 13–14 Nov, none hung (all under 45 s).
+    Maybe the same cause; close after more rounds with none.
 - [x] T41 `settings language`
 - [x] T42 `status` with a held queue
 - [x] T43 Squad numbers and list at a season's start
