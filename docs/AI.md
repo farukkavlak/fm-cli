@@ -17,9 +17,19 @@ Playing by sentence (`fm <sentence>`), and later an assistant (Mahmut).
 - Smart mode (opt-in): Claude Haiku answers when the router is unsure.
 - Local LLMs were measured on this Mac (29 Oct): all failed. Not used.
 
-## First release
+## Safety
 
-- Safety: task T153 in `docs/TASKS.md`.
+- Every tool is marked next to its definition (`cli/fm/Core/Mcp.Tools.cs`), with the arguments that bring it about:
+  - Read: changes nothing
+  - Change: can be set back (tactic, training, settings, lists)
+  - Play: moves the game on (Continue, a match, a word in a talk); not asked for
+  - Weighty: cannot be taken back (money, contracts, people, saves and files, the job)
+- One table for all three ways in:
+  - CLI: a weighty command acts only on its own yes (`--yes`, `--send`, `--sign`) or the argument that is the act
+  - MCP: hosts get `readOnlyHint` / `destructiveHint`; a call missing a required argument is refused, nothing run
+  - Sentences: a weighty call is shown and runs only on a yes
+- A chain of commands that stops part way says what was done and what was not.
+- Bench: `tests/FmCli.Tests/SafetyTests.cs`; live: `tests/live/round68.toml` (read-only tools change nothing).
 
 ## Later (v2)
 

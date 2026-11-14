@@ -120,20 +120,23 @@ internal static partial class Program
 				return found;
 			}
 
-			foreach (var asked in words.Skip(1))
+			var asks = words.Skip(1).ToList();
+			var done = new List<string>();
+			foreach (var asked in asks)
 			{
+				var left = asks.Skip(done.Count);
 				var eq = asked.IndexOf('=');
 				var column = eq > 0 ? OppositionColumns.FirstOrDefault(c => Fold(c.Key) == Fold(asked[..eq]) || Fold(c.Say) == Fold(asked[..eq])) : default;
 				if (column.Key == null)
 				{
 					Console.Error.WriteLine(L($"format: <instruction>=<value>; instructions: {string.Join(", ", OppositionColumns.Select(c => $"{c.Say} ({c.Key})"))}"));
-					return 64;
+					return Halfway.Stop(done, left, 64);
 				}
 				var row = await RowNow();
 				if (row.ValueKind != JsonValueKind.Object || !row.TryGetProperty(column.Key, out var control))
 				{
 					Console.Error.WriteLine(L($"No '{who}' in the opposition."));
-					return 1;
+					return Halfway.Stop(done, left, 1);
 				}
 				var choices = control.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 				var value = asked[(eq + 1)..].Trim();
@@ -141,10 +144,10 @@ internal static partial class Program
 				if (choice == null)
 				{
 					Console.Error.WriteLine(L($"{column.Say}: no '{value}'. Options: {string.Join(" · ", choices)}"));
-					return 1;
+					return Halfway.Stop(done, left, 1);
 				}
 				var said = await Fm.Get("select", ("ptr", Field(control, "Pointer")), ("choice", choice));
-				if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
+				if (said.StartsWith("error", StringComparison.Ordinal)) return Halfway.Stop(done, left, Report(said));
 				// The column shows the picked value a moment later, and the card is redrawn while it
 				// lands: read until it shows, rather than pausing a fixed time that a slower machine
 				// outruns. The next instruction is then picked against the redrawn row.
@@ -155,6 +158,7 @@ internal static partial class Program
 					return shown.ValueKind == JsonValueKind.Object && Value(shown, column.Key) == choice;
 				}, seconds: 8, every: 0.25);
 				if (!landed) Console.Error.WriteLine(L($"'{name}': {column.Say} did not appear on the card."));
+				else done.Add(asked);
 			}
 		}
 

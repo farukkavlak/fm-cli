@@ -17,20 +17,6 @@ internal static partial class Program
 	private static Embedder? embedder;
 
 	/// <summary>
-	/// Commands that change something hard to take back, with the arguments that make them do
-	/// it (empty: any call). Their bare forms only show.
-	/// </summary>
-	private static readonly Dictionary<string, string[]> Weighty = new()
-	{
-		["fm_offer"] = [], ["fm_contract"] = [], ["fm_release"] = [], ["fm_propose"] = [], ["fm_approach"] = [],
-		["fm_staff_hire"] = [], ["fm_staff_fire"] = [], ["fm_resign"] = [], ["fm_stop"] = [], ["fm_load"] = [], ["fm_continue"] = [],
-		["fm_save"] = [], ["fm_board_request"] = ["request"], ["fm_jobs"] = ["apply"], ["fm_saves"] = ["delete"],
-		["fm_tactic_clear"] = [], ["fm_tactic_new"] = [], ["fm_setpieces_new"] = [], ["fm_register"] = ["send", "auto"],
-		["fm_numbers"] = ["send", "auto"], ["fm_reply"] = ["answer"], ["fm_dialog"] = ["answer"], ["fm_vision"] = [],
-		["fm_press"] = [], ["fm_select"] = [], ["fm_scout_focus"] = [], ["fm_holiday"] = [],
-	};
-
-	/// <summary>
 	/// A line is a sentence, not a command, when it has more than one word and no --option, and
 	/// does not start with a short alias such as `p`. One that starts with a command's own name is
 	/// a sentence only when that command takes no free text and the rest is not numbers and its own
@@ -79,21 +65,35 @@ internal static partial class Program
 		}
 
 		var code = 0;
-		foreach (var call in calls)
+		var done = new List<string>();
+		for (var i = 0; i < calls.Count; i++)
 		{
-			if (!AskFor(call)) return 0;
+			var call = calls[i];
+			if (!AskFor(call)) return Stopped(done, calls.Skip(i), 0, calls.Count);
 			if (Typed(call) is not { } words) continue;
-			var shown = string.Join(' ', words.Select(w => w.Contains(' ') ? $"\"{w}\"" : w));
+			var shown = Shown(words);
 			// a pick from the list, with nothing asked after, was already a yes
 			if (IsWeighty(call) && !(chosen && call.Ask.Count == 0))
 			{
-				if (!Confirm(L($"Run `{shown}`?"))) return 0;
+				if (!Confirm(L($"Run `{shown}`?"))) return Stopped(done, calls.Skip(i), 0, calls.Count);
 			}
 			else Console.WriteLine(Dim($"→ {shown}"));
 			code = await execute(words);
+			// a step that failed stops the rest: they were asked for after it, and may count on it
+			if (code != 0) return Stopped(done, calls.Skip(i + 1), code, calls.Count);
+			done.Add(shown);
 		}
 		return code;
 	}
+
+	private static string Shown(IEnumerable<string> words) => string.Join(' ', words.Select(w => w.Contains(' ') ? $"\"{w}\"" : w));
+
+	/// <summary>
+	/// A chain of commands ended before its last: says which ran and which did not, so nothing
+	/// is left to guess. A single command says nothing more than its own output.
+	/// </summary>
+	private static int Stopped(List<string> done, IEnumerable<Nl.Router.Call> left, int code, int asked) =>
+		Halfway.Stop(done, left.Select(c => Typed(c) is { } w ? Shown(w) : c.Tool), code, always: asked > 1);
 
 	private static string ModelDir =>
 		Environment.GetEnvironmentVariable("FM_NL_MODEL") is { Length: > 0 } dir ? dir
@@ -120,8 +120,8 @@ internal static partial class Program
 	private static string[]? Typed(Nl.Router.Call call) =>
 		Mcp.CommandFor(call.Tool, call.Args) is { } words ? [.. words.Where(w => w != "--json")] : null;
 
-	private static bool IsWeighty(Nl.Router.Call call) =>
-		Weighty.TryGetValue(call.Tool, out var when) && (when.Length == 0 || when.Any(call.Args.ContainsKey));
+	/// <summary>A call that cannot be taken back and matters (Mcp.Effect.Weighty): shown and run only on a yes.</summary>
+	internal static bool IsWeighty(Nl.Router.Call call) => Mcp.EffectOf(call.Tool, call.Args) == Mcp.Effect.Weighty;
 
 	/// <summary>The likely commands, each with its share of the vote; null when none is chosen.</summary>
 	private static Nl.Router.Call? Choose(List<(Nl.Router.Call Call, float Weight)> options)

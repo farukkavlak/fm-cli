@@ -63,7 +63,7 @@ internal static partial class Mcp
 				case "tools/list":
 					var listed = new JsonArray();
 					foreach (var tool in Tools)
-						listed.Add(new JsonObject { ["name"] = tool.Name, ["description"] = tool.Description, ["inputSchema"] = JsonNode.Parse(tool.Schema) });
+						listed.Add(new JsonObject { ["name"] = tool.Name, ["description"] = tool.Description, ["inputSchema"] = JsonNode.Parse(tool.Schema), ["annotations"] = Annotations(tool.Impact) });
 					result = new JsonObject { ["tools"] = listed };
 					break;
 
@@ -88,7 +88,7 @@ internal static partial class Mcp
 	}
 
 	/// <summary>Runs the command a tool stands for and hands back what it printed.</summary>
-	private static async Task<JsonNode> Call(JsonElement parameters, Func<string[], Task<int>> run)
+	internal static async Task<JsonNode?> Call(JsonElement parameters, Func<string[], Task<int>> run)
 	{
 		if (parameters.ValueKind != JsonValueKind.Object) return null;
 
@@ -99,6 +99,17 @@ internal static partial class Mcp
 		var arguments = parameters.TryGetProperty("arguments", out var a) && a.ValueKind == JsonValueKind.Object
 			? a
 			: JsonDocument.Parse("{}").RootElement;
+
+		// The schema's required arguments are checked here, not left to the command: a call without
+		// `save` would otherwise close the game unsaved (fm_stop, fm_load).
+		var required = (JsonNode.Parse(tool.Schema)?["required"] as JsonArray)?.Select(r => r!.GetValue<string>()) ?? [];
+		if (required.Where(r => !arguments.TryGetProperty(r, out var v) || v.ValueKind is JsonValueKind.Null || v.ValueKind == JsonValueKind.String && v.GetString() is "")
+			.ToList() is { Count: > 0 } missing)
+			return new JsonObject
+			{
+				["content"] = new JsonArray(new JsonObject { ["type"] = "text", ["text"] = $"Missing required argument: {string.Join(", ", missing)}. Nothing was done." }),
+				["isError"] = true,
+			};
 
 		var printed = new StringWriter();
 		var (stdout, stderr) = (Console.Out, Console.Error);

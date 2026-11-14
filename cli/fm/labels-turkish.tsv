@@ -2837,3 +2837,5 @@ The open message has no attachment.	Açık mesajın eki yok.
   Mentality: {0}	  Mentalite: {0}
 Pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role, talk; to go on: match	Maç sürerken sayfalar açılamıyor. Maçta yapılabilenler: sub, shout, dugout, tactic role, talk; sürdürmek: match
 (as last seen: the dugout panel is hidden while a move is played)	(son görüldüğü gibi: pozisyon oynanırken dugout paneli gizli)
+Done: {0}	Yapıldı: {0}
+Not run: {0}	Çalıştırılmadı: {0}

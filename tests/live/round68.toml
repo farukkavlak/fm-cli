@@ -1,0 +1,86 @@
+# T153: every tool marked read-only, called bare, changes nothing in the game.
+# The list comes from the tools marked Read in cli/fm/Core/Mcp.Tools.cs (bare calls; those needing a name are left out).
+
+[[test]]
+task = "T153"
+name = "read-only tools change nothing"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "finances", path = "Balance", keep = "balance" },
+  { read = "tactic", path = "Slots.#", keep = "slots" },
+  { read = "tactic", path = "Slots.0.PlayerIndex", keep = "keeper" },
+  { read = "squad", path = "#", keep = "squad" },
+  { read = "inbox", path = "?Unread=True.#", keep = "unread" },
+  { run = "status", rc = "any" },
+  { run = "squad", rc = "any" },
+  { run = "players", rc = "any" },
+  { run = "table", rc = "any" },
+  { run = "fixtures", rc = "any" },
+  { run = "calendar", rc = "any" },
+  { run = "report", rc = "any" },
+  { run = "tactic", rc = "any" },
+  { run = "tactic advice", rc = "any" },
+  { run = "internationals", rc = "any" },
+  { run = "dynamics", rc = "any" },
+  { run = "news", rc = "any" },
+  { run = "happiness", rc = "any" },
+  { run = "depth", rc = "any" },
+  { run = "targets", rc = "any" },
+  { run = "league", rc = "any" },
+  { run = "health", rc = "any" },
+  { run = "club", rc = "any" },
+  { run = "staff", rc = "any" },
+  { run = "finances", rc = "any" },
+  { run = "supporters", rc = "any" },
+  { run = "doctor", rc = "any" },
+  { run = "board", rc = "any" },
+  { run = "facilities", rc = "any" },
+  { run = "contracts", rc = "any" },
+  { run = "opponent", rc = "any" },
+  { run = "stages", rc = "any" },
+  { run = "scout", rc = "any" },
+  { run = "world", rc = "any" },
+  { run = "youth", rc = "any" },
+  { run = "progress", rc = "any" },
+  { run = "staff find", rc = "any" },
+  { run = "read", rc = "any" },
+  { run = "manager", rc = "any" },
+  { run = "pages", rc = "any" },
+  { run = "buttons", rc = "any" },
+  { run = "dropdowns", rc = "any" },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "finances", path = "Balance", same_as = "balance" },
+  { read = "tactic", path = "Slots.#", same_as = "slots" },
+  { read = "tactic", path = "Slots.0.PlayerIndex", same_as = "keeper" },
+  { read = "squad", path = "#", same_as = "squad" },
+  { read = "inbox", path = "?Unread=True.#", same_as = "unread" },
+]
+
+# A run of several changes that stops part way says what it did (printed words: checked by eye, TR and EN);
+# here the state is checked: the first instruction stays set though the second is refused, and a run
+# refused at its first step changes nothing.
+[[test]]
+task = "T153"
+name = "a refused opposition change at its first step changes nothing"
+at = "calm"
+fresh = true
+steps = [
+  { read = "opposition", path = "0.Name", keep = "who" },
+  { read = "opposition", path = "0.Pressing", keep = "was" },
+  { run = "opposition {who} Nonsense=1 Pressing=Always", rc = "fail" },
+  { read = "opposition", path = "0.Pressing", same_as = "was" },
+]
+
+[[test]]
+task = "T153"
+name = "a half-done opposition change keeps its first part"
+repeat = 3
+at = "calm"
+fresh = true
+steps = [
+  { read = "opposition", path = "0.Name", keep = "who" },
+  { read = "opposition", path = "0.Pressing", keep = "was" },
+  { run = "opposition {who} Pressing=Always Nonsense=1", rc = "fail" },
+  { read = "opposition", path = "0.Pressing", differs_from = "was" },
+]

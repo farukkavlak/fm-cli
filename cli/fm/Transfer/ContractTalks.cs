@@ -153,11 +153,14 @@ internal static partial class Program
 	private static async Task<List<string>> ApplyTerms(List<string> terms)
 	{
 		var left = new List<string>();
-		foreach (var asked in terms)
+		var done = new List<string>();
+		for (var i = 0; i < terms.Count; i++)
 		{
-			if (await SetTerm("contract", asked) is not { } failed) continue;
+			var asked = terms[i];
+			if (await SetTerm("contract", asked) is not { } failed) { done.Add(asked); continue; }
 			if (failed.StartsWith(L("there is no such term"), StringComparison.Ordinal)) { left.Add(asked); continue; }
 			Console.Error.WriteLine($"{asked}: {failed}");
+			Halfway.Stop(done, terms.Skip(i + 1), 1);
 			return null;
 		}
 		return left;
