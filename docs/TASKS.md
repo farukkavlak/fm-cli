@@ -120,8 +120,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - Since: 13 Nov evening (5 h, 9 matches) and 14 Nov night round62 (the old death moments, TR + EN): kick-off
     submission 5/5 + 5/5, U19 instant result 5/5 + 5/5, TransferRoom delete --loan 3/3 + 3/3. No death, no hang.
 - [x] T150 27.0.1 Continue: `match` passes match day, `next` reads unread messages
-- [ ] T148 A save is never put at risk by the tool.
-  - [ ] The game's fatal-error dialog is told (written, exit 70). Left: seen once on a real dialog.
+- [x] T148 A save is never put at risk by the tool.
+  - [x] The game's fatal-error dialog is told (written, exit 70). Seeing it on a real one: T158 (moments)
   - [x] T11's delete crash: gone
   - [x] Each death's cause found (T92: ticks off the main thread, c5c8b63)
   - [x] T92 closed; T40 closed or its cause written here
@@ -157,6 +157,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 ## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
 
+- [ ] T158 The game's own fatal-error window, met for real: the tool says so (exit 70) and `fm stop` ends it.
+  The sign is the main thread in `-[NSAlert runModal]`; the game's `game_plugin` holds NSAlert, runModal, the
+  "A serious error was encountered…" text and `show_and_wait_native_error_dialog`. Its only known trigger (T11's
+  delete) went with T92's fix.
 - [ ] T90 Tactical tweaks in extra time. Left: one more TR pass (`round58.toml`, needs a tie level at 90').
 - [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
   so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
