@@ -280,13 +280,21 @@ internal static partial class Program
 		    && !(await Fm.Get("pathset", ("to", $"{at}.Tactic"), ("from", matchTactic))).StartsWith("error", StringComparison.Ordinal))
 		{
 			// The tactic is taken up a frame after it is put there: answered once his position is.
-			var asked = Enumerable.Range(0, paths.Count).Where(i => set[i]).Select(i => ($"{at}.p{i}", "Position,PlayerStatus.StatusFlag,Player.Name")).ToList();
+			var nodes = Enumerable.Range(0, paths.Count).Where(i => set[i]).ToList();
+			var asked = nodes.Select(i => ($"{at}.p{i}", "Position,Player.Name")).ToList();
 			var status = new List<JsonElement>();
 			await Until(async () => (status = await PullEach(asked)).Any(r => Field(r, "Position").Length > 0), seconds: 3, every: 0.1);
-			foreach (var row in status)
-				if (men.TryGetValue(Field(row, "Player.Name"), out var man) && man.Injury == 0 && !man.Red
-				    && int.TryParse(Field(row, "PlayerStatus.StatusFlag"), out var flag) && InjuryFlags.Contains(flag))
-					men[Field(row, "Player.Name")] = man with { Injury = -1 };
+			// His status flags are a list (PlayerStatus), read as one: as a single value it read nothing, and a man the
+			// game called hurt ("injuredplayer", the planner's flag 126) was never taken off (T156, 14 Nov TR, Hrelja).
+			for (var k = 0; k < status.Count && k < nodes.Count; k++)
+			{
+				if (!men.TryGetValue(Field(status[k], "Player.Name"), out var man) || man.Injury != 0 || man.Red) continue;
+				JsonElement flags;
+				try { flags = await Fm.Pull($"{at}.p{nodes[k]}.PlayerStatus", "StatusFlag", list: true); }
+				catch (FmError) { continue; }
+				if (flags.ValueKind == JsonValueKind.Array && flags.EnumerateArray().Any(f => int.TryParse(Field(f, "StatusFlag"), out var flag) && InjuryFlags.Contains(flag)))
+					men[Field(status[k], "Player.Name")] = man with { Injury = -1 };
+			}
 		}
 		return men;
 	}

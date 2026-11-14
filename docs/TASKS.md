@@ -176,11 +176,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T90 Tactical tweaks in extra time. Passed live EN (round 57); TR closed by review (Faruk, 14 Nov): the tweak is put
   on and off by the game's id, read back from TacticActiveTweaks / TacticPendingTweakOps, the period is the game's
   MatchPeriod; names only shown and matched against what was typed.
-- [ ] T156 An injured man on the pitch (`injuredplayer` asked 7 times, 13 Nov EN): `sub --json` gave `Injured: []`,
-  so no one was taken off and the try was lost. Find which of the three signs failed, at a live injury.
-  Met live 14 Nov EN (Sušak, 6'): `sub --json` saw him at the stop and in the game's question, the change made in 4 s.
-  Likely cause: fm-round picked the substitute through `squad`, which cannot open in a match, so the first man
-  (the goalkeeper) was sent; `sub --json` now gives each substitute's position. Left: one test stop that takes him off.
+- [ ] T156 An injured man on the pitch: `sub --json` gave `Injured: []` while the game asked `injuredplayer`.
+  Found 14 Nov TR (Hrelja, 43'): MatchInjuryType 0, shirt not flagged; his `PlayerStatus` is a list (flag 126), read
+  as one value it read nothing. Read as a list: `Injured` named him 3/3, `sub` took him off, `Injured: []` after, the
+  match went on. Left: the same met once in EN by the hunt (tests/live/hunt1.toml).
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique.
 - [ ] T55 Season's end: vision meeting, awards, contracts ending, retirements
 - [x] T56 Transfer window and deadline day
