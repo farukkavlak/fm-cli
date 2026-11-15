@@ -11,6 +11,9 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
+	/// <summary>The game's kind for "job application received" (NewsItemId), the answer to an application sent.</summary>
+	private const string ApplicationReceived = "238";
+
 	/// <summary>
 	/// The two answers a job's panel offers, by the event each one sends — the game's own name for
 	/// them, where the label on the button is the translation table's word for it.
@@ -240,7 +243,16 @@ internal static partial class Program
 			}
 			return "gone";
 		}
+		// The game's answer to an application is a message (FM27: "job application received", kind 238, the moment the
+		// button is pressed). The newest new message is kept in the manager's own record, read with no page open.
+		async Task<(string Id, string Kind, string Title)> NewestMessage()
+		{
+			const string at = "HumanPortalNewestNewMessage.";
+			var row = await Fm.GetJson("pull", ("path", "Human"), ("props", $"{at}UniqueId,{at}NewsItemId,{at}NewsTitleString"));
+			return (Field(row, at + "UniqueId"), Field(row, at + "NewsItemId"), Field(row, at + "NewsTitleString"));
+		}
 		var statusBefore = await StatusNow();
+		var messageBefore = await NewestMessage();
 		var pressed = await Fm.Get("press", ("ptr", Field((await JobButton(answer))!.Value, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
@@ -258,12 +270,28 @@ internal static partial class Program
 			return 0;
 		}
 		// The button goes off either way; a club that turns an application down at once leaves the post as it was
-		// (Vitesse, 11 Nov 2030: "application not accepted" in the inbox, the post still open to apply).
-		// The status moves a moment after the button goes off: waited for, the bound only an upper limit.
-		if (applies && statusBefore.Length > 0 && !await Until(async () => await StatusNow() != statusBefore, seconds: 5, every: 0.25))
+		// (Vitesse, 11 Nov 2030: "application not accepted" in the inbox, the post still open to apply). Waited for:
+		// the post's status moving, or the game's answering message. Received (its kind) or a status moved is sent; an
+		// answer of another kind with the post as it was is a refusal. Nothing within the bound is said as no answer,
+		// not taken for a refusal.
+		if (applies && statusBefore.Length > 0)
 		{
-			Console.WriteLine(L($"{job.Club} turned the application down at once; the post is as it was. Their answer: inbox"));
-			return 1;
+			string status = statusBefore;
+			var message = messageBefore;
+			await Until(async () => (status = await StatusNow()) != statusBefore || (message = await NewestMessage()).Id != messageBefore.Id,
+				seconds: 10, every: 0.25);
+			if (status == statusBefore && message.Id != messageBefore.Id && message.Kind != ApplicationReceived)
+				status = await StatusNow();
+			if (status == statusBefore && message.Id != messageBefore.Id && message.Kind != ApplicationReceived)
+			{
+				Console.WriteLine(L($"{job.Club} turned the application down at once; the post is as it was. Their answer: {message.Title}"));
+				return 1;
+			}
+			if (status == statusBefore && message.Id == messageBefore.Id)
+			{
+				Console.WriteLine(L($"Pressed, but the game has not answered yet: the post reads as before. To see: jobs, inbox"));
+				return 1;
+			}
 		}
 		Console.WriteLine(L("Sent. The answer will come to the inbox: inbox"));
 		return 0;

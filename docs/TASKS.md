@@ -210,6 +210,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T64 Press conferences
 - [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet.
 - [ ] T130 `jobs <club> apply` said "sent" when the club turned it down at once
+  - No longer told by time ("unchanged within 5 s"): the game's answer is waited for, the post's status moving or a
+    new message in the manager's record (`Human.HumanPortalNewestNewMessage`, no page opened). Kind 238 "job
+    application received" or a moved status is sent; another kind with the post as it was is a refusal; no answer
+    is said as none. 16 Nov EN: Hoffenheim, Saint-Étienne, PEC Zwolle, Willem II sent (238, 2–5 s); `round45.toml`
+    EN + TR 3/3. Left: a real turn-down seen.
 - [ ] T131 A new club's first days: Continue stuck on "Messages" (check with T150's fix)
 - [x] T132 Contract card in Turkish
 - [x] T133 `reply "<subject>"` with several of that subject
