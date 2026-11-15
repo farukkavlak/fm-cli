@@ -1240,7 +1240,7 @@ def take_card(hunt, minute):
         return  # the staff's advice before kick-off: answered, no card of the match
     if not data.get("Done"):
         # A card the game would not take stays open, and the match stops at it again and again: twice is enough,
-        # then it is put away by its place on the list (the list's own Minute and CanDo, no words).
+        # then it is put away by its minute and sentence (the game gives a card no id; its index moves).
         key = (data.get("Minute"), data.get("Text"))
         hunt.refused[key] = hunt.refused.get(key, 0) + 1
         if hunt.refused[key] >= 2:

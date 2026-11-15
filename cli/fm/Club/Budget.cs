@@ -157,15 +157,27 @@ internal static partial class Program
 		if (!long.TryParse(Field(club, "TransferBudget"), out var left)) return null;
 
 		string Amount(JsonElement from, string field, Func<long, string> format) => long.TryParse(Field(from, field), out var v) ? format(MoneyFormat.Shown(v)) : "-";
-		var free = long.TryParse(Field(club, "RemainingWageBudget"), out var r) ? r : (long?)null;
 		var scouting = await Fm.Pull("Human.ScoutingInfo", "ScoutingBudget");
 		return
 		[
 			new(L("Transfer budget"), L($"{MoneyFormat.Short(MoneyFormat.Shown(left))} (spent this season {Amount(club, "TransferExpenditureThisSeason", MoneyFormat.Short)}, at the start {Amount(club, "OriginalTransferBudget", MoneyFormat.Short)})")),
-			new(L("Wage budget"), L($"{(free is < 0 ? L($"{MoneyFormat.Exact(MoneyFormat.Shown(-free.Value))} over") : free is { } f ? L($"{MoneyFormat.Exact(MoneyFormat.Shown(f))} free") : "-")} (weekly) · paid {Amount(club, "CurrentWageSpending", MoneyFormat.Exact)} / {Amount(club, "WageBudget", MoneyFormat.Exact)}")),
+			new(L("Wage budget"), L($"{WageLeft(club)} (weekly) · paid {Amount(club, "CurrentWageSpending", MoneyFormat.Exact)} / {Amount(club, "WageBudget", MoneyFormat.Exact)}")),
 			new(L("Scouting budget"), Amount(scouting, "ScoutingBudget", MoneyFormat.Short)),
 		];
 	}
+
+	/// <summary>The transfer budget left and the weekly wage budget free (or over), from the club's data.</summary>
+	private static async Task<(string Transfer, string Wage)?> BudgetsLeft()
+	{
+		var club = await Fm.Pull("Human.Club", "TransferBudget,RemainingWageBudget");
+		return long.TryParse(Field(club, "TransferBudget"), out var left) ? (MoneyFormat.Short(MoneyFormat.Shown(left)), WageLeft(club)) : null;
+	}
+
+	/// <summary>The weekly wage budget free, or how far over it the club is.</summary>
+	private static string WageLeft(JsonElement club) =>
+		long.TryParse(Field(club, "RemainingWageBudget"), out var free)
+			? free < 0 ? L($"{MoneyFormat.Exact(MoneyFormat.Shown(-free))} over") : L($"{MoneyFormat.Exact(MoneyFormat.Shown(free))} free")
+			: "-";
 
 	/// <summary>The card, found by the figure it is bound to; climbing from it takes in the board's
 	/// sentence, the slider and the figures (7 to 10 levels all hold the same card).</summary>

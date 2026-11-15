@@ -66,6 +66,10 @@ internal static class Screen
 	/// <summary>Transfers › Shortlists (FM27: a row of the Transfers menu of its own).</summary>
 	public const string Shortlists = "6eb3e66627a5fe7469f9d179885acaa9";
 	public const string PlayerDatabase = "bfe5117deac3c454f8970018733ac664";
+	/// <summary>A player's page: his value in the header opens his transfer status (the transfer actions).</summary>
+	public const string PlayerTransferStatus = "4e92c72ee28a583469674458c2a78141";
+	/// <summary>A player's page: his wage in the header opens his contract (the contract actions).</summary>
+	public const string PlayerContract = "c189a411fa71fde46b2950f12e96a2e8";
 	public const string StaffDatabase = "a6331fde9dbe9fa47a9da59a7fc09715";
 	public const string RecruitmentFocuses = "c914d186dea95f44a997f5d3609862c7";
 	public const string RecruitmentBudgets = "82e7ca1826bc7fe47a18861a62b45d69";

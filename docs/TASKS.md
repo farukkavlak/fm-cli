@@ -257,9 +257,27 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 ## 12. Final check (the last box)
 
 - [ ] T85 Audit `cli/fm` and the plugin: nothing held by text, order, position or a fixed wait
-  - 15 Nov first pass: fixed waits are all paces inside sign-held loops (16). Order: `Opponent.cs` analyst tiles read
-    texts without a path by draw order; `OfferScreen.AddPath` falls back to the last row. Text as key: `dugout`
-    finds a card again by minute + text.
+  - 15 Nov full scan: no fixed waits (16 paces, all inside sign-held loops); dates come from data as ISO; pixels only
+    say "on screen"; rows are built from data paths; English compares go through the game's translation ids.
+  - [ ] T85a `Opponent.cs` analyst tiles: numbers by draw order, labels matched by text ("Gl/Gm")
+  - [x] T85b `propose`: FM27 lists the offer in his action menu (PersonOfferToClubs); read back by the menu. TR: sent,
+    menu no longer offers it, again refused, another club's player refused. The header's value and wage open their
+    panels by GUID (`Screen.PlayerTransferStatus`, `PlayerContract`). EN pass in the language round.
+  - [ ] `contract --agent`: the contract panel opens (by GUID), but the game offered no ask for Abifade (24 Jun 2028);
+    not met in FM27 yet
+  - [ ] T85c A message row pressed and scrolled to by its title (`Clock.cs`, `Program.Reply.cs`, `Program.Inbox.cs`):
+    two messages with one title
+  - [ ] T85d `dugout` finds a card again by minute + text. The game gives a card no id: its event index is its place
+    and moves when a card goes (15 Nov, TR: 4 became 3). Kept minute (data) + sentence (the card's own, read in this
+    language), now both, and the remembered timeline keeps the card's own minute. Live check in the next hunt.
+  - [ ] T85e `OfferScreen.AddPath` falls back to the last row
+  - [ ] T85f `StaffSearch.Rules.cs`: the row just added found by the attribute's text, last of many
+  - [ ] T85g `Calendar.cs`, `Stages.Lists.cs`: the page held by the month's or stage's shown name
+  - [ ] T85h `Registration.cs`: rules told by English title, one label Turkish in every language ("en az"), flags by
+    shown letters ("HGC", "Inj"), age/position/status told apart by shape
+  - [ ] T85i Small: "the last of many" in the fee window (`Guided.cs`), new mentoring group, `Acknowledge.cs`,
+    `?any=1`; `Texts.TopBody` picks the screen's centre. Done: `targets` reads the budgets from data, not our label.
+  - [ ] T85j `opponent --json`: the summary's keys are our translated labels ("Diziliş"), not stable keys
 
 ## 13. Later (v2)
 

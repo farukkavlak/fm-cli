@@ -312,11 +312,16 @@ internal static partial class Program
 		if (event_ == AcceptEvent && entry.TweakAction is "1" or "2" && await DugoutTweak(entry, json) is { } byTweak) return byTweak;
 
 		// The buttons act on whichever entry is showing, so that one is brought up first.
-		// The timeline is laid out again as the match goes on, so a mark gone stale is looked for again by its advice.
+		// The timeline is laid out again as the match goes on: a card that goes renumbers the rest (the game's
+		// event index is a place in the list, 15 Nov), and the game gives a card no id of its own. So a mark gone
+		// stale is looked for again by the card's minute (its data) and its sentence together, both read off this
+		// very card in the game's language: the same advice can come twice, at another minute.
 		if (!await DugoutShowing() && !await DugoutComesBack(playOn)) return 1;
-		if ((entry.Pointer.Length > 0 ? await ShowDugoutEntry(entry.Pointer, entry.Index) : null)?.Text != entry.Text
-		    && ((await DugoutEntries()).FirstOrDefault(e => e.Text == entry.Text) is not { } again
-		        || (await ShowDugoutEntry((entry = again).Pointer, entry.Index))?.Text != entry.Text))
+		bool Same(DugoutEntry e) => e.Minute == entry.Minute && e.Text == entry.Text;
+		bool Shows(DugoutCard? c) => c != null && c.Minute == entry.Minute && c.Text == entry.Text;
+		if (!Shows(entry.Pointer.Length > 0 ? await ShowDugoutEntry(entry.Pointer, entry.Index) : null)
+		    && ((await DugoutEntries()).FirstOrDefault(Same) is not { } again
+		        || !Shows(await ShowDugoutEntry((entry = again).Pointer, entry.Index))))
 		{
 			Console.Error.WriteLine(L("The advice could not be opened in the panel; the list may have changed: dugout"));
 			return 1;
@@ -362,7 +367,7 @@ internal static partial class Program
 		{
 			if (event_ == AcceptEvent && await Changed()) return true;
 			if (!await DugoutShowing()) return false;
-			var same = (await DugoutEntries()).FirstOrDefault(e => e.Minute == entry.Minute && e.Text == entry.Text);
+			var same = (await DugoutEntries()).FirstOrDefault(Same);
 			return event_ == AcceptEvent ? same is { Open: false } : same == null;
 		}
 		// --play-on with the match held: some cards (a mentality, 14 Nov) are taken only once play goes on, the card
@@ -548,7 +553,7 @@ internal static partial class Program
 		var cards = new List<SeenCard>();
 		int? showing = null;
 		var pressed = false;
-		foreach (var (index, minute, pointer) in marks)
+		foreach (var (index, _, pointer) in marks)
 		{
 			if (known.FirstOrDefault(c => c.Index == index && !c.Open) is { } closed)
 			{
@@ -560,7 +565,7 @@ internal static partial class Program
 			pressed = true;
 			// A card with no sentence (an analysis drawn as a chart) is still a card of this timeline: kept, not listed.
 			if (await ShowDugoutEntry(pointer, index) is not { } card) continue;
-			cards.Add(new(index, minute, card.Type, card.Actionable, card.Text, card.TweakId, card.TweakAction));
+			cards.Add(new(index, card.Minute, card.Type, card.Actionable, card.Text, card.TweakId, card.TweakAction));
 			if (!card.IsScoreUpdate && card.Text.Length > 0) entries.Add(new(card.Minute, index, pointer, card.Text, card.Actionable, card.TweakId, card.TweakAction));
 		}
 		if (cards.Count == marks.Count) RememberTimeline(date, layout, cards);

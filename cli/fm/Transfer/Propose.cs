@@ -25,42 +25,19 @@ internal static partial class Program
 			Console.Error.WriteLine(L("usage: propose <player> [fee] [--yes]  ·  propose <player> --loan [--yes]   (offer to clubs; with no fee given, \"unspecified\")"));
 			return 64;
 		}
-		if (await OpenPlayer(string.Join(" ", words)) is not { } card) return 1;
-		var name = Field(card.GetProperty("Player"), "Name");
-		// His value on his page opens the transfer actions (the wage opens the contract ones).
-		var value = Field(card.GetProperty("Player"), "Value");
-		var opened = await Arriving("press", [("text", value), ("name", "SIButton"), ("any", "1")]);
-		if (value.Length == 0 || opened.StartsWith("error", StringComparison.Ordinal))
-		{
-			Console.Error.WriteLine(L($"{name} is not our player, or their transfer options cannot be opened."));
-			return 1;
-		}
-
-		// Both of this screen's own controls carry the game's words ("Offer via TransferRoom",
-		// "Offer Player"), and a language's table may not carry the second one at all — in a Turkish
-		// game it comes back as the game's own "Offer Player to Clubs", so asking for it by words
-		// never found it (§8.217). What each stands for does not change with the language: the
-		// action the first sends (PersonOfferToClubs) and the event the second sends
-		// (EventFmxTransferOfferResponse).
-		const string offerAction = "1164992875", offerResponse = "32";
+		// FM27 lists the offer among his actions ("Offer via TransferRoom"), told by the action it stands for
+		// (PersonOfferToClubs), not by its words; the screen it opens is sent by its event (EventFmxTransferOfferResponse).
+		const string offerAction = "PersonOfferToClubs", offerResponse = "32";
 		async Task<List<JsonElement>> Buttons() => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().ToList();
-		async Task<bool> Offered()
+		if (await PersonMenu(string.Join(" ", words), "Player") is not { } menu) return 1;
+		var name = menu.Name;
+		if (FirstOf(menu.Entries, offerAction) is not { } offer || !IsEnabled(offer))
 		{
-			if (await SpeakToAction(offerAction) is not null) return true;
-			await Acknowledge();
-			return false;
-		}
-		if (!await Until(Offered, seconds: 8, every: 0.5))
-		{
-			Console.Error.WriteLine(L($"There is no option to offer {name} to clubs (they may already have been offered)."));
+			await Fm.Get("actions", ("close", "1"));
+			Console.Error.WriteLine(L($"There is no option to offer {name} to clubs (they may not be ours, or already offered)."));
 			return 1;
 		}
-		if (await SpeakToAction(offerAction) is not { } offer)
-		{
-			Console.Error.WriteLine(L($"There is no option to offer {name} to clubs (they may already have been offered)."));
-			return 1;
-		}
-		var pressed = await Fm.Get("press", ("ptr", Field(offer, "Pointer")));
+		var pressed = await ChooseEntry(offer, menu.Entries);
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
 
 		List<JsonElement> buttons = [];
@@ -107,9 +84,11 @@ internal static partial class Program
 			buttons = await Buttons();
 		}
 
+		var feeSaid = loan ? "" : Field(buttons.First(b => Field(b, "Type") == "FMCombobox"), "Label");
+		if (feeSaid.Length > 0) await GameWords.Ask(Fm, feeSaid);
 		Console.WriteLine(loan
 			? L($"{name} will be offered to clubs on loan.")
-			: L($"{name} will be offered to clubs: sale, fee {Field(buttons.First(b => Field(b, "Type") == "FMCombobox"), "Label")}"));
+			: L($"{name} will be offered to clubs: sale, fee {GameWords.Of(feeSaid)}"));
 		if (!args.Contains("--yes"))
 		{
 			if (!Ui.Interactive)
@@ -128,10 +107,18 @@ internal static partial class Program
 		}
 		pressed = await Fm.Get("press", ("ptr", Field(send, "Pointer")));
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
-		// Once he is on offer both actions are gone from his list.
-		if (!await Until(async () => await SpeakToAction(offerAction) is null && await SpeakToActionEvent(offerResponse) is null, seconds: 8, every: 0.5))
+		// The screen goes once the offer is sent.
+		if (!await Until(async () => await SpeakToActionEvent(offerResponse) is null, seconds: 8, every: 0.5))
 		{
 			Console.Error.WriteLine(L("The offer was not sent (the screen did not close)."));
+			return 1;
+		}
+		// Read back: once he is on offer his menu no longer offers it.
+		var after = await PersonMenu(name, "Player");
+		await Fm.Get("actions", ("close", "1"));
+		if (after != null && FirstOf(after.Value.Entries, offerAction) is { } still && IsEnabled(still))
+		{
+			Console.Error.WriteLine(L($"The screen closed, but the game still offers {name} to be offered: the offer was not taken."));
 			return 1;
 		}
 		// His actions stay up on his page and would read as an open conversation to `status`.

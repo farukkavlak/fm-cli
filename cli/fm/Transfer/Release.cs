@@ -13,14 +13,20 @@ internal static partial class Program
 	/// <summary>His wage on his page opens the contract section, where the talks about it are; null once open.</summary>
 	private static async Task<int?> OpenContractSection(string name)
 	{
-		var wage = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(c => Field(c, "Name") == "ContractDetails");
-		if (wage.ValueKind != JsonValueKind.Object)
-		{
-			Console.Error.WriteLine(L($"{name} is not our player, or their contract cannot be opened."));
-			return 1;
-		}
-		var opened = await Arriving("press", [("ptr", Field(wage, "Pointer"))]);
-		return opened.StartsWith("error", StringComparison.Ordinal) ? Report(opened) : null;
+		if (await OpenFromPlayerPage(Screen.PlayerContract) is { } opened) return opened.StartsWith("error", StringComparison.Ordinal) ? Report(opened) : null;
+		Console.Error.WriteLine(L($"{name} is not our player, or their contract cannot be opened."));
+		return 1;
+	}
+
+	/// <summary>
+	/// Presses the control on a player's page that opens the given panel: the header's value and wage are buttons
+	/// told by the panel they open (its GUID), not by the money written on them. Null when the page has none.
+	/// </summary>
+	private static async Task<string?> OpenFromPlayerPage(string panel)
+	{
+		var control = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Opens") == panel && Field(b, "Enabled") == "True" && Field(b, "Visible") == "True");
+		return control.ValueKind == JsonValueKind.Object ? await Arriving("press", [("ptr", Field(control, "Pointer"))]) : null;
 	}
 
 	/// <summary>The line that asks the agent about renewing his client's contract (InteropEventIDs.PersonAskAgentAboutClientContractRenewal).</summary>

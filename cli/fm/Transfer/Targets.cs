@@ -25,15 +25,12 @@ internal static partial class Program
 
 		var opened = await OpenPage(Screen.RecruitmentBudgets);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		var budgets = await BudgetOverview();
-		if (budgets == null)
+		if (await BudgetsLeft() is not { } budgets)
 		{
 			Console.Error.WriteLine(L("The budget page could not be read."));
 			return 1;
 		}
-		// "£11.1M (spent this season …)" and "£2,123 free (weekly) · …": the figure comes first.
-		var transfer = budgets.Count > 0 ? MoneyFormat.Find(budgets[0].Value) ?? "" : "";
-		var wage = budgets.Count > 1 ? budgets[1].Value.Split(" · ")[0] : "";
+		var (transfer, wage) = budgets;
 
 		var words = Words(args).ToList();
 		await EngineTexts.Positions(Fm);

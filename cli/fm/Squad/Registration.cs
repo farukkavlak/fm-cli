@@ -145,7 +145,7 @@ internal static partial class Program
 	private static string RuleName(string title) => title switch
 	{
 		"Maximum squad size" => L("at most"),
-		"Minimum squad size" => "en az",
+		"Minimum squad size" => L("at least"),
 		"Homegrown in Nation" => L("trained in nation (HGN+HGC)"),
 		"Homegrown at Club" => L("trained at club (HGC)"),
 		"Goalkeepers in the squad" => L("goalkeepers"),
