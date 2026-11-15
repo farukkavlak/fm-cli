@@ -270,21 +270,19 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     not met in FM27 yet
   - [x] T85c A message row is pressed by the binding it is drawn from (`MessageRow`: its button's Source is the
     message's path one level up), the list scrolled by its own element. TR + EN: 3 messages each opened, read back as read.
-  - [ ] T85d `dugout` finds a card again by minute + text. The game gives a card no id: its event index is its place
+  - [x] T85d `dugout` finds a card again by minute + text. The game gives a card no id: its event index is its place
     and moves when a card goes (15 Nov, TR: 4 became 3). Kept minute (data) + sentence (the card's own, read in this
-    language), now both, and the remembered timeline keeps the card's own minute. Live check in the next hunt.
+    language), now both, and the remembered timeline keeps the card's own minute. Live with T166, TR + EN.
   - [x] T85e `OfferScreen.AddPath`: no new row told, no row guessed (it took the last); by review
   - [x] T85f An attribute rule's row is the one whose comparison control was not there before. TR + EN: pace>=12 +
     pace>=16 finds as pace>=16 alone; pace>=15 + stamina>=15 works.
-  - [ ] T166 `dugout` lists cards by pressing the timeline's marks (EventFmxMatchDugoutJumpToEvent), but in the
-    match view's small Dugout box the marks are not shown (Visible False) and only the first two presses select
-    anything (15 Nov EN, 64'–75': six marks, the card stayed on index 1). The box's own arrows are shown
-    (EventFmxMatchDugoutNextEvent / PreviousEvent): walk the cards with them, read `dugoutcard` each step. Likely
-    why cards were seen late in the hunt.
-    - Measured (EN, 73'): Previous lowers the index one at a time, Next raises it, each arrow closes at its end; an
-      applicable 71' card was there and `match --stop-at-advice` (old code) did not stop at it.
-    - Code in (`DugoutEntriesByArrows`, `DugoutAt`, `ShowEntry`); not yet run live: the first try ran beside a
-      `match` still walking the marks, and the game was gone soon after (on battery, 15 Nov 13:30).
+  - [x] T166 The match screen's small Dugout box draws no timeline (its marks are there, not shown, and only the
+    first two presses selected anything), so `dugout` walks it with its own arrows (EventFmxMatchDugoutPrevious/
+    NextEvent, each closes at its end) and reads `dugoutcard` each step; a walk the box hid in is waited out and done
+    again, never given as part of the list. EN: `match --stop-at-advice` stopped at both 35' cards (the old code
+    passed a 71' one), list 3/3 the same; a tweak card and an instruction card (by panel) applied, read back. TR: list
+    3/3, a tweak and an instruction card ("Pas Karşılama: Dengeli → Koşu Yoluna Pas Yap") applied, read back. The
+    box keeps only the latest cards: an old one goes and cannot be applied.
   - [ ] T165 `players --attr "x<=n"`: an "at most" rule never takes its value ("the panel has 14"), old code too
   - [x] T85g The calendar grid is held by its day cells' path; a stage's words by the stage list itself
     (`texts?anchorptr=`, plugin). The label "League Table" had found a news item's text. TR + EN: cup round,

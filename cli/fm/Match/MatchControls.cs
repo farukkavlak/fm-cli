@@ -692,20 +692,21 @@ internal static partial class Program
 
 	/// <summary>
 	/// One step along the Dugout box with its arrow; the card it lands on once the game says another is selected and
-	/// two readings agree. Null at the end (the arrow closed, or the selection does not move).
+	/// two readings agree. End when the arrow is closed (the first or last card); Lost when it is open but the
+	/// selection does not move (the box hid for a move).
 	/// </summary>
-	private static async Task<DugoutCard?> DugoutStep(string ev, DugoutCard from)
+	private static async Task<(DugoutCard? Card, bool End)> DugoutStep(string ev, DugoutCard from)
 	{
-		if (DugoutArrow(await Fm.GetJson("buttons", ("json", "1")), ev) is not { } arrow) return null;
+		if (DugoutArrow(await Fm.GetJson("buttons", ("json", "1")), ev) is not { } arrow) return (null, true);
 		await Fm.Get("press", ("ptr", Field(arrow, "Pointer")));
 		DugoutCard? card = null;
-		return await Until(async () =>
+		return (await Until(async () =>
 		{
 			var now = await DugoutNow();
 			var settled = now != null && now.Index != from.Index && now == card;
 			card = now;
 			return settled;
-		}, seconds: 3, every: 0.2) ? card : null;
+		}, seconds: 3, every: 0.2) ? card : null, false);
 	}
 
 	/// <summary>Brings the Dugout box to the card at this place of the timeline with its arrows; null if it cannot.</summary>
@@ -713,26 +714,53 @@ internal static partial class Program
 	{
 		var now = await DugoutNow();
 		for (var guard = 0; now != null && now.Index != index && guard < 40; guard++)
-			now = await DugoutStep(now.Index > index ? DugoutPrevious : DugoutNext, now);
+			now = (await DugoutStep(now.Index > index ? DugoutPrevious : DugoutNext, now)).Card;
 		return now?.Index == index ? now : null;
 	}
 
 	/// <summary>
 	/// Every card of the Dugout box, read by walking it with its arrows from the first to the last, oldest first; the
-	/// card that was showing is put back. A timeline read whole is remembered as the marks' way is.
+	/// card that was showing is put back. A walk the box hid in the middle of is waited out and walked again: a part
+	/// of the list is never given as the whole (a card asked for by its number was not found, 15 Nov). A timeline
+	/// read whole is remembered as the marks' way is.
 	/// </summary>
 	private static async Task<List<DugoutEntry>> DugoutEntriesByArrows(int marks, string date, string layout)
 	{
-		if (await DugoutNow() is not { } start) return [];
-		var at = start;
-		for (var guard = 0; guard < 40 && await DugoutStep(DugoutPrevious, at) is { } back; guard++) at = back;
-		var cards = new List<DugoutCard> { at };
-		for (var guard = 0; guard < 40 && await DugoutStep(DugoutNext, at) is { } on; guard++) cards.Add(at = on);
-		if (at.Index != start.Index) await DugoutAt(start.Index);
-		if (cards.Count == marks)
-			RememberTimeline(date, layout, cards.Select(c => new SeenCard(c.Index, c.Minute, c.Type, c.Actionable, c.Text, c.TweakId, c.TweakAction)).ToList());
-		return cards.Where(c => !c.IsScoreUpdate && c.Text.Length > 0)
-			.Select(c => new DugoutEntry(c.Minute, c.Index, "", c.Text, c.Actionable, c.TweakId, c.TweakAction)).ToList();
+		for (var attempt = 0; attempt < 3; attempt++)
+		{
+			if (attempt > 0 && !await Until(async () => await DugoutNow() != null, seconds: 60, every: 0.5)) break;
+			if (await Walk() is { } cards)
+			{
+				if (cards.Count == marks)
+					RememberTimeline(date, layout, cards.Select(c => new SeenCard(c.Index, c.Minute, c.Type, c.Actionable, c.Text, c.TweakId, c.TweakAction)).ToList());
+				return cards.Where(c => !c.IsScoreUpdate && c.Text.Length > 0)
+					.Select(c => new DugoutEntry(c.Minute, c.Index, "", c.Text, c.Actionable, c.TweakId, c.TweakAction)).ToList();
+			}
+		}
+		return [];
+
+		static async Task<List<DugoutCard>?> Walk()
+		{
+			if (await DugoutNow() is not { } start) return null;
+			var at = start;
+			for (var guard = 0; guard < 40; guard++)
+			{
+				var (back, end) = await DugoutStep(DugoutPrevious, at);
+				if (end) break;
+				if (back == null) return null;
+				at = back;
+			}
+			var cards = new List<DugoutCard> { at };
+			for (var guard = 0; guard < 40; guard++)
+			{
+				var (on, end) = await DugoutStep(DugoutNext, at);
+				if (end) break;
+				if (on == null) return null;
+				cards.Add(at = on);
+			}
+			if (at.Index != start.Index) await DugoutAt(start.Index);
+			return cards;
+		}
 	}
 
 	/// <summary>Shows an entry: by its mark when the timeline is drawn, by the box's arrows when it is not.</summary>
