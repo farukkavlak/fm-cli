@@ -39,7 +39,7 @@ name = "a mentality card applied reads back the match tactic's mentality, from a
 probe = "dugout apply"
 seen = "Changes.?Kind=mentality.#"
 not = "0"
-quota = { en = 2, tr = 2 }
+quota = { en = 1, tr = 2 }  # EN 1 passed 15 Nov
 checks = [
   { path = "Done", is = "True" },
   { path = "MentalityChanged.#", not = "0" },
@@ -67,7 +67,7 @@ name = "a player card applied names the player and his instruction, from and to"
 probe = "dugout apply"
 seen = "Changes.?Kind=player.#"
 not = "0"
-quota = { tr = 2 }  # EN passed live 2/2, 14 Nov
+quota = {}  # passed live EN 2/2 and TR 2/2, 14-15 Nov
 checks = [
   { path = "Done", is = "True" },
   { path = "PlayerInstructionsChanged.#", not = "0" },
@@ -80,7 +80,7 @@ checks = [
 task = "T156"
 name = "a hurt man of ours at a stop: taken off for a substitute of his kind, out of the eleven after"
 probe = "injury"
-quota = { en = 2, tr = 1 }  # TR met once by hand on 14 Nov (Hrelja), after the fix
+quota = { en = 1 }  # TR 3 and EN 1 passed 14-15 Nov
 
 [[moment]]
 task = "T90"
