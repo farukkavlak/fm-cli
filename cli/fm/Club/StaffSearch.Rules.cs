@@ -148,7 +148,10 @@ internal static partial class Program
 				await Fm.Get("select", ("ptr", Field(presets, "Pointer")), ("choice", nearest.ToString()), ("fire", "1"));
 				await Until(async () => (row = await Row()).At >= 0 && Shown() == nearest, seconds: 4, every: 0.4);
 			}
-			for (var guard = 0; guard < 6 && Shown() != value && Shown() >= 0; guard++)
+			// The "Is At Most" list writes nothing when a value is chosen from it (its choices are bound to 0), so the
+			// maximum (20 at first, and the value read can still be the one before) is stepped all the way: up to the
+			// scale's whole length, each step waited for, never a fixed few (it stopped 6 steps short of 8, T165).
+			for (var guard = 0; guard < 25 && Shown() != value && Shown() >= 0; guard++)
 			{
 				var before = Shown();
 				var step = Next(i => Field(i, "Kind") == "button" && Field(i, "Text") == (before < value ? "+" : "-"));

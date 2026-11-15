@@ -283,7 +283,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     passed a 71' one), list 3/3 the same; a tweak card and an instruction card (by panel) applied, read back. TR: list
     3/3, a tweak and an instruction card ("Pas Karşılama: Dengeli → Koşu Yoluna Pas Yap") applied, read back. The
     box keeps only the latest cards: an old one goes and cannot be applied.
-  - [ ] T165 `players --attr "x<=n"`: an "at most" rule never takes its value ("the panel has 14"), old code too
+  - [x] T165 `players --attr "x<=n"`: the "Is At Most" list writes nothing when chosen from (its choices are bound
+    to 0), so the maximum starts at 20 and is stepped down; the steps stopped at a fixed 6 (20 → 14). Now up to the
+    scale's length, each waited for. EN + TR: stamina<=8 finds a player with 8, pace 12..14 works, pace>=17 with
+    pace<=14 finds none.
   - [x] T85g The calendar grid is held by its day cells' path; a stage's words by the stage list itself
     (`texts?anchorptr=`, plugin). The label "League Table" had found a news item's text. TR + EN: cup round,
     undrawn final's draw date, calendar month.
