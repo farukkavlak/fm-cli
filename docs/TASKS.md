@@ -194,7 +194,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T59 Youth intake
 - [ ] T60 Board meeting and requests; job offers while employed; being sacked
   - Met 15 Nov TR + EN (scn hunt-t60-future-2032): `next` stops at the board's message, `reply … 2` attends, `talk` plays it
-    through (moods read back, a wrong number refused), the talk ends and the day goes on. Left: requests, offers, sacked.
+    through (moods read back, a wrong number refused), the talk ends and the day goes on. Requests (round16), sacked
+    and interviews (round19) were done before.
+  - The target accepted there is on the Promises page: `read promises` (scn caught-2029-11-30): TR none before the
+    meeting, "5 maçta 7 puan toplanacak · 5 maç kaldı" after; EN "Collect 7 points from 5 matches · 5 games left".
+  - Left: a job offer while employed (not met in FM27).
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
 - [x] T62 Pre-season
 - [ ] T63 Match: substitution screen, shouts, set pieces edited in a match
