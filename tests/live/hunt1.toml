@@ -80,7 +80,7 @@ checks = [
 task = "T156"
 name = "a hurt man of ours at a stop: taken off for a substitute of his kind, out of the eleven after"
 probe = "injury"
-quota = { en = 1 }  # TR 3 and EN 1 passed 14-15 Nov
+quota = {}  # TR 3 and EN 2 passed 14-15 Nov (EN 2nd: hunt2, 37')
 
 [[moment]]
 task = "T90"

@@ -177,14 +177,17 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T90 Tactical tweaks in extra time. Passed live EN (round 57); TR closed by review (Faruk, 14 Nov): the tweak is put
   on and off by the game's id, read back from TacticActiveTweaks / TacticPendingTweakOps, the period is the game's
   MatchPeriod; names only shown and matched against what was typed.
-- [ ] T156 An injured man on the pitch: `sub --json` gave `Injured: []` while the game asked `injuredplayer`.
+- [x] T156 An injured man on the pitch: `sub --json` gave `Injured: []` while the game asked `injuredplayer`.
   Found 14 Nov TR (Hrelja, 43'): MatchInjuryType 0, shirt not flagged; his `PlayerStatus` is a list (flag 126), read
   as one value it read nothing. Read as a list: `Injured` named him 3/3, `sub` took him off, `Injured: []` after, the
-  match went on. Left: the same met once in EN by the hunt (tests/live/hunt1.toml).
+  match went on. EN met by the hunt 15 Nov (`hunt2.out`, 37').
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique.
-- [ ] T55 Season's end: vision meeting, awards, contracts ending, retirements
+- [x] T55 Season's end: vision meeting, awards, contracts ending, retirements
   - Met 15 Nov TR + EN (scn season-end, 7 May 2029): the season-end team meeting played through by `reply` + `talk` (11 lines,
-    moods read back, the talk ends); pre-season dates chosen by `reply … 1 2`, the inbox reads it answered. Left: vision, awards, retirements.
+    moods read back, the talk ends); pre-season dates chosen by `reply … 1 2`, the inbox reads it answered. Vision,
+    contracts, retirements and award winners: earlier rounds (round9, round10, round14).
+  - This season's club awards (scn hunt-t55-awards-after, 30 May 2033): `reply` reads the message whole (season
+    results, club awards, best XI) TR + EN. `inbox --open` right after opening gave "(kind )": now waits for the kind.
 - [x] T56 Transfer window and deadline day
 - [x] T57 Cup draws (`fm draw`)
 - [x] T58 International break

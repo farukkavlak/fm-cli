@@ -57,10 +57,20 @@ internal static partial class Program
 	{
 		const string at = "HumanPortalLastSelectedMessageReference.";
 		string[] fields = ["UniqueId", "NewsTitleString", "CanRespond", "NewsHasResponded", "NewsItemIsPriority", "NewsItemTimeSent", "NewsItemHasBeenRead", "NewsItemId"];
-		JsonElement row;
-		try { row = await Fm.GetJson("pull", ("path", "Human"), ("props", string.Join(",", fields.Select(f => at + f)))); }
+		JsonElement row = default;
+		async Task<bool> Read()
+		{
+			row = await Fm.GetJson("pull", ("path", "Human"), ("props", string.Join(",", fields.Select(f => at + f))));
+			return true;
+		}
+		try { await Read(); }
 		catch (FmError) { return null; }
 		if (Field(row, at + "UniqueId") is not { Length: > 0 } id || id == "0") return null;
+		// Just after a message opens the record has its id and title but not yet its kind (seen 15 Nov: "(kind )",
+		// then 32 on every read after): wait for the game to fill it in.
+		if (Field(row, at + "NewsItemId") is not { Length: > 0 })
+			try { await Until(async () => await Read() && Field(row, at + "NewsItemId") is { Length: > 0 }, seconds: 5, every: 0.25); }
+			catch (FmError) { }
 		return JsonSerializer.SerializeToElement(fields.ToDictionary(f => f, f => Field(row, at + f)));
 	}
 
