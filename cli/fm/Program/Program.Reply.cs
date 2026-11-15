@@ -128,7 +128,7 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"'{title}' could not be opened."));
 				return 1;
 			}
-			var opened = await Arriving("press", [("has", title), ("name", "NewsItemButton"), ("any", "1")]);
+			var opened = await MessageRow(id) is { } row ? await Arriving("press", [("ptr", row)]) : "error: the message's row is not drawn";
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 			// The row can be pressed before its page has drawn: the press is queued, does nothing and

@@ -300,7 +300,7 @@ internal static partial class Program
 				var title = Field(message, "NewsTitleString");
 				tried.Add(id);
 				if (!await DrawMessage(id)) continue;
-				var pressed = await Arriving("press", [("has", title), ("name", "NewsItemButton"), ("any", "1")]);
+				var pressed = await MessageRow(id) is { } row ? await Arriving("press", [("ptr", row)]) : "error: the message's row is not drawn";
 				if (pressed.StartsWith("error", StringComparison.Ordinal)) continue;
 				if (!await Until(async () => await OpenedMessageId() == id, seconds: 8, every: 0.25)) continue;
 				Console.WriteLine(L($"  read: {GameWords.Of(title)}"));

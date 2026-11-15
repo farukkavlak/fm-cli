@@ -265,13 +265,15 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     panels by GUID (`Screen.PlayerTransferStatus`, `PlayerContract`). EN pass in the language round.
   - [ ] `contract --agent`: the contract panel opens (by GUID), but the game offered no ask for Abifade (24 Jun 2028);
     not met in FM27 yet
-  - [ ] T85c A message row pressed and scrolled to by its title (`Clock.cs`, `Program.Reply.cs`, `Program.Inbox.cs`):
-    two messages with one title
+  - [x] T85c A message row is pressed by the binding it is drawn from (`MessageRow`: its button's Source is the
+    message's path one level up), the list scrolled by its own element. TR: 3 messages opened, read back as read.
   - [ ] T85d `dugout` finds a card again by minute + text. The game gives a card no id: its event index is its place
     and moves when a card goes (15 Nov, TR: 4 became 3). Kept minute (data) + sentence (the card's own, read in this
     language), now both, and the remembered timeline keeps the card's own minute. Live check in the next hunt.
-  - [ ] T85e `OfferScreen.AddPath` falls back to the last row
-  - [ ] T85f `StaffSearch.Rules.cs`: the row just added found by the attribute's text, last of many
+  - [x] T85e `OfferScreen.AddPath`: no new row told, no row guessed (it took the last); by review
+  - [x] T85f An attribute rule's row is the one whose comparison control was not there before. TR: pace>=12 +
+    pace>=16 finds as pace>=16 alone; pace>=15 + stamina>=15 works.
+  - [ ] T165 `players --attr "x<=n"`: an "at most" rule never takes its value ("the panel has 14"), old code too
   - [ ] T85g `Calendar.cs`, `Stages.Lists.cs`: the page held by the month's or stage's shown name
   - [ ] T85h `Registration.cs`: rules told by English title, one label Turkish in every language ("en az"), flags by
     shown letters ("HGC", "Inj"), age/position/status told apart by shape

@@ -95,19 +95,24 @@ internal static partial class Program
 				?? attributes.Select(a => a.Name).FirstOrDefault(n => Fold(n) == Fold(typed))
 				?? Choose(attributes.Select(a => a.Name).Distinct().ToList(), typed, L("Attribute"));
 			if (name == null) return await Close("");
+			bool Compare(JsonElement i) => Field(i, "Kind") == "dropdown" && string.Equals(Field(i, "Binds"), SearchCompare, StringComparison.OrdinalIgnoreCase);
+			async Task<List<JsonElement>> Form() => (await Fm.GetJson("form", ("anchorpath", SearchPanel), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
+			var comparesBefore = (await Form()).Where(Compare).Select(i => Field(i, "Pointer")).ToHashSet();
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("names", $"Attributes>{attributes.First(a => a.Name == name).Group}>{name}"), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
 
-			// The row just added is the last one that names the attribute; its two controls are the
-			// dropdowns of that row, told by the paths they write, not by the words in them.
+			// The row just added is the one whose comparison was not there before (the same attribute can be on two rows);
+			// its controls are the dropdowns after it, told by the paths they write, not by the words in them.
+			string? newCompare = null;
 			async Task<(List<JsonElement> Items, int At)> Row()
 			{
-				var items = (await Fm.GetJson("form", ("anchorpath", SearchPanel), ("up", "8"), ("buttons", "1"))).EnumerateArray().ToList();
-				return (items, items.FindLastIndex(i => Field(i, "Kind") == "text" && Field(i, "Text") == name));
+				var items = await Form();
+				if (newCompare == null && items.Where(Compare).Select(i => Field(i, "Pointer")).Where(p => !comparesBefore.Contains(p)).ToList() is [var only]) newCompare = only;
+				var at = newCompare == null ? -1 : items.FindIndex(i => Compare(i) && Field(i, "Pointer") == newCompare);
+				return (items, at - 1);
 			}
-			bool Compare(JsonElement i) => Field(i, "Kind") == "dropdown" && string.Equals(Field(i, "Binds"), SearchCompare, StringComparison.OrdinalIgnoreCase);
 			(List<JsonElement> Items, int At) row = default;
-			if (!await Until(async () => (row = await Row()).At >= 0 && row.Items.Skip(row.At).Any(Compare), seconds: 5, every: 0.4))
+			if (!await Until(async () => (row = await Row()).At >= 0, seconds: 5, every: 0.4))
 				return await Close(L($"error: the {name} condition was not added to the panel"));
 
 			JsonElement Next(Func<JsonElement, bool> fits) => row.Items.Skip(row.At + 1).FirstOrDefault(fits);

@@ -330,7 +330,8 @@ internal sealed partial class OfferScreen
 		if (said.StartsWith("error", StringComparison.Ordinal)) return (said, null);
 		OfferScreen? after = null;
 		if (!await Settles(fm, s => (after = s).Rows.Count > (before?.Rows.Count ?? 0), route)) return (L($"'{names[^1]}' was not added"), null);
-		return (null, after!.Rows.FirstOrDefault(r => before?.Row(r) == null) ?? after!.Rows[^1]);
+		// The new row is the one not there before; if none can be told so, none is guessed (the last row was, once).
+		return after!.Rows.FirstOrDefault(r => before?.Row(r) == null) is { } came ? (null, came) : (L($"'{names[^1]}' was added, but its row could not be told from the others"), null);
 	}
 
 	/// <summary>One level of an "Add" list's submenu: the names under the path given.</summary>

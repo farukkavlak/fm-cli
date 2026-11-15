@@ -165,6 +165,22 @@ internal static partial class Program
 		return false;
 	}
 
+	/// <summary>
+	/// The row of a drawn message to press, by the binding the row is drawn from: the row's button is bound one level
+	/// above the message (…items1.N.1 for …items1.N.1.NewsItem). Not by its title: two messages can share one.
+	/// </summary>
+	internal static async Task<string?> MessageRow(string id)
+	{
+		var path = (await Fm.GetJson("inbox", ("paths", "1"))).EnumerateArray()
+			.Where(m => Field(m, "UniqueId") == id).Select(m => Field(m, "Path"))
+			.FirstOrDefault(p => p.EndsWith(".NewsItem", StringComparison.Ordinal));
+		if (path == null) return null;
+		var source = path.TrimStart('.')[..^".NewsItem".Length];
+		var row = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Name") == "NewsItemButton" && Field(b, "Source") == source);
+		return row.ValueKind == JsonValueKind.Object ? Field(row, "Pointer") : null;
+	}
+
 	/// <summary>The bound inbox, its list scrolled to the newest first.</summary>
 	internal static async Task<JsonElement> TopInbox()
 	{
@@ -176,13 +192,15 @@ internal static partial class Program
 	{
 		// The list binds only the rows drawn, and the portal keeps where it was scrolled to: left
 		// halfway down, the newest messages are not among them. The top is the newest.
-		var title = data.EnumerateArray().Select(m => Field(m, "NewsTitleString")).FirstOrDefault(t => t != "");
-		if (title == null) return Oldest(data);
+		if (data.ValueKind != JsonValueKind.Array || data.GetArrayLength() == 0) return Oldest(data);
 		try
 		{
+			// The list itself, by its element (not by a message's title, which two messages can share).
+			var list = (await Fm.Get("inboxlist")).Trim();
+			if (list.StartsWith("error", StringComparison.Ordinal)) return Oldest(data);
 			// Already at the top, the rows bound are the newest.
-			if ((await Fm.Get("scroll", ("anchor", title))).StartsWith("0 of")) return Oldest(data);
-			var moved = await Fm.Get("scroll", ("anchor", title), ("to", "0"));
+			if ((await Fm.Get("scroll", ("ptr", list))).StartsWith("0 of")) return Oldest(data);
+			var moved = await Fm.Get("scroll", ("ptr", list), ("to", "0"));
 			if (moved.StartsWith("0 of") && data.ToString() is var held)
 			{
 				// The rows are drawn again a few at a time: the read is the one that has stopped changing.

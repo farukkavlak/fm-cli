@@ -2844,3 +2844,4 @@ Stopped at the assistant's advice. To apply: dugout apply; to carry on: match	Ya
 at least	en az
 There is no option to offer {0} to clubs (they may not be ours, or already offered).	{0} için kulüplere önerme seçeneği yok (bizim oyuncumuz olmayabilir ya da zaten önerilmiş).
 The screen closed, but the game still offers {0} to be offered: the offer was not taken.	Ekran kapandı ama oyun {0} için önerme seçeneğini hâlâ sunuyor: öneri alınmadı.
+'{0}' was added, but its row could not be told from the others	'{0}' eklendi ama satırı diğerlerinden ayırt edilemedi
