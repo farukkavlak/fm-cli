@@ -214,9 +214,6 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T147 A new signing's press introduction
 - [x] T135 A youth team's match to pick for
 - [x] T129 Live ratings after a match
-- [ ] T164 `next` hung over 5 min with no word (15 Nov TR, scn `next-stuck-2032`, 28 Nov 2032, after loading
-  `hunt-t60-future-2032`): the game's button said Response Required (Görevler 2) while `status` read Messages /
-  Continue / Respond 0; once `next` was stopped it read NeedAction / Respond 1. `next` should say what waits.
 - [ ] T154 TransferRoom `responses` and `activity --loan` tables: need real responses to our adverts
 
 ## 9. Depth the crawl has not reached
