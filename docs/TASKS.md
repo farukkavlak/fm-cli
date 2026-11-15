@@ -188,6 +188,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T58 International break
 - [x] T59 Youth intake
 - [ ] T60 Board meeting and requests; job offers while employed; being sacked
+  - Met 15 Nov TR (scn hunt-t60-future-2032): `next` stops at the board's message, `reply … 2` attends, `talk` plays it
+    through (moods read back, a wrong number refused), the talk ends and the day goes on. Left: requests, offers, sacked.
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
 - [x] T62 Pre-season
 - [ ] T63 Match: substitution screen, shouts, set pieces edited in a match
