@@ -183,14 +183,14 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   match went on. Left: the same met once in EN by the hunt (tests/live/hunt1.toml).
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique.
 - [ ] T55 Season's end: vision meeting, awards, contracts ending, retirements
-  - Met 15 Nov TR (scn season-end, 7 May 2029): the season-end team meeting played through by `reply` + `talk` (11 lines,
+  - Met 15 Nov TR + EN (scn season-end, 7 May 2029): the season-end team meeting played through by `reply` + `talk` (11 lines,
     moods read back, the talk ends); pre-season dates chosen by `reply … 1 2`, the inbox reads it answered. Left: vision, awards, retirements.
 - [x] T56 Transfer window and deadline day
 - [x] T57 Cup draws (`fm draw`)
 - [x] T58 International break
 - [x] T59 Youth intake
 - [ ] T60 Board meeting and requests; job offers while employed; being sacked
-  - Met 15 Nov TR (scn hunt-t60-future-2032): `next` stops at the board's message, `reply … 2` attends, `talk` plays it
+  - Met 15 Nov TR + EN (scn hunt-t60-future-2032): `next` stops at the board's message, `reply … 2` attends, `talk` plays it
     through (moods read back, a wrong number refused), the talk ends and the day goes on. Left: requests, offers, sacked.
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
 - [x] T62 Pre-season
