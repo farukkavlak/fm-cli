@@ -165,7 +165,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T161 `dugout` pressing card in a TR match: the read-back says "from → to" (was "Pres Şiddeti: Çok Şiddetli").
   Closed by review (Faruk, 14 Nov): from and to are the game's ids read before and after; TR words come in only to show
   them (`GameWords.Of`). Seen live EN 14 Nov: "Trigger Press: Much More Often → …".
-- [ ] T163 `dugout` player card met live: the read-back names the player and the instruction (`PlayerInstructionsChanged`).
+- [x] T163 `dugout` player card met live: the read-back names the player and the instruction (`PlayerInstructionsChanged`).
+  Hunt 14–15 Nov: EN 2/2 ("Ahmet Koşar · Shooting: Standard → Shoot Less Often"), TR 2/2 ("Mirko Sušak · Şut: Standart → Daha Az Şut Çek").
   - Tried 14 Nov: the game's own `EventFmxMatchDugoutGenerateDebugEvent` (InteropEventIDs 961956663), sent by
     `/pluginevent` to a dugout control's target (`DugoutEvent<n>`, after `dugout` resolved it) during a match: taken,
     no card made (likely shut in the release build). Not tried: a payload or another target; `…ClearDebugEvent` beside it.
