@@ -201,7 +201,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T136 An open negotiation closed by `player`
 - [x] T137 `reply` found no message while another page was over the inbox. Not met again 15 Nov (scn bug-reply-notfound, TR):
   12/12 (3 fresh; after finances, squad, table, training, a player card, data hub, club history, opponent, a news item).
-- [ ] T138 `match --instant` silent while the game's queue was held
+- [x] T138 `match --instant` silent while the game's queue was held. Not met again: 11 Nov, and 15 Nov TR 3/3 (scn kickoff:
+  10 lines out, rc 0, `report` has the result).
 - [x] T139 The walk past "contracts set to expire"
 - [x] T140 That message's table: a decision per player
 - [x] T141 `player` opened the wrong player
