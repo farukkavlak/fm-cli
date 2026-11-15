@@ -199,7 +199,8 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T133 `reply "<subject>"` with several of that subject
 - [x] T134 Pitch size message
 - [x] T136 An open negotiation closed by `player`
-- [ ] T137 `reply` found no message while another page was over the inbox
+- [x] T137 `reply` found no message while another page was over the inbox. Not met again 15 Nov (scn bug-reply-notfound, TR):
+  12/12 (3 fresh; after finances, squad, table, training, a player card, data hub, club history, opponent, a news item).
 - [ ] T138 `match --instant` silent while the game's queue was held
 - [x] T139 The walk past "contracts set to expire"
 - [x] T140 That message's table: a decision per player
