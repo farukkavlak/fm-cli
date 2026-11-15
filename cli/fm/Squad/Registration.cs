@@ -120,8 +120,8 @@ internal static partial class Program
 
 	private static string RulesLine(List<RegRule> rules)
 	{
-		var parts = rules.Where(r => r.Title != "Replacements").Select(r =>
-			$"{(r.Meets ? "✓" : "✗")} {RuleName(r.Title)} {r.Value.Split(' ')[0]}");
+		var parts = rules.Where(r => !IsReplacements(r)).Select(r =>
+			$"{(r.Meets ? "✓" : "✗")} {r.Title} {r.Value.Split(' ')[0]}");
 		return string.Join("   ", parts);
 	}
 
@@ -142,16 +142,19 @@ internal static partial class Program
 		return true;
 	}
 
-	private static string RuleName(string title) => title switch
-	{
-		"Maximum squad size" => L("at most"),
-		"Minimum squad size" => L("at least"),
-		"Homegrown in Nation" => L("trained in nation (HGN+HGC)"),
-		"Homegrown at Club" => L("trained at club (HGC)"),
-		"Goalkeepers in the squad" => L("goalkeepers"),
-		"Replacements" => L("replacements"),
-		_ => title,
-	};
+	/// <summary>
+	/// The game's words this page is told apart by, in the game's language through its own table: a rule's
+	/// minimum mark ("Min."), the replacements line, and the row's flags. The page writes them in the game's
+	/// language (a Turkish game's rules came back Turkish, 15 Nov), so they are never compared as English.
+	/// </summary>
+	private static readonly string[] RegistrationWords = ["Min.", "Replacements", "HGC", "HGN", "Inj", "Wnt"];
+
+	private static bool IsWord(string shown, string english) => shown == GameWords.Of(english) || shown == english;
+
+	private static bool IsReplacements(RegRule rule) => IsWord(rule.Title, "Replacements");
+
+	/// <summary>A flag's kind ("HGC", "Inj"…) by the game's word for it; null for one not told apart here.</summary>
+	private static string? FlagKind(string flag) => RegistrationWords.Skip(2).FirstOrDefault(w => IsWord(flag, w));
 
 	/// <summary>
 	/// The lines under the rules that say who need not be on the list, in Turkish where the
@@ -188,7 +191,7 @@ internal static partial class Program
 		{
 			var mark = p.On ? "[green]✓[/]" : "[dim]·[/]";
 			var name = !p.CanChange ? $"[dim]{Ui.Safe(p.Name)}[/]" : p.On ? $"[bold]{Ui.Safe(p.Name)}[/]" : Ui.Safe(p.Name);
-			var flags = string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(f => f switch
+			var flags = string.Join(" ", p.Flags.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(f => FlagKind(f) switch
 			{
 				"HGC" => L("[green]at club[/]"),
 				"HGN" => L("[aqua]in nation[/]"),
@@ -200,24 +203,24 @@ internal static partial class Program
 		}
 		Ui.Out.Write(table);
 
-		foreach (var r in rules.Where(r => r.Title != "Replacements"))
+		foreach (var r in rules.Where(r => !IsReplacements(r)))
 		{
 			// A homegrown minimum the list falls short of can still be met: each missing
 			// homegrown player is one fewer place for the rest, and the game counts it so.
 			var shortBy = Short(r);
 			var note = r.Meets && shortBy > 0 ? L($"  [dim]({shortBy} short: that many fewer places in the list)[/]") : "";
-			Ui.Line($"  {(r.Meets ? "[green]✓[/]" : "[red]✗[/]")} {Ui.Safe(r.Value.Split(' ')[0]),-6} {Ui.Safe(RuleName(r.Title))}{note}");
+			Ui.Line($"  {(r.Meets ? "[green]✓[/]" : "[red]✗[/]")} {Ui.Safe(r.Value.Split(' ')[0]),-6} {Ui.Safe(r.Title)}{note}");
 		}
 	}
 
 	private static int Short(RegRule rule)
 	{
 		var parts = rule.Value.Split(' ')[0].Split('/');
-		return rule.Value.Contains("Min.", StringComparison.Ordinal) && parts.Length == 2
+		return rule.Value.Split(' ').Skip(1).Any(w => IsWord(w, "Min.")) && parts.Length == 2
 		       && int.TryParse(parts[0], out var have) && int.TryParse(parts[1], out var need) && have < need ? need - have : 0;
 	}
 
-	private static string FlagName(string flag) => flag switch
+	private static string FlagName(string flag) => FlagKind(flag) switch
 	{
 		"HGC" => L("at club"),
 		"HGN" => L("in nation"),
@@ -232,6 +235,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<(List<RegRule>, List<Registered>)> ReadRegistration()
 	{
+		await GameWords.Ask(Fm, RegistrationWords);
 		var rules = new List<RegRule>();
 		var players = new List<Registered>();
 		var seen = new HashSet<string>();
@@ -252,6 +256,9 @@ internal static partial class Program
 			if (Field(page, "ScrollEnd") is "0" or "") break;
 		}
 		await Fm.Get("regscroll", ("to", "0"));
+		// A row's position and squad status come back in English where the game's table says; shown in its words.
+		await GameWords.Ask(Fm, players.SelectMany(p => new[] { p.Position, p.Status }).ToArray());
+		players = players.Select(p => p with { Position = GameWords.Of(p.Position), Status = GameWords.Of(p.Status) }).ToList();
 		return (rules, players);
 	}
 

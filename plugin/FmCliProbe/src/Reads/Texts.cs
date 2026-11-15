@@ -21,13 +21,16 @@ internal static class Texts
 		// ?anchorname= by the element's own name ("MessageBodyText"), for a text bound to nothing
 		// that tells it apart.
 		var anchorName = q["anchorname"];
+		// ?anchorptr= by the element itself (a list's own control, found by what it is bound to), for an anchor whose
+		// only words are the ones it shows.
+		var byPointer = Buttons.TryPointer(q["anchorptr"] ?? "", out var anchorPointer);
 		// ?within= reads everything inside the first shown element of that name, of any kind (a tile's
 		// panel, "FinancesIncome"), with nothing to climb.
 		var within = q["within"];
 		// ?named= keeps only the texts whose own element has that name (a tile's "description").
 		var named = q["named"];
-		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && string.IsNullOrEmpty(anchorName) && string.IsNullOrEmpty(within))
-			return "error: ?anchor=<text>, ?anchorpath=<data path>, ?anchorname=<element name> or ?within=<element name> required";
+		if (string.IsNullOrEmpty(anchor) && string.IsNullOrEmpty(anchorPath) && string.IsNullOrEmpty(anchorName) && string.IsNullOrEmpty(within) && !byPointer)
+			return "error: ?anchor=<text>, ?anchorpath=<data path>, ?anchorname=<element name>, ?anchorptr=<0x…> or ?within=<element name> required";
 		var up = int.TryParse(q["up"], out var n) ? n : 8;
 		// With ?paths=1 each text comes with the data path it is bound to, which says what it is
 		// whatever language it reads in ("Date", "Fixture.Opponent"…); empty when it is drawn another way.
@@ -47,9 +50,12 @@ internal static class Texts
 					if (element.name != within || element.resolvedStyle.display == DisplayStyle.None) continue;
 					return "[" + string.Join(", ", Under(element, paths, named)) + "]\n";
 				}
-				var text = element.TryCast<TextElement>();
-				if (text == null) continue;
-				if (!string.IsNullOrEmpty(anchorName) ? element.name != anchorName
+				if (byPointer)
+				{
+					if (element.Pointer != anchorPointer) continue;
+				}
+				else if (element.TryCast<TextElement>() is not { } text) continue;
+				else if (!string.IsNullOrEmpty(anchorName) ? element.name != anchorName
 				    : !string.IsNullOrEmpty(anchorPath) ? PathOf(text) != anchorPath : Text.Plain(text.text ?? "") != anchor) continue;
 			}
 			catch { continue; }

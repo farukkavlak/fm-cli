@@ -54,7 +54,7 @@ internal static partial class Program
 		var previous = "";
 		await Until(async () =>
 		{
-			texts = (await Fm.GetJson("texts", ("anchor", month.Label), ("up", "14"), ("paths", "1"))).EnumerateArray()
+			texts = (await Fm.GetJson("texts", ("anchorpath", "day.DayOfTheMonth"), ("up", "14"), ("paths", "1"))).EnumerateArray()
 				.Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
 			var now = string.Join("|", texts.Select(t => t.Text));
 			var settled = now == previous && texts.Count(t => t.Path == "day.DayOfTheMonth") >= 28;

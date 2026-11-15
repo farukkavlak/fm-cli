@@ -38,8 +38,10 @@ internal static partial class Program
 	private static async Task<string> ContentSignature()
 	{
 		var lists = await StageLists();
-		var anchor = lists is { } l ? Field(l.Stage, "Label") : "";
-		var texts = anchor.Length > 0 ? (await Fm.GetJson("texts", ("anchor", anchor), ("up", "12"))).GetRawText() : "";
+		// The words over the stage list, held by the list itself: its label's words can also stand elsewhere on screen
+		// ("League Table" found a match preview's news, 15 Nov).
+		var anchor = lists is { } l ? Field(l.Stage, "Pointer") : "";
+		var texts = anchor.Length > 0 ? (await Fm.GetJson("texts", ("anchorptr", anchor), ("up", "12"))).GetRawText() : "";
 		return (await RoundTies()).GetRawText() + (await Fm.GetJson("table", ("groups", "1"))).GetRawText() + texts;
 	}
 
@@ -210,7 +212,6 @@ internal static partial class Program
 		if (lists == null) return (null, null, null);
 		// The page's rows bind no team names in FM27: what it holds is only a sign there is a table.
 		if (table.ValueKind == JsonValueKind.Array) table = await StageTable(lists.Value.Stage, tables) ?? default;
-		var stage = Field(lists.Value.Stage, "Label");
 		// The date of a round not drawn yet comes in a sentence the game builds for it, so the
 		// words are not English in every game ("This round will be drawn on 13/8/2026" /
 		// "Bu tur 13/8/2026 tarihinde oynanacak"); the date is taken by its own shape — the
@@ -221,7 +222,7 @@ internal static partial class Program
 			var match = Regex.Match(text, @"(?:\d{4}([./-])\d{1,2}\1\d{1,2}|\d{1,2}([./-])\d{1,2}\2\d{4})");
 			return match.Success ? match.Value : null;
 		}
-		var note = (await Fm.GetJson("texts", ("anchor", stage), ("up", "12"))).EnumerateArray()
+		var note = (await Fm.GetJson("texts", ("anchorptr", Field(lists.Value.Stage, "Pointer")), ("up", "12"))).EnumerateArray()
 			.Select(t => t!.ValueKind == JsonValueKind.String ? t.GetString() ?? "" : "")
 			.Select(DateIn)
 			.FirstOrDefault(date => date != null);

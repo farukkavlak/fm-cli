@@ -259,7 +259,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [ ] T85 Audit `cli/fm` and the plugin: nothing held by text, order, position or a fixed wait
   - 15 Nov full scan: no fixed waits (16 paces, all inside sign-held loops); dates come from data as ISO; pixels only
     say "on screen"; rows are built from data paths; English compares go through the game's translation ids.
-  - [ ] T85a `Opponent.cs` analyst tiles: numbers by draw order, labels matched by text ("Gl/Gm")
+  - [x] T85a `opponent`: the report opened under Tactics (it was asked for under Home, so FM27 never opened it: no
+    tiles, no meetings). The analysts' tiles come from their data (polygonobservation.DataPointList: the game's
+    name, short name and true value; the screen caps a value at its axis, 1.13 shown 0,5). A meeting's date is
+    taken only when it is a date by shape. TR read; the scope ("1. Lig, This Season") is not in data, dropped.
   - [x] T85b `propose`: FM27 lists the offer in his action menu (PersonOfferToClubs); read back by the menu. TR: sent,
     menu no longer offers it, again refused, another club's player refused. The header's value and wage open their
     panels by GUID (`Screen.PlayerTransferStatus`, `PlayerContract`). EN pass in the language round.
@@ -274,12 +277,15 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] T85f An attribute rule's row is the one whose comparison control was not there before. TR: pace>=12 +
     pace>=16 finds as pace>=16 alone; pace>=15 + stamina>=15 works.
   - [ ] T165 `players --attr "x<=n"`: an "at most" rule never takes its value ("the panel has 14"), old code too
-  - [ ] T85g `Calendar.cs`, `Stages.Lists.cs`: the page held by the month's or stage's shown name
-  - [ ] T85h `Registration.cs`: rules told by English title, one label Turkish in every language ("en az"), flags by
-    shown letters ("HGC", "Inj"), age/position/status told apart by shape
+  - [x] T85g The calendar grid is held by its day cells' path; a stage's words by the stage list itself
+    (`texts?anchorptr=`, plugin). The label "League Table" had found a news item's text. TR: cup round, undrawn
+    final's draw date, calendar month.
+  - [x] T85h `register`: rule titles shown as the game writes them (they came Turkish in a Turkish game, so the
+    English switch never matched); "Min.", "Replacements" and the flags by the game's own word for them
+    (GameWords); positions and statuses in the game's words. Age/position/status still told apart by shape.
   - [ ] T85i Small: "the last of many" in the fee window (`Guided.cs`), new mentoring group, `Acknowledge.cs`,
     `?any=1`; `Texts.TopBody` picks the screen's centre. Done: `targets` reads the budgets from data, not our label.
-  - [ ] T85j `opponent --json`: the summary's keys are our translated labels ("Diziliş"), not stable keys
+  - [x] T85j `opponent --json`: the summary's keys are stable (Formation, TopScorer…), not our labels
 
 ## 13. Later (v2)
 

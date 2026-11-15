@@ -1,3 +1,4 @@
+using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
@@ -9,7 +10,42 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record AnalystTile(string Name, string Scope, List<(string Label, string Value)> Stats, string Verdict);
+	private sealed record AnalystTile(string Name, List<(string Label, string Short, string Value)> Stats, string Verdict);
+
+	/// <summary>
+	/// The analysts' tiles on the report, from the data each is drawn from (a polygonobservation): its kind
+	/// (GraphType), its verdict (PerformanceSummary) and each figure of its DataPointList by the game's own name for
+	/// it, short name and number. A tile drawn twice (the page binds some twice) is one.
+	/// </summary>
+	private static async Task<List<AnalystTile>> AnalystTiles()
+	{
+		List<string> lists = [];
+		try
+		{
+			lists = (await Fm.Get("find", ("name", "DataPointList"), ("limit", "40"))).Split('\n').Select(l => l.Trim())
+				.Where(l => l.StartsWith($"..{Screen.OppositionReport}", StringComparison.Ordinal) && l.EndsWith(".polygonobservation.DataPointList", StringComparison.Ordinal))
+				.Distinct().ToList();
+		}
+		catch (FmError) { return []; }
+		var tiles = new List<AnalystTile>();
+		var seen = new HashSet<string>();
+		foreach (var list in lists)
+		{
+			var tile = list[..^".DataPointList".Length];
+			var head = await Fm.Pull(tile, "GraphType,PerformanceSummary");
+			var points = await Fm.Pull(list, "StatNameLabel,StatNameLabelShort,SubjectStatValue", list: true);
+			if (points.ValueKind != JsonValueKind.Array || Field(head, "GraphType").Length == 0) continue;
+			var stats = points.EnumerateArray()
+				.Where(x => double.TryParse(Field(x, "SubjectStatValue"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _))
+				.Select(x => (Label: Field(x, "StatNameLabel"), Short: Field(x, "StatNameLabelShort"),
+					Value: GameNumbers.Of(double.Parse(Field(x, "SubjectStatValue"), System.Globalization.CultureInfo.InvariantCulture), "0.0")))
+				.ToList();
+			if (!seen.Add(Field(head, "GraphType") + "|" + string.Join("|", stats))) continue;
+			tiles.Add(new AnalystTile(Field(head, "GraphType"), stats, Field(head, "PerformanceSummary")));
+		}
+		await GameWords.Ask(Fm, tiles.SelectMany(t => t.Stats.Select(x => x.Label)).Append("").ToArray());
+		return tiles.Select(t => t with { Stats = t.Stats.Select(x => (GameWords.Of(x.Label), x.Short, x.Value)).ToList() }).ToList();
+	}
 
 	private static async Task<int> Opponent(bool json)
 	{
@@ -40,21 +76,23 @@ internal static partial class Program
 		var form = string.Join(" ", Standings.Form(Field(team, "RecentFormValues")));
 		var venue = VenueWord(where);
 		var days = Field(fixture, "FixtureDateDistanceInDays");
-		var rows = new List<(string Label, string Value)>
+		// Each line with a key of its own for --json (the same in every language) and its label in the CLI's words.
+		var rows = new List<(string Key, string Label, string Value)>
 		{
-			("Form", form),
-			(L("Formation"), Field(team, "MostUsedFormation")),
-			(L("Top scorer"), await Standout("TopGoalscorerPlayer")),
-			(L("Top assists"), await Standout("MostAssistsPlayer")),
-			(L("Highest average rating"), await Standout("HighestAverageRatingPlayer")),
-			(L("Agent"), manager),
+			("Form", L("Form"), form),
+			("Formation", L("Formation"), Field(team, "MostUsedFormation")),
+			("TopScorer", L("Top scorer"), await Standout("TopGoalscorerPlayer")),
+			("TopAssists", L("Top assists"), await Standout("MostAssistsPlayer")),
+			("HighestAverageRating", L("Highest average rating"), await Standout("HighestAverageRatingPlayer")),
+			("Manager", L("Manager"), manager),
 		};
 
-		// The portal's report page, read by each text's data path.
+		// The report page (Tactics › Opponent › Opposition Report): the team news and previous meetings by each text's
+		// data path, the analysts' tiles from the data they are drawn from.
 		var news = new List<string>();
 		var meetings = new List<string>();
 		var tiles = new List<AnalystTile>();
-		if (!friendly && !(await OpenPage(Screen.OppositionReport, under: Screen.Home)).StartsWith("error", StringComparison.Ordinal))
+		if (!friendly && !(await OpenPage(Screen.OppositionReport)).StartsWith("error", StringComparison.Ordinal))
 		{
 			List<(string Text, string Path)> page = [];
 			// The analysts' tiles say "No Data Available" for a moment before their numbers arrive;
@@ -73,37 +111,18 @@ internal static partial class Program
 			}, seconds: 6, every: 0.5);
 
 			string? lastPlain = null;
-			AnalystTile tile = null;
 			foreach (var (text, path) in page)
 			{
-				switch (path)
-				{
-					case "row.Text": news.Add(text); break;
-					// A meeting's date is drawn without a path just before its result.
-					case "prevmeetingfixture.ResultLinkableNoSpaces": meetings.Add(lastPlain is { } date ? $"{date} {text}" : text); break;
-					case "polygonobservation.GraphType":
-						tile = new AnalystTile(text, "", [], "");
-						tiles.Add(tile);
-						break;
-					case "polygonobservation.PerformanceSummary" when tile != null:
-						tiles[^1] = tile = tile with { Verdict = text };
-						break;
-					case "" when tile != null && tile.Verdict.Length == 0:
-						// Within a tile: its scope first, then each number and its label.
-						if (tile.Scope.Length == 0) tiles[^1] = tile = tile with { Scope = text };
-						else if (lastPlain is { } number && IsNumber(number) && !IsNumber(text)) tile.Stats.Add((text, number));
-						break;
-				}
+				if (path == "row.Text") news.Add(text);
+				// A meeting's date is drawn with no path in the meeting's row; it is taken only when it is a date by its
+				// shape (the game's own order of day, month and year), never as whatever text came before.
+				else if (path == "prevmeetingfixture.ResultLinkableNoSpaces")
+					meetings.Add(lastPlain is { } date && IsDate(date) ? $"{date} {text}" : text);
 				lastPlain = path.Length == 0 ? text : null;
 			}
+			tiles = await AnalystTiles();
 		}
-		static bool IsNumber(string text) => GameNumbers.Read(text.Trim('%')) != null;
-
-		static string Turkish(string label) => label switch
-		{
-			"Gl/Gm" => L("goals per game"), "Np-xG/90" => L("non-penalty xG/90"), "Conc/Gm" => L("conceded per game"), "xGA/Gm" => L("xGA per game"),
-			"Sh/Gm" => L("shots per game"), "Shot %" => L("shots on target %"), "Pas %" => "pas %", "Tck %" => L("tackles won %"), _ => label,
-		};
+		static bool IsDate(string text) => System.Text.RegularExpressions.Regex.IsMatch(text, @"^(\d{4}([./-])\d{1,2}\2\d{1,2}|\d{1,2}([./-])\d{1,2}\3\d{4})$");
 
 		if (json)
 		{
@@ -111,13 +130,13 @@ internal static partial class Program
 			{
 				Team = Field(team, "Name"), Description = GameWords.Of(Field(team, "Description")), Venue = where,
 				Kickoff = Field(fixture, "KickoffTime"), InDays = days,
-				Summary = rows.ToDictionary(r => r.Label, r => r.Value),
+				Summary = rows.ToDictionary(r => r.Key, r => r.Value),
 				News = news.Select(GameWords.Of).ToList(), PreviousMeetings = meetings.Select(GameWords.Of).ToList(),
 				Expectation = GameWords.Of(Field(team, "NextOppositionThreatLevelAssessment")),
 				Tiles = tiles.Select(t => new
 				{
-					Name = GameWords.Of(t.Name), Scope = GameWords.Of(t.Scope),
-					Stats = t.Stats.ToDictionary(x => Turkish(x.Label), x => x.Value), Verdict = GameWords.Of(t.Verdict),
+					Name = GameWords.Of(t.Name),
+					Stats = t.Stats.Select(x => new { x.Label, x.Short, x.Value }), Verdict = GameWords.Of(t.Verdict),
 				}),
 			}));
 			return 0;
@@ -125,14 +144,14 @@ internal static partial class Program
 		Console.WriteLine($"{Field(team, "Name")} · {Field(team, "Description")}");
 		var inDays = days.Length > 0 ? Lf(days == "1" ? " · in {0} day" : " · in {0} days", days) : "";
 		Console.WriteLine(L($"  Match: {venue}{inDays}{(Field(fixture, "KickoffTime") is { Length: > 0 } k ? $" · {k}" : "")}"));
-		foreach (var (label, value) in rows)
+		foreach (var (_, label, value) in rows)
 			if (value.Length > 0) Console.WriteLine($"  {label}: {value}");
 		if (meetings.Count > 0) Console.WriteLine(L($"  Previous matches: {string.Join(" · ", meetings)}"));
 		if (Field(team, "NextOppositionThreatLevelAssessment") is { Length: > 0 } expected) Console.WriteLine(L($"  Expectation: {expected}"));
 		foreach (var t in tiles.Where(t => t.Stats.Count > 0 || t.Verdict.Length > 0))
 		{
-			Console.WriteLine($"{t.Name}{(t.Scope.Length > 0 && t.Stats.Count > 0 ? $" ({t.Scope})" : "")}: {t.Verdict}");
-			if (t.Stats.Count > 0) Console.WriteLine("  " + string.Join(" · ", t.Stats.Select(x => $"{Turkish(x.Label)} {x.Value}")));
+			Console.WriteLine($"{GameWords.Of(t.Name)}: {GameWords.Of(t.Verdict)}");
+			if (t.Stats.Count > 0) Console.WriteLine("  " + string.Join(" · ", t.Stats.Select(x => $"{x.Label} {x.Value}")));
 		}
 		if (news.Count > 0)
 		{
