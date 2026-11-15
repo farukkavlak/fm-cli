@@ -228,7 +228,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T71 Every command has its MCP tool and help line
 - [x] T72 Every command reachable by sentence
 - [ ] T73 `MANUAL.md` images refreshed for every changed output
-- [ ] T74 Full sweep passes (`tools/sweep.sh`, `tools/mcp-check.py`)
+- [x] T74 Full sweep passes (`tools/sweep.sh`, `tools/mcp-check.py`): 15 Nov, scn-calm EN 63/63, TR 63/63; MCP 50 called, 0 failed
 - [x] T75 `AI-CHECKLIST.md` sorted: safety is T153, the rest is v2 in `AI.md`
 - [x] T76 `BACKLOG.md` sorted: tasks made (T151, T152), the rest v2 below or dropped
 - [ ] T77 `fm crawl` TR + EN at the end: no event or page without a command (or a reason)
