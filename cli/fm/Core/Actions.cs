@@ -224,7 +224,11 @@ internal static partial class Program
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
-		if (await PersonMenu(words[0]) is not { } menu) return 1;
+		if (await PersonMenu(words[0]) is not { } menu)
+		{
+			await CloseSearch();
+			return 1;
+		}
 		var (name, entries) = menu;
 
 		if (words.Count > 1)
@@ -232,6 +236,7 @@ internal static partial class Program
 			if (MenuEntry(entries, string.Join(" ", words.Skip(1))) is not { } entry)
 			{
 				await Fm.Get("actions", ("close", "1"));
+				await CloseSearch();
 				return 1;
 			}
 			return await ChooseAction(name, entry, entries);
@@ -240,6 +245,7 @@ internal static partial class Program
 		if (json)
 		{
 			await Fm.Get("actions", ("close", "1"));
+			await CloseSearch();
 			Console.WriteLine(JsonOut.Of(new { Name = name, Actions = entries.Where(e => !IsFolder(e)).Select(e => new { Path = Field(e, "ShownPath") is { Length: > 0 } shown ? shown : Field(e, "Path"), Enabled = IsEnabled(e) }) }));
 			return 0;
 		}
@@ -265,6 +271,7 @@ internal static partial class Program
 		}
 
 		await Fm.Get("actions", ("close", "1"));
+		await CloseSearch();
 		Console.WriteLine(name);
 		// A folder inside another with a long list under it (every scout, every squad player) is named with its count.
 		var all = args.Contains("--all");
@@ -297,6 +304,7 @@ internal static partial class Program
 		if (!IsEnabled(entry))
 		{
 			await Fm.Get("actions", ("close", "1"));
+			await CloseSearch();
 			Console.Error.WriteLine(L($"{name}: '{path}' is not available right now."));
 			return 1;
 		}

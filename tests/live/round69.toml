@@ -1,0 +1,74 @@
+# Round 69 (15 Nov night): T85i, what was held by "the last of many".
+# - mentoring new: FM27 draws the group editor inside the Mentoring page (FM26 had a page of its own): held by its own
+#   Cancel / Confirm events; the group the editor made is the one no group before matches, not the last.
+# - the fee window in a talk and its Confirm: the one the game shows, not the last laid out.
+# - Acknowledge (after captains): the closing button the game shows, not the last.
+# Run: tools/fm-round.py dry tests/live/round69.toml, then run --lang en,tr.
+
+[[test]]
+task = "T85i"
+name = "mentoring new with no players lists them and leaves the groups as they were"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "mentoring", path = "#", keep = "groups" },
+  { read = "mentoring new", path = "#", not = "0" },
+  { read = "mentoring", path = "#", same_as = "groups" },
+  { read = "mentoring new", path = "#", not = "0", note = "again, with the first still gone" },
+  { read = "mentoring", path = "#", same_as = "groups" },
+]
+
+[[test]]
+task = "T85i"
+name = "a group of three built, read back, broken up; a made-up player refused and nothing left"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "mentoring new", path = "0.Player", keep = "a" },
+  { read = "mentoring new", path = "1.Player", keep = "b" },
+  { read = "mentoring new", path = "2.Player", keep = "c" },
+  { run = "mentoring new {a} {b} zzqqx", rc = "fail" },
+  { read = "mentoring", path = "#", is = "0", note = "the refused one left no empty group" },
+  { run = "mentoring new {a} {b} {c}" },
+  { read = "mentoring", path = "#", is = "1" },
+  { read = "mentoring", path = "0.Members.#", is = "3" },
+  { read = "mentoring", path = "0.Members.?Player={a}.#", is = "1" },
+  { read = "mentoring", path = "0.Name", keep = "group" },
+  { run = "mentoring remove {group} --yes" },
+  { read = "mentoring", path = "#", is = "0" },
+]
+
+[[test]]
+task = "T85i"
+name = "an unhappy player's fee: proposed in the window the game shows, confirmed; confirm with no window refused"
+at = "unhappy"
+fresh = true
+repeat = 3
+steps = [
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 4", note = "talk to him about it" },
+  { run = "talk 3", note = "a fair offer lets him go" },
+  { run = "talk confirm", rc = "fail", note = "no fee window yet" },
+  { run = "talk 1", note = "how about this: the fee window" },
+  { run = "talk fee zzqq", rc = "fail" },
+  { run = "talk confirm" },
+  { read = "talk", path = "Answers.#", not = "0", live = true, note = "the talk goes on after the fee (whether he asks again is his: 15 Nov EN he ended it)" },
+  { run = "talk confirm", rc = "fail", note = "the window went with the fee" },
+]
+
+[[test]]
+task = "T85i"
+name = "a captain's change lands and reads back (the assistant's closing button pressed after)"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "captains", path = "ViceCaptain", keep = "vice" },
+  { read = "captains", path = "Captain", keep = "captain" },
+  { run = "captains --captain {vice}" },
+  { read = "captains", path = "Captain", same_as = "vice" },
+  { run = "captains --captain {captain}" },
+  { read = "captains", path = "Captain", same_as = "captain" },
+]

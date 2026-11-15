@@ -2078,7 +2078,6 @@ Group name box not found; creating it with the name the game gives.	Grup adı ku
 Confirm button not found; group not created.	Onay düğmesi bulunamadı; grup kurulmadı.
 Confirmed but the new group is not in the game's data.	Onaylandı ama yeni grup oyunun verisinde görünmüyor.
 Group created but the game left its name as '{0}'.	Grup kuruldu ama oyun adını '{0}' bıraktı.
-A mentoring group was disbanded today; the game reloads the old list when a new group opens the same day and mixes them up. Advance one day (next), then create it.	Bugün bir mentorluk grubu dağıtıldı; oyun aynı gün yeni grup açınca eski listeyi geri yüklüyor ve grupları karıştırıyor. Önce bir gün ilerlet (next), sonra kur.
 Could not read mentoring groups.	Mentorluk grupları okunamadı.
 Could not close the assistant's previous answer.	Yardımcının önceki cevabı kapatılamadı.
 Could not answer the game's question; groups unchanged.	Oyunun sorusu cevaplanamadı; gruplar değişmedi.
@@ -2847,3 +2846,4 @@ The screen closed, but the game still offers {0} to be offered: the offer was no
 '{0}' was added, but its row could not be told from the others	'{0}' eklendi ama satırı diğerlerinden ayırt edilemedi
 Form	Form
 Manager	Menajer
+  {0} cannot go on: a substitution first, sub <off> <on> (it carries the match on too)	  {0} devam edemez: önce değişiklik, sub <çıkan> <giren> (maçı da sürdürür)

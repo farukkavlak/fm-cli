@@ -96,6 +96,23 @@ internal static partial class Program
 	/// Types a name into the game's search and returns what it found. The search box only takes
 	/// text typed into it, and its results arrive a moment after.
 	/// </summary>
+	/// <summary>
+	/// Shuts the game's search window when it is up, by its own close button (the window's page, the ClosePanel
+	/// it sends); done when its box is gone. A command that found someone with it and then stopped leaves it over
+	/// the page otherwise (15 Nov: `actions` with an entry it had not, the window stayed up).
+	/// </summary>
+	internal static async Task CloseSearch()
+	{
+		static bool Box(JsonElement b) => Field(b, "Type") == "SearchBox";
+		if (!(await Fm.GetJson("textboxes")).EnumerateArray().Any(Box)) return;
+		var close = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.FirstOrDefault(b => Field(b, "Page") == Screen.Search && Field(b, "Type") == "SIButton" && Field(b, "Visible") == "True"
+				&& Field(b, "Events").Split(", ").Contains("ClosePanel"));
+		if (close.ValueKind != JsonValueKind.Object) return;
+		await Fm.Get("press", ("ptr", Field(close, "Pointer")));
+		await Until(async () => !(await Fm.GetJson("textboxes")).EnumerateArray().Any(Box), seconds: 5, every: 0.25);
+	}
+
 	private static async Task<List<JsonElement>> SearchFor(string text)
 	{
 		var boxes = (await Fm.GetJson("textboxes")).EnumerateArray().ToList();

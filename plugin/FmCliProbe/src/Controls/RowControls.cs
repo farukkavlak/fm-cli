@@ -36,7 +36,7 @@ internal static class RowControls
 				dropdown = element.TryCast<SIDropdown>();
 				// ?any=1 takes a list the page keeps laid out but hidden too (a set piece's aim menu on a
 				// throw-in): what it is for, and the page's variables beside it, are still there.
-				if (dropdown == null || dropdown.panel == null || (dropdown.worldBound.width <= 0 && q["any"] != "1")) continue;
+				if (dropdown == null || dropdown.panel == null || (q["any"] != "1" && !Pages.Shown(dropdown))) continue;
 				if (!Sends(dropdown, wanted)) continue;
 			}
 			catch { continue; }

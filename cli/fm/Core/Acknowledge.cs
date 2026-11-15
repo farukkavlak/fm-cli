@@ -26,11 +26,12 @@ internal static partial class Program
 		if (buttons.Count == 0) return null;
 
 		var events = await PullEach(buttons.Select(b => (Field(b, "Action"), "Event")).ToList());
+		// The one the game shows; none is guessed when two are (a card drawn twice keeps a hidden copy, T157).
 		var closing = buttons.Zip(events, (b, e) => (Button: b, Event: Field(e, "Event")))
-			.Where(t => t.Event == ClearChanges)
-			.Select(t => (JsonElement?)t.Button)
-			.LastOrDefault();
-		return closing;
+			.Where(t => t.Event == ClearChanges && Field(t.Button, "Visible") == "True")
+			.Select(t => t.Button)
+			.ToList();
+		return closing.Count == 1 ? closing[0] : null;
 	}
 
 	/// <summary>

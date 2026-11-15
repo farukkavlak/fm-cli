@@ -1289,6 +1289,12 @@ def watch_match(scenario, hunt, limit):
                 time.sleep(5)
                 continue
             minute = (now.get("MatchTime") or "?").split(":")[0]
+            if now.get("Period") == "Penalties" and "Penalties" not in once:
+                # A shootout is read off the status too (T63), once a match; nothing is steered or applied in it.
+                before = sum(hunt.tries[t].__len__() for t in hunt.tries)
+                hunt.seen("status", now, minute)
+                if sum(hunt.tries[t].__len__() for t in hunt.tries) != before:
+                    once.add("Penalties")
             if now.get("Period") in PLAYING:
                 # A moment read off the status (extra time) is taken once a match.
                 period = now.get("Period")

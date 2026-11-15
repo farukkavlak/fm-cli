@@ -164,9 +164,16 @@ internal static partial class Program
 		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
 			.FirstOrDefault(d => Field(d!.Value, "Binds") == "selectedmentoringgroup");
 
+	/// <summary>The group editor's Confirm (it edits the group).</summary>
+	private const string MentoringConfirm = "EventToPlugin:EventFmxEditMentoringGroup";
+	/// <summary>The group editor's Cancel: shown only while the editor is open (FM27 draws the editor inside the
+	/// Mentoring page, not as a page of its own as FM26 did, so its own button is the sign).</summary>
+	private const string MentoringCancel = "EventToPlugin:EventFmxRevertMentoringGroupChanges";
+
+	/// <summary>A button the game shows that sends this event (the editor's ones are laid out but hidden when it is shut).</summary>
 	private static async Task<JsonElement?> MentoringEditorButton(string sends) =>
 		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-			.FirstOrDefault(b => Field(b!.Value, "Page") == Screen.MentoringEditor && Field(b!.Value, "Events").Split(", ").Contains(sends));
+			.FirstOrDefault(b => Field(b!.Value, "Visible") == "True" && Field(b!.Value, "Events").Split(", ").Contains(sends));
 
 	/// <summary>
 	/// The players the editor offers, in the order its table shows them, read from the table's own
@@ -209,18 +216,36 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Leaves the editor without confirming, by its own back button. The game made the group when the
-	/// editor opened, so walking away leaves an empty one behind, the last in the list: it is taken
-	/// out again, but only while the list is the one before with that empty group more.
+	/// Leaves the editor without confirming, by its own Cancel. The game made the group when the editor
+	/// opened and Cancel leaves it there (15 Nov, EN), so the empty one is taken out again, but only while
+	/// the list is the one before with that empty group more.
 	/// </summary>
 	private static async Task AbandonMentoringGroup(List<MentoringGroup> before)
 	{
-		if (await MentoringEditorButton("PanelHistoryBack") is { } back) await Fm.Get("click", ("ptr", Field(back, "Pointer")));
-		await Until(async () => await MentoringEditorButton("PanelHistoryBack") is null, seconds: 5, every: 0.25);
-		var now = await MentoringGroups();
-		if (now != null && now.Count == before.Count + 1 && now[^1].Members.Count == 0
-		    && now.Take(before.Count).Select(g => g.Who).SequenceEqual(before.Select(g => g.Who)))
-			await DeleteMentoringGroup(now.Count - 1, now);
+		if (await MentoringEditorButton(MentoringCancel) is { } cancel) await Fm.Get("click", ("ptr", Field(cancel, "Pointer")));
+		await Until(async () => await MentoringEditorButton(MentoringCancel) is null, seconds: 5, every: 0.25);
+		if (await MentoringGroups() is { } now && NewGroup(before, now) is { } made)
+			await DeleteMentoringGroup(now.IndexOf(made), now);
+	}
+
+	/// <summary>
+	/// The group the game made since `before`: every group before is still there (by who is in it), and one
+	/// empty group more. Not its place in the list. Null when the lists differ in any other way.
+	/// </summary>
+	private static MentoringGroup NewGroup(List<MentoringGroup> before, List<MentoringGroup> now)
+	{
+		if (now.Count != before.Count + 1) return null;
+		// A group by who is in it; an empty one (no one to tell it by) by its name, as the delete aims at it.
+		static string Key(MentoringGroup g) => g.Members.Count > 0 ? g.Who : "\u0000" + g.Name;
+		var left = before.Select(Key).ToList();
+		var more = now.Where(g =>
+		{
+			var at = left.IndexOf(Key(g));
+			if (at < 0) return true;
+			left.RemoveAt(at);
+			return false;
+		}).ToList();
+		return left.Count == 0 && more.Count == 1 && more[0].Members.Count == 0 ? more[0] : null;
 	}
 
 	/// <summary>
@@ -240,8 +265,13 @@ internal static partial class Program
 		var aimed = await Until(async () =>
 		{
 			delete = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-				.FirstOrDefault(b => Field(b, "Events").Split(", ").Contains("EventToPlugin:EventFmxDeleteMentoringGroup") && Field(b, "Sends").Length > 0);
+				.FirstOrDefault(b => Field(b, "Events").Split(", ").Contains("EventToPlugin:EventFmxDeleteMentoringGroup") && Field(b, "Visible") == "True");
 			if (delete.ValueKind != JsonValueKind.Object) return false;
+			// FM27's Delete sends nothing of its own: it goes to the page's selected group (`selectedmentoringgroup`),
+			// which is the list's selection, an index into the team's own list of groups.
+			if (Field(delete, "Sends").Length == 0)
+				return await MentoringGroupList() is { } shown && Field(shown, "Items") == "team.MentoringGroups"
+					&& Field(shown, "Selected") == at.ToString() && shown.GetProperty("Choices").GetArrayLength() == groups.Count;
 			var sent = (await PullEach([(Field(delete, "Sends"), "Name," + places)], r => Field(r, "Name").Length > 0))[0];
 			var who = string.Join(",", MentoringPlaces.Select(p => Field(sent, p + ".UniqueId")).Where(i => i.Length > 0).OrderBy(i => i, StringComparer.Ordinal));
 			return who == target.Who && (target.Members.Count > 0 || Field(sent, "Name") == target.Name);

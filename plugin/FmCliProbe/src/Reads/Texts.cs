@@ -124,7 +124,14 @@ internal static class Texts
 		return "[" + string.Join(",\n", texts) + "]\n";
 	}
 
-	/// <summary>The child of the main document that holds what is on top in the middle of the screen.</summary>
+	/// <summary>
+	/// The layer of the main document a person sees on top: the game draws its pages into named layers (MenuBody,
+	/// ReportBody over it, CardBody, ModalDialog…) and UI Toolkit draws a later child over an earlier one, so it is
+	/// the last of them that is shown and holds something. Not a point on the screen: a window that leaves the
+	/// middle of the screen free is still found. Measured 15 Nov: a report open over a page fills both MenuBody and
+	/// ReportBody; Watermark and Version are shown too, so only the layers that hold pages count.
+	/// A layer counts when it is shown and something in it is.
+	/// </summary>
 	private static VisualElement TopBody()
 	{
 		foreach (var element in Buttons.Elements())
@@ -132,16 +139,23 @@ internal static class Texts
 			try
 			{
 				if (element.name != "MainUIDocument-container" || element.panel == null) continue;
-				var box = element.worldBound;
-				var hit = element.panel.Pick(box.center);
-				for (var e = hit; e != null; e = e.parent)
-					if (e.parent != null && e.parent.Pointer == element.Pointer) return e;
-				return null;
+				VisualElement top = null;
+				for (var i = 0; i < element.childCount; i++)
+				{
+					var layer = element[i];
+					if (PageLayers.Contains(layer.name ?? "") && Pages.Shown(layer) && Enumerable.Range(0, layer.childCount).Any(c => Pages.Shown(layer[c]))) top = layer;
+				}
+				return top;
 			}
 			catch { }
 		}
 		return null;
 	}
+
+	/// <summary>The main document's layers that hold a page or a window (by the game's names for them).</summary>
+	/// The full-screen ones (Menu, Report, Card) hold a meeting or a card over everything (15 Nov: a player's meeting
+	/// in Menu, between MenuBody and ReportBody).
+	private static readonly HashSet<string> PageLayers = ["MenuBody", "Menu", "ReportBody", "Report", "CardBody", "Card", "Overlay", "ModalDialog"];
 
 	private static List<string> Under(VisualElement root, bool paths, string named = null)
 	{

@@ -40,6 +40,8 @@ internal static class Screen
 	// Training's own subtabs, opened from its bar.
 	public const string IndividualTraining = "41012275212b88b46957d71fc17c5876";
 	public const string Mentoring = "d4f349f49047bdb47a53216fa71298f3";
+	/// <summary>The game's search window (the title bar's search), over every page.</summary>
+	public const string Search = "14f9276410b237a4e86d9fe9982ed05e";
 	/// <summary>The mentoring group editor that "Create New Mentoring Group" opens over Mentoring.</summary>
 	public const string MentoringEditor = "57590a1a52e2c334485fd4134fa6e0cc";
 	public const string TrainingIntensity = "6f6099935b22261459f76dc63f312b14";

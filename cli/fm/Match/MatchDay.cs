@@ -581,7 +581,11 @@ internal static partial class Program
 				}
 				if (!Ui.Interactive)
 				{
-					Console.WriteLine(L("  For a substitution: sub <off> <on> (it carries the match on too)   ·   to carry on without one: match"));
+					// With a hurt man of ours still on, the game will not go on as it is (it answers `match` with a notice),
+					// so going on without a change is not offered then.
+					Console.WriteLine(down.Count > 0
+						? L($"  {down[0]} cannot go on: a substitution first, sub <off> <on> (it carries the match on too)")
+						: L("  For a substitution: sub <off> <on> (it carries the match on too)   ·   to carry on without one: match"));
 					return 0;
 				}
 				Console.WriteLine("  " + (sentOff.Count > 0 && down.Count == 0

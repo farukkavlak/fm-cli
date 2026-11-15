@@ -29,6 +29,12 @@ serves = ["T156", "T160", "T163"]
 speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
 
 [[scenario]]
+at = "hunt-cup-extra-time"
+serves = ["T63"]
+steer = true  # towards a level score, for a shootout (T63 TR); the cards are not what this one is for
+speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
+
+[[scenario]]
 at = "cup"
 serves = ["T156", "T160", "T163"]
 speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
@@ -98,4 +104,16 @@ steps = [
   { read = "tweak", path = "?Id={t}.0.WillBeOn", is = "False" },
   { run = "tweak zzq", rc = "fail" },
   { run = "resume" },
+]
+
+[[moment]]
+task = "T63"
+name = "a penalty shootout: the board's own score read while the period is Penalties"
+probe = "status"
+seen = "Period"
+is = "Penalties"
+quota = { tr = 2 }  # EN seen 3 times (round54, round57)
+checks = [
+  { path = "ShootoutHome", present = true },
+  { path = "ShootoutAway", present = true },
 ]

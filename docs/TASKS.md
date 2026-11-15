@@ -198,6 +198,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
 - [x] T62 Pre-season
 - [ ] T63 Match: substitution screen, shouts, set pieces edited in a match
+  - Done before: shouts, injury window + `sub`, set pieces in a match, extra time, shootout score (EN).
+  - `dialog` presses by the game's handler: since 12 Nov every press in the hunts and rounds closed its window
+    (35/35, EN + TR: tweak changes, Confirm Tweak, injured player, cancel changes); the one left open was before it.
+  - At an injury stop with our hurt man still on, `match` no longer offers "carry on without one" (the game will not).
+  - Left: a shootout in a TR match (its board's score).
 - [x] T64 Press conferences
 - [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet.
 - [ ] T130 `jobs <club> apply` said "sent" when the club turned it down at once
@@ -297,8 +302,19 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     English switch never matched); "Min.", "Replacements" and the flags by the game's own word for them
     (GameWords); positions and statuses in the game's words. Age/position/status still told apart by shape.
     TR + EN read.
-  - [ ] T85i Small: "the last of many" in the fee window (`Guided.cs`), new mentoring group, `Acknowledge.cs`,
-    `?any=1`; `Texts.TopBody` picks the screen's centre. Done: `targets` reads the budgets from data, not our label.
+  - [x] T85i Small ones, by identity now (`round69.toml` EN + TR 3/3 each):
+    - The fee window in a talk and its Confirm, and the assistant's closing button: the one the game shows
+      (`Visible`), none guessed when two are (was the last laid out).
+    - `mentoring new` had never been ported: FM27 draws the editor inside the Mentoring page, held now by its own
+      Cancel / Confirm events; the group it made is the one no group before matches (was the last); Cancel leaves
+      it, so it is deleted, aimed by the list's own selection. FM26's "no new group the day one is broken up" is
+      gone (FM27: 3/3 not mixed up).
+    - `Texts.TopBody`: the game's named page layers (MenuBody, Menu, ReportBody, Report, CardBody, Card, Overlay,
+      ModalDialog), the last shown one with something shown in it (was the screen's centre). `read here` TR + EN
+      the same as before on a page, a report, a talk; a search window on top found as the top.
+    - `?any=1` row lists: hidden told by the same `Shown` every read uses (was a width of 0).
+    - `actions` left the game's search window up when it stopped (a wrong entry, a list, a refusal): shut by its
+      own ClosePanel, read back by its box going. EN 5/5.
   - [x] T85j `opponent --json`: the summary's keys are stable (Formation, TopScorer…), not our labels
 
 ## 13. Later (v2)

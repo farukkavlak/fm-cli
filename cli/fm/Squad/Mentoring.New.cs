@@ -14,15 +14,6 @@ internal static partial class Program
 			return 64;
 		}
 
-		// After a group is taken apart the game keeps the old list until the day is processed: the
-		// editor brings the group back, and the new group is given the UniqueId of one still there,
-		// which mixes the two up. A group is made only on another day.
-		if (await MentoringRemovedToday())
-		{
-			Console.Error.WriteLine(L("A mentoring group was disbanded today; the game reloads the old list when a new group opens the same day and mixes them up. Advance one day (next), then create it."));
-			return 1;
-		}
-
 		const string AddGroup = "EventToPlugin:EventFmxAddMentoringGroup";
 		async Task<bool> CanAdd() => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.Any(b => Field(b, "Page") == Screen.Mentoring && Field(b, "Events").Split(", ").Contains(AddGroup));
@@ -36,16 +27,16 @@ internal static partial class Program
 		}
 		var pressed = await Arriving("press", [("event", AddGroup)]);
 		if (pressed.StartsWith("error", StringComparison.Ordinal)) return Report(pressed);
-		// The editor is for the group the press made, last in the list and empty; it is open once
-		// its table offers that group's players.
+		// The editor is for the group the press made (empty, the one group more than before); it is open
+		// once its table offers that group's players.
 		string? group = null;
 		(string Table, List<string[]> Rows) candidates = (null, []);
 		await Until(async () =>
 		{
-			if (await MentoringGroups() is not { } now || now.Count != before.Count + 1 || now[^1].Members.Count > 0) return false;
-			group = now[^1].Row;
+			if (await MentoringGroups() is not { } now || NewGroup(before, now) is not { } made) return false;
+			group = made.Row;
 			candidates = await MentoringCandidates(group);
-			return candidates.Table != null && await MentoringEditorButton("PanelHistoryBack") != null;
+			return candidates.Table != null && await MentoringEditorButton(MentoringCancel) != null;
 		}, seconds: 10, every: 0.25);
 		if (candidates.Table == null)
 		{
@@ -142,7 +133,7 @@ internal static partial class Program
 			else Console.Error.WriteLine(L("Group name box not found; creating it with the name the game gives."));
 		}
 
-		if (await MentoringEditorButton("EventToPlugin:EventFmxEditMentoringGroup") is not { } confirm)
+		if (await MentoringEditorButton(MentoringConfirm) is not { } confirm)
 		{
 			await AbandonMentoringGroup(before);
 			Console.Error.WriteLine(L("Confirm button not found; group not created."));
@@ -208,17 +199,8 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"'{group.Name}' could not be broken up."));
 			return 1;
 		}
-		try { File.WriteAllText(CacheFile("mentoring-removed"), Field(await Fm.GetJson("state"), "Date")); }
-		catch (IOException) { }
 		Console.WriteLine(L($"Broken up: {group.Name}"));
 		return 0;
 	}
 
-	/// <summary>Whether a group was taken apart on the game's day as it is now (this career's, by <see cref="CacheFile"/>).</summary>
-	private static async Task<bool> MentoringRemovedToday()
-	{
-		var file = CacheFile("mentoring-removed");
-		try { return File.Exists(file) && File.ReadAllText(file).Trim() == Field(await Fm.GetJson("state"), "Date"); }
-		catch (IOException) { return false; }
-	}
 }

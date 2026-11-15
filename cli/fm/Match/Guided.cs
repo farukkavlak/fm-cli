@@ -168,16 +168,17 @@ internal static partial class Program
 	/// </summary>
 	/// <summary>
 	/// The window a promise about a fee opens ("Propose a fee": a list of fees and Confirm), which is
-	/// neither a dialog nor a line of the talk. Each time the line is chosen another is laid over the
-	/// last, so the last one is the one showing. Null when there is no such window.
+	/// neither a dialog nor a line of the talk: its list, the one the game shows. Null when there is no
+	/// such window, or when more than one is shown (none is guessed: a wrong one sends a wrong fee).
+	/// Measured 15 Nov (EN, unhappy): the window opened again after a fee is a new one, the old one gone.
 	/// </summary>
 	private static async Task<JsonElement?> FeeList()
 	{
-		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.Where(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var w)
+		var lists = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Binds") == "value" && Field(d, "Visible") == "True" && d.TryGetProperty("Within", out var w)
 				&& w.EnumerateArray().Any(x => x.GetString() == "notifications-modal-dialog-default-default"))
-			.LastOrDefault();
-		return list!.ValueKind == JsonValueKind.Object ? list : null;
+			.ToList();
+		return lists.Count == 1 ? lists[0] : null;
 	}
 
 	private static async Task<int?> FeeAsked(List<string> words)
@@ -185,8 +186,10 @@ internal static partial class Program
 		if (await FeeList() is not { } list) return null;
 		// Through MCP the words come as one ("fee 500B").
 		words = string.Join(" ", words).Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
-		var confirm = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.LastOrDefault(b => Field(b, "Events").Contains("EventFmxConfirmChanges", StringComparison.Ordinal));
+		var confirms = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Events").Contains("EventFmxConfirmChanges", StringComparison.Ordinal) && Field(b, "Visible") == "True")
+			.ToList();
+		var confirm = confirms.Count == 1 ? confirms[0] : default;
 		var fees = list.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 
 		if (words.Count > 1 && words[0] is "bedel" or "fee")
