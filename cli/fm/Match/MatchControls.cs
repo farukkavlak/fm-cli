@@ -319,9 +319,9 @@ internal static partial class Program
 		if (!await DugoutShowing() && !await DugoutComesBack(playOn)) return 1;
 		bool Same(DugoutEntry e) => e.Minute == entry.Minute && e.Text == entry.Text;
 		bool Shows(DugoutCard? c) => c != null && c.Minute == entry.Minute && c.Text == entry.Text;
-		if (!Shows(entry.Pointer.Length > 0 ? await ShowDugoutEntry(entry.Pointer, entry.Index) : null)
+		if (!Shows(await ShowEntry(entry))
 		    && ((await DugoutEntries()).FirstOrDefault(Same) is not { } again
-		        || !Shows(await ShowDugoutEntry((entry = again).Pointer, entry.Index))))
+		        || !Shows(await ShowEntry(entry = again))))
 		{
 			Console.Error.WriteLine(L("The advice could not be opened in the panel; the list may have changed: dugout"));
 			return 1;
@@ -537,14 +537,20 @@ internal static partial class Program
 	private static async Task<List<DugoutEntry>> DugoutEntries()
 	{
 		// The screen holds a second copy of the timeline that is never enabled.
-		var marks = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$") && Field(b, "Enabled") == "True")
+		var buttons = await Fm.GetJson("buttons", ("json", "1"));
+		var enabled = buttons.EnumerateArray()
+			.Where(b => Regex.IsMatch(Field(b, "Name"), @"^DugoutEvent\d+$") && Field(b, "Enabled") == "True").ToList();
+		var marks = enabled
 			.Select(b => (Index: int.Parse(Field(b, "Name")["DugoutEvent".Length..]), Minute: Field(b, "Label"), Pointer: Field(b, "Pointer")))
 			.DistinctBy(m => m.Index)
 			.OrderBy(m => m.Index)
 			.ToList();
 		// A mark pressed with the panel away selects nothing: each would be waited on in vain.
 		if (marks.Count == 0 || !await DugoutShowing()) return [];
+		// The match screen's small Dugout box draws no timeline: its marks are there but not shown, and pressing them
+		// selected only the first two (T166, 15 Nov). It is walked with its own arrows instead.
+		if (!enabled.Any(b => Field(b, "Visible") == "True") && DugoutArrow(buttons, DugoutPrevious) != null)
+			return await DugoutEntriesByArrows(marks.Count, Field(await Fm.GetJson("state"), "Date"), Layout(marks.Select(m => (m.Index, m.Minute))));
 
 		var date = Field(await Fm.GetJson("state"), "Date");
 		var layout = Layout(marks.Select(m => (m.Index, m.Minute)));
@@ -677,6 +683,62 @@ internal static partial class Program
 	/// Jumps to one entry and returns its card once the game says that place is selected and two readings
 	/// agree: the card's values and texts follow the place a moment later, each at its own pace.
 	/// </summary>
+	private const string DugoutPrevious = "EventFmxMatchDugoutPreviousEvent", DugoutNext = "EventFmxMatchDugoutNextEvent";
+
+	/// <summary>The Dugout box's arrow that sends this event, the one shown (the screen holds a second copy).</summary>
+	private static JsonElement? DugoutArrow(JsonElement buttons, string ev) =>
+		buttons.EnumerateArray().Where(b => Field(b, "Events").Contains(ev, StringComparison.Ordinal) && Field(b, "Visible") == "True" && Field(b, "Enabled") == "True")
+			.Cast<JsonElement?>().FirstOrDefault();
+
+	/// <summary>
+	/// One step along the Dugout box with its arrow; the card it lands on once the game says another is selected and
+	/// two readings agree. Null at the end (the arrow closed, or the selection does not move).
+	/// </summary>
+	private static async Task<DugoutCard?> DugoutStep(string ev, DugoutCard from)
+	{
+		if (DugoutArrow(await Fm.GetJson("buttons", ("json", "1")), ev) is not { } arrow) return null;
+		await Fm.Get("press", ("ptr", Field(arrow, "Pointer")));
+		DugoutCard? card = null;
+		return await Until(async () =>
+		{
+			var now = await DugoutNow();
+			var settled = now != null && now.Index != from.Index && now == card;
+			card = now;
+			return settled;
+		}, seconds: 3, every: 0.2) ? card : null;
+	}
+
+	/// <summary>Brings the Dugout box to the card at this place of the timeline with its arrows; null if it cannot.</summary>
+	private static async Task<DugoutCard?> DugoutAt(int index)
+	{
+		var now = await DugoutNow();
+		for (var guard = 0; now != null && now.Index != index && guard < 40; guard++)
+			now = await DugoutStep(now.Index > index ? DugoutPrevious : DugoutNext, now);
+		return now?.Index == index ? now : null;
+	}
+
+	/// <summary>
+	/// Every card of the Dugout box, read by walking it with its arrows from the first to the last, oldest first; the
+	/// card that was showing is put back. A timeline read whole is remembered as the marks' way is.
+	/// </summary>
+	private static async Task<List<DugoutEntry>> DugoutEntriesByArrows(int marks, string date, string layout)
+	{
+		if (await DugoutNow() is not { } start) return [];
+		var at = start;
+		for (var guard = 0; guard < 40 && await DugoutStep(DugoutPrevious, at) is { } back; guard++) at = back;
+		var cards = new List<DugoutCard> { at };
+		for (var guard = 0; guard < 40 && await DugoutStep(DugoutNext, at) is { } on; guard++) cards.Add(at = on);
+		if (at.Index != start.Index) await DugoutAt(start.Index);
+		if (cards.Count == marks)
+			RememberTimeline(date, layout, cards.Select(c => new SeenCard(c.Index, c.Minute, c.Type, c.Actionable, c.Text, c.TweakId, c.TweakAction)).ToList());
+		return cards.Where(c => !c.IsScoreUpdate && c.Text.Length > 0)
+			.Select(c => new DugoutEntry(c.Minute, c.Index, "", c.Text, c.Actionable, c.TweakId, c.TweakAction)).ToList();
+	}
+
+	/// <summary>Shows an entry: by its mark when the timeline is drawn, by the box's arrows when it is not.</summary>
+	private static Task<DugoutCard?> ShowEntry(DugoutEntry entry) =>
+		entry.Pointer.Length > 0 ? ShowDugoutEntry(entry.Pointer, entry.Index) : DugoutAt(entry.Index);
+
 	private static async Task<DugoutCard?> ShowDugoutEntry(string pointer, int index)
 	{
 		await Fm.Get("press", ("ptr", pointer));

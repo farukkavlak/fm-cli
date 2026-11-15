@@ -281,6 +281,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     anything (15 Nov EN, 64'–75': six marks, the card stayed on index 1). The box's own arrows are shown
     (EventFmxMatchDugoutNextEvent / PreviousEvent): walk the cards with them, read `dugoutcard` each step. Likely
     why cards were seen late in the hunt.
+    - Measured (EN, 73'): Previous lowers the index one at a time, Next raises it, each arrow closes at its end; an
+      applicable 71' card was there and `match --stop-at-advice` (old code) did not stop at it.
+    - Code in (`DugoutEntriesByArrows`, `DugoutAt`, `ShowEntry`); not yet run live: the first try ran beside a
+      `match` still walking the marks, and the game was gone soon after (on battery, 15 Nov 13:30).
   - [ ] T165 `players --attr "x<=n"`: an "at most" rule never takes its value ("the panel has 14"), old code too
   - [x] T85g The calendar grid is held by its day cells' path; a stage's words by the stage list itself
     (`texts?anchorptr=`, plugin). The label "League Table" had found a news item's text. TR + EN: cup round,
