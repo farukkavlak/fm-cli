@@ -86,13 +86,18 @@ internal static partial class Program
 		// for it only spends the whole wait (measured: nine requests and nine seconds to the same
 		// answer).
 		await Until(async () => !Unanswered(answer = await Fm.Get(route, query)), seconds: 8, every: 1);
+		if (Environment.GetEnvironmentVariable("FM_TRACE") == "1")
+			Console.Error.WriteLine($"    -> {answer.Split('\n')[0]}");
 		return answer;
 	}
 
 	/// <summary>An answer the game has yet to give: the thing asked for is not drawn yet, or the press that would draw it is still queued.</summary>
 	private static bool Unanswered(string answer) =>
 		(answer.StartsWith("error: no ", StringComparison.Ordinal)
-		 && !answer.StartsWith("error: no page named", StringComparison.Ordinal))
+		 && !answer.StartsWith("error: no page named", StringComparison.Ordinal)
+		 // The tab was opened for us and its bar is still being built: asked again, each press queues the tab
+		 // once more and the queue ends held. The answer is taken, and the bar waited on (OpenPage).
+		 && !answer.Contains("no subtab bar", StringComparison.Ordinal))
 		|| answer.StartsWith("error: the event queue is blocked", StringComparison.Ordinal);
 
 	/// <summary>The bridge answers in plain text and marks a refusal by how the line starts.</summary>

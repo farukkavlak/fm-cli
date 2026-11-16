@@ -138,6 +138,13 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] A game left on a dialog or another screen: every command gets past it. `round70.toml`, EN + TR 3/3 each:
     left on a club page, a competition page, a finance page, an open message, a talk half way. The reads give
     what they gave before, `next` moves the game on, and the talk is still there after them
+  - [x] Left on the next opponent's report: `squad` gives our side, not theirs. The report is another club's page,
+    and the squad panel stays built for that club: by its GUID alone the page opens for the club on screen. Asked
+    again it is our page, so the table is read by the team's name in the data. `round70.toml` ("left on the next
+    opponent's report"), EN + TR 3/3.
+  - [x] A page asked for while the game is still taking the last press is never sent: the tab it was asked for does
+    not open, and the queue keeps that event in Sending for good (measured 30 s and more, then nothing opens).
+    A press now waits for the queue to be empty, and a queue that stays held is said (start the game again).
   - [x] The tool changes for good only what the player asked: its own files are its caches; the game's display
     settings are put back however it ends; game settings only through `settings`; read-only tools change
     nothing (`round68.toml`). `next` reads unread messages because FM27 does on Continue, as by hand

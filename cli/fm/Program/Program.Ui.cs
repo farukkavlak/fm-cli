@@ -111,7 +111,21 @@ internal static partial class Program
 			if (Screen.OnBarOf.TryGetValue(screen, out var page))
 				return await OpenSubpage(page, screen, () => Task.FromResult(true));
 		}
-		return await OpenWith(query.ToArray());
+
+		var answer = await OpenWith(query.ToArray());
+		// A page on a tab's own bar: the first press opens the tab, and the bar comes a moment later. The game says
+		// so ("ask again") and a press made before it is up queues the tab again — pressed in a loop, the queue ends
+		// held (measured: eight presses, the head stuck in Sending). The bar is waited on by the game's own answer,
+		// then the page pressed once more.
+		if (answer.Contains("no subtab bar", StringComparison.Ordinal))
+		{
+			// "is the page listed on the bar now" — the dry run answers it without pressing anything: an error while
+			// the bar is not built, the page's row once it is.
+			await Until(async () => !(await Fm.Get("open", ("guid", screen), ("bar", "1"), ("dry", "1")))
+				.StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.25);
+			answer = await OpenWith(query.ToArray());
+		}
+		return answer;
 	}
 
 	/// <summary>
@@ -204,9 +218,12 @@ internal static partial class Program
 	internal static async Task<string> PagesClosed()
 	{
 		var state = await Fm.GetJson("state");
-		return Field(state, "DuringMatch") == "True"
-			? L("Pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role, talk; to go on: match")
-			: Lf("The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next", Field(state, "State"));
+		if (Field(state, "DuringMatch") == "True")
+			return L("Pages cannot be opened while a match is on. In a match: sub, shout, dugout, tactic role, talk; to go on: match");
+		// Held, the queue takes no more: the game is wedged until it is started again (see OpenWith).
+		if ((await Fm.Get("queue")).Split(' ')[0] != "0")
+			return L("The game's event queue is held: no page opens until the game is started again (fm stop, fm start).");
+		return Lf("The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next", Field(state, "State"));
 	}
 
 	/// <summary>
@@ -222,6 +239,13 @@ internal static partial class Program
 		{
 			return "error: " + await PagesClosed();
 		}
+
+		// A press sent while the game is still taking the last one is never sent at all: the page it asked for does
+		// not open, and the queue keeps that event in Sending for good (measured: 30 s and more, nothing opens
+		// again). So nothing is pressed until the queue is empty, and a queue that stays held is said out loud
+		// rather than pressed again.
+		if (!await Until(async () => (await Fm.Get("queue")).Split(' ')[0] == "0", seconds: 8, every: 0.25))
+			return "error: " + L("The game's event queue is held: no page opens until the game is started again (fm stop, fm start).");
 
 		var answer = "";
 		for (var attempt = 0; attempt < 3; attempt++)

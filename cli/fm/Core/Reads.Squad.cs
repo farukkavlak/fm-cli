@@ -13,7 +13,9 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> SquadAnyView(bool json, string? wanted)
 	{
-		var opened = await OpenPage(Screen.Squad);
+		// By our team's id: by its GUID alone the page opens for the club on screen.
+		var team = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
+		var opened = await OpenPage(Screen.Squad, team.Length > 0 ? team : null);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		JsonElement? viewList = null;

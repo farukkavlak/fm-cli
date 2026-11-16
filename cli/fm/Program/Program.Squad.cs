@@ -277,30 +277,68 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<JsonElement> SquadView(SquadTable view, string marker)
 	{
-		// The table on screen may be a youth side's, which has the same views.
-		var youth = await YouthTeams();
-		bool Senior(JsonElement rows) => rows.EnumerateArray().Any(p => !youth.Contains(Field(p, "Team")));
+		// The table on screen may be a youth side's, which has the same views, or another club's (its squad
+		// page, left open): only rows of our own senior side are ours, told by the team's name in the data.
+		var ours = await Fm.Pull("Human.Team", "Name,UniqueId");
+		bool Senior(JsonElement rows) => rows.EnumerateArray().Any(p => Field(p, "Team") == Field(ours, "Name"));
 		var squad = await Fm.GetJson("squad");
-		if (Carries(squad, marker) && Senior(squad)) return await WholeTable(squad, marker);
+		// A squad page opened before (another club's) stays bound beside ours: only our side's rows are kept.
+		JsonElement Ours(JsonElement rows) => JsonDocument.Parse(JsonSerializer.Serialize(
+			rows.EnumerateArray().Where(p => Field(p, "Team") == Field(ours, "Name")))).RootElement.Clone();
+		if (Carries(squad, marker) && Senior(squad)) return await WholeTable(Ours(squad), marker, Field(ours, "Name"));
 
 		if (!Senior(squad) || !await Choose(view))
 		{
-			if (!await Until(async () => Sent(await OpenPage(Screen.Squad))))
+			// By our team's id, from Home: by its GUID alone the page opens for the club on screen, and a squad
+			// page already up (another club's) keeps the club it was opened for until another page is opened.
+			var team = Field(ours, "UniqueId") is { Length: > 0 } id ? id : null;
+			// Home first even when no row is bound at all: an empty read (the opponent's card over the page) still
+			// leaves the club on screen, and by its GUID alone Squad opens for that club, not ours.
+			if (!Senior(squad)) await OpenPage(Screen.Home);
+			if (!await Until(async () => Sent(await OpenPage(Screen.Squad, team))))
 				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
+					|| (await Fm.Get("queue")).Split(' ')[0] != "0"
 					? await PagesClosed()
 					: L("The 'First Team' page could not be opened."));
 
-			if (!await Until(() => Choose(view)))
+			if (!await Seen(team))
 				throw new FmError(await Unemployed()
 					? L("You are unemployed: there is no squad to manage. Job vacancies: jobs")
 					: L($"The '{view}' view was not found in the squad table."));
 		}
 
 		await Until(async () => Carries(squad = await Fm.GetJson("squad"), marker) && Senior(squad));
+		// The squad panel was last built for another club (its page, the opponent's): it keeps that club until
+		// another page is opened, so Home is, and ours asked for again.
+		if (!Senior(squad))
+		{
+			var team = Field(ours, "UniqueId") is { Length: > 0 } id ? id : null;
+			await OpenPage(Screen.Home);
+			if (await Until(async () => Sent(await OpenPage(Screen.Squad, team))) && await Seen(team))
+				await Until(async () => Carries(squad = await Fm.GetJson("squad"), marker) && Senior(squad));
+		}
+		// Another side's rows are never given for ours.
+		if (!Senior(squad))
+			throw new FmError(L("The squad table on screen is not our first team's, and our own did not come up."));
 		if (!Carries(squad, marker))
 			throw new FmError(L($"The '{view}' view was chosen, but the '{marker}' data did not come."));
 
-		return await WholeTable(squad, marker);
+		return await WholeTable(Ours(squad), marker, Field(ours, "Name"));
+
+		// The press that opens a page while another is still being built is dropped by the game, though it answers
+		// "opened" all the same (measured: Squad asked for 100 ms after Home). Ours is asked for again while the
+		// view list is not up: the list is the sign the page is the one on screen, not the answer to the press.
+		async Task<bool> Seen(string? team)
+		{
+			for (var attempt = 0; attempt < 4; attempt++)
+			{
+				if (await Until(() => Choose(view), seconds: attempt == 0 ? 6 : 4)) return true;
+				// Home first: a tab whose page was dropped does not open again until another page is.
+				await OpenPage(Screen.Home);
+				await OpenPage(Screen.Squad, team);
+			}
+			return false;
+		}
 
 		async Task<bool> Choose(SquadTable choice) =>
 			await ViewList(SquadViews) is { } list
@@ -328,7 +366,8 @@ internal static partial class Program
 	/// the game's data (counted by the view's own field), it is read at four more places down and the rows put together by name, an
 	/// empty field filled from another reading; then it is put back at the top.
 	/// </summary>
-	private static async Task<JsonElement> WholeTable(JsonElement squad, string marker)
+	/// <param name="side">Our team's name in the data: a row of another side (a squad page opened before, still bound) is not taken.</param>
+	private static async Task<JsonElement> WholeTable(JsonElement squad, string marker, string? side = null)
 	{
 		JsonElement team;
 		try { team = await Fm.Pull("Human.Team.Players", "Name", list: true); }
@@ -345,6 +384,7 @@ internal static partial class Program
 			{
 				var name = Field(p, "Name");
 				if (name.Length == 0) continue;
+				if (side != null && Field(p, "Team") is { Length: > 0 } of && of != side) continue;
 				if (!rows.TryGetValue(name, out var row))
 				{
 					rows[name] = System.Text.Json.Nodes.JsonNode.Parse(p.GetRawText())!.AsObject();
@@ -384,17 +424,22 @@ internal static partial class Program
 	}
 
 	/// <summary>The element the squad table's view list sits in; the player database's is another.</summary>
-	private const string SquadViews = "FirstTeam";
+	// FM27: the squad page's table sits in #FirstTeamOverview; a #FirstTeam is the next opponent's squad report card.
+	private const string SquadViews = "FirstTeamOverview";
 	private const string PlayerSearchViews = "PlayerSearchMainContentBlock";
 
 	/// <summary>
 	/// The table view list on screen that belongs to a panel, known by the named element it sits
-	/// in (BindingRemapper #FirstTeam): other tables of people have a view list by the same name,
+	/// in (#FirstTeamOverview): other tables of people have a view list by the same name,
 	/// and what the lists offer reads differently in every language.
 	/// </summary>
+	/// A page opened before (another club's squad) stays bound with its own list: the one on show comes first.
 	private static async Task<JsonElement?> ViewList(string panel) =>
 		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.Where(d => Field(d, "Name") == "ViewDropdown")
+			// A card over the page (the next opponent's report, on Home) has its own table and view list.
+			.Where(d => !(d.TryGetProperty("Within", out var w) && w.EnumerateArray().Any(n => n.GetString() == "CardController")))
+			.OrderBy(d => Field(d, "Visible") == "True" ? 0 : 1)
 			.Cast<JsonElement?>()
 			.FirstOrDefault(d => d!.Value.TryGetProperty("Within", out var within)
 				&& within.EnumerateArray().Any(name => name.GetString() == panel));
