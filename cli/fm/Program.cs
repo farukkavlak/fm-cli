@@ -303,6 +303,7 @@ internal static partial class Program
 		}
 		catch (FmUnavailable)
 		{
+			await Launcher.PutBackDisplay();
 			Console.Error.WriteLine(L("FM is not running. Start it with `fm start`."));
 			return 69; // EX_UNAVAILABLE
 		}
@@ -337,6 +338,7 @@ internal static partial class Program
 	{
 		if (!await Launcher.Running(Fm))
 		{
+			await Launcher.PutBackDisplay();
 			Console.WriteLine(L("FM is not open."));
 			return 0;
 		}

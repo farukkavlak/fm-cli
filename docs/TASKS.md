@@ -129,8 +129,12 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T88 `tactic clear`
 - [x] T94 `tactic slot`
 - [ ] T87 Playing by hand and by the tool on one install:
-  - [ ] A game opened from Steam by hand stays visible and normal
-  - [ ] After a Steam update the tool says so and puts BepInEx back (or says how)
+  - [x] A game opened from Steam by hand stays visible and normal: Steam's bundle is never touched (no
+    `LSUIElement`), BepInEx lives in `~/fm27_bep`, and the player's display settings come back however our
+    game ends: `fm stop`, `kill -9` (the launch shell puts them back, 3/3), a reboot (next `fm` command)
+  - [x] After a Steam update the tool says so and puts BepInEx back: staged by a changed interop hash, `start`
+    said "updated, preparing", regenerated, one game, save loaded. The ready sign is BepInEx's copy written in
+    this launch (an old marker had started two games)
   - [ ] A game left on a dialog or another screen: every command gets past it
   - [ ] The tool changes for good only what the player asked
 - [x] T153 AI safety (from `AI.md`; rules in `AI.md` Safety):

@@ -68,6 +68,9 @@ internal static class Launcher
 			return false;
 		}
 
+		// Display settings a game of ours left behind (it died without `fm stop`, or the machine went
+		// down with it) are the player's again before anything else.
+		await PutBackDisplay();
 		if (!debug)
 		{
 			DropFromDock();
@@ -75,6 +78,7 @@ internal static class Launcher
 		}
 
 		var log = Path.Combine(Path.GetTempPath(), "fm-cli-launch.log");
+		var spawned = DateTime.UtcNow;
 		var launch = Spawn(script, log, debug);
 		Console.WriteLine(L($"Starting FM…{(debug ? L($"  (log: {log})") : "")}"));
 
@@ -83,18 +87,29 @@ internal static class Launcher
 		if (GameUpdated(out var generated))
 		{
 			Console.WriteLine(L("The game was updated; preparing for the new version, this takes a minute or two…"));
-			var ready = await WaitFor(() => Task.FromResult(launch.HasExited || File.GetLastWriteTimeUtc(generated) > File.GetLastWriteTimeUtc(UpdatedFile)), TimeSpan.FromMinutes(6));
+			// The sign is BepInEx writing its copy during this launch; a copy older than the launch
+			// is not one (a marker left behind would be taken as done at once).
+			var ready = await WaitFor(() => Task.FromResult(launch.HasExited || File.GetLastWriteTimeUtc(generated) > spawned), TimeSpan.FromMinutes(6));
 			if (launch.HasExited || !ready)
 			{
+				await Pkill(["-9"]);
 				Console.Error.WriteLine(L($"The game could not be prepared for its new version. Log: {log}"));
 				return false;
 			}
 			await Pkill(["-9"]);
-			await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
+			// The launch's shell puts the player's display back once its game is gone; it is waited for
+			// (not just the game), and the hidden window set again, or the second launch reads theirs.
+			// A game still up is never started beside: two copies on one save.
+			if (!await WaitFor(async () => launch.HasExited && !await Alive(), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1)))
+			{
+				Console.Error.WriteLine(L($"The game could not be prepared for its new version. Log: {log}"));
+				return false;
+			}
+			if (!debug) SmallWindow();
 			launch = Spawn(script, log, debug);
 		}
 
-		// The launcher execs the game, so its ending before the menu is the launch having failed.
+		// The launch's shell ends with its game, so its ending before the menu is the launch having failed.
 		await WaitFor(async () => launch.HasExited || await Menu(fm), TimeSpan.FromMinutes(4));
 		if (launch.HasExited || !await Menu(fm))
 		{
@@ -133,12 +148,43 @@ internal static class Launcher
 	{
 		var domain = PrefsDomain;
 		if (domain.Length == 0) return;
+		// Every way a game of ours ends puts the kept copy back and drops it (`Stop`, the launch's own
+		// shell, <see cref="PutBackDisplay"/>), so what is there now is the player's.
 		var now = HiddenDisplay.ToDictionary(k => k.Key, k => Defaults(["read", domain, k.Key]) is var (ok, value) && ok ? value : null);
-		// What is there now is the player's, unless it is our own window: then a start before did not
-		// get to put theirs back (the game died before it was up), and the kept copy still holds theirs.
-		var ours = HiddenDisplay.All(k => now[k.Key] == k.Value);
-		if (!ours || !File.Exists(DisplayBackup)) File.WriteAllText(DisplayBackup, System.Text.Json.JsonSerializer.Serialize(now));
+		if (!File.Exists(DisplayBackup)) File.WriteAllText(DisplayBackup, System.Text.Json.JsonSerializer.Serialize(now));
 		foreach (var (key, type, value) in HiddenDisplay) Defaults(["write", domain, key, type, value]);
+	}
+
+	/// <summary>
+	/// The player's display settings put back when no game of ours runs but they are still kept aside:
+	/// the game died and its launch shell with it (a reboot, a killed session). Otherwise the game
+	/// opened by hand from Steam would come up in our hidden window's size.
+	/// </summary>
+	public static async Task PutBackDisplay()
+	{
+		if (!File.Exists(DisplayBackup) || await Alive()) return;
+		RestoreDisplay(forget: true);
+	}
+
+	/// <summary>
+	/// The same put-back as shell lines, run by the launch's shell once its game has ended, however it
+	/// ended (a crash, `kill -9`, memory pressure): only while the kept copy is still there (`Stop` may
+	/// have done it) and no game of ours runs (an update relaunches).
+	/// </summary>
+	private static string PutBackLines()
+	{
+		var domain = PrefsDomain;
+		if (domain.Length == 0 || !File.Exists(DisplayBackup)) return "";
+		var kept = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string?>>(File.ReadAllText(DisplayBackup)) ?? [];
+		static string Q(string s) => "'" + s.Replace("'", "'\\''") + "'";
+		var writes = HiddenDisplay.Where(k => kept.ContainsKey(k.Key)).Select(k => kept[k.Key] is { } value
+			? $"/usr/bin/defaults write {Q(domain)} {Q(k.Key)} {k.Type} {Q(value)}"
+			: $"/usr/bin/defaults delete {Q(domain)} {Q(k.Key)}");
+		// The bundle as a pattern that does not match its own text: the shell's command line carries
+		// it, and a plain path would make every `pgrep -f` / `pkill -f` of the game take the shell too.
+		var bundle = string.Concat(AppBundle.Select(c => char.IsLetterOrDigit(c) || c == '/' ? c.ToString() : c is ']' or '\\' or '^' ? $"\\{c}" : $"[{c}]"));
+		return $"if [ -f {Q(DisplayBackup)} ] && ! /usr/bin/pgrep -f {Q(bundle)} >/dev/null; then "
+			+ string.Join("; ", writes) + $"; rm -f {Q(DisplayBackup)}; fi";
 	}
 
 	/// <summary>
@@ -237,7 +283,12 @@ internal static class Launcher
 		// The plugin closes a copy opened by hand while it runs and says why in this note (SecondCopyGuard).
 		var notice = L("fm is playing FM in the background, so this copy was closed. To play by hand: fm stop").Replace("'", "");
 		var hidden = debug ? "" : $"FMCLI_HIDDEN=1 FMCLI_SECOND_COPY_NOTICE='{notice}' ";
-		var shell = $"{hidden}FM26_BEP=\"{shadowRoot}\" exec \"{script}\" \"{steamApp}\"{windowed} >> \"{log}\" 2>&1";
+		// Not exec'd: the shell outlives the game to put the player's display back, whatever ended it.
+		var after = debug ? "" : PutBackLines();
+		// The shell's own output goes to the log too: it outlives this command, and holding a pipe of
+		// the caller's open would keep `fm start | …` from ever ending.
+		var shell = $"exec >> \"{log}\" 2>&1; {hidden}FM26_BEP=\"{shadowRoot}\" \"{script}\" \"{steamApp}\"{windowed}"
+			+ (after.Length > 0 ? $"; {after}" : "");
 		return Process.Start(new ProcessStartInfo("/bin/sh", ["-c", shell])
 		{
 			WorkingDirectory = Path.GetDirectoryName(script)!,
