@@ -234,6 +234,14 @@ internal static partial class Program
 			Console.Error.WriteLine($"{i + 1,3}/{queue.Count}  {buttons.Count,3} controls  {dropdowns.Count,2} lists{(deep ? $"  {menus.Count,2} menus  {trees.Count,2} submenus" : "")}  {title}");
 			if (!here || guid == "here") await Discover(title, guid);
 
+			// A question the way to the page raised (a new shortlist's name) is backed out of, as a player
+			// would: left up, it stays over every page after and the walk ends with it still asking.
+			if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } asking && asking.GetArrayLength() > 0)
+			{
+				Console.Error.WriteLine($"   a question is up after {title}: backed out of");
+				await AnswerDialog(false);
+			}
+
 			// A screen that leaves the game's event queue held (a popup it opened) would make every page
 			// after it fail: the popup is closed and the queue let go. Only if that fails does the walk stop.
 			if (!await LetGo(title))
@@ -254,6 +262,7 @@ internal static partial class Program
 				}
 		}
 
+		if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } last && last.GetArrayLength() > 0) await AnswerDialog(false);
 		// The walk's last screen can leave the queue held too (seen after the opposition report's panels).
 		if (!await LetGo("the walk")) Console.Error.WriteLine("the game's event queue stays held after the walk");
 		await File.WriteAllTextAsync(output, JsonSerializer.Serialize(pages, new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
