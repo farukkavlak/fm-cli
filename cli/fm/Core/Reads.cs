@@ -143,7 +143,10 @@ internal static partial class Program
 			return settled && await Found("SearchIsFinished") != "False";
 		}, seconds: 10, every: 0.25);
 
-		var typed = await Fm.Get("type", ("name", "SearchBox"), ("text", text));
+		// Typed into the search window's own box by its pointer: a page can hold a box of the same element
+		// name (the shortlist's filter), and the name alone then fits both.
+		var box = Field(boxes.FirstOrDefault(b => Field(b, "Type") == "SearchBox"), "Pointer");
+		var typed = await Fm.Get("type", box.Length > 0 ? ("ptr", box) : ("name", "SearchBox"), ("text", text));
 		if (typed.StartsWith("error", StringComparison.Ordinal)) throw new FmError(typed);
 
 		// Results for the words before can still be showing: the game says a new search has started
