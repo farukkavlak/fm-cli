@@ -3,6 +3,9 @@
 
     tools/crawl-report.py crawl.json [out.md]
 
+With a `fm crawl --deep` file it also lists each page's menus (right click, actions button) by the game's
+action ids, and which of those actions the code never names.
+
 Per page: its own controls (the frame's - menus, back, search - are on every page and listed once),
 each control's events, and for each event whether the code names it anywhere (cli/fm, the plugin)
 and whether FM26's catalog (docs/reference/buttons.txt) had it. An event the code never names is a
@@ -49,6 +52,23 @@ def fm26_events() -> set[str]:
     return found
 
 
+def list_key(t: dict) -> tuple:
+    """A list with submenus by what it is: its element, its binding and its rows' identities."""
+    return (t.get("Name", ""), t["Binds"], tuple((r["Path"], r.get("Value", ""), r.get("Event", "")) for r in t["Rows"]))
+
+
+def list_lines(t: dict, used: set[str]) -> list[str]:
+    """A list with submenus, row by row: the path, what identifies the row, the words shown."""
+    out = [f"- list with submenus `{t.get('Name') or '-'}` / `{t['Binds'] or t['Label']}`: {len(t['Rows'])} rows"]
+    for r in t["Rows"][:60]:
+        ident = r.get("Event") or (f"value {r['Value']}" if r.get("Value") else "") or r.get("Record") or "-"
+        mark = " [not in code]" if r.get("Event", "").startswith("Event") and r["Event"].split("#")[0] not in used else ""
+        out.append(f"  - {'  ' * r['Path'].count(',')}{r['Path']} {ident}{mark}: {r['Text']}")
+    if len(t["Rows"]) > 60:
+        out.append(f"  - … {len(t['Rows']) - 60} rows more")
+    return out
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         print(__doc__)
@@ -63,8 +83,16 @@ def main() -> int:
         seen.update({(b["Name"], b["Events"]) for b in p["Buttons"] if b["Events"]})
     frame = {k for k, n in seen.items() if n >= 0.8 * len(opened)}
 
+    # Lists with submenus that most pages show (the menu bar's) are the frame's: listed once, at the end.
+    seen_lists: Counter = Counter()
+    for p in opened:
+        seen_lists.update({list_key(t) for t in p.get("Submenus", [])})
+    frame_lists = {k for k, n in seen_lists.items() if n >= 0.8 * len(opened)}
+
     lines = [f"# FM27 crawl: {len(pages)} pages, {len(opened)} opened", ""]
     all_events: Counter = Counter()
+    all_actions: Counter = Counter()
+    menu_pages: dict[str, set[str]] = {}
     unused_by_page: dict[str, set[str]] = {}
     for p in opened:
         own = sorted({(b["Name"], b["Events"], b["Label"]) for b in p["Buttons"] if b["Events"] and (b["Name"], b["Events"]) not in frame})
@@ -85,6 +113,22 @@ def main() -> int:
         for d in p["Dropdowns"]:
             if d["Binds"]:
                 lines.append(f"- list `{d['Binds']}`: {len(d['Values'])} choices{'' if d['Binds'].split('.')[-1] in used else ' [binding not in code]'}")
+        # --deep: the menus a right click or an actions button raises, one per kind, by the game's action ids.
+        for m in p.get("Menus", []):
+            if "Error" in m:
+                lines.append(f"- menu `{m['Kind']}`: not opened ({m['Error']})")
+                continue
+            acts = sorted({e["Action"] for e in m["Entries"] if e["Action"]})
+            all_actions.update(acts)
+            menu_pages.setdefault(title, set()).update(a for a in acts if a not in used)
+            closed = "" if m["Closed"] else " [did not close]"
+            lines.append(f"- menu `{m['Kind']}`{closed}: {len(m['Entries'])} entries")
+            for a in acts:
+                lines.append(f"  - {a}{'' if a in used else ' [not in code]'}")
+        for t in p.get("Submenus", []):
+            if list_key(t) in frame_lists:
+                continue
+            lines.extend(list_lines(t, used))
         lines.append("")
 
     for p in pages:
@@ -101,6 +145,24 @@ def main() -> int:
     for title, unused in sorted(unused_by_page.items(), key=lambda kv: -len(kv[1])):
         if unused:
             summary.append(f"  - {len(unused):3d}  {title}: {', '.join(sorted(unused))}")
+    if all_actions:
+        summary.append(f"- menu actions (--deep): {len(all_actions)}; the code never names {sum(1 for a in all_actions if a not in used)}")
+        summary.append("- menu actions the code never names, and the pages whose menus hold them:")
+        where: dict[str, list[str]] = {}
+        for title, acts in menu_pages.items():
+            for a in acts:
+                where.setdefault(a, []).append(title)
+        for a in sorted(where):
+            summary.append(f"  - {a}: {', '.join(sorted(where[a])[:3])}{' …' if len(where[a]) > 3 else ''}")
+    if frame_lists:
+        frame_text = ["", "## Lists with submenus on (nearly) every page"]
+        shown_frame = set()
+        for p in opened:
+            for t in p.get("Submenus", []):
+                if list_key(t) in frame_lists and list_key(t) not in shown_frame:
+                    shown_frame.add(list_key(t))
+                    frame_text.extend(list_lines(t, used))
+        lines.extend(frame_text)
     text = "\n".join(lines + summary) + "\n"
     if out:
         out.write_text(text, encoding="utf-8")

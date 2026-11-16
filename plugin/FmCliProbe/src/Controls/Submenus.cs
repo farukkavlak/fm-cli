@@ -111,12 +111,44 @@ internal static class Submenus
 				var path = at.Length == 0 ? i.ToString() : $"{at},{i}";
 				var children = Buttons.Children(level[i]);
 				var text = Report.Escape((Buttons.ChoiceShown(level[i]) ?? "").Replace(" ›", ""));
-				rows.Add($"{{\"Path\": \"{path}\", \"Text\": \"{text}\", \"Folder\": {(children != null ? "true" : "false")}, \"Record\": \"{RecordOf(level[i])}\"}}");
+				// The row's own id and the name the game registers it under (as ?ids=1 gives them): the same in
+				// every language, where the text is not.
+				var (id, name) = RowId(level[i]);
+				var (value, unique, evt) = ValueOf(level[i]);
+				rows.Add($"{{\"Path\": \"{path}\", \"Text\": \"{text}\", \"Folder\": {(children != null ? "true" : "false")}, \"Record\": \"{RecordOf(level[i])}\", "
+					+ $"\"Id\": \"{Code(id)}\", \"Name\": \"{Report.Escape(name ?? "")}\", \"Value\": \"{Report.Escape(value)}\", \"Unique\": \"{Report.Escape(unique)}\", \"Event\": \"{Report.Escape(evt)}\"}}");
 				if (children != null && depth < 6) Walk(children, path, depth + 1);
 			}
 		}
 		Walk(dropdown.m_choices, "", 0);
 		return "[\n  " + string.Join(",\n  ", rows) + "\n]\n";
+	}
+
+	/// <summary>
+	/// A menu row's own value (`PropertyValue`, through its RowData when it has one: the option's number,
+	/// 3 the primary tactic, 4 edit) and its `UniqueId` when it has one (a tactic preset's), or "": what
+	/// the row is, the same in every language.
+	/// </summary>
+	private static (string Value, string Unique, string Event) ValueOf(SI.Core.TypedValue row)
+	{
+		try
+		{
+			var record = row?.Get()?.TryCast<DynamicReference>();
+			if (record == null) return ("", "", "");
+			var entries = Send.Entries(record);
+			if (entries.TryGetValue("RowData", out var inner) && inner?.Get()?.TryCast<DynamicReference>() is { } data) entries = Send.Entries(data);
+			string Of(string key) => entries.TryGetValue(key, out var v) && v != null && !v.IsNull && v.Get()?.TryCast<DynamicReference>() == null ? Text.Of(v) : "";
+			// An action row (Quick Pick's) sends an event: named by the game's registry, its tag beside it.
+			var evt = "";
+			if (uint.TryParse(Of("Event"), out var e) && e != 0)
+			{
+				// The game's plugin events (EventFmxQuickPickEntireTeam); a number outside them as its code.
+				evt = System.Enum.GetName(typeof(FM.GamePlugin.InteropEventIDs), e) is { Length: > 0 } named ? named : Code(e);
+				if (Of("ActionTag") is { Length: > 0 } tag && tag != "0") evt += $"#{tag}";
+			}
+			return (Of("PropertyValue"), Of("UniqueId"), evt);
+		}
+		catch { return ("", "", ""); }
 	}
 
 	/// <summary>A menu row's database record (its PropertyValue's DatabaseReferenceField), or "".</summary>

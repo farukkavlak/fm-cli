@@ -360,7 +360,9 @@ internal static class ContextMenus
 		var rows = found.Select(f =>
 			$"{{\"Ptr\": \"0x{f.Menu.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(f.Menu.name ?? "")}\", "
 			+ $"\"Paths\": \"{Report.Escape(string.Join(" | ", f.Paths))}\", \"Keys\": \"{string.Join(",", f.Keys)}\", "
-			+ $"\"At\": \"{Report.Escape(string.Join(" | ", f.Keys.Where(at.ContainsKey).Select(k => at[k])))}\"}}");
+			+ $"\"At\": \"{Report.Escape(string.Join(" | ", f.Keys.Where(at.ContainsKey).Select(k => at[k])))}\", "
+			// On the page in front, as for buttons: pages opened before stay in the tree out of sight.
+			+ $"\"Shown\": \"{(Pages.Shown(f.Menu) ? "True" : "False")}\"}}");
 		return "[" + string.Join(", ", rows) + "]\n";
 	}
 }
