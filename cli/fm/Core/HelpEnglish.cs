@@ -143,7 +143,7 @@ internal static partial class Program
 			  staff find [text] [--filter <filter>] [--view <view>] [--own | --no-own]   the staff search: job, contract, wage, attributes; --own: our staff too
 			  staff hire <name> [--wage <amount>] [--sign --yes]   hire staff: opens the contract negotiation, carried on with `contract`
 			  staff fire <name> [--mutual] [--yes]   part ways with staff: the game names the compensation, says "No" without --yes
-			  actions <person> ["<option>"]   the game's right-click menu for that person (assign a scout, shortlist, send on a course…); an option given is carried out
+			  actions <person|club> ["<option>"]   the game's right-click menu for that person or club (assign a scout, shortlist, send on a course, a team report…); an option given is carried out
 			  board           the board's and supporters' view: matches, squad, tactics, transfers, vision; what pleases them, their concerns; this season's expectations
 			    request ["<request>" --yes]   what can be asked of the board; ask for one by name
 			  doctor          what is wrong in the squad: injured, tired, low sharpness, ending contracts, thin positions, the board's concerns

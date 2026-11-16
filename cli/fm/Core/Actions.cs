@@ -18,7 +18,9 @@ internal static partial class Program
 	/// <summary>The data path of the person the last <see cref="PersonMenu"/> found: his record, to read back what an action did.</summary>
 	private static string LastPersonPath = "";
 
-	private static async Task<(string Name, List<JsonElement> Entries)?> PersonMenu(string wanted, string? kind = null)
+	/// <param name="records">Also a club, nation or competition of that name (`actions` only): its own right-click
+	/// menu (a team report, budget requests). A person of the name is still the one meant.</param>
+	private static async Task<(string Name, List<JsonElement> Entries)?> PersonMenu(string wanted, string? kind = null, bool records = false)
 	{
 		// A question already on screen would be taken for the answer to whatever is chosen here.
 		if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } waiting && waiting.GetArrayLength() > 0)
@@ -30,7 +32,15 @@ internal static partial class Program
 		string? qualifier = null;
 		if (System.Text.RegularExpressions.Regex.Match(wanted, @"^(.+?)\s*\((.+)\)\s*$") is { Success: true } q)
 			(wanted, qualifier) = (q.Groups[1].Value, q.Groups[2].Value);
-		var found = (await SearchFor(wanted)).Where(r => Field(r, "Name").Length > 0 && (kind == null || Field(r, "Kind") == kind)).ToList();
+		var results = await SearchFor(wanted);
+		// A club, nation or competition result carries its name and record path under its kind (Club, ClubPath):
+		// put where a person's are, so the rest goes as for a person. Only when no person holds the name.
+		if (records && !results.Any(r => Field(r, "Name").Length > 0 && Fold(wanted).Split(' ').All(w => Fold(Field(r, "Name")).Contains(w))))
+			results = results.Select(r => Field(r, "Kind") is var k && k is "Club" or "Nation" or "Competition" && Field(r, "Name").Length == 0
+				&& Field(r, k) is { Length: > 0 } named && Field(r, k + "Path") is { Length: > 0 } at
+				? JsonDocument.Parse(JsonSerializer.Serialize(new { Name = named, Path = at, Kind = k, Shown = Field(r, "Shown") })).RootElement.Clone()
+				: r).ToList();
+		var found = results.Where(r => Field(r, "Name").Length > 0 && (kind == null || Field(r, "Kind") == kind)).ToList();
 		var exact = found.Where(r => Fold(Field(r, "Name")) == Fold(wanted)).ToList();
 		// One whose name has the typed words as words of its own is meant over those that merely hold them ("cerin": Čerin, not Nocerino).
 		var worded = found.Where(r => Fold(wanted).Split(' ').All(w => Fold(Field(r, "Name")).Split(' ', '-').Contains(w))).ToList();
@@ -70,9 +80,27 @@ internal static partial class Program
 		var path = Field(found[0], "Path");
 		LastPersonPath = path;
 		var opened = await Fm.Get("actions", ("open", "1"), ("path", path));
+		// A club's search row is a plain link too, and its page carries no menu of its own: the game draws a
+		// club's menu only where that club is shown with one (the next opponent, on the bar above every
+		// page). That menu is the one bound to the record with the club's UniqueId; no other is guessed at.
+		var record = Field(found[0], "Kind") is "Club" or "Nation" or "Competition";
+		if (record && opened.StartsWith("error", StringComparison.Ordinal))
+		{
+			// Its id is read while the search still holds the row; the window then goes, as it covers the bar.
+			var club = Field((await PullEach([(path, "UniqueId")], r => Field(r, "UniqueId").Length > 0))[0], "UniqueId");
+			await CloseSearch();
+			string? shown = null;
+			if (club.Length > 0) await Until(async () => (shown = await MenuOf(club)) != null, seconds: 4, every: 0.5);
+			if (shown != null) opened = await Fm.Get("actions", ("open", "1"), ("ptr", shown));
+			if (opened.StartsWith("error", StringComparison.Ordinal))
+			{
+				Console.Error.WriteLine(L($"The game shows no menu for {name} on screen: it draws a club's menu only where the club appears with one (the next opponent, on the bar above the pages)."));
+				return null;
+			}
+		}
 		// A staff result is a plain link with no menu: his page's actions menu is the one bound to
 		// the record with his UniqueId.
-		if (opened.StartsWith("error", StringComparison.Ordinal)
+		if (!record && opened.StartsWith("error", StringComparison.Ordinal)
 		    && Field((await PullEach([(path, "UniqueId")], r => Field(r, "UniqueId").Length > 0))[0], "UniqueId") is { Length: > 0 } id
 		    && !(await Arriving("searchopen", [("path", path)])).StartsWith("error", StringComparison.Ordinal))
 		{
@@ -220,11 +248,11 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L("usage: actions <person> [\"<option>\"]   (the game's right-click menu for that person; an option given is carried out)"));
+			Console.Error.WriteLine(L("usage: actions <person|club> [\"<option>\"]   (the game's right-click menu for that person or club; an option given is carried out)"));
 			return 64;
 		}
 		if (await NotNow() is { } refused) return refused;
-		if (await PersonMenu(words[0]) is not { } menu)
+		if (await PersonMenu(words[0], records: true) is not { } menu)
 		{
 			await CloseSearch();
 			return 1;
