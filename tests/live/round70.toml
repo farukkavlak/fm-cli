@@ -1,0 +1,142 @@
+# Round 70 (16 Nov): T87, a game left on another screen or a question half answered: every command gets past it,
+# reads what it read before, and the day goes on. The leftover screens are opened by the tool itself (`read <page>`
+# leaves the game on that page): a club's page, a competition's, a finance page, a message, a half-done talk.
+# Run: tools/fm-round.py dry tests/live/round70.toml, then run --lang en,tr.
+
+[[test]]
+task = "T87"
+name = "left on our club's records page"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "status", path = "Date+Clock", keep = "moment" },
+  { read = "squad", path = "#", keep = "players" },
+  { read = "table", path = "#", keep = "teams" },
+  { read = "tactic", path = "Slots.#", keep = "slots" },
+  { read = "captains", path = "Captain", keep = "captain" },
+  { read = "read club-records", path = "Page", is = "club-records" },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "squad", path = "#", same_as = "players" },
+  { read = "inbox", path = "#", not = "0" },
+  { read = "table", path = "#", same_as = "teams" },
+  { read = "fixtures", path = "#", not = "0" },
+  { read = "tactic", path = "Slots.#", same_as = "slots" },
+  { read = "captains", path = "Captain", same_as = "captain" },
+  { read = "training", path = "#", same_as = "players" },
+  { read = "finances", path = "Balance", present = true },
+  { run = "next" },
+  { read = "status", path = "Date+Clock", differs_from = "moment", note = "the game moved on (a day, or an hour of it)" },
+]
+
+[[test]]
+task = "T87"
+name = "left on a competition's rules page"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "status", path = "Date+Clock", keep = "moment" },
+  { read = "squad", path = "#", keep = "players" },
+  { read = "table", path = "#", keep = "teams" },
+  { read = "tactic", path = "Slots.#", keep = "slots" },
+  { read = "captains", path = "Captain", keep = "captain" },
+  { read = "read comp-rules", path = "Page", is = "comp-rules" },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "squad", path = "#", same_as = "players" },
+  { read = "inbox", path = "#", not = "0" },
+  { read = "table", path = "#", same_as = "teams" },
+  { read = "fixtures", path = "#", not = "0" },
+  { read = "tactic", path = "Slots.#", same_as = "slots" },
+  { read = "captains", path = "Captain", same_as = "captain" },
+  { read = "training", path = "#", same_as = "players" },
+  { read = "finances", path = "Balance", present = true },
+  { run = "next" },
+  { read = "status", path = "Date+Clock", differs_from = "moment", note = "the game moved on (a day, or an hour of it)" },
+]
+
+[[test]]
+task = "T87"
+name = "left on the wage page"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "status", path = "Date+Clock", keep = "moment" },
+  { read = "squad", path = "#", keep = "players" },
+  { read = "table", path = "#", keep = "teams" },
+  { read = "tactic", path = "Slots.#", keep = "slots" },
+  { read = "captains", path = "Captain", keep = "captain" },
+  { read = "read finances-wages", path = "Page", is = "finances-wages" },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "squad", path = "#", same_as = "players" },
+  { read = "inbox", path = "#", not = "0" },
+  { read = "table", path = "#", same_as = "teams" },
+  { read = "fixtures", path = "#", not = "0" },
+  { read = "tactic", path = "Slots.#", same_as = "slots" },
+  { read = "captains", path = "Captain", same_as = "captain" },
+  { read = "training", path = "#", same_as = "players" },
+  { read = "finances", path = "Balance", present = true },
+  { run = "next" },
+  { read = "status", path = "Date+Clock", differs_from = "moment", note = "the game moved on (a day, or an hour of it)" },
+]
+
+[[test]]
+task = "T87"
+name = "left inside an open message"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "status", path = "Date+Clock", keep = "moment" },
+  { read = "squad", path = "#", keep = "players" },
+  { read = "table", path = "#", keep = "teams" },
+  { read = "tactic", path = "Slots.#", keep = "slots" },
+  { read = "captains", path = "Captain", keep = "captain" },
+  { read = "inbox", path = "0.NewsTitleString", keep = "msg" },
+  { run = "reply {msg}", note = "opens it: its text and answers" },
+  { read = "inbox --open", path = "NewsTitleString", same_as = "msg", note = "the game's own record of the one open" },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "squad", path = "#", same_as = "players" },
+  { read = "inbox", path = "#", not = "0" },
+  { read = "table", path = "#", same_as = "teams" },
+  { read = "fixtures", path = "#", not = "0" },
+  { read = "tactic", path = "Slots.#", same_as = "slots" },
+  { read = "captains", path = "Captain", same_as = "captain" },
+  { read = "training", path = "#", same_as = "players" },
+  { read = "finances", path = "Balance", present = true },
+  { run = "next" },
+  { read = "status", path = "Date+Clock", differs_from = "moment", note = "the game moved on (a day, or an hour of it)" },
+]
+
+[[test]]
+task = "T87"
+name = "left half way through a talk: reads pass, the talk is still there"
+at = "unhappy"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "status", path = "Date+Clock", keep = "moment" },
+  { read = "squad", path = "#", keep = "players" },
+  { read = "table", path = "#", keep = "teams" },
+  { read = "tactic", path = "Slots.#", keep = "slots" },
+  { read = "captains", path = "Captain", keep = "captain" },
+  { read = "inbox", path = "?NewsItemIsPriority=True.?NewsHasResponded=False.0.NewsTitleString", keep = "msg", live = true },
+  { run = "reply {msg} 4", note = "talk to him about it" },
+  { read = "talk", path = "Answers.#", not = "0", live = true },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "squad", path = "#", same_as = "players" },
+  { read = "inbox", path = "#", not = "0" },
+  { read = "table", path = "#", same_as = "teams" },
+  { read = "fixtures", path = "#", not = "0" },
+  { read = "tactic", path = "Slots.#", same_as = "slots" },
+  { read = "captains", path = "Captain", same_as = "captain" },
+  { read = "training", path = "#", same_as = "players" },
+  { read = "finances", path = "Balance", present = true },
+  { read = "talk", path = "Answers.#", not = "0", live = true, note = "the reads left the talk as it was" },
+]

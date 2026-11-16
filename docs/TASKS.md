@@ -128,15 +128,19 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] T92 closed; T40 closed or its cause written here
 - [x] T88 `tactic clear`
 - [x] T94 `tactic slot`
-- [ ] T87 Playing by hand and by the tool on one install:
+- [x] T87 Playing by hand and by the tool on one install:
   - [x] A game opened from Steam by hand stays visible and normal: Steam's bundle is never touched (no
     `LSUIElement`), BepInEx lives in `~/fm27_bep`, and the player's display settings come back however our
     game ends: `fm stop`, `kill -9` (the launch shell puts them back, 3/3), a reboot (next `fm` command)
   - [x] After a Steam update the tool says so and puts BepInEx back: staged by a changed interop hash, `start`
     said "updated, preparing", regenerated, one game, save loaded. The ready sign is BepInEx's copy written in
     this launch (an old marker had started two games)
-  - [ ] A game left on a dialog or another screen: every command gets past it
-  - [ ] The tool changes for good only what the player asked
+  - [x] A game left on a dialog or another screen: every command gets past it. `round70.toml`, EN + TR 3/3 each:
+    left on a club page, a competition page, a finance page, an open message, a talk half way. The reads give
+    what they gave before, `next` moves the game on, and the talk is still there after them
+  - [x] The tool changes for good only what the player asked: its own files are its caches; the game's display
+    settings are put back however it ends; game settings only through `settings`; read-only tools change
+    nothing (`round68.toml`). `next` reads unread messages because FM27 does on Continue, as by hand
 - [x] T153 AI safety (from `AI.md`; rules in `AI.md` Safety):
   - [x] Every tool marked read-only, reversible or high-impact, next to its definition
   - [x] CLI, MCP and sentences follow the same rules
