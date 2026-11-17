@@ -858,8 +858,7 @@ The window to choose {0} did not open.	{0} seçme penceresi açılmadı.
 '{0}' is a submenu; under it: {1}	'{0}' bir alt menü; altındakiler: {1}
 Area: '{0}' was not found as a continent, region or nation. For a league write its path: "Competition>Turkey>Super League"; the options: scout areas [path]	Bölge: '{0}' kıta, bölge ya da ülke olarak bulunamadı. Lig için yolunu yaz: "Competition>Türkiye>Super League"; seçenekler: scout areas [yol]
 Area: '{0}' matches more than one place: {1}	Bölge: '{0}' birden çok yere uyuyor: {1}
-The assignments panel was not found.	Görevler paneli bulunamadı.
-SCOUT	SCOUT
+SCOUT	GÖZLEMCİ
 JUDGING ABILITY	YETENEĞİ GÖRME
 JUDGING POTENTIAL	POTANSİYELİ GÖRME
 AREA	BÖLGE

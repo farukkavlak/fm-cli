@@ -4,28 +4,21 @@ namespace FmCli;
 
 internal static partial class Program
 {
-	/// <summary>The scouting assignments panel (FM27), which the focus page's "Assignments (n)" button opens.</summary>
+	/// <summary>Scouting › Assignments (FM27): a subpage of the scouting page; it lists the scouting team.</summary>
 	private const string AssignmentsPanel = "5ccd19d87218c4a40b10dd2f612884da";
 
 	/// <summary>
-	/// The scouting team as the assignments panel lists it, each from his own record: his job, his
+	/// The scouting team as the assignments page lists it, each from his own record: his job, his
 	/// eye for ability and potential (1–20), how many nations he knows, and how many focuses of each
-	/// priority he is on. The panel by the asset its button opens, its list by its element's name.
+	/// priority he is on. The page by its GUID (opened under its parent, not by a tile's button: the
+	/// focus page's tiles can be hidden, and their button opens Scout Priorities), its list by its
+	/// element's name.
 	/// </summary>
 	private static async Task<int> ScoutStaff(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage(Screen.RecruitmentFocuses);
+		var opened = await OpenPage(AssignmentsPanel);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
-		JsonElement open = default;
-		await Until(async () => (open = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-			.FirstOrDefault(b => Field(b, "Opens") == AssignmentsPanel && Field(b, "Enabled") == "True")).ValueKind == JsonValueKind.Object, seconds: 8, every: 0.5);
-		if (open.ValueKind != JsonValueKind.Object)
-		{
-			Console.Error.WriteLine(L("The assignments panel was not found."));
-			return 1;
-		}
-		await Fm.Get("click", ("ptr", Field(open, "Pointer")));
 
 		List<string> items = [];
 		// The panel's list by the element names it sits in (a level or two above it, past unnamed ones).

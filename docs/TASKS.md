@@ -292,7 +292,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     (3 pitches up), next season; a dead tile's pointer, a wrong pointer, a position not in the tactic refused
   - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension
     Clause leaves the end date as it was (the entry goes)
-  - [ ] TR after a deep crawl: `scout staff` "Görevler paneli bulunamadı"
+  - [x] `scout staff` "assignments panel not found" (EN too): it pressed a tile's button on the focus page, and
+    those tiles can be hidden (the crawl hid them) and now open Scout Priorities. It opens Scouting › Assignments
+    by its GUID under its parent. EN 5/5 (tiles shown and hidden, from other pages), TR 4/4 (cold start); one
+    scout, as `staff` lists
   - [x] A search took the words before's list for the answer when the game was slow to start (after a load):
     "not found". Now only the game's sign counts (the search started, or the list is another). EN 8/8, TR 6/6;
     one "not found" seen in ~60 since, not reproduced
