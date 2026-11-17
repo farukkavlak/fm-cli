@@ -434,11 +434,13 @@ internal static partial class Program
 	/// and what the lists offer reads differently in every language.
 	/// </summary>
 	/// A page opened before (another club's squad) stays bound with its own list: the one on show comes first.
+	/// FM27 builds some pages out of cards (the player database is one, #PlayerSearchReport): there a card is the page.
 	private static async Task<JsonElement?> ViewList(string panel) =>
 		(await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
 			.Where(d => Field(d, "Name") == "ViewDropdown")
-			// A card over the page (the next opponent's report, on Home) has its own table and view list.
-			.Where(d => !(d.TryGetProperty("Within", out var w) && w.EnumerateArray().Any(n => n.GetString() == "CardController")))
+			// A card over the squad page (the next opponent's report, on Home) has its own table and view list.
+			.Where(d => panel != SquadViews
+				|| !(d.TryGetProperty("Within", out var w) && w.EnumerateArray().Any(n => n.GetString() == "CardController")))
 			.OrderBy(d => Field(d, "Visible") == "True" ? 0 : 1)
 			.Cast<JsonElement?>()
 			.FirstOrDefault(d => d!.Value.TryGetProperty("Within", out var within)

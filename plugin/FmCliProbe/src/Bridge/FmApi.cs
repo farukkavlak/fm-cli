@@ -47,7 +47,7 @@ internal static partial class FmApi
 		"dyn" => Dynamic(q["path"]),
 		"panels" => Panels.Catalog(q["filter"]),
 		"squad" => Report.Squad(),
-		"people" => Report.People(),
+		"people" => Report.People(teamless: q["teamless"] == "1"),
 		"search" => Report.SearchResults(),
 		"searchopen" => Report.OpenSearchResult(q["name"], q["path"], q["dry"] == "1"),
 		"inbox" => Report.Inbox(q["paths"] == "1"),

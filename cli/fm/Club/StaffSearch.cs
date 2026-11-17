@@ -35,7 +35,7 @@ internal static partial class Program
 		if (args.Contains("--filters")) { foreach (var name in filterNames) Console.WriteLine(name); return 0; }
 		if (args.Contains("--views")) { foreach (var name in viewNames) Console.WriteLine(name); return 0; }
 
-		var before = (await Fm.GetJson("people")).ToString();
+		var before = (await Fm.GetJson("people", ("teamless", "1"))).ToString();
 		var asked = false;
 		// The page's own Clear takes off what an earlier search left on.
 		if (args.Contains("--clear"))
@@ -167,14 +167,14 @@ internal static partial class Program
 		var waited = 0;
 		await Until(async () =>
 		{
-			var now = await Fm.GetJson("people");
+			var now = await Fm.GetJson("people", ("teamless", "1"));
 			var text = now.ToString();
 			var settled = text == last && now.GetArrayLength() > 0 && (!asked || text != before || ++waited >= 5);
 			last = text;
 			if (settled) people = now;
 			return settled;
 		}, seconds: 20);
-		if (people.ValueKind != JsonValueKind.Array) people = await Fm.GetJson("people");
+		if (people.ValueKind != JsonValueKind.Array) people = await Fm.GetJson("people", ("teamless", "1"));
 
 		// What is typed after `find` narrows what the page shows: a name, a job ("scout").
 		var typed = Fold(string.Join(" ", Words(args).Skip(1)));

@@ -17,16 +17,18 @@ internal static class Report
 {
 	private const int MaxNodes = 40000;
 
-	public static string Squad() => People(squadOnly: true);
+	public static string Squad() => People(squadOnly: true, teamless: false);
 
 	/// <summary>
 	/// Any table of people on screen — the player database, a shortlist — read the way the
 	/// squad is, but without insisting that the named record itself carries a position: such
 	/// tables keep even that in a neighbouring cell.
 	/// </summary>
-	public static string People() => People(squadOnly: false);
+	/// <param name="teamless">Only rows of a list that no team is bound to (a search's results): a squad page
+	/// opened before stays bound beside the search, and its rows would be read as found.</param>
+	public static string People(bool teamless) => People(squadOnly: false, teamless);
 
-	private static string People(bool squadOnly)
+	private static string People(bool squadOnly, bool teamless)
 	{
 		var players = new List<Dictionary<string, string>>();
 		var byName = new Dictionary<string, Dictionary<string, string>>();
@@ -55,6 +57,7 @@ internal static class Report
 			// Both squads hang under the same tab container, so the path cannot tell them apart;
 			// the team the row list is bound to can.
 			var team = TeamOf(node);
+			if (team != null && teamless) continue;
 			if (team != null) fields["Team"] = team;
 
 			// A table spreads one player over many cells, each binding the same person for a

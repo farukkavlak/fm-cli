@@ -233,7 +233,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		var before = (await Fm.GetJson("people")).ToString();
+		var before = (await Fm.GetJson("people", ("teamless", "1"))).ToString();
 
 		// A quick filter stays on until the page's own Clear is pressed; the button is found by
 		// the event it sends, which no language changes.
@@ -367,7 +367,7 @@ internal static partial class Program
 		var asked = searched || Option(args, "--filter") != null || Option(args, "--view") != null || args.Contains("--clear") || args.Contains("--free");
 		await Until(async () =>
 		{
-			var now = await Fm.GetJson("people");
+			var now = await Fm.GetJson("people", ("teamless", "1"));
 			var text = now.ToString();
 			var settled = text == last && now.GetArrayLength() > 0 && (!asked || text != before || ++waited >= 5);
 			last = text;
@@ -375,7 +375,7 @@ internal static partial class Program
 			return settled;
 		}, seconds: 25);
 
-		if (people.ValueKind != JsonValueKind.Array) people = await Fm.GetJson("people");
+		if (people.ValueKind != JsonValueKind.Array) people = await Fm.GetJson("people", ("teamless", "1"));
 		if (json)
 		{
 			Console.WriteLine(people.ToString());

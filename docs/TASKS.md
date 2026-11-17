@@ -281,7 +281,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     the game's own list (game.Search.Results) holds any; "none" only when it holds none (no 3 s wait). TR watch
     after a language-change load: 96/96 (was 1–3 empty per 5 min). `FM_SEARCHTRACE=1` prints each poll
     - [x] Same watch in EN: 93/93 (TR→EN load, 5.5 min)
-  - [ ] `players` after Find Similar Players: "did not show the lists expected"
+  - [x] `players` after Find Similar Players: "did not show the lists expected". Every `players` failed so (since
+    93ec8a0): FM27's player database is itself a card, and the view list was skipped inside any card; that is now
+    for the squad page only. A squad page opened before also lent its rows to a search: a search now reads only
+    rows of a list no team is bound to (`people?teamless=1`; staff search too). EN + TR: 5+/5 across two players,
+    from the squad page and from the search page, `--clear`, a quick filter, staff search with the squad bound
   - [x] `planner --position AMC`: "the tile #AMC has nothing to press". The game keeps the pitches of planner pages
     opened before (same tile names, nothing shown, nothing to press); the first by name could be one of them. Tiles
     now say whether they can be pressed, and the one chosen is pressed by its pointer. EN + TR 9/9 across pages
