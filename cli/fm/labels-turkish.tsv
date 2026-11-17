@@ -2851,3 +2851,4 @@ Pressed, but the game has not answered yet: the post reads as before. To see: jo
 {0} turned the application down at once; the post is as it was. Their answer: {1}	{0} başvuruyu hemen geri çevirdi; ilan olduğu gibi duruyor. Cevapları: {1}
 The squad table on screen is not our first team's, and our own did not come up.	Ekrandaki kadro tablosu bizim A takımımızın değil, bizimki de açılmadı.
 The game's event queue is held: no page opens until the game is started again (fm stop, fm start).	Oyunun olay kuyruğu kilitli: oyun yeniden başlatılmadan (fm stop, fm start) hiçbir sayfa açılmaz.
+The game shows no menu for {0}: it draws a club's menu only where the club appears with one (the next opponent on the squad overview). Requests to our own board: `board request`.	{0} için oyun bir menü göstermiyor: kulüp menüsü yalnız kulübün menüsüyle göründüğü yerde çıkar (kadro genel bakışındaki sıradaki rakip). Kendi yönetimimizden istekler: `board request`.

@@ -36,6 +36,8 @@ internal static class Screen
 	// Squad
 	/// <summary>A team's squad list; the club's own team unless another is named.</summary>
 	public const string Squad = "7957386accba7b44d81ac248d04efbac";
+	/// <summary>Squad › Overview: its next-opponent card carries that club's right-click menu.</summary>
+	public const string SquadOverview = "17dc969bb3a64ee478862f101adb1a48";
 	public const string Training = "ceb0e5333c8c69c448f04279129fdb38";
 	// Training's own subtabs, opened from its bar.
 	public const string IndividualTraining = "41012275212b88b46957d71fc17c5876";

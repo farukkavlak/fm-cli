@@ -81,20 +81,26 @@ internal static partial class Program
 		LastPersonPath = path;
 		var opened = await Fm.Get("actions", ("open", "1"), ("path", path));
 		// A club's search row is a plain link too, and its page carries no menu of its own: the game draws a
-		// club's menu only where that club is shown with one (the next opponent, on the bar above every
-		// page). That menu is the one bound to the record with the club's UniqueId; no other is guessed at.
+		// club's menu only where that club is shown with one (the next opponent's card on Squad › Overview,
+		// a club table's row). That menu is the one bound to the record with the club's UniqueId; no other is guessed at.
 		var record = Field(found[0], "Kind") is "Club" or "Nation" or "Competition";
 		if (record && opened.StartsWith("error", StringComparison.Ordinal))
 		{
-			// Its id is read while the search still holds the row; the window then goes, as it covers the bar.
-			var club = Field((await PullEach([(path, "UniqueId")], r => Field(r, "UniqueId").Length > 0))[0], "UniqueId");
+			// Its id is read while the search still holds the row; the window then goes, as it covers the page.
+			var club = (await IdsOf([path]))[0];
 			await CloseSearch();
 			string? shown = null;
-			if (club.Length > 0) await Until(async () => (shown = await MenuOf(club)) != null, seconds: 4, every: 0.5);
+			if (club.Length > 0)
+			{
+				shown = await MenuOf(club);
+				// Not on screen: the page whose card draws the next opponent's menu.
+				if (shown == null && !(await OpenPage(Screen.SquadOverview)).StartsWith("error", StringComparison.Ordinal))
+					await Until(async () => (shown = await MenuOf(club)) != null, seconds: 5, every: 0.5);
+			}
 			if (shown != null) opened = await Fm.Get("actions", ("open", "1"), ("ptr", shown));
 			if (opened.StartsWith("error", StringComparison.Ordinal))
 			{
-				Console.Error.WriteLine(L($"The game shows no menu for {name} on screen: it draws a club's menu only where the club appears with one (the next opponent, on the bar above the pages)."));
+				Console.Error.WriteLine(L($"The game shows no menu for {name}: it draws a club's menu only where the club appears with one (the next opponent on the squad overview). Requests to our own board: `board request`."));
 				return null;
 			}
 		}
@@ -144,8 +150,27 @@ internal static partial class Program
 			.SelectMany(m => Field(m, "At").Split(" | ", StringSplitOptions.RemoveEmptyEntries).Select(at => (Ptr: Field(m, "Ptr"), At: at)))
 			.ToList();
 		if (menus.Count == 0) return null;
-		var ids = await PullEach(menus.Select(m => (m.At, "UniqueId")).ToList(), r => Field(r, "UniqueId").Length > 0);
-		return menus.Zip(ids).Where(p => Field(p.Second, "UniqueId") == id).Select(p => p.First.Ptr).FirstOrDefault();
+		var ids = await IdsOf(menus.Select(m => m.At).ToList());
+		return menus.Zip(ids).Where(p => p.Second == id).Select(p => p.First.Ptr).FirstOrDefault();
+	}
+
+	/// <summary>
+	/// The UniqueId of the record at each path ("" where none). A club drawn on screen answers no field
+	/// at its own path, only once copied to a row of ours (measured: the next opponent's card, a search
+	/// row); a person answers either way, so every record is read the same way.
+	/// </summary>
+	private static async Task<List<string>> IdsOf(List<string> paths)
+	{
+		var copies = paths.Select((p, i) => ("pathset", new[] { ("to", $"fmcli.idof.{i}"), ("from", p) })).ToList();
+		var put = await Fm.Batch(copies);
+		if (put == null)
+		{
+			put = [];
+			foreach (var (route, query) in copies) put.Add(await Fm.Get(route, query));
+		}
+		var rows = paths.Select((p, i) => i < put.Count && !put[i].StartsWith("error", StringComparison.Ordinal) ? $"fmcli.idof.{i}" : p).ToList();
+		var read = await PullEach(rows.Select(r => (r, "UniqueId")).ToList(), r => Field(r, "UniqueId").Length > 0);
+		return read.Select(r => Field(r, "UniqueId")).ToList();
 	}
 
 	/// <summary>

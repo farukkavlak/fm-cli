@@ -256,8 +256,16 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 - [x] T65 Player interaction (`actions <player>`)
 - [x] T66 `fm meeting`
-- [ ] T67 Every list's submenus (tactic presets, Manage Tactics …)
-- [ ] T68 Every row's right-click menu, per kind of row
+- [x] T67 Every list's submenus (tactic presets, Manage Tactics …): `crawl --deep` reads them by value or plugin
+  event, EN + TR (`reference/fm27/crawl-deep-*.json.gz`)
+- [x] T68 Every row's right-click menu, per kind of row: `crawl --deep`, 209 pages, the same 63 actions EN + TR.
+  Person menus: `actions <person>`. A club's menu: `actions <club>`, only where the game draws one (the next
+  opponent's card); our own club's requests are `board request`. EN + TR: menu 3/3+, team report asked and read
+  back (its entry turns off), a club with no menu and an unknown name refused
+  - [ ] A club's id at an on-screen path answers only once copied to a row of ours (`IdsOf`); why, not known
+  - [ ] Two clubs of one name and nation (Arsenal, ENG twice) cannot be told apart by `( )`
+  - [ ] A requested team report's entry shows `- string#2` (a game string not filled)
+  - [ ] `crawl --deep` leaves popups it opened by a button up (seen: Load Item, scouting options, player interest)
 - [ ] T69 Settings pages; the main menu
 - [ ] T70 Pages of a club that is not ours; a nation's and a competition's
 
@@ -343,7 +351,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 
 ## 13. Later (v2)
 
-- [ ] T21 Opposition scouting priorities (`ScoutTeam` action exists; no screen found)
+- [ ] T21 Opposition scouting priorities (`ScoutTeam`: `actions <next opponent> "Get Team Report›…"` asks for it; the priorities screen not found)
 - [ ] Pages only under a "More" menu
 - [ ] Read one value without opening its page
 - [ ] Swap two starters; a player from outside the squad
