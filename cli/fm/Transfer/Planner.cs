@@ -79,7 +79,7 @@ internal static partial class Program
 	}
 
 	private static async Task<List<JsonElement>> PlannerTiles() =>
-		(await Fm.GetJson("pitchtiles")).EnumerateArray().Where(t => Field(t, "Text").Length > 0).ToList();
+		(await Fm.GetJson("pitchtiles")).EnumerateArray().Where(t => Field(t, "Text").Length > 0 && t.TryGetProperty("Pressable", out var live) && live.ValueKind == JsonValueKind.True).ToList();
 
 	/// <summary>Null when the position's list is up. By the tile's element name, or by what it shows when only one tile shows it.</summary>
 	private static async Task<int?> PlannerPosition(string typed)
@@ -94,7 +94,7 @@ internal static partial class Program
 			return 1;
 		}
 		var before = await PlannerRead("SelectedPositionMask");
-		var said = await Fm.Get("pitchtiles", ("press", Field(hits[0], "Name")));
+		var said = await Fm.Get("pitchtiles", ("press", Field(hits[0], "Name")), ("at", Field(hits[0], "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 		// The tile already chosen changes nothing; any other moves the game's mask.
 		await Until(async () => await PlannerRead("SelectedPositionMask") != before, seconds: 1.5, every: 0.1);

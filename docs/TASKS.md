@@ -282,7 +282,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     after a language-change load: 96/96 (was 1–3 empty per 5 min). `FM_SEARCHTRACE=1` prints each poll
     - [x] Same watch in EN: 93/93 (TR→EN load, 5.5 min)
   - [ ] `players` after Find Similar Players: "did not show the lists expected"
-  - [ ] `planner --position AMC`: "the tile #AMC has nothing to press"
+  - [x] `planner --position AMC`: "the tile #AMC has nothing to press". The game keeps the pitches of planner pages
+    opened before (same tile names, nothing shown, nothing to press); the first by name could be one of them. Tiles
+    now say whether they can be pressed, and the one chosen is pressed by its pointer. EN + TR 9/9 across pages
+    (3 pitches up), next season; a dead tile's pointer, a wrong pointer, a position not in the tactic refused
   - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension
     Clause leaves the end date as it was (the entry goes)
   - [ ] TR after a deep crawl: `scout staff` "Görevler paneli bulunamadı"
