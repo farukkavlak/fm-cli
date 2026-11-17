@@ -545,11 +545,16 @@ internal static partial class Buttons
 	/// repeats the same control once per row, all with the same label, and what tells them
 	/// apart is the row each takes its data from.
 	/// </summary>
-	internal static string PressFedBy(string name, HashSet<ulong> sources, bool dry)
+	internal static string PressFedBy(string name, HashSet<ulong> sources, bool dry) =>
+		PressFedBy(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase), sources, dry, name);
+
+	/// <summary>The button whose element name passes <paramref name="named"/>, fed from one of <paramref name="sources"/>.</summary>
+	internal static string PressFedBy(Func<string, bool> named, HashSet<ulong> sources, bool dry, string asked = "a search result's button")
 	{
 		foreach (var control in Controls(out _))
 		{
-			if (!string.Equals(NameOf(control.Element), name, StringComparison.OrdinalIgnoreCase)) continue;
+			var name = NameOf(control.Element) ?? "";
+			if (!named(name)) continue;
 
 			var events = control.Lists[0].Events;
 			var contexts = events.Events;
@@ -570,7 +575,7 @@ internal static partial class Buttons
 			queue.QueueEvents(events);
 			return $"pressed {name} \"{control.Label}\"";
 		}
-		return $"error: no control named '{name}' is fed from that row";
+		return $"error: no control named '{asked}' is fed from that row";
 	}
 
 	/// <summary>

@@ -382,6 +382,7 @@ fm vision [confirm|remove|suggest|undo|reset|end|plan|add]   # plan: the 5 Year 
 fm jobs [<club>] [apply|interest] [--yes] [--all]
 fm resign [--yes]
 fm read [<page>]            # the game's look-only pages, read as they stand
+fm read [<page>] --of "<name>"   # a club not ours, a nation, a national team, a competition
 fm meeting                  # a team meeting of your own; answer with talk
 fm draw                     # a cup draw its message opened: runs it, shows the ties
 fm saves · fm save · fm load
@@ -390,6 +391,11 @@ fm saves · fm save · fm load
 ![fm read](manual/img/club/read.png)
 
 `fm read` lists the look-only pages (history, honours, records, rules…); `fm read club-honours` reads one.
+
+`fm read --of "Galatasaray (Super League)"` reads another club's page and lists the pages on its bar;
+`fm read club-honours --of "…"` reads one. Two of one name are told apart in brackets (kind, league).
+
+![fm read --of](manual/img/club/read-of.png)
 
 ## 13. Everything else
 

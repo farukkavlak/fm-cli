@@ -308,7 +308,15 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     "not found". Now only the game's sign counts (the search started, or the list is another). EN 8/8, TR 6/6;
     one "not found" seen in ~60 since, not reproduced
 - [ ] T69 Settings pages; the main menu
-- [ ] T70 Pages of a club that is not ours; a nation's and a competition's
+- [x] T70 Pages of a club that is not ours; a nation's and a competition's. `read --of "<name>" [<page>]`: found with
+  the game's search, opened by that result's own button, a page on its bar by GUID. Crawled with `crawl --here`:
+  `reference/fm27/crawl-records-{en,tr}.json.gz` (club 25 pages, competition 21, nation 1, national team 20).
+  EN + TR: a club, two clubs of one name told apart by league, squad, honours, history, team report; nation, men's
+  and women's national team, competition and its rules; cold start, the same page again, from another page; an
+  unknown name and an unknown page refused
+  - [x] The search dropped competition, nation, national team and award results (no record named so: read as
+    Pending, "nothing found"). Their kind is now the type of the row (CompReference…), their name the result's own
+  - [ ] Slow: 15–20 s a page, most of it `read`'s table scroll (as `read here`)
 
 ## 10. Quality
 

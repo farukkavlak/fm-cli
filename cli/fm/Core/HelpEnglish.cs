@@ -86,6 +86,7 @@ internal static partial class Program
 			    --play-on     a match paused to take it plays on, so a team instruction it sets is read back
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen
+			  read [<page>] --of "<name>"   a club that is not ours, a nation, a national team or a competition: its page, or a page on its bar (it lists them)
 			  meeting         hold a team meeting; answer it with talk
 			  jobs [<club>] [apply|interest] [--yes] [--all]   job vacancies; apply or say you are interested
 			  crawl <out.json> [--here] [--only <guid>,…] [--skip <guid>,…]   for developers: a map of the game's pages

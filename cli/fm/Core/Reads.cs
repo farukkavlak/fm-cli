@@ -236,7 +236,8 @@ internal static partial class Program
 		Table.Write([L("TYPE"), L("NAME"), L("WHO")], results.Select((r, i) => new[]
 		{
 			Field(r, "Shown"),
-			Field(r, "Name") is { Length: > 0 } person ? person : Field(r, "Club") + Field(r, "Competition") + Field(r, "Nation"),
+			// Anything else under its kind: Club, Competition, Nation, NationalTeam, Award.
+			Field(r, "Name") is { Length: > 0 } person ? person : Field(r, Field(r, "Kind")),
 			Field(r, "Name").Length > 0 ? who[i] : "",
 		}).ToList());
 		return 0;

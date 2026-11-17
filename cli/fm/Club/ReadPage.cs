@@ -20,6 +20,8 @@ internal static partial class Program
 	private static async Task<int> ReadPage(bool json, string[] args)
 	{
 		var typed = string.Join(' ', Words(args));
+		// A club that is not ours, a nation, a national team or a competition: found by the game's search.
+		if (Option(args, "--of") is { Length: > 0 } of) return await ReadOf(json, of, typed);
 		if (typed.Length == 0)
 		{
 			if (json)

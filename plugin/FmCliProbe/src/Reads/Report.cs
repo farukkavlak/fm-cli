@@ -245,6 +245,21 @@ internal static class Report
 			// A person (player or staff: the caller asks his IsPlayer by Path), else the record found.
 			fields["Kind"] = fields.ContainsKey("Name") ? "Person"
 				: fields.ContainsKey("Competition") ? "Competition" : fields.ContainsKey("Nation") ? "Nation" : "Club";
+
+			// A competition's, nation's, national team's or award's result holds no record named so: its kind is the
+			// type of the row it carries (CompReference, NationReference…, the game's own), and its name is the
+			// result's own (a national team's only on its team). Its path is the result's row, for /searchopen.
+			if (fields.Count <= 2 && RecordKind(node) is { } recordKind)
+			{
+				var named = Fields(node).GetValueOrDefault("Name", "");
+				if (named.Length == 0) named = TeamName(node.Parent);
+				if (named.Length > 0)
+				{
+					fields[recordKind] = named;
+					fields[recordKind + "Path"] = path;
+					fields["Kind"] = recordKind;
+				}
+			}
 			if (fields.Count > 2) results.Add(fields);
 			// A row the game has drawn before its record's name is bound: said, so a caller waits for its
 			// name rather than take a list without it for the answer (it was read as "not found").
@@ -252,6 +267,45 @@ internal static class Report
 		}
 
 		return "[\n  " + string.Join(",\n  ", results.Select(r => Json(r, ["Shown"]))) + "\n]\n";
+	}
+
+	/// <summary>
+	/// A search result's kind by the type of the row it carries (its RowData): Competition, Nation, NationalTeam,
+	/// Award. Null for a person or club (read by their records) and while the row is not bound.
+	/// </summary>
+	private static string RecordKind(IReadOnlyNode result)
+	{
+		for (var c = result.FirstChild; c != null; c = c.NextSibling)
+		{
+			if (c.Name != "RowData") continue;
+			string type;
+			try { type = c.Value?.DataType?.Name ?? ""; } catch { return null; }
+			return type switch
+			{
+				"CompReference" => "Competition",
+				"NationReference" => "Nation",
+				"NationalTeamContainerReference" => "NationalTeam",
+				// A person's or club's row is read by its record, whose name can come later than the row.
+				"PersonReference" or "ClubReference" or "" => null,
+				_ => type.EndsWith("Reference", StringComparison.Ordinal) ? type[..^"Reference".Length] : null,
+			};
+		}
+		return null;
+	}
+
+	/// <summary>The name of the first team bound under a result (a national team's result names it only there).</summary>
+	private static string TeamName(IReadOnlyNode holder)
+	{
+		var queue = new Queue<IReadOnlyNode>();
+		queue.Enqueue(holder);
+		var seen = 0;
+		while (queue.Count > 0 && seen++ < 300)
+		{
+			var current = queue.Dequeue();
+			for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+			if (current.Name == "Team" && Fields(current).GetValueOrDefault("Name", "") is { Length: > 0 } name) return name;
+		}
+		return "";
 	}
 
 	/// <summary>
@@ -310,21 +364,27 @@ internal static class Report
 			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
 		}
 
-		// A club, competition or nation result (…items.N.1.ClubRemapper1.Club): its button, named for the
-		// record ("ClubSearchButton"), is fed by the remapper's parent.
-		if (!string.IsNullOrEmpty(person) && FmApi.NodeAt(person, out _) is { Name: not "Person", Parent.Parent: { } holder } record)
+		// A club's, competition's, nation's… result (…items.N.1.ClubRemapper1.Club, or …items.N.searchresult): its
+		// button is the one of the search's buttons (ClubSearchButton, CompetitionSearchButton…) fed by that result's
+		// row, the node holding its searchresult. Its name is not the record's (a competition's record is "comp").
+		if (!string.IsNullOrEmpty(person) && FmApi.NodeAt(person, out _) is { Name: not "Person" } record)
 		{
-			var keys = new HashSet<ulong>();
-			var queue = new Queue<IReadOnlyNode>();
-			queue.Enqueue(holder);
-			while (queue.Count > 0 && keys.Count < 600)
+			var holder = record.Parent;
+			while (holder != null && Child(holder, "searchresult") == null) holder = holder.Parent;
+			if (holder != null)
 			{
-				var current = queue.Dequeue();
-				keys.Add(current.Key.m_key);
-				for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+				var keys = new HashSet<ulong>();
+				var queue = new Queue<IReadOnlyNode>();
+				queue.Enqueue(holder);
+				while (queue.Count > 0 && keys.Count < 600)
+				{
+					var current = queue.Dequeue();
+					keys.Add(current.Key.m_key);
+					for (var c = current.FirstChild; c != null; c = c.NextSibling) queue.Enqueue(c);
+				}
+				var pressed = Buttons.PressFedBy(n => n.EndsWith("SearchButton", StringComparison.Ordinal) && n != "SearchButton", keys, dry);
+				if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
 			}
-			var pressed = Buttons.PressFedBy(record.Name + "SearchButton", keys, dry);
-			if (!pressed.StartsWith("error: no control", StringComparison.Ordinal)) return pressed;
 		}
 
 		return $"error: no search result on screen opens '{(string.IsNullOrEmpty(person) ? name : person)}'";
