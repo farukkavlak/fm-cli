@@ -164,11 +164,13 @@ internal static partial class Program
 			var now = found.ToString();
 			var finished = await Found("SearchIsFinished") != "False";
 			if (!finished || found.GetArrayLength() == 0) started = true;
-			// The flag returns before the rows are drawn, so an empty list says nothing: only a
-			// list with rows is an answer, and an empty one is believed after a generous while.
-			var answer = finished && now == last
-			             && (found.GetArrayLength() > 0 && (sameWords || started || now != before)
-			                 || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
+			// Only the game's sign that the new search has run (it started, or the list is another) makes
+			// a list the answer: the words before's list stays up, marked finished, until the game starts on
+			// the new text, and after a load that can take seconds (it was taken for the answer: "not found").
+			// The flag returns before the rows are drawn, so an empty list from the new search is believed
+			// only after a generous while.
+			var answer = finished && now == last && (sameWords || started || now != before)
+			             && (found.GetArrayLength() > 0 || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
 			last = now;
 			results = found.EnumerateArray().ToList();
 			return answer;

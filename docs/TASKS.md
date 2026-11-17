@@ -266,6 +266,19 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [ ] Two clubs of one name and nation (Arsenal, ENG twice) cannot be told apart by `( )`
   - [ ] A requested team report's entry shows `- string#2` (a game string not filled)
   - [ ] `crawl --deep` leaves popups it opened by a button up (seen: Load Item, scouting options, player interest)
+- [ ] T77 Menu actions the code never names (46): each has a command, was run through `actions` and read back, or
+  needs none. 17 Nov, EN + TR (list in the round note). Open from it:
+  - [ ] An entry that opens a form is said "done" while the form waits: Add as Transfer Target (fee, wage,
+    priority), Set Nickname (a text box), Hire An Intermediary (its answer card). Read the form, or say so
+  - [ ] `actions <staff|manager>` on that person's own page: "Nothing can be done" (EN + TR); from another page fine
+  - [ ] `players` after Find Similar Players: "did not show the lists expected"
+  - [ ] `planner --position AMC`: "the tile #AMC has nothing to press"
+  - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension
+    Clause leaves the end date as it was (the entry goes)
+  - [ ] TR after a deep crawl: `scout staff` "Görevler paneli bulunamadı"
+  - [x] A search took the words before's list for the answer when the game was slow to start (after a load):
+    "not found". Now only the game's sign counts (the search started, or the list is another). EN 8/8, TR 6/6;
+    one "not found" seen in ~60 since, not reproduced
 - [ ] T69 Settings pages; the main menu
 - [ ] T70 Pages of a club that is not ours; a nation's and a competition's
 
@@ -277,7 +290,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T74 Full sweep passes (`tools/sweep.sh`, `tools/mcp-check.py`): 15 Nov, scn-calm EN 63/63, TR 63/63; MCP 50 called, 0 failed
 - [x] T75 `AI-CHECKLIST.md` sorted: safety is T153, the rest is v2 in `AI.md`
 - [x] T76 `BACKLOG.md` sorted: tasks made (T151, T152), the rest v2 below or dropped
-- [ ] T77 `fm crawl` TR + EN at the end: no event or page without a command (or a reason)
+- [ ] T77 `fm crawl` TR + EN at the end: no event or page without a command (or a reason); menu actions: see section 9
 - [x] T100 `:` on the live panel opens a prompt
 - [x] T101 Keys on the live panel
 - [x] T102 Long commands show progress on one line
