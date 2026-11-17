@@ -234,11 +234,12 @@ internal static partial class Program
 
 	/// <summary>What came of a choice: the game's question, a conversation, contract talks — or nothing to see.</summary>
 	/// <param name="talkBefore">The talk buttons that were showing before the choice (see <see cref="TalkButtons"/>).</param>
-	private static async Task<int> AfterAction(string name, string path, string talkBefore)
+	private static async Task<int> AfterAction(string name, string path, string talkBefore, HashSet<string>? windowsBefore = null, HashSet<string>? pagesBefore = null)
 	{
 		JsonElement dialogs = default;
 		OfferScreen? talks = null;
 		var said = false;
+		string? window = null;
 		await Until(async () =>
 		{
 			// The window comes before its words and buttons are drawn: it is read once it has both.
@@ -246,7 +247,15 @@ internal static partial class Program
 			    && Field(dialogs[0], "Title").Length > 0 && dialogs[0].GetProperty("Buttons").GetArrayLength() > 0) return true;
 			if ((talks = await OfferScreen.Read(Fm, "contract")) != null) return true;
 			var now = await TalkButtons();
-			return said = now.Length > 0 && now != talkBefore;
+			if (said = now.Length > 0 && now != talkBefore) return true;
+			// A question is a window too, there before its words are drawn: only a window while no question
+			// is up is the entry's form.
+			if (windowsBefore != null && dialogs.GetArrayLength() == 0 && (await Windows()).Except(windowsBefore).FirstOrDefault() is { } opened)
+			{
+				window = opened;
+				return true;
+			}
+			return false;
 		}, seconds: 3, every: 0.5);
 
 		if (dialogs.ValueKind == JsonValueKind.Array && dialogs.GetArrayLength() > 0)
@@ -262,6 +271,7 @@ internal static partial class Program
 			Console.WriteLine(L($"\nTo answer: dialog <{string.Join(" | ", dialog.GetProperty("Buttons").EnumerateArray().Select(b => DialogWords(b, "Label")))}>"));
 			return 0;
 		}
+		if (window != null) return await WindowOpened(name, path, window, pagesBefore ?? []);
 		if (talks != null) return await Contract(["contract"]);
 		if (said) return await TalkTo(false, ["talk"]);
 		Console.WriteLine(L($"{name}: {path} — done."));
@@ -362,9 +372,48 @@ internal static partial class Program
 			return 1;
 		}
 		var before = await TalkButtons();
+		var windowsBefore = await Windows();
+		var pagesBefore = await ButtonPages();
 		var chosen = await ChooseEntry(entry, entries);
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
-		return await AfterAction(name, path, before);
+		return await AfterAction(name, path, before, windowsBefore, pagesBefore);
+	}
+
+	/// <summary>
+	/// The windows over the screen: the elements under the game's #ModalDialog layer, by their own names
+	/// (#RecruitmentDofTransferTargetCard, #PersonNicknameDialog). An entry that opens one is not done
+	/// yet: it waits for a form (a transfer target's terms, a nickname) or shows an answer.
+	/// </summary>
+	private static async Task<HashSet<string>> Windows()
+	{
+		var layer = await Fm.Get("layers", ("name", "ModalDialog"), ("depth", "1"));
+		return layer.Split('\n')
+			.Select(l => System.Text.RegularExpressions.Regex.Match(l, @"^  \S+ #(\S+) d=Flex v=Visible"))
+			.Where(m => m.Success).Select(m => m.Groups[1].Value).ToHashSet();
+	}
+
+	/// <summary>The pages with a button showing.</summary>
+	private static async Task<HashSet<string>> ButtonPages() =>
+		(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Visible") == "True").Select(b => Field(b, "Page")).ToHashSet();
+
+	/// <summary>A window the entry opened: what it says and holds, and the buttons that finish or leave it.</summary>
+	private static async Task<int> WindowOpened(string name, string path, string window, HashSet<string> pagesBefore)
+	{
+		var texts = (await Fm.GetJson("texts", ("within", window))).EnumerateArray().Select(t => t.GetString() ?? "")
+			.Where(t => t.Length > 0 && t != "-" && t != "+").ToList();
+		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+			.Where(b => Field(b, "Visible") == "True" && Field(b, "Label").Length > 0 && !pagesBefore.Contains(Field(b, "Page"))
+			            && Field(b, "Type") == "SIButton" && texts.Contains(Field(b, "Label")))
+			.Select(b => Field(b, "Label")).Distinct().ToList();
+		var lists = (await Fm.GetJson("form", ("within", window))).EnumerateArray().Any(i => Field(i, "Kind") == "dropdown");
+		// The window's words come as the game's English keys; shown in this language from the game's table.
+		await GameWords.Ask(Fm, [.. texts, .. buttons]);
+		Console.WriteLine(L($"{name}: {path} — the game opened a window for it; nothing is done until it is finished there."));
+		foreach (var text in texts.Where(t => !buttons.Contains(t))) Console.WriteLine("  " + GameWords.Of(text));
+		if (buttons.Count > 0)
+			Console.WriteLine(L($"To finish or leave it: press \"<button>\" — {string.Join(" · ", buttons.Select(GameWords.Of))}") + (lists ? L("   (its lists: dropdowns, select)") : ""));
+		return 0;
 	}
 
 	/// <summary>

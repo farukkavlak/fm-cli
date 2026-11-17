@@ -268,8 +268,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [ ] `crawl --deep` leaves popups it opened by a button up (seen: Load Item, scouting options, player interest)
 - [ ] T77 Menu actions the code never names (46): each has a command, was run through `actions` and read back, or
   needs none. 17 Nov, EN + TR (list in the round note). Open from it:
-  - [ ] An entry that opens a form is said "done" while the form waits: Add as Transfer Target (fee, wage,
-    priority), Set Nickname (a text box), Hire An Intermediary (its answer card). Read the form, or say so
+  - [x] An entry that opens a window (a child of the game's #ModalDialog) is not said "done": its words are shown
+    and its buttons, finished with `press`. Add as Transfer Target: press adds it (the DoF's target count 0→1),
+    Cancel adds nothing; Set Nickname. EN + TR 3/3; a question and a page link as before
+  - [ ] Hire An Intermediary: its answer card comes after `dialog Yes`, which does not read it
+  - [ ] Set Nickname: no command types into its box
   - [ ] `actions <staff|manager>` on that person's own page: "Nothing can be done" (EN + TR); from another page fine
   - [ ] `players` after Find Similar Players: "did not show the lists expected"
   - [ ] `planner --position AMC`: "the tile #AMC has nothing to press"

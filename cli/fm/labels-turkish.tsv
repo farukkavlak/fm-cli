@@ -2852,3 +2852,6 @@ Pressed, but the game has not answered yet: the post reads as before. To see: jo
 The squad table on screen is not our first team's, and our own did not come up.	Ekrandaki kadro tablosu bizim A takımımızın değil, bizimki de açılmadı.
 The game's event queue is held: no page opens until the game is started again (fm stop, fm start).	Oyunun olay kuyruğu kilitli: oyun yeniden başlatılmadan (fm stop, fm start) hiçbir sayfa açılmaz.
 The game shows no menu for {0}: it draws a club's menu only where the club appears with one (the next opponent on the squad overview). Requests to our own board: `board request`.	{0} için oyun bir menü göstermiyor: kulüp menüsü yalnız kulübün menüsüyle göründüğü yerde çıkar (kadro genel bakışındaki sıradaki rakip). Kendi yönetimimizden istekler: `board request`.
+{0}: {1} — the game opened a window for it; nothing is done until it is finished there.	{0}: {1} — oyun bunun için bir pencere açtı; orada bitirilmeden hiçbir şey yapılmış olmaz.
+To finish or leave it: press "<button>" — {0}	Bitirmek ya da vazgeçmek için: press "<düğme>" — {0}
+   (its lists: dropdowns, select)	   (listeleri: dropdowns, select)
