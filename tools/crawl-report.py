@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """What `fm crawl` found, crossed with the code and with FM26's button catalog.
 
-    tools/crawl-report.py crawl.json [out.md]
+    tools/crawl-report.py crawl.json[.gz] [out.md]
 
 With a `fm crawl --deep` file it also lists each page's menus (right click, actions button) by the game's
 action ids, and which of those actions the code never names.
@@ -13,6 +13,7 @@ thing the tool cannot do yet; one FM26 lacked is new in FM27.
 """
 from __future__ import annotations
 
+import gzip
 import json
 import re
 import sys
@@ -73,7 +74,10 @@ def main() -> int:
     if len(sys.argv) < 2:
         print(__doc__)
         return 64
-    pages = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+    src = Path(sys.argv[1])
+    # A deep crawl is ~40 MB; the copy kept in the repo is gzipped.
+    raw = gzip.decompress(src.read_bytes()) if src.suffix == ".gz" else src.read_bytes()
+    pages = json.loads(raw.decode("utf-8"))
     out = Path(sys.argv[2]) if len(sys.argv) > 2 else None
     used, old = code_words(), fm26_events()
 

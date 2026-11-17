@@ -22,3 +22,7 @@ tools/window-watch/window-watch
 
 # Live test reports
 tests/live/results/
+
+# A deep crawl is ~40 MB: the repo keeps it gzipped; the report is made from it (tools/crawl-report.py).
+docs/reference/fm27/crawl-deep-*.json
+docs/reference/fm27/crawl-deep-*.md
