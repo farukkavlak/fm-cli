@@ -105,13 +105,14 @@ internal static partial class Program
 			}
 		}
 		// A staff result is a plain link with no menu: his page's actions menu is the one bound to
-		// the record with his UniqueId.
+		// the record with his UniqueId. Already on screen (his page open), it is taken as it is: his page
+		// opened again draws a new one while the old one is still listed, and the old one opens empty.
 		if (!record && opened.StartsWith("error", StringComparison.Ordinal)
-		    && Field((await PullEach([(path, "UniqueId")], r => Field(r, "UniqueId").Length > 0))[0], "UniqueId") is { Length: > 0 } id
-		    && !(await Arriving("searchopen", [("path", path)])).StartsWith("error", StringComparison.Ordinal))
+		    && Field((await PullEach([(path, "UniqueId")], r => Field(r, "UniqueId").Length > 0))[0], "UniqueId") is { Length: > 0 } id)
 		{
-			string? ptr = null;
-			await Until(async () => (ptr = await MenuOf(id)) != null, seconds: 10, every: 0.5);
+			var ptr = await MenuOf(id);
+			if (ptr == null && !(await Arriving("searchopen", [("path", path)])).StartsWith("error", StringComparison.Ordinal))
+				await Until(async () => (ptr = await MenuOf(id)) != null, seconds: 10, every: 0.5);
 			if (ptr != null) opened = await Fm.Get("actions", ("open", "1"), ("ptr", ptr));
 		}
 		if (opened.StartsWith("error", StringComparison.Ordinal))
@@ -161,14 +162,16 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<List<string>> IdsOf(List<string> paths)
 	{
-		var copies = paths.Select((p, i) => ("pathset", new[] { ("to", $"fmcli.idof.{i}"), ("from", p) })).ToList();
+		// Rows of this reading's own: a row used before answers with the record it held then.
+		var gen = Guid.NewGuid().ToString("N")[..8];
+		var copies = paths.Select((p, i) => ("pathset", new[] { ("to", $"fmcli.idof.{gen}.{i}"), ("from", p) })).ToList();
 		var put = await Fm.Batch(copies);
 		if (put == null)
 		{
 			put = [];
 			foreach (var (route, query) in copies) put.Add(await Fm.Get(route, query));
 		}
-		var rows = paths.Select((p, i) => i < put.Count && !put[i].StartsWith("error", StringComparison.Ordinal) ? $"fmcli.idof.{i}" : p).ToList();
+		var rows = paths.Select((p, i) => i < put.Count && !put[i].StartsWith("error", StringComparison.Ordinal) ? $"fmcli.idof.{gen}.{i}" : p).ToList();
 		var read = await PullEach(rows.Select(r => (r, "UniqueId")).ToList(), r => Field(r, "UniqueId").Length > 0);
 		return read.Select(r => Field(r, "UniqueId")).ToList();
 	}

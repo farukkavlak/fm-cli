@@ -273,7 +273,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     Cancel adds nothing; Set Nickname. EN + TR 3/3; a question and a page link as before
   - [ ] Hire An Intermediary: its answer card comes after `dialog Yes`, which does not read it
   - [ ] Set Nickname: no command types into its box
-  - [ ] `actions <staff|manager>` on that person's own page: "Nothing can be done" (EN + TR); from another page fine
+  - [x] `actions <staff|manager>` on that person's own page: "Nothing can be done". His page was opened again and
+    the old page's menu, still listed, opened empty; a menu of his already showing is now taken. EN + TR 3/3
+    (staff and manager), and from another page; shortlist add/remove read back
+  - [ ] Bursts of "not found" (several names in a row, then gone), seen twice after a load with a language
+    change; not reproduced in 4 loads since. Next time: `FM_TRACE=1` on the failing search
   - [ ] `players` after Find Similar Players: "did not show the lists expected"
   - [ ] `planner --position AMC`: "the tile #AMC has nothing to press"
   - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension
