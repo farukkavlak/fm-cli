@@ -276,8 +276,11 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] `actions <staff|manager>` on that person's own page: "Nothing can be done". His page was opened again and
     the old page's menu, still listed, opened empty; a menu of his already showing is now taken. EN + TR 3/3
     (staff and manager), and from another page; shortlist add/remove read back
-  - [ ] Bursts of "not found" (several names in a row, then gone), seen twice after a load with a language
-    change; not reproduced in 4 loads since. Next time: `FM_TRACE=1` on the failing search
+  - [x] Bursts of "not found" after a load: the game had found them (its window said so) but drawn the rows, or
+    their names, late. The plugin now says a row without its name (Pending), and a search waits for rows while
+    the game's own list (game.Search.Results) holds any; "none" only when it holds none (no 3 s wait). TR watch
+    after a language-change load: 96/96 (was 1–3 empty per 5 min). `FM_SEARCHTRACE=1` prints each poll
+    - [ ] Same watch in EN
   - [ ] `players` after Find Similar Players: "did not show the lists expected"
   - [ ] `planner --position AMC`: "the tile #AMC has nothing to press"
   - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension

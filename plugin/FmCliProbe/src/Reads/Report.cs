@@ -243,6 +243,9 @@ internal static class Report
 			fields["Kind"] = fields.ContainsKey("Name") ? "Person"
 				: fields.ContainsKey("Competition") ? "Competition" : fields.ContainsKey("Nation") ? "Nation" : "Club";
 			if (fields.Count > 2) results.Add(fields);
+			// A row the game has drawn before its record's name is bound: said, so a caller waits for its
+			// name rather than take a list without it for the answer (it was read as "not found").
+			else results.Add(new Dictionary<string, string> { ["Shown"] = fields.GetValueOrDefault("Shown", ""), ["Kind"] = "Pending" });
 		}
 
 		return "[\n  " + string.Join(",\n  ", results.Select(r => Json(r, ["Shown"]))) + "\n]\n";

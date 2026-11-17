@@ -158,24 +158,36 @@ internal static partial class Program
 		var last = "?";
 		var started = false;
 		var typedAt = DateTime.UtcNow;
+		var reading = Guid.NewGuid().ToString("N")[..8];
 		await Until(async () =>
 		{
 			var found = await Fm.GetJson("search");
 			var now = found.ToString();
 			var finished = await Found("SearchIsFinished") != "False";
+			// How many results the game's search holds (game.Search.Results): the rows on screen are drawn
+			// from it a moment later, and the window shows only the first few.
+			var held = finished ? await SearchResultsHeld(reading) : -1;
 			if (!finished || found.GetArrayLength() == 0) started = true;
 			// Only the game's sign that the new search has run (it started, or the list is another) makes
 			// a list the answer: the words before's list stays up, marked finished, until the game starts on
 			// the new text, and after a load that can take seconds (it was taken for the answer: "not found").
 			// The flag returns before the rows are drawn, so an empty list from the new search is believed
 			// only after a generous while.
-			var answer = finished && now == last && (sameWords || started || now != before)
-			             && (found.GetArrayLength() > 0 || DateTime.UtcNow - typedAt > TimeSpan.FromSeconds(3));
+			// A row whose name the game has not bound yet (Kind Pending) is not an answer: its name is waited for.
+			var pending = found.EnumerateArray().Any(r => Field(r, "Kind") == "Pending");
+			// Rows are the answer once the game has drawn them; no rows, only when its search holds none.
+			var answer = finished && now == last && !pending && (sameWords || started || now != before)
+			             && (found.GetArrayLength() > 0 ? held != 0 : held == 0);
 			last = now;
 			results = found.EnumerateArray().ToList();
+			if (Environment.GetEnvironmentVariable("FM_SEARCHTRACE") == "1")
+				Console.Error.WriteLine($"SEARCH t={(DateTime.UtcNow - typedAt).TotalSeconds:0.00} rows={found.GetArrayLength()} finished={finished} started={started} same={sameWords} changed={now != before} held={held} answer={answer} names=[{string.Join("|", results.Select(r => Field(r, "Name") + Field(r, "Club") + Field(r, "Competition") + Field(r, "Nation")))}]");
 			return answer;
 		}, seconds: 12, every: 0.15);
+		if (Environment.GetEnvironmentVariable("FM_SEARCHTRACE") == "1")
+			Console.Error.WriteLine($"SEARCH typed='{text}' box-before='{words}' typed-answer={typed.Trim()} before={before}");
 
+		results.RemoveAll(r => Field(r, "Kind") == "Pending");
 		// A person is a player or staff by his record's IsPlayer, the same in every language (the
 		// kind the row shows is the game's word for it).
 		var people = results.Where(r => Field(r, "Kind") == "Person" && Field(r, "Path").Length > 0).ToList();
@@ -189,6 +201,18 @@ internal static partial class Program
 			node["Kind"] = player == "True" ? "Player" : "Staff";
 			return JsonDocument.Parse(node.ToJsonString()).RootElement.Clone();
 		}).ToList();
+	}
+
+	/// <summary>The number of results the game's search holds, read from a row of ours (its own path is too long to pull under); -1 unread.</summary>
+	private static async Task<int> SearchResultsHeld(string reading)
+	{
+		var found = await Fm.Get("find", ("name", "SearchIsFinished"), ("limit", "1"));
+		var line = found.Split('\n')[0].Trim();
+		if (!line.EndsWith(".SearchIsFinished", StringComparison.Ordinal)) return -1;
+		var row = $"fmcli.srch{reading}";
+		if ((await Fm.Get("pathset", ("to", row), ("from", line[..^".SearchIsFinished".Length]))).StartsWith("error", StringComparison.Ordinal)) return -1;
+		var list = await Fm.GetJson("pull", ("path", row + ".Results"), ("props", "SearchRecordType"), ("list", "1"), ("gen", reading));
+		return list.ValueKind == JsonValueKind.Array ? list.GetArrayLength() : -1;
 	}
 
 	private static async Task<int> Search(bool json, string[] args)
