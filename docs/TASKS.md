@@ -271,7 +271,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] An entry that opens a window (a child of the game's #ModalDialog) is not said "done": its words are shown
     and its buttons, finished with `press`. Add as Transfer Target: press adds it (the DoF's target count 0→1),
     Cancel adds nothing; Set Nickname. EN + TR 3/3; a question and a page link as before
-  - [ ] Hire An Intermediary: its answer card comes after `dialog Yes`, which does not read it
+  - [x] Hire An Intermediary: its answer card comes after `dialog Yes`, which did not read it. The card is under
+    #CardBody (#HireAnIntermediaryCard), drawn before the question is gone; `dialog` now shows a window or card its
+    answer opened, with its buttons for `press`. EN + TR 3/3 (no interest; interest with a deadline to set), No
+    opens nothing. Menu entries still look only under #ModalDialog (some open a card that is a page)
   - [ ] Set Nickname: no command types into its box
   - [x] `actions <staff|manager>` on that person's own page: "Nothing can be done". His page was opened again and
     the old page's menu, still listed, opened empty; a menu of his already showing is now taken. EN + TR 3/3

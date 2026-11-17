@@ -57,6 +57,9 @@ internal static partial class Program
 		// By the game's own handler when the button's slot is known: a simulated click on it is often lost and the
 		// window stays (a goal's "Confirm Tweak", 12 Nov 2026). The click is for a window the handler does not hold.
 		var button = buttons[labels.IndexOf(pick)];
+		// An answer can open a window or card of its own (Hire An Intermediary: the clubs it found, or none).
+		var windowsBefore = await Windows(cards: true);
+		var pagesBefore = await ButtonPages();
 		var answered = Field(button, "Slot") is { Length: > 0 } slot
 			&& !(await Fm.Get("dialog", ("press", slot))).StartsWith("error", StringComparison.Ordinal)
 			? "ok"
@@ -77,6 +80,9 @@ internal static partial class Program
 		var next = await Fm.GetJson("dialog");
 		if (closed && next.GetArrayLength() > 0)
 			Console.WriteLine(L($"New question: {DialogWords(next[0], "Title")} — {DialogWords(next[0], "Description")}   (to answer: dialog)"));
+		// The card is drawn by the time the question is gone (measured: before it).
+		else if (closed && (await Windows(cards: true)).Except(windowsBefore).FirstOrDefault() is { } opened)
+			return await WindowOpened("", pick, opened, pagesBefore, answer: true);
 		return closed ? 0 : 1;
 	}
 

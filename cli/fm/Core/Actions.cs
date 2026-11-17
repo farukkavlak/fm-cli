@@ -385,14 +385,19 @@ internal static partial class Program
 	/// <summary>
 	/// The windows over the screen: the elements under the game's #ModalDialog layer, by their own names
 	/// (#RecruitmentDofTransferTargetCard, #PersonNicknameDialog). An entry that opens one is not done
-	/// yet: it waits for a form (a transfer target's terms, a nickname) or shows an answer.
+	/// yet: it waits for a form (a transfer target's terms, a nickname) or shows an answer. With cards, the
+	/// elements under #CardBody too: an answer to a question can come as a card (#HireAnIntermediaryCard).
+	/// Not for a menu entry: some of those open a card that is a page (the player database).
 	/// </summary>
-	private static async Task<HashSet<string>> Windows()
+	private static async Task<HashSet<string>> Windows(bool cards = false)
 	{
-		var layer = await Fm.Get("layers", ("name", "ModalDialog"), ("depth", "1"));
-		return layer.Split('\n')
-			.Select(l => System.Text.RegularExpressions.Regex.Match(l, @"^  \S+ #(\S+) d=Flex v=Visible"))
-			.Where(m => m.Success).Select(m => m.Groups[1].Value).ToHashSet();
+		var layers = cards ? new[] { "ModalDialog", "CardBody" } : ["ModalDialog"];
+		var found = new HashSet<string>();
+		foreach (var name in layers)
+			found.UnionWith((await Fm.Get("layers", ("name", name), ("depth", "1"))).Split('\n')
+				.Select(l => System.Text.RegularExpressions.Regex.Match(l, @"^  \S+ #(\S+) d=Flex v=Visible"))
+				.Where(m => m.Success).Select(m => m.Groups[1].Value));
+		return found;
 	}
 
 	/// <summary>The pages with a button showing.</summary>
@@ -401,7 +406,7 @@ internal static partial class Program
 			.Where(b => Field(b, "Visible") == "True").Select(b => Field(b, "Page")).ToHashSet();
 
 	/// <summary>A window the entry opened: what it says and holds, and the buttons that finish or leave it.</summary>
-	private static async Task<int> WindowOpened(string name, string path, string window, HashSet<string> pagesBefore)
+	private static async Task<int> WindowOpened(string name, string path, string window, HashSet<string> pagesBefore, bool answer = false)
 	{
 		var texts = (await Fm.GetJson("texts", ("within", window))).EnumerateArray().Select(t => t.GetString() ?? "")
 			.Where(t => t.Length > 0 && t != "-" && t != "+").ToList();
@@ -412,8 +417,10 @@ internal static partial class Program
 		var lists = (await Fm.GetJson("form", ("within", window))).EnumerateArray().Any(i => Field(i, "Kind") == "dropdown");
 		// The window's words come as the game's English keys; shown in this language from the game's table.
 		await GameWords.Ask(Fm, [.. texts, .. buttons]);
-		Console.WriteLine(L($"{name}: {path} — the game opened a window for it; nothing is done until it is finished there."));
-		foreach (var text in texts.Where(t => !buttons.Contains(t))) Console.WriteLine("  " + GameWords.Of(text));
+		Console.WriteLine(answer
+			? L("The game answered with a window; nothing more is done until it is finished there.")
+			: L($"{name}: {path} — the game opened a window for it; nothing is done until it is finished there."));
+		foreach (var text in texts.Where(t => !buttons.Contains(t))) Console.WriteLine("  " + GameWords.Of(text).Replace("\n\n", "\n").Replace("\n", "\n  "));
 		if (buttons.Count > 0)
 			Console.WriteLine(L($"To finish or leave it: press \"<button>\" — {string.Join(" · ", buttons.Select(GameWords.Of))}") + (lists ? L("   (its lists: dropdowns, select)") : ""));
 		return 0;

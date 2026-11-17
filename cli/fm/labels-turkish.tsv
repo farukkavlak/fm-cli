@@ -2854,3 +2854,4 @@ The game shows no menu for {0}: it draws a club's menu only where the club appea
 {0}: {1} — the game opened a window for it; nothing is done until it is finished there.	{0}: {1} — oyun bunun için bir pencere açtı; orada bitirilmeden hiçbir şey yapılmış olmaz.
 To finish or leave it: press "<button>" — {0}	Bitirmek ya da vazgeçmek için: press "<düğme>" — {0}
    (its lists: dropdowns, select)	   (listeleri: dropdowns, select)
+The game answered with a window; nothing more is done until it is finished there.	Oyun cevabı bir pencereyle verdi; orada bitirilmeden başka bir şey yapılmış olmaz.
