@@ -280,7 +280,7 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     their names, late. The plugin now says a row without its name (Pending), and a search waits for rows while
     the game's own list (game.Search.Results) holds any; "none" only when it holds none (no 3 s wait). TR watch
     after a language-change load: 96/96 (was 1–3 empty per 5 min). `FM_SEARCHTRACE=1` prints each poll
-    - [ ] Same watch in EN
+    - [x] Same watch in EN: 93/93 (TR→EN load, 5.5 min)
   - [ ] `players` after Find Similar Players: "did not show the lists expected"
   - [ ] `planner --position AMC`: "the tile #AMC has nothing to press"
   - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension
