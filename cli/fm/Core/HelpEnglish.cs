@@ -221,7 +221,8 @@ internal static partial class Program
 			    --name <name>             when several share a label
 			  dropdowns [text]            the dropdowns on screen and their options
 			  select <list> "<option>"    choose from a list
-			    --dry                     for press and select: do not do it, say what would be done
+			  type "<text>"               write in the box of the window on screen (a nickname)
+			    --dry                     for press, select and type: do not do it, say what would be done
 			  status          the date and what the game is waiting for now
 			  save --yes      save the game (overwrites the file, cannot be undone)
 			    --as "<name>" save under another name; later saves go to that file too

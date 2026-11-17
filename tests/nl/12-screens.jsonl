@@ -76,3 +76,5 @@
 {"tr": "listeden birini seç", "call": "fm_select", "ask": ["list", "choice"], "split": "held"}
 {"tr": "ayarlardan birini değiştir", "call": "fm_settings", "ask": "name", "split": "dev"}
 {"en": "change a setting", "call": "fm_settings", "ask": "name", "split": "dev"}
+{"tr": "kutuya Kale yaz", "call": "fm_type", "args": {"text": "Kale"}, "split": "dev"}
+{"en": "type \"Big Man\" in the box", "call": "fm_type", "args": {"text": "Big Man"}, "split": "dev"}

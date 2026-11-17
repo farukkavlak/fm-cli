@@ -27,11 +27,14 @@ internal static class TextBoxes
 		}
 	}
 
-	public static string Catalog()
+	/// <summary>?within=&lt;element name&gt;: only the boxes inside a shown element of that name (a window, #PersonNicknameDialog).</summary>
+	public static string Catalog(NameValueCollection q = null)
 	{
+		var within = q?["within"];
 		var rows = new List<string>();
 		foreach (var box in All())
 		{
+			if (!string.IsNullOrEmpty(within) && !Inside(box, within)) continue;
 			try
 			{
 				rows.Add(Report.Json(new Dictionary<string, string>
@@ -81,6 +84,18 @@ internal static class TextBoxes
 			catch { continue; }
 			yield return text;
 		}
+	}
+
+	private static bool Inside(VisualElement box, string name)
+	{
+		try
+		{
+			if (box.panel == null || box.worldBound.width <= 0) return false;
+			for (var e = box.hierarchy.parent; e != null; e = e.hierarchy.parent)
+				if (e.name == name) return e.resolvedStyle.display != DisplayStyle.None;
+		}
+		catch { }
+		return false;
 	}
 
 	private static string Page(BindableTextEditBox box)

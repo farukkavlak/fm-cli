@@ -27,7 +27,7 @@ internal static partial class Router
 	private static readonly Dictionary<string, string[]> Required = new()
 	{
 		["fm_actions"] = ["person"], ["fm_approach"] = ["player", "move"], ["fm_compare"] = ["a", "b"], ["fm_load"] = ["name", "save"],
-		["fm_match"] = ["mode"], ["fm_offer"] = ["name"], ["fm_open"] = ["page"], ["fm_player"] = ["name"], ["fm_press"] = ["label"],
+		["fm_match"] = ["mode"], ["fm_offer"] = ["name"], ["fm_open"] = ["page"], ["fm_player"] = ["name"], ["fm_press"] = ["label"], ["fm_type"] = ["text"],
 		["fm_propose"] = ["player"], ["fm_query"] = ["where"], ["fm_release"] = ["player"], ["fm_reply"] = ["message"],
 		["fm_scout_focus"] = ["action"], ["fm_scout_player"] = ["player"], ["fm_search"] = ["text"], ["fm_select"] = ["list", "choice"],
 		["fm_setpieces"] = ["kind"], ["fm_shortlist_change"] = ["player"], ["fm_staff_fire"] = ["name"], ["fm_staff_hire"] = ["name"],
@@ -899,6 +899,17 @@ internal static partial class Router
 				else if (c.T.Raw.Contains(':')) c.Set("label", Ctx.Title(Text.Fold(c.T.Raw[(c.T.Raw.IndexOf(':') + 1)..]).Trim()));
 				else if (c.Find("kaydete") >= 0) c.Set("label", "Kaydet");
 				else if (Math.Max(c.Find("press"), c.Find("hit")) is var p && p >= 0 && p + 1 < c.W.Length) c.Set("label", Ctx.Title(c.W[p + 1]));
+				if (c.Has("sadece ne olacag", "dry")) c.Set("dry", true);
+			}),
+		R("fm_type", "kutuya yaz=5; lakap olarak yaz=5; diye yaz=4; type in=4; in the box=4; yaz$=1.5", c =>
+			{
+				// As the user wrote it: the words are folded (lower case, no accents), a nickname is not.
+				string Shown(string folded) => c.T.Raw.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(r => Text.Fold(r).Trim() == folded) ?? folded;
+				if (c.T.Raw.IndexOf('"') is var q && q >= 0 && c.T.Raw.IndexOf('"', q + 1) is var e && e > q)
+					c.Set("text", c.T.Raw[(q + 1)..e]);
+				else if (c.Find("diye") is var diye && diye > 0) c.Set("text", Shown(c.W[diye - 1]));
+				else if (c.Find("yaz") is var yaz && yaz > 0 && c.W[yaz - 1] is not ("kutuya" or "olarak")) c.Set("text", Shown(c.W[yaz - 1]));
+				else if (c.Find("type") is var t && t >= 0 && t + 1 < c.W.Length && c.W[t + 1] != "in") c.Set("text", Shown(c.W[t + 1]));
 				if (c.Has("sadece ne olacag", "dry")) c.Set("dry", true);
 			}),
 		R("fm_dropdowns", "acilir menu=5; secim kutulari=5; menusunde neler=5; dropdowns=5", c =>

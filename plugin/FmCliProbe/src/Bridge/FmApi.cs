@@ -120,7 +120,7 @@ internal static partial class FmApi
 		"pluginevent" => Buttons.PluginEvent(q),
 		"click" => Buttons.Click(q),
 		"popup" => Popups.Open(q),
-		"textboxes" => TextBoxes.Catalog(),
+		"textboxes" => TextBoxes.Catalog(q),
 		"type" => TextBoxes.Type(q),
 		"setnumber" => NumberBoxes.Set(q),
 		"dropdowns" => Buttons.Dropdowns(q),

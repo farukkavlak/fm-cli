@@ -275,7 +275,12 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     #CardBody (#HireAnIntermediaryCard), drawn before the question is gone; `dialog` now shows a window or card its
     answer opened, with its buttons for `press`. EN + TR 3/3 (no interest; interest with a deadline to set), No
     opens nothing. Menu entries still look only under #ModalDialog (some open a card that is a page)
-  - [ ] Set Nickname: no command types into its box
+  - [x] Set Nickname: no command typed into its box. `type "<text>"` writes in the one box of the window on screen
+    (a box inside the window's element, `/textboxes?within=`), read back from the box; the window shows its box and
+    the hint. EN + TR 3/3 set (squad shows the nickname) and removed (the entry goes back to Set Nickname); Cancel
+    sets nothing; no window refused
+    - [ ] By sentence: the rules route "kutuya X yaz" to fm_type, but the live model does not know the tool yet
+      (retrain); a sentence for it now shows other commands
   - [x] `actions <staff|manager>` on that person's own page: "Nothing can be done". His page was opened again and
     the old page's menu, still listed, opened empty; a menu of his already showing is now taken. EN + TR 3/3
     (staff and manager), and from another page; shortlist add/remove read back

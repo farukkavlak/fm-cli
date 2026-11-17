@@ -292,6 +292,7 @@ internal static partial class Program
 				"dropdowns" => await Dropdowns(json, args),
 				"press" => await Press(args),
 				"select" => await Select(args),
+				"type" => await TypeText(args),
 				"status" => await Status(json),
 				"continue" => await Continue(),
 				"start" => await Attach(args.Contains("--debug"), !args.Contains("--menu")),

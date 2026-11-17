@@ -408,21 +408,80 @@ internal static partial class Program
 	/// <summary>A window the entry opened: what it says and holds, and the buttons that finish or leave it.</summary>
 	private static async Task<int> WindowOpened(string name, string path, string window, HashSet<string> pagesBefore, bool answer = false)
 	{
+		var (texts, buttons) = await WindowWords(window, pagesBefore);
+		var lists = (await Fm.GetJson("form", ("within", window))).EnumerateArray().Any(i => Field(i, "Kind") == "dropdown");
+		var boxes = (await WindowBoxes(window)).Select(b => Field(b, "Text")).ToList();
+		// The window's words come as the game's English keys; shown in this language from the game's table.
+		await GameWords.Ask(Fm, [.. texts, .. buttons]);
+		Console.WriteLine(answer
+			? L("The game answered with a window; nothing more is done until it is finished there.")
+			: L($"{name}: {path} — the game opened a window for it; nothing is done until it is finished there."));
+		// A box's own text (the name a nickname starts from) is shown as the box.
+		foreach (var text in texts.Where(t => !buttons.Contains(t) && !boxes.Contains(t))) Console.WriteLine("  " + GameWords.Of(text).Replace("\n\n", "\n").Replace("\n", "\n  "));
+		foreach (var box in boxes) Console.WriteLine($"  [{box}]");
+		if (boxes.Count > 0) Console.WriteLine(L("To write in it: type \"<text>\""));
+		if (buttons.Count > 0)
+			Console.WriteLine(L($"To finish or leave it: press \"<button>\" — {string.Join(" · ", buttons.Select(GameWords.Of))}") + (lists ? L("   (its lists: dropdowns, select)") : ""));
+		return 0;
+	}
+
+	/// <summary>A window's words, and the labels of its buttons (a button's label is among the window's words).</summary>
+	private static async Task<(List<string> Texts, List<string> Buttons)> WindowWords(string window, HashSet<string> pagesBefore)
+	{
 		var texts = (await Fm.GetJson("texts", ("within", window))).EnumerateArray().Select(t => t.GetString() ?? "")
 			.Where(t => t.Length > 0 && t != "-" && t != "+").ToList();
 		var buttons = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.Where(b => Field(b, "Visible") == "True" && Field(b, "Label").Length > 0 && !pagesBefore.Contains(Field(b, "Page"))
 			            && Field(b, "Type") == "SIButton" && texts.Contains(Field(b, "Label")))
 			.Select(b => Field(b, "Label")).Distinct().ToList();
-		var lists = (await Fm.GetJson("form", ("within", window))).EnumerateArray().Any(i => Field(i, "Kind") == "dropdown");
-		// The window's words come as the game's English keys; shown in this language from the game's table.
-		await GameWords.Ask(Fm, [.. texts, .. buttons]);
-		Console.WriteLine(answer
-			? L("The game answered with a window; nothing more is done until it is finished there.")
-			: L($"{name}: {path} — the game opened a window for it; nothing is done until it is finished there."));
-		foreach (var text in texts.Where(t => !buttons.Contains(t))) Console.WriteLine("  " + GameWords.Of(text).Replace("\n\n", "\n").Replace("\n", "\n  "));
-		if (buttons.Count > 0)
-			Console.WriteLine(L($"To finish or leave it: press \"<button>\" — {string.Join(" · ", buttons.Select(GameWords.Of))}") + (lists ? L("   (its lists: dropdowns, select)") : ""));
+		return (texts, buttons);
+	}
+
+	/// <summary>The text boxes inside a window (by the window's element name), that can be typed in.</summary>
+	private static async Task<List<JsonElement>> WindowBoxes(string window) =>
+		(await Fm.GetJson("textboxes", ("within", window))).EnumerateArray().Where(b => Field(b, "Enabled") == "True").ToList();
+
+	/// <summary>
+	/// Typing into the box of the window on screen (Set Nickname's). Held by the window's element name and the
+	/// box being inside it: a window with one box is typed in; the text is read back from the box.
+	/// </summary>
+	private static async Task<int> TypeText(string[] args)
+	{
+		var words = Words(args).ToList();
+		if (words.Count == 0)
+		{
+			Console.Error.WriteLine(L("usage: type \"<text>\" [--dry]   (into the box of the window on screen; then press its button)"));
+			return 64;
+		}
+		var text = words[0];
+		var found = new List<(string Window, JsonElement Box)>();
+		foreach (var window in await Windows(cards: true))
+			found.AddRange((await WindowBoxes(window)).Select(b => (window, b)));
+		if (found.Count == 0)
+		{
+			Console.Error.WriteLine(L("No window with a box to type in is open."));
+			return 1;
+		}
+		if (found.Count > 1)
+		{
+			Console.Error.WriteLine(L($"The windows on screen have {found.Count} boxes; this types only into a window with one."));
+			return 1;
+		}
+		var (at, box) = found[0];
+		var query = new List<(string, string)> { ("ptr", Field(box, "Pointer")), ("text", text) };
+		if (args.Contains("--dry")) query.Add(("dry", "1"));
+		var typed = await Fm.Get("type", query.ToArray());
+		if (typed.StartsWith("error", StringComparison.Ordinal) || args.Contains("--dry")) return Report(typed);
+		var now = (await WindowBoxes(at)).Select(b => Field(b, "Text")).FirstOrDefault();
+		if (now != text)
+		{
+			Console.Error.WriteLine(L($"The box did not take it: it holds \"{now}\"."));
+			return 1;
+		}
+		var (_, buttons) = await WindowWords(at, []);
+		await GameWords.Ask(Fm, [.. buttons]);
+		Console.WriteLine(L($"Typed: \"{text}\" (was \"{Field(box, "Text")}\")."));
+		if (buttons.Count > 0) Console.WriteLine(L($"To finish or leave it: press \"<button>\" — {string.Join(" · ", buttons.Select(GameWords.Of))}"));
 		return 0;
 	}
 

@@ -455,5 +455,8 @@ internal static partial class Mcp
 		new("fm_select", Weighty(), "Choose from a dropdown or radio group on the current screen (see fm_dropdowns).",
 			"""{"type":"object","required":["list","choice"],"properties":{"list":{"type":"string"},"choice":{"type":"string"},"dry":{"type":"boolean"}}}""",
 			a => ["select", Str(a, "list"), Str(a, "choice"), .. Flag(a, "dry", "--dry")]),
+		new("fm_type", Weighty(), "Write text in the box of the window on screen (Set Nickname's), then finish it with fm_press.",
+			"""{"type":"object","required":["text"],"properties":{"text":{"type":"string"},"dry":{"type":"boolean"}}}""",
+			a => ["type", Str(a, "text"), .. Flag(a, "dry", "--dry")]),
 	];
 }
