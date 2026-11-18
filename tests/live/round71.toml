@@ -1,0 +1,108 @@
+# T69: every preference by the game's own key; the FM menu's pages. Held by keys and --json only.
+
+[[test]]
+task = "T69"
+name = "the whole list: named, keyed, set by an element, by a section"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "settings", path = "#", is = "19" },
+  { read = "settings all", path = "#", not = "19" },
+  { read = "settings all", path = "?Key=stop_for_news.#", is = "1" },
+  { read = "settings all", path = "?Key=IntroMusic.#", is = "1" },
+  { read = "settings all", path = "?Key=MatchSounds.#", is = "1" },
+  { read = "settings all", path = "?Key=GraphicsQuality.#", is = "1" },
+  { read = "settings all", path = "?Key=ColourBlindMode.#", is = "1" },
+  { read = "settings all", path = "?Key=use_auto_saves.#", is = "1" },
+]
+
+[[test]]
+task = "T69"
+name = "a list off the whole list, changed and put back"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "settings stop_for_news", path = "Value", keep = "before" },
+  { read = "settings stop_for_news", path = "Choices.1", keep = "other" },
+  { run = "settings stop_for_news {other}" },
+  { read = "settings stop_for_news", path = "Value", same_as = "other" },
+  { run = "settings stop_for_news {before}" },
+  { read = "settings stop_for_news", path = "Value", same_as = "before" },
+]
+
+[[test]]
+task = "T69"
+name = "a sound switch held by the element that sets it, the others left alone"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "settings MatchSounds", path = "Value", keep = "sounds" },
+  { read = "settings IntroMusic", path = "Value", keep = "before" },
+  { read = "settings IntroMusic", path = "Choices.0", keep = "off" },
+  { run = "settings IntroMusic {off}" },
+  { read = "settings IntroMusic", path = "Value", same_as = "off" },
+  { read = "settings MatchSounds", path = "Value", same_as = "sounds" },
+  { run = "settings IntroMusic {before}" },
+  { read = "settings IntroMusic", path = "Value", same_as = "before" },
+]
+
+[[test]]
+task = "T69"
+name = "a section's landing page, by the section's Guid"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "settings landing.17dc969bb3a64ee478862f101adb1a48", path = "Value", keep = "before" },
+  { read = "settings landing.a69d2d19d0ea8054b82d191ecfea01be", path = "Value", keep = "tactics" },
+  { read = "settings landing.17dc969bb3a64ee478862f101adb1a48", path = "Choices.1", keep = "other" },
+  { run = "settings landing.17dc969bb3a64ee478862f101adb1a48 {other}" },
+  { read = "settings landing.17dc969bb3a64ee478862f101adb1a48", path = "Value", same_as = "other" },
+  { read = "settings landing.a69d2d19d0ea8054b82d191ecfea01be", path = "Value", same_as = "tactics" },
+  { run = "settings landing.17dc969bb3a64ee478862f101adb1a48 {before}" },
+  { read = "settings landing.17dc969bb3a64ee478862f101adb1a48", path = "Value", same_as = "before" },
+]
+
+[[test]]
+task = "T69"
+name = "a list of bare numbers, by the words of its open rows"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "settings ColourBlindMode", path = "Value", keep = "before" },
+  { read = "settings all", path = "?Key=ColourBlindMode.0.Value", same_as = "before" },
+  { read = "settings ColourBlindMode", path = "Choices.1", keep = "other" },
+  { run = "settings ColourBlindMode {other}" },
+  { read = "settings ColourBlindMode", path = "Value", same_as = "other" },
+  { run = "settings ColourBlindMode {before}" },
+  { read = "settings ColourBlindMode", path = "Value", same_as = "before" },
+]
+
+[[test]]
+task = "T69"
+name = "refused: no such setting, no such choice, a closed one"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "settings stop_for_news", path = "Value", keep = "before" },
+  { run = "settings zzzq_no_such", rc = "fail" },
+  { run = "settings stop_for_news zzzq_no_such", rc = "fail" },
+  { read = "settings stop_for_news", path = "Value", same_as = "before" },
+  { read = "settings FPS", path = "Value", keep = "fps" },
+  { run = "settings FPS 60", rc = "fail" },
+  { read = "settings FPS", path = "Value", same_as = "fps" },
+]
+
+[[test]]
+task = "T69"
+name = "the FM menu's pages: cold, again, from another page, over each other"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "read hall-of-fame", path = "Parts.#", not = "0" },
+  { read = "read hall-of-fame", path = "Parts", keep = "fame" },
+  { read = "read club-history", path = "Parts.#", not = "0" },
+  { read = "read game-status", path = "Parts", differs_from = "fame", keep = "status" },
+  { read = "read credits", path = "Parts", differs_from = "status" },
+  { read = "read hall-of-fame", path = "Parts", same_as = "fame" },
+]

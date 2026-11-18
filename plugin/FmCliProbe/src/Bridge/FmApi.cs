@@ -71,7 +71,7 @@ internal static partial class FmApi
 		"offer" => Offer.Current(),
 		"contract" => Offer.Contract(),
 		"submenu" => Submenus.Open(q),
-		"dropdownrows" => Submenus.Rows(),
+		"dropdownrows" => Submenus.Rows(q["shown"] == "1"),
 		"lazymenus" => Submenus.Lazy(),
 		"rowsubmit" => Submenus.Submit(q),
 		"choicedump" => Submenus.Dump(q),

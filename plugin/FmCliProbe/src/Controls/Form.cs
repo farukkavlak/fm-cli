@@ -19,7 +19,7 @@ internal static class Form
 {
 	public static string Read(NameValueCollection q)
 	{
-		if (!string.IsNullOrEmpty(q["page"]) || !string.IsNullOrEmpty(q["pref"])) return OfPage(q["page"], q["pref"]);
+		if (!string.IsNullOrEmpty(q["page"]) || !string.IsNullOrEmpty(q["pref"])) return OfPage(q["page"], q["pref"], q["about"] == "1");
 		var anchor = q["anchor"];
 		// As /texts: ?anchorpath= finds the anchor by the data path it is bound to, and ?most=1 takes
 		// the place with the most items around it where a page underneath has the same anchor.
@@ -83,8 +83,9 @@ internal static class Form
 	/// text to anchor on: a settings card is told by its Guid and its controls by their Pref.
 	/// ?pref=&lt;key&gt;: the controls for that one preference, on any page (the match screen's
 	/// speed panel shows the preferences' slider).
+	/// ?about=1 adds what tells a control apart where its key does not (<see cref="About"/>).
 	/// </summary>
-	private static string OfPage(string guid, string pref)
+	private static string OfPage(string guid, string pref, bool about)
 	{
 		var items = new List<string>();
 		foreach (var e in Buttons.Elements())
@@ -99,11 +100,85 @@ internal static class Form
 				var preference = Preference(key) ?? "";
 				if (!string.IsNullOrEmpty(pref) && !string.Equals(preference, pref, System.StringComparison.OrdinalIgnoreCase)) continue;
 				if (!string.IsNullOrEmpty(guid) && !OnPage(bound, guid) && !preference.StartsWith("settings.", System.StringComparison.Ordinal)) continue;
-				if (Control(e) is { } item) items.Add(item);
+				if (Control(e) is { } item) items.Add(about ? item.TrimEnd()[..^1] + About(e, key) + "}" : item);
 			}
 			catch { }
 		}
 		return "[\n  " + string.Join(",\n  ", items) + "\n]\n";
+	}
+
+	/// <summary>
+	/// What tells a control apart where its preference key does not (three sound switches bound to
+	/// one field, the 3D lists and a hub's landing page bound to none), all of it the game's own:
+	/// "Names", the named elements it sits in, nearest first (BindingSetter-IntroMusic, GraphicsQuality,
+	/// SoundsPreferencesBlock); "Section", the page a record above its value is for (a landing page's
+	/// list sits in the record of its hub, Panel = that hub's Guid); "Title", the text of the nearest
+	/// #title / #ttile element around it, shown only, never matched by the bridge.
+	/// </summary>
+	private static string About(VisualElement e, Bindings.Key key)
+	{
+		var names = new List<string>();
+		string title = null;
+		var blockPassed = false;
+		try
+		{
+			var depth = 0;
+			for (var up = e.hierarchy.parent; up != null && depth < 40; up = up.hierarchy.parent, depth++)
+			{
+				if (!string.IsNullOrEmpty(up.name)) names.Add(up.name);
+				// The nearest element around the control that holds a title is the control's own line.
+				if (title == null && !blockPassed && depth < 12) title = TitleIn(up);
+				// A title beyond the control's own block is another setting's.
+				if (up.name?.EndsWith("PreferencesBlock", System.StringComparison.Ordinal) == true) blockPassed = true;
+			}
+		}
+		catch { }
+		return $", \"Names\": [{string.Join(", ", names.Select(n => $"\"{Report.Escape(n)}\""))}]"
+			+ $", \"Section\": \"{Report.Escape(Section(key) ?? "")}\""
+			+ $", \"Title\": \"{Report.Escape(title ?? "")}\""
+			// A list's row in force as the game shows it, in its language ("Label" is put into English).
+			+ (e.TryCast<SIDropdown>() != null ? $", \"LabelShown\": \"{Report.Escape(Buttons.LabelOf(e, shown: true))}\"" : "");
+	}
+
+	/// <summary>The first shown #title / #ttile text inside an element (a bounded walk), or null.</summary>
+	private static string TitleIn(VisualElement root)
+	{
+		var stack = new Stack<VisualElement>();
+		stack.Push(root);
+		var seen = 0;
+		while (stack.Count > 0 && seen++ < 300)
+		{
+			var e = stack.Pop();
+			try
+			{
+				if (e.resolvedStyle.display == DisplayStyle.None) continue;
+				if (e.name is "title" or "ttile" && e.TryCast<TextElement>() is { } t && Text.Shown(t.text ?? "") is { Length: > 0 } shown) return shown;
+				var h = e.hierarchy;
+				for (var i = h.childCount - 1; i >= 0; i--) stack.Push(h.ElementAt(i));
+			}
+			catch { }
+		}
+		return null;
+	}
+
+	/// <summary>The Guid of the page a record above a bound value is for (its "Panel"), or null.</summary>
+	private static string Section(Bindings.Key key)
+	{
+		try
+		{
+			var b = Game.Bindings;
+			if (b == null || !b.Exists(ref key)) return null;
+			var depth = 0;
+			for (var node = b.GetNode(ref key); node != null && depth < 6; node = node.Parent, depth++)
+			{
+				var seen = 0;
+				for (var c = node.FirstChild; c != null && seen < 50; c = c.NextSibling, seen++)
+					if (c.Name == "Panel" && c.Value is { IsNull: false } held && Text.Of(held) is { Length: 32 } panel && panel.All(System.Uri.IsHexDigit))
+						return panel;
+			}
+		}
+		catch { }
+		return null;
 	}
 
 	/// <summary>The bound value a control reads and writes, or null for any other element.</summary>

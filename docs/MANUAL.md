@@ -337,8 +337,9 @@ fm saves
 fm save --yes
 fm save --as "<name>" --yes
 fm load "<name>" [--save|--no-save]
-fm settings                    # the game's preferences
-fm settings "<setting>" [<value>]
+fm settings                    # the game's main preferences
+fm settings all                # every preference, each with its key
+fm settings "<setting>" [<value>]   # a name, the game's title or a key
 ```
 
 `fm settings` changes the game. The CLI's own language: `fm lang`.

@@ -53,6 +53,7 @@ internal static partial class Program
 	/// <summary>A setting as found on its page: the control, its choices and which one is in force.</summary>
 	/// <param name="Choices">As the game shows them, in its language.</param>
 	/// <param name="Source">The same choices in English, for matching what is typed.</param>
+	/// <param name="Label">What the list shows for the row in force, where its rows are bare numbers.</param>
 	/// <param name="Ids">The game's own word for each choice where it has one ("turkish"), the same in every language.</param>
-	private sealed record SettingNow(Setting Setting, string Pointer, List<string> Choices, List<string> Source, int Current, bool Enabled, List<string>? Ids = null);
+	private sealed record SettingNow(Setting Setting, string Pointer, List<string> Choices, List<string> Source, int Current, bool Enabled, List<string>? Ids = null, string? Label = null);
 }

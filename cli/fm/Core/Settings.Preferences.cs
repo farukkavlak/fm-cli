@@ -119,6 +119,9 @@ internal static partial class Program
 			Console.Error.WriteLine(L("The settings page opened but its list did not fill in; try again."));
 			return null;
 		}
+		// Read once more, settled, with what tells apart the controls their keys do not (too heavy to poll).
+		var told = (await Fm.GetJson("form", ("page", page), ("about", "1"))).EnumerateArray().ToList();
+		if (told.Count >= form.Count) form = told;
 		await CheckSteps(form);
 		return form;
 	}

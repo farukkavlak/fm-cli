@@ -307,7 +307,24 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
   - [x] A search took the words before's list for the answer when the game was slow to start (after a load):
     "not found". Now only the game's sign counts (the search started, or the list is another). EN 8/8, TR 6/6;
     one "not found" seen in ~60 since, not reproduced
-- [ ] T69 Settings pages; the main menu
+- [x] T69 Settings pages; the main menu. `round71`, EN + TR 3/3 each (negative cases included)
+  - [x] `settings all`: every preference on All Preferences, each under the game's title. `settings <title or key>`
+    changes any of them and reads it back. Held by the preference key; else the element that sets it
+    (`BindingSetter-IntroMusic`), the section's Guid (`landing.<guid>`, sent with the list's own event), or the
+    element name (`GraphicsQuality`)
+  - [x] `read hall-of-fame`, `game-status`, `credits`: opened by the FM menu row's option; open when a button's
+    data source is that page's name or Guid
+  - [x] FM menu rows with a command: save (SaveGame, SaveGameAs), `load`, `stop`, `settings`, `world` (DetailLevel)
+  - [x] No command, on purpose (not opened, judged by their option): QuitToStart, StartNewCareer, AddNewManager,
+    AddRemoveLeagues (they leave or rebuild the career); Community, Support (not part of playing)
+  - [x] Start screen (`fm start --menu`): it has no FM menu. `saves` and the `read` list work; `status`, `settings`
+    and `read <page>` say to load a save
+  - [x] `read` tables: a row is kept once two readings agree, never replaced by a part of itself (cells were lost,
+    columns slid)
+  - [ ] A list of bare numbers (3D, colour blind) gets its words from its open rows by their place in the list:
+    no identity found; every change is read back
+  - [ ] Blocks with no control on the list are not settings here: data language, save location, shortcuts, online,
+    third party
 - [x] T70 Pages of a club that is not ours; a nation's and a competition's. `read --of "<name>" [<page>]`: found with
   the game's search, opened by that result's own button, a page on its bar by GUID. Crawled with `crawl --here`:
   `reference/fm27/crawl-records-{en,tr}.json.gz` (club 25 pages, competition 21, nation 1, national team 20).

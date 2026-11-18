@@ -119,7 +119,8 @@ internal static partial class Program
 			  schedule copy | paste | clear [this|<weeks ahead>]   the training week's own buttons (next week unless told)
 			  budget          the transfer, wage and scouting budgets;  budget adjust [<step>]: the transfer ↔ wage split
 			  settings        game settings: match display and speed, auto save, language, currency, units
-			  settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x); with no value it is chosen with the arrow keys
+			  settings all    every preference of the game, each with its key
+			  settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x; a title or key from settings all too); with no value it is chosen with the arrow keys
 			  lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works
 			  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii|auto]   the live match panel
 			  happiness       the players' happiness, unhappiest first

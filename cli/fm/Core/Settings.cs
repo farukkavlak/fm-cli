@@ -21,6 +21,10 @@ internal static partial class Program
 
 		var words = Words(args).ToList();
 		var json = args.Contains("--json");
+		// `settings all`: every preference on the game's list, not only the named ones.
+		var everything = args.Contains("--all") || words is ["all"];
+		if (words is ["all"]) words.Clear();
+		var fromAll = false;
 
 		Setting wanted = null;
 		string? value = null;
@@ -38,32 +42,43 @@ internal static partial class Program
 				wanted = hits[0];
 				value = take < words.Count ? string.Join(" ", words.Skip(take)) : null;
 			}
-			if (wanted == null)
-			{
-				Console.Error.WriteLine(L($"There is no setting called '{string.Join(" ", words)}'. Settings: {string.Join(", ", Settings.Select(s => s.Name))}"));
-				return 1;
-			}
+			// Not one of the named ones: looked for on the whole list, once it is read.
+			fromAll = wanted == null;
 		}
 
 		var page = await PreferencesRead();
 		if (page == null) return 1;
-		var found = Settings.Where(s => wanted == null || s == wanted).Select(s => Locate(s, page)).Where(s => s != null).ToList();
+		if (fromAll)
+		{
+			var (hit, rest, close) = FindInAll(AllSettings(page), words);
+			if (hit == null)
+			{
+				await LeavePreferences();
+				Console.Error.WriteLine(close.Count > 1
+					? L($"'{string.Join(" ", words)}' fits several settings: {string.Join(" · ", close.Select(c => $"{c.Name} ({c.Pref})"))}")
+					: L($"There is no setting called '{string.Join(" ", words)}'. All of them: settings all"));
+				return 1;
+			}
+			(wanted, value) = (hit, rest);
+		}
+		var found = (wanted != null ? new List<Setting> { wanted } : everything ? AllSettings(page) : Settings.ToList()).Select(s => Locate(s, page)).Where(s => s != null).ToList();
 
 		if (wanted == null)
 		{
 			await LeavePreferences();
 			if (json)
 			{
-				Console.WriteLine(JsonOut.Of(found.Select(f => new { f.Setting.Name, f.Setting.Group, Value = ValueOf(f), Choices = f.Choices })));
+				Console.WriteLine(JsonOut.Of(found.Select(f => new { f.Setting.Name, f.Setting.Group, Key = f.Setting.Pref, Value = ValueOf(f), Choices = f.Choices, f.Enabled })));
 				return 0;
 			}
-			DrawSettings(found);
+			DrawSettings(found, keys: everything);
 
 			// At the keyboard the list is also where a change starts.
 			var pick = Ui.Ask(L("The setting you want to change"), found.Select(f => $"{f.Setting.Name}: {ValueOf(f)}").ToList(), cancel: L("None"));
 			if (pick == null)
 			{
 				if (!Ui.Interactive) Console.WriteLine(L("\nTo change: settings <setting> [<value>]  (e.g. settings \"highlight speed\" 2x)"));
+				if (!Ui.Interactive && !everything) Console.WriteLine(L("Every setting of the game: settings all"));
 				return 0;
 			}
 			wanted = found[pick.Value].Setting;
@@ -80,6 +95,7 @@ internal static partial class Program
 			return 1;
 		}
 
+		now = await WithRowWords(now);
 		var shownChoices = now.Choices;
 		int target;
 		if (value == null)
@@ -130,6 +146,8 @@ internal static partial class Program
 			SettingKind.Slider => await Fm.Get("setcontrol", ("ptr", now.Pointer), ("value", target.ToString())),
 			SettingKind.Checkbox => await Fm.Get("setcontrol", ("ptr", now.Pointer), ("value", target == 1 ? "1" : "0")),
 			// A list's or group's row by its place in the list just read: the same list, not an order assumed.
+			// A section's landing page is taken by the game only from the event its list sends.
+			_ when wanted.Pref.StartsWith("landing.", StringComparison.Ordinal) => await Fm.Get("select", ("ptr", now.Pointer), ("index", target.ToString()), ("fire", "1")),
 			_ => await Fm.Get("select", ("ptr", now.Pointer), ("index", target.ToString())),
 		};
 		if (said.StartsWith("error", StringComparison.Ordinal))

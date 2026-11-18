@@ -13,6 +13,9 @@ internal static partial class Program
 	{
 		var kind = setting.Kind.ToString().ToLowerInvariant();
 		var control = form.FirstOrDefault(i => Field(i, "Kind") == kind && string.Equals(Field(i, "Pref"), setting.Pref, StringComparison.OrdinalIgnoreCase));
+		// One off the whole list is held by its own key (a sound switch by the element that sets it).
+		if (control.ValueKind != JsonValueKind.Object)
+			control = form.FirstOrDefault(i => Field(i, "Kind") == kind && ControlKey(i, form) == setting.Pref);
 		if (control.ValueKind != JsonValueKind.Object) return null;
 
 		var enabled = Field(control, "Enabled") == "True";
@@ -21,6 +24,10 @@ internal static partial class Program
 		{
 			case SettingKind.Slider:
 				var steps = setting.Steps;
+				var inv = System.Globalization.CultureInfo.InvariantCulture;
+				// A slider of fractions (the render scale) is shown, not stepped.
+				if (double.Parse(Field(control, "Low"), inv) != 0 || double.Parse(Field(control, "Value"), inv) % 1 != 0)
+					return new(setting, pointer, [Field(control, "Value")], [Field(control, "Value")], 0, false);
 				var high = (int)double.Parse(Field(control, "High"), System.Globalization.CultureInfo.InvariantCulture);
 				// Should the game ever change the steps, the numbers are still honest.
 				var choices = steps != null && steps.Length == high + 1 && !stepsUnsure.Contains(setting.Pref)
@@ -34,7 +41,7 @@ internal static partial class Program
 				if (shown.Count != source.Count) shown = source;
 				var current = int.TryParse(Field(control, "Selected"), out var selected) ? selected : -1;
 				var ids = Strings(control, "Ids");
-				return new(setting, pointer, shown, source, current, enabled, ids.Count == source.Count ? ids : null);
+				return new(setting, pointer, shown, source, current, enabled, ids.Count == source.Count ? ids : null, Field(control, "LabelShown") is { Length: > 0 } inForce ? inForce : Field(control, "Label"));
 		}
 
 		static List<string> Strings(JsonElement item, string name) =>
@@ -58,7 +65,10 @@ internal static partial class Program
 		}
 	}
 
-	private static string ValueOf(SettingNow now) => now.Current >= 0 && now.Current < now.Choices.Count ? now.Choices[now.Current] : "?";
+	/// <summary>The value in force as the game shows it: a list's own label where its rows are bare numbers or none is chosen yet.</summary>
+	private static string ValueOf(SettingNow now) =>
+		now.Label is { Length: > 0 } label && (BareNumbers(now.Choices) || now.Current < 0 || now.Current >= now.Choices.Count) ? label
+		: now.Current >= 0 && now.Current < now.Choices.Count ? now.Choices[now.Current] : "?";
 
 	/// <summary>A choice by its name as the game shows it or in English, whole first and then by its start; or the number of a step.</summary>
 	private static int MatchChoice(SettingNow now, string value)
@@ -83,14 +93,17 @@ internal static partial class Program
 		return inside.Count == 1 ? inside[0] : -1;
 	}
 
-	private static void DrawSettings(List<SettingNow> found)
+	/// <param name="keys">Each with the game's own key for it, which can be typed in place of its name.</param>
+	private static void DrawSettings(List<SettingNow> found, bool keys = false)
 	{
+		// A setting the game shows closed now (the 3D ones on a machine that cannot draw them).
+		string Shut(SettingNow f) => f.Enabled ? "" : " " + L("(closed)");
 		if (!Ui.Rich)
 		{
 			foreach (var group in found.GroupBy(f => f.Setting.Group))
 			{
 				Console.WriteLine(group.Key);
-				foreach (var f in group) Console.WriteLine($"  {f.Setting.Name}: {ValueOf(f)}");
+				foreach (var f in group) Console.WriteLine($"  {f.Setting.Name}: {ValueOf(f)}{Shut(f)}{(keys ? $"  [{f.Setting.Pref}]" : "")}");
 			}
 			return;
 		}
@@ -104,7 +117,7 @@ internal static partial class Program
 			first = false;
 			table.AddRow($"[bold]{Ui.Safe(group.Key)}[/]", "", "");
 			foreach (var f in group)
-				table.AddRow("  " + Ui.Safe(f.Setting.Name), $"[yellow]{Ui.Safe(ValueOf(f))}[/]", $"[dim]{Ui.Safe(f.Setting.Hint ?? "")}[/]");
+				table.AddRow("  " + Ui.Safe(f.Setting.Name), $"[yellow]{Ui.Safe(ValueOf(f))}[/][dim]{Ui.Safe(Shut(f))}[/]", $"[dim]{Ui.Safe(keys ? f.Setting.Pref : f.Setting.Hint ?? "")}[/]");
 		}
 		Ui.Out.Write(table);
 	}

@@ -55,6 +55,8 @@ internal static partial class Buttons
 							["Key"] = key,
 							["Option"] = option,
 							["Panel"] = panel,
+							// The page's own name (CreditsCard): what its data is bound under once it is up.
+							["PanelName"] = PanelName(panel),
 						}));
 					}
 				}
@@ -118,6 +120,27 @@ internal static partial class Buttons
 				}
 			}
 		return "error: no FM menu on this screen";
+	}
+
+	private static readonly Dictionary<string, string> PanelNames = new();
+
+	/// <summary>
+	/// A page's name by its Guid: the page asset at that address, through a handle of its own (as
+	/// <see cref="Loaded"/>), once per Guid. Empty when there is no such page.
+	/// </summary>
+	private static string PanelName(string guid)
+	{
+		if (string.IsNullOrEmpty(guid)) return "";
+		if (PanelNames.TryGetValue(guid, out var known)) return known;
+		var name = "";
+		try
+		{
+			var key = new Il2CppSystem.Object(Il2CppInterop.Runtime.IL2CPP.ManagedStringToIl2Cpp(guid));
+			name = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<SI.Bindable.PanelID>(key).WaitForCompletion()?.name ?? "";
+		}
+		catch { }
+		PanelNames[guid] = name;
+		return name;
 	}
 
 	private static readonly Dictionary<string, SI.Core.DataCollection> Tables = new();

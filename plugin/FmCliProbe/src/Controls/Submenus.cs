@@ -340,8 +340,8 @@ internal static class Submenus
 		return sb.Length > 0 ? sb.ToString() : "no lazy menus\n";
 	}
 
-	/// <summary>Every dropdown row laid out now, with its child dropdown when it has one.</summary>
-	public static string Rows()
+	/// <summary>Every dropdown row laid out now, with its child dropdown when it has one; ?shown=1: its words as the game shows them.</summary>
+	public static string Rows(bool inGameWords = false)
 	{
 		var sb = new StringBuilder();
 		foreach (var element in Buttons.Elements())
@@ -351,7 +351,7 @@ internal static class Submenus
 			if (row == null) continue;
 
 			string label, shown, child = "";
-			try { label = Buttons.LabelOf(row); } catch { label = "?"; }
+			try { label = Buttons.LabelOf(row, inGameWords); } catch { label = "?"; }
 			try { shown = row.panel != null && row.worldBound.width > 0 ? "" : " HIDDEN"; } catch { shown = " ?"; }
 			// FM27 dropped DropdownRow.Index: the row's place among its siblings.
 			int index;

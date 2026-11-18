@@ -94,6 +94,10 @@ internal static partial class Program
 		new("debts", "Debts And Loans", "d8cf47faf7a0c7b47a27448402f3dd4f", "bfe8536ad46ef054cb5682ca44d91b0c"),
 		new("ffp", "FFP", "e9bd5d767058bef41872744b4ee925ed", "bfe8536ad46ef054cb5682ca44d91b0c"),
 		new("wage-budget", "Wage Budget", "e7ad9d416530bdf44855af0dcad43323", "bfe8536ad46ef054cb5682ca44d91b0c"),
+		// The FM menu's pages: opened from the menu, by the row's option.
+		new("hall-of-fame", "Hall of Fame", "c09c1c201430c52499096b79f466cb7e", Menu: "HallOfFame"),
+		new("game-status", "Game Status", "eca2da080fb88704bb047ca99daaf9c8", Menu: "GameStatus"),
+		new("credits", "Credits", "48cae0eabd94bfe49aebb8ce504061be", Menu: "Credits"),
 		new("scouting-budget", "Scouting Budget", "a9abacf7fd4c0f24baaf65b1c2cf9d57", "bfe8536ad46ef054cb5682ca44d91b0c"),
 		];
 	}

@@ -13,7 +13,8 @@ internal static partial class Program
 	/// Key, the page's name in English (translated by the catalog), its GUID, the page whose bar lists it (or null),
 	/// and the tab inside the page, by the name of the element that holds its button.
 	/// </summary>
-	private sealed record ReadablePage(string Key, string Name, string Guid, string? Bar = null, string? Tab = null);
+	/// <param name="Menu">A page opened from the game's FM menu, by the row's option (HallOfFame), not by its Guid.</param>
+	private sealed record ReadablePage(string Key, string Name, string Guid, string? Bar = null, string? Tab = null, string? Menu = null);
 
 	private static readonly ReadablePage[] ReadablePages = ReadPageCatalog.Pages;
 
@@ -50,9 +51,31 @@ internal static partial class Program
 		return await PrintPage(json, hits[0], await ShownTexts(), opening: true);
 	}
 
+	/// <summary>
+	/// Opens a page of the FM menu by its row's option (the game's own name for it, as the menu's
+	/// table gives it), and waits for the page's own sign: a control of its data, which the game
+	/// binds under the page's name (HallOfFameCard44…) or its Guid.
+	/// </summary>
+	private static async Task<string> OpenMenuPage(string option)
+	{
+		var rows = await Fm.GetJson("menuoptions");
+		var row = rows.ValueKind == JsonValueKind.Array ? rows.EnumerateArray().FirstOrDefault(r => Field(r, "Option") == option) : default;
+		if (row.ValueKind != JsonValueKind.Object) return (await FmMenuMissing()) ?? L("The game's FM menu was not found.");
+		var (name, guid) = (Field(row, "PanelName"), Field(row, "Panel"));
+		async Task<bool> Up() => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Source").Split('.')[0] is { Length: > 0 } root
+			&& ((name.Length > 0 && root.StartsWith(name, StringComparison.Ordinal) && root[name.Length..].All(Uri.IsHexDigit))
+			    || (guid.Length > 0 && root.StartsWith(guid, StringComparison.OrdinalIgnoreCase))));
+		if (await Up()) return "";
+		var sent = await Fm.Get("menuoption", ("option", option));
+		if (sent.StartsWith("error", StringComparison.Ordinal)) return sent;
+		return await Until(Up, seconds: 10, every: 0.25) ? "" : "error: " + L("The page did not open.");
+	}
+
 	private static async Task<int> PrintPage(bool json, ReadablePage page, List<JsonElement> before, bool opening)
 	{
-		var opened = !opening ? "" : page.Bar == null
+		var opened = !opening ? "" : page.Menu != null
+			? await OpenMenuPage(page.Menu)
+			: page.Bar == null
 			? await OpenPage(page.Guid)
 			: await OpenSubpage(page.Bar, page.Guid, () => Task.FromResult(true));
 		// A page the game lists only at some moments (a season preview before the season).
@@ -98,8 +121,10 @@ internal static partial class Program
 		var heads = new Dictionary<string, List<string>>();
 		void Keep(List<JsonElement> from)
 		{
+			// A row at the edge of the view is laid out in part: it never replaces a fuller reading of itself.
 			foreach (var group in from.Where(t => RowOf(t) >= 0).GroupBy(t => (Field(t, "Table"), RowOf(t))))
-				rows[group.Key] = group.Select(t => Field(t, "Text")).ToList();
+				if (!rows.TryGetValue(group.Key, out var kept) || group.Count() >= kept.Count)
+					rows[group.Key] = group.Select(t => Field(t, "Text")).ToList();
 		}
 		Keep(texts);
 		foreach (var table in texts.Where(t => RowOf(t) >= 0).GroupBy(t => Field(t, "Table")).ToList())
@@ -114,13 +139,21 @@ internal static partial class Program
 			{
 				var seen = rows.Count;
 				if ((await Fm.Get("scroll", ("ptr", any), ("to", ((double)step / steps).ToString(System.Globalization.CultureInfo.InvariantCulture)))).StartsWith("error", StringComparison.Ordinal)) break;
+				// A row the list has just moved fills in over a few frames, its cells one by one:
+				// it is kept once two readings of the table agree.
+				List<JsonElement> now = [];
+				var read = "";
 				await Until(async () =>
 				{
-					Keep(await ShownTexts());
-					return rows.Count > seen;
-				}, seconds: 0.75, every: 0.25);
+					now = await ShownTexts();
+					var key = string.Join("\n", now.Where(t => RowOf(t) >= 0 && Field(t, "Table") == table.Key).Select(t => $"{RowOf(t)}\t{Field(t, "Text")}"));
+					var same = key.Length > 0 && key == read;
+					read = key;
+					return same;
+				}, seconds: 3, every: 0.2);
+				Keep(now);
 				idle = rows.Count > seen ? 0 : idle + 1;
-				any = (await ShownTexts()).Where(t => Field(t, "Table") == table.Key).Select(t => Field(t, "Pointer")).FirstOrDefault() ?? any;
+				any = now.Where(t => Field(t, "Table") == table.Key).Select(t => Field(t, "Pointer")).FirstOrDefault() ?? any;
 			}
 			await Fm.Get("scroll", ("ptr", any), ("to", "0"));
 		}
