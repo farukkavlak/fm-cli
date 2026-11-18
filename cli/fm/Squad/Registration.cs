@@ -240,25 +240,48 @@ internal static partial class Program
 		var players = new List<Registered>();
 		var seen = new HashSet<string>();
 
-		foreach (var stop in new[] { "0", "0.25", "0.5", "0.75", "1" })
+		// Each screenful must share a row with the one before, whatever the text size or the window's height
+		// make a screenful: when it does not, the step is halved and the gap read again.
+		var scrolls = true;
+		async Task<HashSet<string>> ReadAt(double at)
 		{
-			await Fm.Get("regscroll", ("to", stop));
+			await Fm.Get("regscroll", ("to", at.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)));
 			var page = await Settled();
-
 			rules = page.GetProperty("Rules").EnumerateArray()
 				.Select(r => new RegRule(Field(r, "Title"), Field(r, "Value"), Field(r, "Meets") == "True")).ToList();
+			var names = new HashSet<string>();
 			foreach (var p in page.GetProperty("Players").EnumerateArray())
 			{
+				names.Add(Field(p, "Name"));
 				if (!seen.Add(Field(p, "Name"))) continue;
 				players.Add(new Registered(Field(p, "Name"), Field(p, "Age"), Field(p, "Position"), Field(p, "Flags"), Field(p, "Status"),
 					Field(p, "Selected") == "True", Field(p, "Enabled") == "True"));
 			}
-			if (Field(page, "ScrollEnd") is "0" or "") break;
+			scrolls = Field(page, "ScrollEnd") is not ("0" or "");
+			return names;
+		}
+		var last = await ReadAt(0);
+		double done = 0, share = 0.25;
+		while (scrolls && done < 1)
+		{
+			var next = Math.Min(1, done + share);
+			var window = await ReadAt(next);
+			if (!window.Overlaps(last) && share > 0.01)
+			{
+				share /= 2;
+				continue;
+			}
+			last = window;
+			done = next;
 		}
 		await Fm.Get("regscroll", ("to", "0"));
 		// A row's position and squad status come back in English where the game's table says; shown in its words.
 		await GameWords.Ask(Fm, players.SelectMany(p => new[] { p.Position, p.Status }).ToArray());
-		players = players.Select(p => p with { Position = GameWords.Of(p.Position), Status = GameWords.Of(p.Status) }).ToList();
+		// In the team list's order: the order rows were first met in follows how many fit on the screen.
+		var order = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select((p, i) => (Name: Field(p, "Name"), i))
+			.GroupBy(p => p.Name).ToDictionary(g => g.Key, g => g.First().i);
+		players = players.OrderBy(p => order.GetValueOrDefault(p.Name, int.MaxValue))
+			.Select(p => p with { Position = GameWords.Of(p.Position), Status = GameWords.Of(p.Status) }).ToList();
 		return (rules, players);
 	}
 

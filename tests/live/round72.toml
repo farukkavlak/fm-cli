@@ -1,0 +1,132 @@
+# T152: answers that do not follow the screen: text size, information display, resolution; whole lists from the
+# game's data. Held by keys, counts and --json only.
+
+[[test]]
+task = "T152"
+name = "morale: every player of the squad, every time"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "squad", path = "#", keep = "squad" },
+  { read = "squad --morale", path = "#", same_as = "squad" },
+  { read = "squad --morale", path = "?MoraleString.#", same_as = "squad" },
+  { run = "calendar" },
+  { read = "squad --morale", path = "?MoraleString.#", same_as = "squad" },
+]
+
+[[test]]
+task = "T152"
+name = "the season's fixtures, the board's expectations and the depth do not depend on the page up"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "fixtures --all", path = "#", keep = "matches" },
+  { read = "fixtures --all", path = "0.Day", keep = "first" },
+  { read = "board", path = "Expectations.#", keep = "aims" },
+  { read = "board", path = "Expectations.#", not = "0" },
+  { read = "depth", path = "ST.0", keep = "striker" },
+  { run = "squad" },
+  { read = "fixtures --all", path = "#", same_as = "matches" },
+  { read = "fixtures --all", path = "0.Day", same_as = "first" },
+  { read = "board", path = "Expectations.#", same_as = "aims" },
+  { read = "depth", path = "ST.0", same_as = "striker" },
+]
+
+[[test]]
+task = "T152"
+name = "inbox: a number of its own, each message with its sender"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "inbox", path = "#", is = "30" },
+  { read = "inbox", path = "?Sender.#", is = "30" },
+  { read = "inbox --all", path = "#", keep = "all" },
+  { read = "inbox --all", path = "?Sender.#", same_as = "all" },
+  { run = "prep" },
+  { read = "inbox", path = "?Sender.#", is = "30" },
+]
+
+[[test]]
+task = "T152"
+name = "text size: listed, changed, read back, refused when unknown"
+at = "calm"
+repeat = 3
+steps = [
+  { run = "settings settings.TextScaling Normal" },
+  { read = "settings all", path = "?Key=settings\\.TextScaling.#", is = "1" },
+  { read = "settings all", path = "?Key=settings\\.AdaptiveScalingLevelIndex.#", is = "1" },
+  { read = "settings settings.TextScaling", path = "Value", keep = "before" },
+  { run = "settings settings.TextScaling zzzq", rc = "fail" },
+  { read = "settings settings.TextScaling", path = "Value", same_as = "before" },
+  { run = "settings settings.TextScaling Larger" },
+  { read = "settings settings.TextScaling", path = "Value", differs_from = "before" },
+  { run = "settings settings.TextScaling Normal" },
+  { read = "settings settings.TextScaling", path = "Value", same_as = "before" },
+  { read = "settings settings.TextScaling", path = "Choices.3", keep = "shown" },
+  { run = "settings settings.TextScaling {shown}" },
+  { read = "settings settings.TextScaling", path = "Value", same_as = "shown" },
+  { run = "settings settings.TextScaling {before}" },
+  { read = "settings settings.TextScaling", path = "Value", same_as = "before" },
+]
+
+[[test]]
+task = "T152"
+name = "a choice the resolution closes is refused and nothing changes"
+at = "calm"
+repeat = 3
+steps = [
+  { run = "settings settings.AdaptiveScalingLevelIndex Large" },
+  { run = "settings settings.SelectedResolution '1920 x 1080'" },
+  { read = "settings settings.AdaptiveScalingLevelIndex", path = "Value", keep = "before" },
+  { run = "settings settings.AdaptiveScalingLevelIndex Small", rc = "fail" },
+  { read = "settings settings.AdaptiveScalingLevelIndex", path = "Value", same_as = "before" },
+]
+
+[[test]]
+task = "T152"
+name = "the same answers at the largest text"
+at = "calm"
+repeat = 2
+steps = [
+  { run = "settings settings.TextScaling Normal" },
+  { read = "squad --morale", path = "#", keep = "players" },
+  { read = "fixtures --all", path = "#", keep = "matches" },
+  { read = "inbox", path = "?Sender.#", keep = "senders" },
+  { read = "register", path = "Players.#", keep = "listed" },
+  { read = "register", path = "Players.0.Name", keep = "first" },
+  { run = "settings settings.TextScaling Larger" },
+  { read = "squad --morale", path = "#", same_as = "players" },
+  { read = "fixtures --all", path = "#", same_as = "matches" },
+  { read = "inbox", path = "?Sender.#", same_as = "senders" },
+  { read = "register", path = "Players.#", same_as = "listed" },
+  { read = "register", path = "Players.0.Name", same_as = "first" },
+  { run = "settings settings.TextScaling Normal" },
+]
+
+[[test]]
+task = "T152"
+# Once a language: each change of resolution has the game lay its screens out again, longer every time (seconds at
+# first, some three minutes by the sixteenth).
+name = "the same answers on a larger screen at the smallest information display"
+at = "calm"
+repeat = 1
+steps = [
+  { run = "settings settings.TextScaling Normal" },
+  { run = "settings settings.AdaptiveScalingLevelIndex Large" },
+  { run = "settings settings.SelectedResolution '1920 x 1080'" },
+  { read = "squad --morale", path = "#", keep = "players" },
+  { read = "fixtures --all", path = "#", keep = "matches" },
+  { read = "inbox", path = "#", keep = "messages" },
+  { read = "register", path = "Players.#", keep = "listed" },
+  { read = "register", path = "Players.0.Name", keep = "first" },
+  { read = "settings settings.SelectedResolution", path = "Value", keep = "screen" },
+  { run = "settings settings.SelectedResolution '2560 x 1440'" },
+  { run = "settings settings.AdaptiveScalingLevelIndex Small" },
+  { read = "squad --morale", path = "#", same_as = "players" },
+  { read = "fixtures --all", path = "#", same_as = "matches" },
+  { read = "inbox", path = "#", same_as = "messages" },
+  { read = "register", path = "Players.#", same_as = "listed" },
+  { read = "register", path = "Players.0.Name", same_as = "first" },
+  { run = "settings settings.AdaptiveScalingLevelIndex Large" },
+  { run = "settings settings.SelectedResolution {screen}" },
+]

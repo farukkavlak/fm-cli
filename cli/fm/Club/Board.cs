@@ -97,37 +97,25 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// What the board expects of us in each competition this season, in the game's words. The words are bound only on
-	/// Portal › Competitions (each competition's record there carries them for our team), so that page is opened and the
-	/// expectations read by their data path; whole once there are as many as the board judges competitions.
+	/// What the board expects of us in each competition we are in this season, in the game's words: each of the
+	/// team's current competitions answers for our team with the team beside it. No page is opened, so a page still
+	/// being drawn cannot leave the list empty. A competition the board does not judge has no words and is left out.
 	/// </summary>
 	private static async Task<List<(string Competition, string Expectation)>> SeasonExpectations()
 	{
-		var count = Field(await Fm.Pull("Human.Club.ClubVisionMeetingSeasonExpectations", "ClubSeasonExpectationsNumberCompetitions"), "ClubSeasonExpectationsNumberCompetitions");
-		if (!int.TryParse(count, out var wanted) || wanted == 0) return [];
-		if ((await OpenPage(Screen.Competitions)).StartsWith("error", StringComparison.Ordinal)) return [];
-		// The count says whether there are any, not how many rows the page has (4 against the page's
-		// 2 after a day: it follows the last expectations meeting). The rows are taken once two
-		// readings agree.
-		var found = new List<(string, string)>();
-		string? last = null;
-		await Until(async () =>
-		{
-			var shown = await Fm.GetJson("shown", ("remap", "1"));
-			if (shown.ValueKind != System.Text.Json.JsonValueKind.Array) return false;
-			var rows = shown.EnumerateArray()
-				.Where(t => Field(t, "Path") == "comp.TeamsBoardExpectationsInCompString" && Field(t, "Text").Length > 0 && Field(t, "Under").Length > 0)
-				.ToList();
-			if (rows.Count == 0) return false;
-			found = [];
-			foreach (var row in rows)
-				if (Field(await Fm.Pull($"{Field(row, "Under")}.comp", "Name"), "Name") is { Length: > 0 } name) found.Add((name, Field(row, "Text")));
-			if (found.Count != rows.Count) return false;
-			var now = string.Join("|", found);
-			var same = now == last;
-			last = now;
-			return same;
-		}, seconds: 10, every: 0.3);
-		return found;
+		System.Text.Json.JsonElement competitions;
+		try { competitions = await Fm.Pull("Human.Team.CurrentComps", "Name", list: true); }
+		catch (Exception e) when (e is FmError or FmUnavailable or FmBusy) { return []; }
+		if (competitions.ValueKind != System.Text.Json.JsonValueKind.Array) return [];
+		var rows = competitions.EnumerateArray().Select(c => Field(c, "Row")).Where(r => r.Contains('.')).ToList();
+		if (rows.Count == 0) return [];
+		var under = rows[0][..rows[0].LastIndexOf('.')];
+		foreach (var (variable, from) in new[] { ("team", "Human.Team"), ("human", "Human"), ("club", "Human.Club") })
+			if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.1))
+				return [];
+		const string props = "Name,TeamsBoardExpectationsInCompString";
+		return (await PullEach(rows.Select(r => (r, props)).ToList(), shown: props))
+			.Select(c => (Field(c, "Name"), Field(c, "TeamsBoardExpectationsInCompString")))
+			.Where(c => c.Item1.Length > 0 && c.Item2.Length > 0).ToList();
 	}
 }

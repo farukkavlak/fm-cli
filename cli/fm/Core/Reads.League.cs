@@ -331,16 +331,42 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> AllFixtures(bool json)
 	{
-		if (await CalendarMonths() is not var (months, showing)) return 1;
-		var matches = new List<CalendarMatch>();
-		foreach (var month in months)
+		// From the team's own fixture list, not month by month off the calendar's grid: a month whose grid was
+		// not ready was skipped and its matches were simply missing.
+		var list = await FixtureList(100, 100, "FixtureDate,HomeTeam.UniqueId,AwayTeam.UniqueId,HasResult");
+		if (list is not { ValueKind: JsonValueKind.Array } fixtures)
 		{
-			var days = await CalendarMonth(month);
-			if (days == null) continue;
-			foreach (var m in days.SelectMany(d => d.Matches))
-				if (!matches.Any(x => x.Day == m.Day && x.Opponent == m.Opponent)) matches.Add(m);
+			Console.Error.WriteLine(L("The fixture list could not be read."));
+			return 1;
 		}
-		if (showing != null) await Fm.Get("select", ("name", "MonthDropdown"), ("value", showing.Value.ToString()));
+		var listed = fixtures.EnumerateArray().Where(f => Field(f, "Row").Contains('.') && Field(f, "FixtureDate").Length > 0).Select(f => f.Clone()).ToList();
+		var matches = new List<CalendarMatch>();
+		if (listed.Count > 0)
+		{
+			var row = Field(listed[0], "Row");
+			foreach (var (variable, from) in FixtureContext)
+				if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{row[..row.LastIndexOf('.')]}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.1))
+				{
+					Console.Error.WriteLine(L("The fixture list could not be read."));
+					return 1;
+				}
+			const string words = "TeamOpponent.Name,Competition.Name,HomeLeaguePosition,AwayLeaguePosition";
+			var read = await PullEach(listed.Select(f => (Field(f, "Row"), $"KickoffTime,HomeScore,AwayScore,HomeTeamWon,AwayTeamWon,ResultType,{words}")).ToList(), shown: words);
+			var ours = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
+			foreach (var (f, m) in listed.Zip(read))
+			{
+				if (!DateTime.TryParseExact(Field(f, "FixtureDate"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var day)) continue;
+				var venue = Venue(ours, Field(f, "HomeTeam.UniqueId"), Field(f, "AwayTeam.UniqueId"));
+				var score = "";
+				if (Field(f, "HasResult") == "True")
+				{
+					var (home, away) = (Field(m, "HomeScore"), Field(m, "AwayScore"));
+					score = (venue == "A" ? $"{away}-{home}" : $"{home}-{away}") + ResultMark(m);
+				}
+				matches.Add(new(day, Field(m, "Competition.Name"), Field(m, "KickoffTime"), Field(m, "TeamOpponent.Name"),
+					Field(m, venue == "A" ? "HomeLeaguePosition" : "AwayLeaguePosition"), venue, score, Field(m, "ResultType")));
+			}
+		}
 		matches = matches.OrderBy(m => m.Day).ToList();
 		if (matches.Count == 0)
 		{

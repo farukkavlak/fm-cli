@@ -49,7 +49,8 @@ Kept in `~/.config/fm-cli/language-choice`.
 ## 2. Inbox, replies and talks
 
 ```bash
-fm inbox              # numbered messages
+fm inbox              # the newest 30 messages, and any older one awaiting an answer
+fm inbox --all        # every message
 fm inbox --tasks      # offers and registration messages on the Tasks tab
 fm reply 4            # read message 4 and list its answers
 fm reply 4 2          # answer it with choice 2
@@ -340,6 +341,7 @@ fm load "<name>" [--save|--no-save]
 fm settings                    # the game's main preferences
 fm settings all                # every preference, each with its key
 fm settings "<setting>" [<value>]   # a name, the game's title or a key
+fm settings "text scaling" Large    # interface sizes: text scaling, information display
 ```
 
 `fm settings` changes the game. The CLI's own language: `fm lang`.

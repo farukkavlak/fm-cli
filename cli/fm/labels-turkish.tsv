@@ -2881,3 +2881,11 @@ Game Status	Oyun Durumu
 Credits	Emeği Geçenler
 past match speed	geçmiş maç hızı
 manual saves use the auto save type	elle kayıtta otomatik kayıt türü
+The squad's morale could not be read.	Kadronun morali okunamadı.
+The game gave no morale for: {0}	Oyun şu oyuncuların moralini vermedi: {0}
+The fixture list could not be read.	Fikstür okunamadı.
+\n{0} of {1} messages, the newest. All of them: inbox --all	\n{1} mesajın en yeni {0} tanesi. Hepsi: inbox --all
+text scaling	metin ölçeği
+information display	bilgi gösterimi
+{0}: {1} is not available at this screen resolution.	{0}: {1} bu ekran çözünürlüğünde kullanılamıyor.
+{0} did not change: it is {1}.	{0} değişmedi: şu an {1}.

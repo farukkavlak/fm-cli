@@ -31,8 +31,8 @@ internal static partial class Program
 	/// <param name="opening">The upper bound for the page to come up: longer just after a confirmation, while a new language has the game build its screens again.</param>
 	private static async Task<List<JsonElement>?> PreferencesRead(double opening = 8)
 	{
-		// Nothing is sent while the game is busy: a page opened, or a tab clicked, while the game
-		// builds its screens again (just after a confirmation) brought the game down.
+		// Nothing is clicked while the game is busy: a tab clicked while the game builds its screens
+		// again (just after a confirmation) brought the game down.
 		async Task<bool> Calm() => Field(await Fm.GetJson("state"), "Processing") != "True";
 
 		if (await PreferencesPage() is not { } page)
@@ -40,23 +40,10 @@ internal static partial class Program
 			Console.Error.WriteLine(await FmMenuMissing());
 			return null;
 		}
-		if (await PreferencesClose() == null)
+		if (await PreferencesClose() == null && await OpenPreferencesPage(opening) is { } refused)
 		{
-			// The row is sent once. It is sent again only while the game says it was not (no FM menu
-			// on a screen being built again): a second page opened over the first is not asked for.
-			var sent = "";
-			await Until(async () => await Calm()
-				&& !(sent = await Fm.Get("menuoption", ("option", "Preferences"))).StartsWith("error", StringComparison.Ordinal), seconds: opening, every: 0.3);
-			if (sent.StartsWith("error", StringComparison.Ordinal) || sent.Length == 0)
-			{
-				Console.Error.WriteLine(await FmMenuMissing());
-				return null;
-			}
-			if (!await Until(async () => await PreferencesClose() != null, seconds: opening, every: 0.25))
-			{
-				Console.Error.WriteLine(L("The settings page did not open."));
-				return null;
-			}
+			Console.Error.WriteLine(refused);
+			return null;
 		}
 
 		// Detailed, then its All Preferences tab: every setting on one list. Each tab is clicked
@@ -124,6 +111,22 @@ internal static partial class Program
 		if (told.Count >= form.Count) form = told;
 		await CheckSteps(form);
 		return form;
+	}
+
+	/// <summary>
+	/// The preferences' page brought up through the FM menu's row (sent by the row's option, not its words), once:
+	/// a second page opened over the first is what is avoided. Null once it is up, else why not.
+	/// </summary>
+	/// <param name="opening">The upper bound for the page to come up: after a new language or resolution the game lays
+	/// its screens out again and the page can take most of a minute.</param>
+	private static async Task<string?> OpenPreferencesPage(double opening)
+	{
+		// Nothing is sent while the game is busy: a page opened while it builds its screens again brought it down.
+		var sent = "";
+		await Until(async () => Field(await Fm.GetJson("state"), "Processing") != "True"
+			&& !(sent = await Fm.Get("menuoption", ("option", "Preferences"))).StartsWith("error", StringComparison.Ordinal), seconds: opening, every: 0.3);
+		if (sent.Length == 0 || sent.StartsWith("error", StringComparison.Ordinal)) return await FmMenuMissing() ?? L("The game's FM menu was not found.");
+		return await Until(async () => await PreferencesClose() != null, seconds: opening, every: 0.25) ? null : L("The settings page did not open.");
 	}
 
 	/// <summary>Closes the preferences with nothing changed.</summary>

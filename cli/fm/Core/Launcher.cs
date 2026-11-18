@@ -345,6 +345,8 @@ internal static class Launcher
 			if (ended) RestoreDisplay(forget: true);
 			return ended;
 		}
+		// A frozen game takes a request and never answers it: it is not asked, it is ended below.
+		if (await fm.Answers())
 		try
 		{
 			await fm.Get("quit");
@@ -363,7 +365,7 @@ internal static class Launcher
 				return true;
 			}, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(0.25));
 		}
-		catch (FmUnavailable) { }
+		catch (Exception e) when (e is FmUnavailable or FmBusy) { }
 		// The bridge closes as the game starts to quit; the process follows a few seconds later.
 		var gone = (await WaitFor(async () => !await Up(fm), TimeSpan.FromSeconds(20))
 		    && await WaitFor(async () => !await Alive(), TimeSpan.FromSeconds(20)));

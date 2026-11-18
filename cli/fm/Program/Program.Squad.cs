@@ -177,26 +177,39 @@ internal static partial class Program
 		return 0;
 	}
 
+	/// <summary>
+	/// Each first-team player's morale, standing and social group from his own data. Not from the squad table: it
+	/// lays out only the rows in view and its Dynamics view lost players on the way down (26 of 32).
+	/// </summary>
 	private static async Task<int> SquadMorale(bool json)
 	{
-		var squad = await SquadView(SquadTable.Dynamics, "MoraleString");
+		const string words = "MoraleString,HierarchyInfluenceCategoryString,SocialGroupString";
+		var read = await JudgedPlayers("Morale," + words, shown: words);
+		if (read.Count == 0)
+		{
+			Console.Error.WriteLine(L("The squad's morale could not be read."));
+			return 1;
+		}
+		var squad = read.Select(x => new
+		{
+			x.First.Name, UniqueId = x.First.Id, Morale = Field(x.Second, "Morale"), MoraleString = Field(x.Second, "MoraleString"),
+			HierarchyInfluenceCategoryString = Field(x.Second, "HierarchyInfluenceCategoryString"),
+			SocialGroupString = Field(x.Second, "SocialGroupString"),
+		}).ToList();
+		// Said, never dropped in silence.
+		if (squad.Where(p => p.MoraleString.Length == 0).Select(p => p.Name).ToList() is { Count: > 0 } unknown)
+			Console.Error.WriteLine(L($"The game gave no morale for: {string.Join(", ", unknown)}"));
 		if (json)
 		{
-			Console.WriteLine(squad.ToString());
+			Console.WriteLine(JsonOut.Of(squad));
 			return 0;
 		}
 
-		var rows = squad.EnumerateArray()
-			.Where(p => Field(p, "MoraleString") != "")
-			.OrderBy(p => Number(p, "Morale"))
-			.ThenBy(p => Field(p, "Name"), StringComparer.OrdinalIgnoreCase)
-			.Select(p => new[]
-			{
-				Field(p, "Name"),
-				Field(p, "MoraleString"),
-				Field(p, "HierarchyInfluenceCategoryString"),
-				Field(p, "SocialGroupString").Trim('(', ')', ' '),
-			})
+		var rows = squad
+			.Where(p => p.MoraleString.Length > 0)
+			.OrderBy(p => double.TryParse(p.Morale, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var morale) ? morale : double.MaxValue)
+			.ThenBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+			.Select(p => new[] { p.Name, p.MoraleString, p.HierarchyInfluenceCategoryString, p.SocialGroupString.Trim('(', ')', ' ') })
 			.ToList();
 
 		Table.Write(new[] { L("PLAYER"), L("MORALE"), L("HIERARCHY"), L("GROUP") }, rows);

@@ -348,7 +348,10 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
 - [x] T101 Keys on the live panel
 - [x] T102 Long commands show progress on one line
 - [x] T103 Ctrl-C ends the command, the game goes on
-- [ ] T152 Another theme and interface scale: control names, tree depth, row counts still hold
+- [x] T152 Text scaling, information display, colour blind mode and resolution: answers do not follow the screen
+- [ ] T167 Game froze once for 6+ minutes: main thread inside the .NET JIT, compiling plugin code; not reproduced
+- [ ] T168 `read club-history` gave its table as loose lines in 1 of 10 sweeps; not reproduced
+- [ ] T169 Each resolution change takes the game longer to recover (about 3 minutes by the 16th)
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 

@@ -107,13 +107,16 @@ internal static partial class Program
 	/// pointer (so the anchor never goes off screen). Used when the first window does not have
 	/// the message — a subject a script names, or the one the game is waiting on.
 	/// </summary>
-	internal static async Task<List<JsonElement>> AllInbox()
+	/// <param name="senders">Each message's sender filled in from the message itself (<see cref="NoteSenders"/>).</param>
+	internal static async Task<List<JsonElement>> AllInbox(bool senders = false)
 	{
 		var top = await FreshInbox();
 		var rows = top.EnumerateArray().Select(m => m.Clone()).ToList();
 		var seen = rows.Select(m => Field(m, "UniqueId")).Where(id => id.Length > 0).ToHashSet();
+		var from = new Dictionary<string, string>();
+		if (senders) await NoteSenders(from);
 		var list = (await Fm.Get("inboxlist")).Trim();
-		if (list.StartsWith("error", StringComparison.Ordinal)) return rows;
+		if (list.StartsWith("error", StringComparison.Ordinal)) return WithSenders(rows, from);
 		// The list draws a window of rows; scrolled by a fixed share, a long inbox (149 messages) was read with gaps
 		// between windows and a waiting message was missed. Each window must share a row with the one before:
 		// when it does not, the step is halved and the gap read again.
@@ -148,11 +151,69 @@ internal static partial class Program
 			last = window;
 			done = next;
 		}
+		// A message whose row moved on before its sender was read is drawn again and asked once more.
+		if (senders)
+			foreach (var id in rows.Where(m => Field(m, "Sender").Length == 0).Select(m => Field(m, "UniqueId")).Where(id => id.Length > 0 && !from.ContainsKey(id)).ToList())
+				if (await DrawMessage(id)) await NoteSenders(from);
 		await Fm.Get("scroll", ("ptr", list), ("to", "0"));
 		// In the order they came, as `inbox` lists its window: the order the scrolled pages handed rows
 		// out in is not the same twice (a message was 15th, then 23rd).
-		return rows.OrderBy(m => Id(m) is var id and >= 0 ? id : long.MaxValue).ToList();
+		return WithSenders(rows.OrderBy(m => Id(m) is var id and >= 0 ? id : long.MaxValue).ToList(), from);
 	}
+
+	/// <summary>
+	/// The sender of each message bound now, by its id. The row's neighbouring Person is bound only some of the
+	/// time (16 of 37 came back empty); the message's own NewsPersonSender always answers. Read here, while the
+	/// rows are bound: a row's path belongs to another message once the list moves, so the id read with the name
+	/// must be the message's. A message nobody sent stays without one.
+	/// </summary>
+	private static async Task NoteSenders(Dictionary<string, string> from)
+	{
+		var bound = (await Fm.GetJson("inbox", ("paths", "1"))).EnumerateArray().Select(m => m.Clone()).ToList();
+		var wanted = new List<(string Id, string Path)>();
+		foreach (var m in bound)
+		{
+			var id = Field(m, "UniqueId");
+			if (id.Length == 0 || from.ContainsKey(id)) continue;
+			if (Field(m, "Sender") is { Length: > 0 } sender) from[id] = sender;
+			else if (Field(m, "Path") is { Length: > 0 } path) wanted.Add((id, path.TrimStart('.')));
+		}
+		const string name = "NewsPersonSender.Name";
+		// A name can come some frames after the message's id, so it is asked for until it is there; a message
+		// that holds its id and still has none by then has no sender. An id that is another message's says the
+		// row has moved on: that one stays unknown, and AllInbox draws it again.
+		await Until(async () =>
+		{
+			if (wanted.Count == 0) return true;
+			var read = await PullEach(wanted.Select(w => (w.Path, $"UniqueId,{name}")).ToList(), shown: name);
+			wanted = wanted.Zip(read).Where(pair =>
+			{
+				var (w, r) = pair;
+				if (Field(r, "UniqueId") != w.Id) return false;
+				if (Field(r, name) is not { Length: > 0 } sender) return true;
+				from[w.Id] = sender;
+				return false;
+			}).Select(pair => pair.First).ToList();
+			return wanted.Count == 0;
+		}, seconds: 3, every: 0.2);
+		foreach (var (id, _) in wanted) from[id] = "";
+	}
+
+	private static List<JsonElement> WithSenders(List<JsonElement> rows, Dictionary<string, string> from) =>
+		rows.Select(m =>
+		{
+			if (Field(m, "Sender").Length > 0 || !from.TryGetValue(Field(m, "UniqueId"), out var sender) || sender.Length == 0) return m;
+			var row = System.Text.Json.Nodes.JsonNode.Parse(m.GetRawText())!.AsObject();
+			row["Sender"] = sender;
+			return JsonSerializer.SerializeToElement(row);
+		}).ToList();
+
+	/// <summary>How many of the newest messages plain `inbox` lists: a number of its own, not as many as fit on the screen.</summary>
+	private const int InboxNewest = 30;
+
+	/// <summary>The newest messages, and any older one the game is waiting on.</summary>
+	private static List<JsonElement> NewestMessages(List<JsonElement> all) =>
+		all.Where((m, i) => i >= all.Count - InboxNewest || Blocking(m)).ToList();
 
 	/// <summary>
 	/// Scrolls the inbox's own list until the row of this message (by its id) is drawn, so it can be pressed:
@@ -368,11 +429,18 @@ internal static partial class Program
 		// inbox only carries the ones the current page has loaded (ARCHIVED offers, for one).
 		// `--tasks` reads the list under the inbox's own Tasks filter, then puts the filter back: left on, every
 		// later read of the inbox saw only its rows (empty while a message waited, 30 Aug 2030).
-		var inbox = args.Contains("--all")
-			? System.Text.Json.JsonSerializer.SerializeToElement(await AllInbox())
-			: args.Contains("--tasks")
-				? System.Text.Json.JsonSerializer.SerializeToElement(await FreshInbox() is var _ ? await TaskInbox() : [])
-				: await FreshInbox();
+		// Plain `inbox` is the newest messages out of all of them: what the list has bound follows the screen (37
+		// rows at one density, 62 at another).
+		var total = 0;
+		JsonElement inbox;
+		if (args.Contains("--tasks"))
+			inbox = System.Text.Json.JsonSerializer.SerializeToElement(await FreshInbox() is var _ ? await TaskInbox() : []);
+		else
+		{
+			var every = await AllInbox(senders: true);
+			total = every.Count;
+			inbox = System.Text.Json.JsonSerializer.SerializeToElement(args.Contains("--all") ? every : NewestMessages(every));
+		}
 		RememberNumbers(inbox);
 		if (json)
 		{
@@ -396,6 +464,9 @@ internal static partial class Program
 
 		Table.Write(new[] { "#", L("TIME"), L("FROM"), L("SUBJECT"), "" }, rows);
 		}
+
+		if (total > inbox.GetArrayLength())
+			Console.WriteLine(L($"\n{inbox.GetArrayLength()} of {total} messages, the newest. All of them: inbox --all"));
 
 		var waiting = inbox.EnumerateArray().Count(Blocking);
 		if (waiting > 0)

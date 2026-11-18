@@ -185,11 +185,12 @@ def saves_folder():
 
 def dig(data, path):
     """A value by its path; "#" is a list's length, "?Field" a list's entries with it set, "?Field=value" those with
-    that value, "?Field>n" those with a number above n; "A+B" both values joined (a day and its hour). Raises KeyError
+    that value, "?Field>n" those with a number above n; "A+B" both values joined (a day and its hour); "\\." a dot inside a part. Raises KeyError
     when the path is not there."""
     if "+" in path:
         return " ".join(str(dig(data, one)) for one in path.split("+"))
-    for part in path.split(".") if path else []:
+    # "\\." is a dot inside a part (a key such as settings.TextScaling).
+    for part in (piece.replace("\\.", ".") for piece in re.split(r"(?<!\\)\.", path)) if path else []:
         if part == "#":
             data = len(data)
         elif part.startswith("?") and ">" in part:

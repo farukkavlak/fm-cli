@@ -24,6 +24,9 @@ internal static partial class Program
 		// `settings all`: every preference on the game's list, not only the named ones.
 		var everything = args.Contains("--all") || words is ["all"];
 		if (words is ["all"]) words.Clear();
+		// The two interface sizes are not on the game's full list: they have a path of their own.
+		if (FindScale(words) is { } scale) return await ScaleCommand(scale.Setting, scale.Value, json);
+		var scales = everything && words.Count == 0 ? await ScaleList() : [];
 		var fromAll = false;
 
 		Setting wanted = null;
@@ -62,6 +65,7 @@ internal static partial class Program
 			(wanted, value) = (hit, rest);
 		}
 		var found = (wanted != null ? new List<Setting> { wanted } : everything ? AllSettings(page) : Settings.ToList()).Select(s => Locate(s, page)).Where(s => s != null).ToList();
+		if (wanted == null) found.AddRange(scales);
 
 		if (wanted == null)
 		{
@@ -82,6 +86,11 @@ internal static partial class Program
 				return 0;
 			}
 			wanted = found[pick.Value].Setting;
+			if (ScaleSettings.Contains(wanted))
+			{
+				await LeavePreferences();
+				return await ScaleCommand(wanted, null, json);
+			}
 			page = await PreferencesRead();
 			if (page == null) return 1;
 			found = [Locate(wanted, page)];
@@ -168,8 +177,8 @@ internal static partial class Program
 
 		// Read back from the page, reopened after the confirmation closed it. A new language has the
 		// game build its screens again: the page is opened once, when the game is no longer busy
-		// (20 s is only the generous ceiling), never again over one still coming up.
-		var check = await PreferencesRead(opening: 20);
+		// (60 s is only the generous ceiling), never again over one still coming up.
+		var check = await PreferencesRead(opening: 60);
 		var after = check == null ? null : Locate(wanted, check);
 		await LeavePreferences();
 		if (after == null || after.Current != target)

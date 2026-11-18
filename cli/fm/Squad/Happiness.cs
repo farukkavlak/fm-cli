@@ -112,8 +112,13 @@ internal static partial class Program
 
 	private const string HappinessProps = "HierarchyOverallHappinessLevel,MoraleString,HierarchyInfluenceCategoryString,HappinessPositivesCount,HappinessNegativesCount";
 
-	/// <summary>Each first-team player's happiness from his own data; a player the game tells nothing of is left out.</summary>
-	private static async Task<List<HappyPlayer>> HappinessData()
+	/// <summary>
+	/// Every first-team player with what the game tells the manager about him, from the team's own list and with
+	/// <see cref="HappinessContext"/> beside the rows: no table is opened, so no row can be out of view. Empty when
+	/// the list cannot be read.
+	/// </summary>
+	/// <param name="shown">Properties read in the game's own words.</param>
+	private static async Task<List<((string Name, string Id, string Row) First, JsonElement Second)>> JudgedPlayers(string props, string shown = "")
 	{
 		JsonElement players;
 		try { players = await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true); }
@@ -126,11 +131,17 @@ internal static partial class Program
 		var under = rows[0].Row[..rows[0].Row.LastIndexOf('.')];
 		// The variable is bound by this very call when nothing has bound it yet: then a frame later.
 		foreach (var (variable, from) in HappinessContext)
-			if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.2))
+			if (!await Until(async () => !(await Fm.Get("pathset", ("to", $"{under}.{variable}"), ("from", from))).StartsWith("error", StringComparison.Ordinal), seconds: 10, every: 0.1))
 				return [];
 
-		var read = await PullEach(rows.Select(r => (r.Row, HappinessProps)).ToList());
-		return rows.Zip(read)
+		var read = await PullEach(rows.Select(r => (r.Row, props)).ToList(), shown: shown);
+		return rows.Zip(read).ToList();
+	}
+
+	/// <summary>Each first-team player's happiness from his own data; a player the game tells nothing of is left out.</summary>
+	private static async Task<List<HappyPlayer>> HappinessData()
+	{
+		return (await JudgedPlayers(HappinessProps)).AsEnumerable()
 			.Where(x => int.TryParse(NumberText(x.Second, "HierarchyOverallHappinessLevel"), out _))
 			.Select(x => new HappyPlayer(x.First.Name, x.First.Id, x.First.Row, int.Parse(NumberText(x.Second, "HierarchyOverallHappinessLevel")),
 				Field(x.Second, "MoraleString"), Field(x.Second, "HierarchyInfluenceCategoryString"),

@@ -2,8 +2,8 @@ namespace FmCli;
 
 /// <summary>
 /// Squad depth: who can play each position, from the first team's position masks (the game's
-/// PositionCombined, the same in every language), loanees and the under-19s left out; then the age
-/// profile. Nothing is opened in the game beyond the squad table (§13 of the plan).
+/// PositionCombined, the same in every language), loanees left out; then the age profile. Read from
+/// the team's own list: nothing is opened in the game.
 /// </summary>
 internal static partial class Program
 {
@@ -52,17 +52,12 @@ internal static partial class Program
 	{
 		if (await NotNow() is { } refused) return refused;
 		await EngineTexts.Positions(Fm);
-		var squad = await SquadView(SquadTable.GeneralInfo, "AgreedPlayingTime");
-		var youth = await YouthTeams();
 		// Players out on loan are someone else's; one loaned to us has us as his loan club.
 		var (team, _) = await Fm.OwnTeam();
-		var masks = (await Fm.Pull("Human.Team.Players", "Name,PositionCombined,LoanClub.Name", list: true)).EnumerateArray()
+		// In the team list's own order: the squad table hands its rows out in a different order each time.
+		var players = (await Fm.Pull("Human.Team.Players", "Name,Age,PositionCombined,LoanClub.Name", list: true)).EnumerateArray()
 			.Where(p => Field(p, "LoanClub.Name") is not { Length: > 0 } club || club == team)
-			.GroupBy(p => Field(p, "Name")).ToDictionary(g => g.Key, g => Field(g.First(), "PositionCombined"));
-		var players = squad.EnumerateArray()
-			.Where(p => !youth.Contains(Field(p, "Team")))
-			.Where(p => masks.ContainsKey(Field(p, "Name")))
-			.Select(p => (Name: Field(p, "Name"), Age: int.TryParse(Field(p, "Age"), out var a) ? a : 0, Slots: Positions(masks[Field(p, "Name")])))
+			.Select(p => (Name: Field(p, "Name"), Age: int.TryParse(Field(p, "Age"), out var a) ? a : 0, Slots: Positions(Field(p, "PositionCombined"))))
 			.ToList();
 
 		var depth = DepthRows.SelectMany(r => r).ToDictionary(s => s, s => players.Where(p => p.Slots.Contains(s)).Select(p => p.Name).ToList());
