@@ -235,6 +235,7 @@ internal static class Pages
 		// every tab's menu counts as shown, and the youth team's bar lists pages the Training tab does too.
 		var dropdowns = Buttons.AllDropdowns().ToList();
 		var ordered = dropdowns.Where(d => d.name != "NavTabDropdown").Concat(barOnly ? [] : dropdowns.Where(d => d.name == "NavTabDropdown"));
+		string failed = null;
 		foreach (var dropdown in ordered)
 		{
 			try
@@ -253,16 +254,21 @@ internal static class Pages
 						return $"{(on == i ? "shown" : "not shown")} {row.Name} (bar on row {on}: {at?.Name} {at?.Guid}; first row {Read(choices[0])?.Guid})";
 					}
 					if (dry) return $"dry run, NOT opened: {row.Name} (subtab row {i})";
-					dropdown.OnSelectionChangedInternal(i);
-					var events = dropdown.SelectionEvents;
-					if (events == null || events.Count == 0) return $"error: the subtab row for {row.Name} sends nothing";
-					queue.QueueEvents(events);
-					return $"opened {row.Name} (subtab, panel {row.PanelId})";
+					// Another list can hold the page too, so a row that fails does not end the search.
+					try
+					{
+						dropdown.OnSelectionChangedInternal(i);
+						var events = dropdown.SelectionEvents;
+						if (events == null || events.Count == 0) return $"error: the subtab row for {row.Name} sends nothing";
+						queue.QueueEvents(events);
+						return $"opened {row.Name} (subtab, panel {row.PanelId})";
+					}
+					catch (Exception ex) { failed = $"error: the subtab row for {row.Name} could not be chosen: {ex.Message}"; }
 				}
 			}
 			catch { }
 		}
-		return $"error: no page with guid {guid} (a subtab's page: open the page whose bar lists it first)";
+		return failed ?? $"error: no page with guid {guid} (a subtab's page: open the page whose bar lists it first)";
 	}
 
 	/// <summary>

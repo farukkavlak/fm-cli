@@ -283,7 +283,7 @@ internal static class Localisation
 				if (!toEnglish.TryAdd(shown, english) && toEnglish[shown] != english) Clashes++;
 			}
 		}
-		catch { }
+		catch (Exception ex) { Plugin.Log.LogWarning($"[fm-cli] the {now} text table stopped at {byId.Count} rows: {ex.Message}"); }
 		EngineEntries = LoadEngine(now);
 		return toEnglish;
 	}
@@ -318,7 +318,7 @@ internal static class Localisation
 				if (shown != english && toEnglish.TryAdd(shown, english)) added++;
 			}
 		}
-		catch { }
+		catch (Exception ex) { Plugin.Log.LogWarning($"[fm-cli] the {now} engine texts stopped at {added} rows: {ex.Message}"); }
 		return added;
 	}
 

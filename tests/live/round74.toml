@@ -1,0 +1,49 @@
+# Round 74: what a swallowed failure could turn into. A switch that cannot be read is no longer "off the list",
+# a subtab row that fails says so, an offer term keeps its amount and remove button.
+# Run: tools/fm-round.py dry tests/live/round74.toml, then run --lang en,tr.
+
+[[test]]
+task = "T85"
+name = "register: a player taken off and put back, read back; an unknown name refused"
+at = "season-lists"
+fresh = true
+repeat = 3
+steps = [
+  { read = "register", live = true, path = "Players.?CanChange=True.?On=True.0.Name", keep = "who" },
+  { read = "register", live = true, path = "Players.?On=True.#", keep = "listed" },
+  { run = "register --out {who}" },
+  { read = "register", live = true, path = "Players.?Name={who}.0.On", is = "False" },
+  { read = "register", live = true, path = "Players.?On=True.#", differs_from = "listed" },
+  { run = "register --out {who}", note = "already off: nothing to press" },
+  { read = "register", live = true, path = "Players.?Name={who}.0.On", is = "False" },
+  { run = "register --in {who}" },
+  { read = "register", live = true, path = "Players.?Name={who}.0.On", is = "True" },
+  { read = "register", live = true, path = "Players.?On=True.#", same_as = "listed" },
+  { run = "register --out zzzq", rc = "fail" },
+  { read = "register", live = true, path = "Players.?On=True.#", same_as = "listed" },
+]
+
+[[test]]
+task = "T85"
+name = "a page on a subtab bar opens from a fresh load and from another page"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "coaches", path = "Areas.#", not = "0", keep = "areas" },
+  { read = "dynamics", path = "Groups.#", not = "0" },
+  { read = "coaches", path = "Areas.#", same_as = "areas" },
+]
+
+[[test]]
+task = "T85"
+name = "an offer's terms still read, a clause added and read back; nothing sent"
+at = "window-bids"
+fresh = true
+repeat = 3
+steps = [
+  { read = "offer \"Emirhan İlkhan\" --dry", live = true, path = "Terms.#", not = "0" },
+  { read = "offer \"Emirhan İlkhan\" --dry", live = true, path = "Terms.?Code=nspc.#", is = "0" },
+  { read = "offer \"Emirhan İlkhan\" --term \"Percentage Of Next Sale=20%\" --dry", live = true, path = "Terms.?Code=nspc.#", is = "1" },
+  { read = "offer --json", live = true, path = "Terms.?Code=nspc.0.Value", present = true },
+]

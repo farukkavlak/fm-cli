@@ -133,7 +133,8 @@ internal static class Registration
 			var value = Game.Bindings?.Get(ref key);
 			if (value != null && !value.IsNull) fields["Selected"] = value.AsString() is "True" or "1" ? "True" : "False";
 		}
-		catch { }
+		// Left out when it cannot be read: "False" here would pass for a player known to be off the list.
+		catch { fields.Remove("Selected"); }
 		try { fields["Enabled"] = box.enabledInHierarchy ? "True" : "False"; } catch { fields["Enabled"] = "False"; }
 
 		var flags = new List<string>();

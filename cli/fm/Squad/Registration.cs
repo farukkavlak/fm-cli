@@ -10,7 +10,9 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record Registered(string Name, string Age, string Position, string Flags, string Status, bool On, bool CanChange);
+	// Known is false when the row's switch could not be read: On then says nothing.
+	private sealed record Registered(string Name, string Age, string Position, string Flags, string Status, bool On, bool CanChange,
+		[property: System.Text.Json.Serialization.JsonIgnore] bool Known);
 
 	private sealed record RegRule(string Title, string Value, bool Meets);
 
@@ -42,7 +44,7 @@ internal static partial class Program
 				return 1;
 			}
 			var player = matches[0];
-			if (player.On == on) continue;
+			if (player.Known && player.On == on) continue;
 			if (!player.CanChange)
 			{
 				Console.Error.WriteLine(L($"{player.Name} cannot be changed ({player.Status})."));
@@ -255,7 +257,7 @@ internal static partial class Program
 				names.Add(Field(p, "Name"));
 				if (!seen.Add(Field(p, "Name"))) continue;
 				players.Add(new Registered(Field(p, "Name"), Field(p, "Age"), Field(p, "Position"), Field(p, "Flags"), Field(p, "Status"),
-					Field(p, "Selected") == "True", Field(p, "Enabled") == "True"));
+					Field(p, "Selected") == "True", Field(p, "Enabled") == "True", Field(p, "Selected").Length > 0));
 			}
 			scrolls = Field(page, "ScrollEnd") is not ("0" or "");
 			return names;
@@ -292,6 +294,8 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<bool> Flip(string name, bool on)
 	{
+		// The row leaves "Selected" out when its switch cannot be read: neither state, so no click and no success.
+		var wanted = on ? "True" : "False";
 		for (var attempt = 0; attempt < 3; attempt++)
 		{
 			if (await RowOf(name) is not { } row)
@@ -299,7 +303,9 @@ internal static partial class Program
 				Console.Error.WriteLine(L($"{name} was not found on screen."));
 				return false;
 			}
-			if ((Field(row, "Selected") == "True") == on) return true;
+			var now = Field(row, "Selected");
+			if (now.Length == 0) break;
+			if (now == wanted) return true;
 
 			var answer = await Fm.Get("regtoggle", ("ptr", Field(row, "Pointer")));
 			var refused = answer.Contains("dirty repaint", StringComparison.Ordinal);
@@ -309,7 +315,7 @@ internal static partial class Program
 			// a second or more away. Until then the table must not move: a scroll hands the
 			// switch to another player, and the click with it. Clicking again would undo it.
 			if (await Until(async () => (await Fm.GetJson("registration")).GetProperty("Players").EnumerateArray()
-				    .Any(p => Field(p, "Name") == name && (Field(p, "Selected") == "True") == on), seconds: 6)) return true;
+				    .Any(p => Field(p, "Name") == name && Field(p, "Selected") == wanted), seconds: 6)) return true;
 			if (!refused) break;
 		}
 		Console.Error.WriteLine(L($"{name} could not be changed."));

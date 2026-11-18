@@ -37,7 +37,12 @@ internal static class SecondCopyGuard
 						if (other.Id == self.Id || Tried.Contains(other.Id)) continue;
 						Tried.Add(other.Id);
 						try { if (other.StartTime <= self.StartTime) continue; } catch (Exception) { continue; }
-						try { other.Kill(); } catch (Exception) { }
+						try { other.Kill(); }
+						catch (Exception ex)
+						{
+							Plugin.Log.LogWarning($"[fm-cli] could not close a second copy of the game (pid {other.Id}): {ex.Message}");
+							continue;
+						}
 						Plugin.Log.LogWarning($"[fm-cli] closed a second copy of the game (pid {other.Id})");
 						if (notice.Length > 0) Notify(notice);
 					}

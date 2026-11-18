@@ -247,7 +247,7 @@ internal static class Offer
 			}
 			if (remove.Length == 0 && name is "remove-button-visible" or "remove-button-enabled")
 			{
-				var usable = true;
+				var usable = false;
 				try { usable = element.enabledInHierarchy; } catch { }
 				if (!usable) continue;
 				var button = Buttons.ButtonsUnder(element).FirstOrDefault();
@@ -274,8 +274,9 @@ internal static class Offer
 		if (choice != null) parts.Add($"\"Choice\": {{{Choices(choice)}}}");
 		if (box != null)
 		{
-			long amount = 0;
-			try { amount = box.m_numericInput?.value ?? 0; } catch { }
+			// Empty when it cannot be read: a 0 here would be an amount the offer does not hold.
+			var amount = "";
+			try { amount = (box.m_numericInput?.value ?? 0).ToString(); } catch { }
 			parts.Add($"\"Amount\": {{\"Pointer\": \"0x{box.Pointer.ToInt64():x}\", \"Value\": \"{Report.Escape(Buttons.LabelOf(box))}\", \"Number\": \"{amount}\"}}");
 		}
 		if (lockList != null) parts.Add($"\"Lock\": {LockOf(lockList)}");
