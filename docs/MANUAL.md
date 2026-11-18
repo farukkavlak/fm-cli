@@ -157,6 +157,8 @@ fm prep                      # match preparation sessions up to the next match
 fm setpieces new             # set-piece routines
 fm takers                    # set-piece takers
 fm penalties                 # penalty order and rules
+fm scout focus               # scouting focuses
+fm youth [candidates]        # academy and prospects; the year's intake
 ```
 
 ![fm schedule](manual/img/tactics/schedule.png)
@@ -219,7 +221,7 @@ The seven radar styles (`fm settings panel radar <style>` previews one):
 | `braille` ![braille](manual/img/match/radar-braille.png) | `colour` ![colour](manual/img/match/radar-colour.png) |
 | `ascii` ![ascii](manual/img/match/radar-ascii.png) | |
 
-Screenshots: `tools/manual-shot.py`. Panel settings (`~/.config/fm-cli/panel.json`):
+Panel settings (`~/.config/fm-cli/panel.json`):
 
 ```bash
 fm settings panel                              # show them
@@ -228,7 +230,6 @@ fm settings panel pitch off events 5 colour off radar on
 fm settings panel radar braille                # pixel, iso, raycast, voxel, braille, colour, ascii or auto; shows a preview
 fm settings panel reset
 ```
-
 
 ![fm report](manual/img/match/report.png)
 
@@ -269,6 +270,7 @@ fm contract ["<player>"]     # talks: promises, then terms
 fm contract "<player>" --next
 fm contract "<player>" --sign --yes
 fm contract "<player>" --agent
+fm budget                    # transfer, wage and scouting budgets
 ```
 
 ![fm offer](manual/img/transfers/offer.png)
@@ -319,7 +321,7 @@ fm world          # loaded save, date, nations, leagues, players
 
 ![fm finances](manual/img/club/finances.png)
 
-![fm finances --breakdown](manual/img/club/finances-expenditure.png)
+![fm finances expenditure](manual/img/club/finances-expenditure.png)
 
 ![fm supporters](manual/img/club/supporters.png)
 
@@ -388,15 +390,13 @@ fm read [<page>]            # the game's look-only pages, read as they stand
 fm read [<page>] --of "<name>"   # a club not ours, a nation, a national team, a competition
 fm meeting                  # a team meeting of your own; answer with talk
 fm draw                     # a cup draw its message opened: runs it, shows the ties
-fm saves · fm save · fm load
 ```
 
 ![fm read](manual/img/club/read.png)
 
-`fm read` lists the look-only pages (history, honours, records, rules…); `fm read club-honours` reads one.
-
-`fm read --of "Galatasaray (Super League)"` reads another club's page and lists the pages on its bar;
-`fm read club-honours --of "…"` reads one. Two of one name are told apart in brackets (kind, league).
+- `fm read` lists the look-only pages; `fm read club-honours` reads one.
+- `fm read --of "Galatasaray (Super League)"` also lists the pages on that club's bar.
+- Two of one name are told apart in brackets (kind, league).
 
 ![fm read --of](manual/img/club/read-of.png)
 
@@ -412,8 +412,6 @@ fm select <list> "<option>" [--dry]
 fm type "<text>" [--dry]
 fm dialog [answer]
 fm tour [--skip]
-fm news [#]
-fm inbox --all
 ```
 
 Not here: `fm help <command>`. A screen with no command: `pages`, `buttons`, `press`.

@@ -14,15 +14,9 @@ fm (C# CLI, MCP server)  ──HTTP──▶  127.0.0.1:7777  ◀──  FmCliPr
 
 ## Rules
 
-- Hold by identity: data path, event name, game id, page GUID, element name.
-- Wait for the game's sign (value changed, row drawn, `Processing` done). A timeout is only a bound.
-- Read every result back. The game often says "done" and does nothing.
-- Question routes change nothing.
-- Measure in 3 states (cold, page open, other page open) and in TR + EN.
+Rules are in `CLAUDE.md`. Attach order, strongest first: data path + number/enum → data path + `…String` → element name. Never screen text.
 
-Attach order, strongest first: data path + number/enum → data path + `…String` → element name → screen text (never).
-
-## FM27 on Apple Silicon (working since 29 Oct 2026)
+## FM27 on Apple Silicon
 
 - `~/fm27_bep/game/`: BepInEx 6 be.755, `run_bepinex_arm64.sh` (copy in `tools/fm27-bep/`), `libdoorstop.dylib`,
   `dotnet_arm64/`, `steam_appid.txt` (4530370). Steam's folder is untouched.
@@ -68,6 +62,15 @@ Game:
 - Opening a page from the post-match `Results` screen breaks Continue.
 - After a language switch the first reads can be in the old language. Save data keeps the language it was made in.
 - `IsInjured` is not "cannot play". An injured man on the bench stops a match from starting.
+- `PlayerStatus` is a list (injured on the pitch: flag 126). Read as one value it reads nothing.
+- A page asked for while the queue is draining never opens, and the event stays in Sending. Wait for an empty queue.
+- Panels are kept or drawn twice: hidden copies stay listed (dugout card, planner pitches). Take the one `Visible`.
+- A report is another club's page, and the squad panel stays built for that club. Check the team's name in the data.
+- Search rows and their names come late. "None" only when `game.Search.Results` holds none.
+- The "Is At Most" list writes nothing when chosen from. Step the maximum down from 20.
+- A dugout card has no id, and its event index moves when a card goes. The small Dugout box keeps only the latest cards.
+- A goal asks about a waiting change only for a team instruction. A mentality change is taken at once; a penalty never asks.
+- The game's `Timer-Scheduler` thread sometimes aborts as the game quits (10–20 s after `stop`). Saves are already written.
 
 Ours:
 
@@ -75,7 +78,7 @@ Ours:
 - `127.0.0.1`, not `localhost`.
 - `pkill` flags before the pattern.
 - Publish `fm` to `dist/fm.next` and rename; writing over a running `fm` breaks it.
-- Never bring the game window forward.
+- Plugin ticks fire on any thread's runtime_invoke. Touch Unity and AppKit only on the main thread.
 
 ## Live panel and radar
 
@@ -84,8 +87,3 @@ Ours:
 - 24-bit colour for pixel and 3D styles; ASCII, coloured ASCII and braille anywhere.
 - Key moments: the game's own class of each commentary event (`/moments`).
 - No live possession or shots during a match; `report` has them after.
-
-## New in FM27
-
-- Tactical tweaks, Squad Planner, TransferRoom, training week cards, recruitment focus rebuilt.
-- Set-piece wizard, cup draw screen, Fantasy/Shuffle Draft, kit editor.
