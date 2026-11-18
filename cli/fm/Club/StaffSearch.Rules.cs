@@ -208,11 +208,14 @@ internal static partial class Program
 			var adder = await Adder();
 			if (adder.ValueKind != JsonValueKind.Object) return await Close(L("error: no 'Add Attribute' in the search panel"));
 			if (await AddRow(adder, "pval") is not { } valueRow) return await Close(L("error: no transfer value condition in the search panel's list"));
+			async Task<List<JsonElement>> AmountLists() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+				.Where(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var within)
+				            && within.EnumerateArray().Any(w => w.GetString() == "cash-list-frame")).ToList();
+			var amountsBefore = (await AmountLists()).Select(d => Field(d, "Pointer")).ToHashSet();
 			var added = await Fm.Get("select", ("ptr", Field(adder, "Pointer")), ("choice", valueRow), ("fire", "1"));
 			if (added.StartsWith("error", StringComparison.Ordinal)) return await Close(added);
-			async Task<JsonElement> Amounts() => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-				.LastOrDefault(d => Field(d, "Binds") == "value" && d.TryGetProperty("Within", out var within)
-				                    && within.EnumerateArray().Any(w => w.GetString() == "cash-list-frame"));
+			// The row just added is the one whose list was not there before.
+			async Task<JsonElement> Amounts() => (await AmountLists()).Where(d => !amountsBefore.Contains(Field(d, "Pointer"))).ToList() is [var only] ? only : default;
 			JsonElement amounts = default;
 			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
 				return await Close(L("error: the value condition was not added to the panel"));

@@ -5,12 +5,13 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>
-	/// A list on the match screen: mentality, which only writes its bound value,
-	/// and touchline shouts, which send theirs. Chosen the way a submenu leaf is, by its record.
+	/// The match screen's mentality list, known by the data it writes. Choosing only writes its bound value.
 	/// </summary>
-	private static async Task<int> MatchList(string what, Func<JsonElement, bool> which, string wanted, bool dry, bool events)
+	private static async Task<int> MatchMentality(string wanted, bool dry)
 	{
-		var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>().FirstOrDefault(d => which(d!.Value));
+		var what = L("Mentality");
+		JsonElement? list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
+			.Where(d => Field(d, "Binds") == "match.tactic.mentalitydropdown" && Field(d, "Visible") == "True").ToList() is [var only] ? only : null;
 		if (list == null)
 		{
 			Console.Error.WriteLine(L($"There is no {what.ToLowerInvariant()} list on the match screen."));
@@ -29,16 +30,14 @@ internal static partial class Program
 		// After a shout the game shuts the list for a while; choosing from it then does nothing.
 		if (Field(list!.Value, "Enabled") != "True")
 		{
-			Console.Error.WriteLine(events
-				? L("The players heard a shout a moment ago; the game does not allow a new shout for a while.")
-				: L($"{(current.Length > 0 ? $"{what}: {current}. " : "")}After the last change the game closed the {what.ToLowerInvariant()} list for a while; try again shortly."));
+			Console.Error.WriteLine(L($"{(current.Length > 0 ? $"{what}: {current}. " : "")}After the last change the game closed the {what.ToLowerInvariant()} list for a while; try again shortly."));
 			return 1;
 		}
 		if (wanted == null && Ui.Interactive && !dry && Ui.Ask(what, choices, current: choices.IndexOf(current), cancel: L("Cancel")) is { } asked)
 			wanted = choices[asked];
 		if (wanted == null)
 		{
-			Console.WriteLine(L($"{what}{(current.Length > 0 && current != "Shouts" ? $": {current}" : "")}\nOptions: {string.Join(" · ", choices)}"));
+			Console.WriteLine(L($"{what}{(current.Length > 0 ? $": {current}" : "")}\nOptions: {string.Join(" · ", choices)}"));
 			return 0;
 		}
 		var hit = choices.Where(c => Fold(c) == Fold(wanted)).ToList();
@@ -53,17 +52,10 @@ internal static partial class Program
 			Console.WriteLine(L($"(dry run) {what}: {hit[0]}"));
 			return 0;
 		}
-		var said = await Fm.Get("select", ("ptr", Field(list!.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", events ? "1" : "0"));
+		var said = await Fm.Get("select", ("ptr", Field(list!.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", "0"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-		// A shout that reached the players closes the list behind it: the one sign of it on screen.
-		if (events && !await Until(async () => (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			    .Any(d => which(d) && Field(d, "Enabled") != "True"), seconds: 4, every: 0.25))
-		{
-			Console.Error.WriteLine(L($"{what}: {hit[0]} sent, but the game did not close the shouts list; it may not have been heard."));
-			return 1;
-		}
-		Console.WriteLine($"{what}: {hit[0]}{(events ? L(" (the game closed new shouts for a while)") : "")}");
+		Console.WriteLine($"{what}: {hit[0]}");
 		return 0;
 	}
 
@@ -165,14 +157,6 @@ internal static partial class Program
 	private static async Task<JsonElement> TacticInfo() =>
 		(await Fm.GetJson("tactic")).TryGetProperty("Tactic", out var tactic) ? tactic : JsonDocument.Parse("{}").RootElement;
 
-	/// <summary>
-	/// Creates the team's tactic through the game's own wizard: a style, then a formation with
-	/// the ball, then one without it.
-	///
-	/// The formations offered depend on the style, so they cannot be listed up front. Whatever
-	/// is left out is listed for the stage the wizard has reached, and the wizard stays there,
-	/// so the command can be repeated with one more choice each time.
-	/// </summary>
 	/// <summary>Whether the team had a tactic when the wizard was opened; with it open the tactic cannot be read.</summary>
 	private static bool hadTactic;
 
@@ -220,6 +204,14 @@ internal static partial class Program
 		if (hadTactic) await Fm.Get("press", ("event", "EventToPlugin:EventFmxTacticCreatorCancel"));
 	}
 
+	/// <summary>
+	/// Creates the team's tactic through the game's own wizard: a style, then a formation with
+	/// the ball, then one without it.
+	///
+	/// The formations offered depend on the style, so they cannot be listed up front. Whatever
+	/// is left out is listed for the stage the wizard has reached, and the wizard stays there,
+	/// so the command can be repeated with one more choice each time.
+	/// </summary>
 	private static async Task<int> TacticNew(List<string> picks, bool dry)
 	{
 		// The wizard's three stages, by what each chooses. Its list is the one bound to the wizard's own
@@ -340,7 +332,7 @@ internal static partial class Program
 				var soFar = string.Join(" ", picks.Take(i).Select(p => $"\"{p}\""));
 				Console.WriteLine(L($"\nTo go on: tactic new {soFar}{(soFar.Length > 0 ? " " : "")}\"<choice>\""));
 				// The command takes the choices from the start each time, so the wizard is not left open: on its
-				// page the team's tactics are not to be read, and other commands would find none (8 Temmuz 2026).
+				// page the team's tactics are not to be read, and other commands would find none (8 July 2026).
 				await LeaveCreator();
 				return 0;
 			}
@@ -458,7 +450,7 @@ internal static partial class Program
 		var all = items.ToList();
 		var wanted = Fold(typed).Trim();
 		// A name comes from the game's data in English where its table can say, while the user
-		// reads it in the game's words: both are accepted, as the rest of the CLI does (§8.211).
+		// reads it in the game's words: both are accepted, as the rest of the CLI does.
 		string Shown(T item) => Fold(GameWords.Of(name(item)));
 		var holding = all.Where(i => Fold(name(i)).Contains(wanted, StringComparison.Ordinal)
 		                          || Shown(i).Contains(wanted, StringComparison.Ordinal)).ToList();

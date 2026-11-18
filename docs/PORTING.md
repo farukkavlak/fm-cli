@@ -79,7 +79,7 @@ Ours:
 
 ## Live panel and radar
 
-- One `batch` request per redraw (0.8 s). The panel draws over itself (no flicker).
+- One `batch` request per redraw (1 s). The panel draws over itself (no flicker).
 - Radar from `Match2DSimulation.m_data`: normalized positions, kit colours; sides by kit.
 - 24-bit colour for pixel and 3D styles; ASCII, coloured ASCII and braille anywhere.
 - Key moments: the game's own class of each commentary event (`/moments`).

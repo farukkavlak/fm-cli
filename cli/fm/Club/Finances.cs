@@ -34,12 +34,14 @@ internal static partial class Program
 			return 1;
 		}
 
-		// Count and total basic wage per player status, in the period the game is set to show; the
-		// last entry is the whole squad's, its count the others' sum.
+		// Count and total basic wage per player status, in the period the game is set to show. One entry
+		// is the whole squad's: the one whose count is the others' sum, wherever it stands. With no single
+		// such entry none is dropped.
 		var types = (await Fm.Pull("Human.Club.WagesData.PlayerTypeWageData", "Name,Quantity,TotalBasicWage", list: true)).EnumerateArray()
 			.Select(r => (Status: Field(r, "Name"), Players: int.TryParse(Field(r, "Quantity"), out var n) ? n : 0, Wage: Field(r, "TotalBasicWage")))
 			.ToList();
-		var statuses = types.Count > 1 && types[^1].Players == types.SkipLast(1).Sum(t => t.Players) ? types.SkipLast(1).ToList() : types;
+		var everyone = types.Sum(t => t.Players);
+		var statuses = types.Where(t => t.Players > 0 && t.Players * 2 == everyone).ToList() is [var whole] ? types.Where(t => t != whole).ToList() : types;
 
 		// The two seasons the card projects (the first is the one under way).
 		var projections = new List<(string Season, string Balance, string Turnover)>();

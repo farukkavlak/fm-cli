@@ -15,7 +15,7 @@ public class NlAskTests
 		return keys;
 	}
 
-	// "mode?" on screen, in English, is what this keeps from coming back (28 Ekim 2026).
+	// "mode?" on screen, in English, is what this keeps from coming back (28 October 2026).
 	[Fact]
 	public void EveryArgumentTheRouterAsksForHasAQuestion() =>
 		Assert.DoesNotContain(Nl.Router.Askable(), a => !Program.Questions.ContainsKey($"{a.Tool}.{a.Arg}") && !Program.Questions.ContainsKey(a.Arg));
@@ -27,7 +27,7 @@ public class NlAskTests
 		Assert.DoesNotContain(Program.Questions.Values.Concat(Program.AskChoices.Values), t => !catalog.Contains(t));
 	}
 
-	// "next opponent" ran `next` and moved the game on (28 Ekim 2026, live).
+	// "next opponent" ran `next` and moved the game on (28 October 2026, live).
 	[Theory]
 	[InlineData("next opponent", true)]
 	[InlineData("next 3", false)]

@@ -108,7 +108,7 @@ internal static partial class Program
 		}
 
 		// A man hurt badly enough loses his menu on the pitch once the game has said he cannot stay on
-		// (Draper, 11 Nisan 2026), and with it the way above. His slot in the planner's table still
+		// (Draper, 11 April 2026), and with it the way above. His slot in the planner's table still
 		// takes a substitute, and the stop's button then makes the change and plays on.
 		if (Field(await Fm.GetJson("state"), "Playing") != "True" && !onPitch.Any(n => Named(n, words[0])))
 		{
@@ -274,7 +274,7 @@ internal static partial class Program
 			men[name] = new MatchMan(injury,
 				Field(read[i], "YellowCardedInMatch") == "True", Field(read[i], "RedCardedInMatch") == "True", Field(read[i], "MatchRating"));
 		}
-		// At a stop neither field need say it (Draper, 11 Nisan 2026: type 0, shirt not flagged) while the
+		// At a stop neither field need say it (Draper, 11 April 2026: type 0, shirt not flagged) while the
 		// planner's status column does; that column is his first status flag, which wants the match's tactic beside him.
 		if (atStop && men.Values.Any(m => m.Injury == 0 && !m.Red) && await FindMatchTactic() && matchTactic != null
 		    && !(await Fm.Get("pathset", ("to", $"{at}.Tactic"), ("from", matchTactic))).StartsWith("error", StringComparison.Ordinal))

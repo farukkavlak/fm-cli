@@ -38,7 +38,7 @@ internal static partial class Program
 
 		// The card offers the slider's steps; every one is read by standing on it. The tile that
 		// opens it is found by the action it stands for, not by its words: the label is the game's
-		// own string, put into English by this language's table (§8.209).
+		// own string, put into English by this language's table.
 		// The page draws its tiles again after a card closes, so a tile just found may be gone by the press.
 		JsonElement? tile = null;
 		var clicked = "";
@@ -192,8 +192,8 @@ internal static partial class Program
 	}
 
 	/// <summary>The tile that opens the card, by the action it stands for (ActionID
-	/// ClubBudgetAdjustmentTransfers). FM26's ClubBudgetAdjustmentTransfersAndWages (1885623898) is
-	/// now an entry of the board requests menu beside it; the action tells them apart where their
+	/// ClubBudgetAdjustmentTransfers). ClubBudgetAdjustmentTransfersAndWages (1885623898) is
+	/// an entry of the board requests menu beside it; the action tells them apart where their
 	/// words, the game's own strings, are only English when the table says so.</summary>
 	private const string BudgetAdjustAction = "894198379";
 

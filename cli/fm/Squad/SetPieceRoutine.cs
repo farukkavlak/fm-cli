@@ -5,7 +5,7 @@ namespace FmCli;
 /// <summary>
 /// A set piece routine (Match Day › Set Pieces): how the ball is delivered, where it is aimed and
 /// what each player in the routine is told to do. The page shows one kind at a
-/// time, the same kinds the takers are kept for (§8.91).
+/// time, the same kinds the takers are kept for.
 /// </summary>
 internal static partial class Program
 {

@@ -21,7 +21,7 @@ internal static class MoneyFormat
 
 	/// <summary>
 	/// What one unit of the game's data is in the currency it shows. FM27 keeps money in pounds and
-	/// shows it in the player's currency (999 → "1,16B €"); FM26's data was already in it (1).
+	/// shows it in the player's currency (999 → "1,16B €").
 	/// </summary>
 	public static double Rate { get; private set; } = 1;
 

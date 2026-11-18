@@ -87,9 +87,7 @@ internal static class Texts
 		VisualElement topBody = q["top"] == "1" ? TopBody() : null;
 		if (q["top"] == "1" && topBody == null) return "[]\n";
 		var rows = new Dictionary<VisualElement, (int Index, long Table)>();
-#if !FM26
 		foreach (var (row, table, index) in TableRows.Laid()) rows[row] = (index, table.Pointer.ToInt64());
-#endif
 		var texts = new List<string>();
 		foreach (var element in Buttons.Elements())
 		{

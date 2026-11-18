@@ -60,6 +60,4 @@ internal sealed record PanelConfig(string View, bool Pitch, int Events, bool Col
 	[JsonIgnore]
 	public int ViewIndex => View switch { "key" => 1, "score" => 2, _ => 0 };
 
-	/// <summary>The view as the panel footer names it.</summary>
-	public static string ViewName(int view) => view switch { 1 => "key", 2 => "score", _ => "full" };
 }

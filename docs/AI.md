@@ -11,10 +11,9 @@ Playing by sentence (`fm <sentence>`), and later an assistant (Mahmut).
 
 ## Today
 
-- A router picks the tool: a fine-tuned multilingual embedding model (ONNX, 275 MB, ~5 ms), kNN vote, rules.
+- A router picks the tool: a fine-tuned multilingual embedding model (ONNX, 280 MB, ~5 ms), kNN vote, rules.
 - ≥80% sure: run it (ask first if it changes the game). 50–80%: offer 3. Below: offer 5.
 - Code: `cli/fm/Nl/`. Tests: `tests/nl/`. Model installed by `fm doctor --install`.
-- Smart mode (opt-in): Claude Haiku answers when the router is unsure.
 - Local LLMs were measured on this Mac (29 Oct): all failed. Not used.
 
 ## Safety

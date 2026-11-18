@@ -12,14 +12,14 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	/// <summary>
-	/// Finds the person with the game's search and raises his menu. Null having said why not.
-	/// </summary>
 	/// <summary>The data path of the person the last <see cref="PersonMenu"/> found: his record, to read back what an action did.</summary>
 	private static string LastPersonPath = "";
 
 	/// <param name="records">Also a club, nation or competition of that name (`actions` only): its own right-click
 	/// menu (a team report, budget requests). A person of the name is still the one meant.</param>
+	/// <summary>
+	/// Finds the person with the game's search and raises his menu. Null having said why not.
+	/// </summary>
 	private static async Task<(string Name, List<JsonElement> Entries)?> PersonMenu(string wanted, string? kind = null, bool records = false)
 	{
 		// A question already on screen would be taken for the answer to whatever is chosen here.

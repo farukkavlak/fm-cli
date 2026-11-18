@@ -268,8 +268,7 @@ internal static partial class Program
 			return 1;
 		}
 		await Fm.Get("click", ("ptr", Field(formConfirm, "Pointer")));
-		// FM27 asks once more ("confirm this Focus?"), a window known by the event it sends; FM26
-		// took the form down at once. Answered with the window's own primary answer.
+		// The game asks once more ("confirm this Focus?"), a window known by the event it sends. Answered with the window's own primary answer.
 		if (await Until(async () => (await Fm.GetJson("dialog")).EnumerateArray().Any(d => Field(d, "Type") == FocusConfirmDialog)
 				|| await FormStep() == null, seconds: 6, every: 0.3)
 			&& (await Fm.GetJson("dialog")).EnumerateArray().Any(d => Field(d, "Type") == FocusConfirmDialog))

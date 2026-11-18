@@ -486,7 +486,7 @@ internal static partial class Program
 	/// <summary>One entry on the timeline, at its place there; Open while the game calls it actionable.</summary>
 	private sealed record DugoutEntry(string Minute, int Index, string Pointer, string Text, bool Open, string TweakId = "", string TweakAction = "");
 
-	/// <summary>The event on the panel's "Do it" button (`MatchDugoutConfirm` belongs to FM26).</summary>
+	/// <summary>The event on the panel's "Do it" button.</summary>
 	private const string AcceptEvent = "DugoutAdviceAccept";
 
 	/// <summary>`MatchDugoutSelectedEventType` of a score update (`MatchDugoutEventScoreUpdateReference`): other grounds' goals and the table. 3 is advice or a note, 1 and 2 an analysis.</summary>
@@ -503,7 +503,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// The staff's suggestion on the pre-match team news, when there is one to answer. Until it is
-	/// answered the game takes no Continue (Sampdoria away, 22 Nisan 2029: the match waited at the
+	/// answered the game takes no Continue (Sampdoria away, 22 April 2029: the match waited at the
 	/// team talk). Found by its button's template name and its texts' data paths.
 	/// </summary>
 	internal static async Task<StaffAdvice?> StaffSuggestion(JsonElement? buttons = null)

@@ -22,17 +22,17 @@ internal static partial class Program
 
 		// During a match the planner's pages are gone; the match screen has its own list.
 		if (words.Count > 0 && words[0] == "mentality" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
-			return await MatchList(L("Mentality"), d => d.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == "Very Attacking"), wanted, dry, events: false);
+			return await MatchMentality(wanted, dry);
 		if (words.Count > 0 && words[0] == "role" && Field(await Fm.GetJson("state"), "DuringMatch") == "True")
 			return await MatchRole(words.Skip(1).ToList(), args.Contains("--oop"), dry);
 
 		switch (words.Count > 0 ? words[0] : "")
 		{
 			case "": break;
-			// Each setting is a dropdown on the planner, known by something only it offers.
-			case "mentality": return await TacticSetting(L("Mentality"), "MentalityString", "Very Defensive", wanted, dry);
-			case "style": return await TacticSetting(L("Style"), "Style", "Gegenpress", wanted, dry);
-			// "pick DL" once ran the whole Quick Pick and replaced two starters (29 Nisan 2029).
+			// Each setting is a dropdown on the planner, known by the data it writes.
+			case "mentality": return await TacticSetting(L("Mentality"), "MentalityString", "Tactic.MentalityDropdown", wanted, dry);
+			case "style": return await TacticSetting(L("Style"), "Style", "tactic.TacticalStyleDropdown", wanted, dry);
+			// "pick DL" once ran the whole Quick Pick and replaced two starters (29 April 2029).
 			case "pick" when words.Count > 1:
 				Console.Error.WriteLine(L("tactic pick lets the assistant choose the whole eleven and takes nothing after it. For one position: tactic player <position> <player>"));
 				return 64;
@@ -70,8 +70,7 @@ internal static partial class Program
 				return Familiar(tactic);
 			}, seconds: 4, every: 0.25);
 		var header = tactic.GetProperty("Tactic");
-		// FM27 rates each player's and the team's tactical effectiveness (out of 100) where FM26
-		// gave familiarity; the word is the game's own.
+		// The game rates each player's and the team's tactical effectiveness out of 100; the word is its own.
 		var rated = Field(header, "Effectiveness").Length > 0;
 		if (rated) await GameWords.Ask(Fm, "Effectiveness");
 		var ratedWord = GameWords.Of("Effectiveness");
@@ -276,7 +275,6 @@ internal static partial class Program
 		return took ? 0 : 1;
 	}
 
-	/// <summary>Who a team selection slot's own list offers (the whole squad), or null when the plugin cannot say.</summary>
 	/// <summary>
 	/// Takes the player out of a place and leaves it empty. The place's button sends this on its right-click list
 	/// (EventFmxTeamSelectionClearOrPickPlayerAuto); it is told from the others by its row's own PlayerIndex,

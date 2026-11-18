@@ -129,7 +129,7 @@ internal static partial class Program
 			{
 				if (j == i) continue;
 				about = about.Length > 0 ? about : Value(lines[j], "HeadlineSubTitle") ?? "";
-				// FM26 NewsItemAgeString, FM27 NewsItemAgeRoundedString.
+				// An item has one or the other.
 				age = age.Length > 0 ? age : Value(lines[j], "NewsItemAgeString") ?? Value(lines[j], "NewsItemAgeRoundedString") ?? "";
 				if (body.Length > 0 || Value(lines[j], "NewsBodyString") is not { Length: > 0 } first) continue;
 				// An open article's body runs on over the lines that follow, one per paragraph,

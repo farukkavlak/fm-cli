@@ -54,12 +54,8 @@ internal static class RowControls
 			var path = "";
 			try
 			{
-#if FM26
-				var held = table?.GetItemFromSource(index);
-#else
 				// FM27's table keeps each row by its place in view (TableRows.Laid).
 				var held = table?.GetItemFromView(index);
-#endif
 				var item = table != null ? held?.TryCast<SI.Core.TypedValue>() : Kept(dropdown, variable);
 				if (item is { IsNull: false } && RawPath.Set($"{under}.{k}", item) == null)
 					path = $"{under}.{k}";
@@ -123,11 +119,7 @@ internal static class RowControls
 				{
 					index = at.Index;
 					table = at.Table.Pointer.ToInt64();
-#if FM26
-					var held = at.Table.GetItemFromSource(at.Index);
-#else
 					var held = at.Table.GetItemFromView(at.Index);
-#endif
 					if (held?.TryCast<SI.Core.TypedValue>() is { IsNull: false } item && RawPath.Set($"{under}.{k}", item) == null)
 						path = $"{under}.{k}";
 				}

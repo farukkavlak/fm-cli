@@ -136,9 +136,9 @@ internal static partial class Program
 	///
 	/// The bar answers for the page only once the parent is built: a row chosen before that is lost
 	/// (the press comes back "no page with guid …"), so the bar is waited on rather than paused on
-	/// (measured: the bar answers 0.16–0.46 s after the parent is asked for; §8.246). What the bar
+	/// (measured: the bar answers 0.16–0.46 s after the parent is asked for). What the bar
 	/// stands on is the game's own word for the page being the one shown (?check=1). The content
-	/// followed in 0.88–1.51 s (TR + EN, §8.302), so the upper bound is 8 s rather than 3 s.
+	/// followed in 0.88–1.51 s (TR + EN), so the upper bound is 8 s rather than 3 s.
 	/// </summary>
 	internal static async Task<string> OpenSubpage(string parent, string screen, Func<Task<bool>> shown, string? team = null, bool bar = false)
 	{

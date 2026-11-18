@@ -126,9 +126,9 @@ internal static partial class Program
 		if (clicked.StartsWith("error", StringComparison.Ordinal))
 		{
 			// The panel's own close: the one that shuts the history on the same page as its Save.
-			var cancel = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.LastOrDefault(b => Field(b, "Events") == "PanelHistoryClose" && Field(b, "Page").Length > 0 && Field(b, "Page") == Field(save, "Page"));
-			if (cancel.ValueKind == JsonValueKind.Object) await Fm.Get("click", ("ptr", Field(cancel, "Pointer")));
+			if (Field(save, "Page").Length > 0 && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				    .Where(b => Field(b, "Events") == "PanelHistoryClose" && Field(b, "Page") == Field(save, "Page")).ToList() is [var cancel])
+				await Fm.Get("click", ("ptr", Field(cancel, "Pointer")));
 			Console.Error.WriteLine(L($"The game did not allow saving as '{name}' (Save stayed closed)."));
 			return 1;
 		}
@@ -185,8 +185,10 @@ internal static partial class Program
 		JsonElement Load(JsonElement buttons) => buttons.EnumerateArray().FirstOrDefault(b => Field(b, "Events").Contains("EventLoadAddOn", StringComparison.Ordinal));
 		var close = async () =>
 		{
-			var x = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().LastOrDefault(b => Field(b, "Events") == "PanelHistoryClose");
-			if (x.ValueKind != JsonValueKind.Object) return;
+			// The panel's own close: the one on the same page as its Load button.
+			var buttons = await Fm.GetJson("buttons", ("json", "1"));
+			var page = Field(Load(buttons), "Page");
+			if (page.Length == 0 || buttons.EnumerateArray().Where(b => Field(b, "Events") == "PanelHistoryClose" && Field(b, "Page") == page).ToList() is not [var x]) return;
 			await Fm.Get("click", ("ptr", Field(x, "Pointer")));
 			// The panel is gone once its own Load button is: the page behind is ready to be asked
 			// again. The ceiling is only for a panel that never goes.

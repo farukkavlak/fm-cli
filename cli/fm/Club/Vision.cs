@@ -93,7 +93,7 @@ internal static partial class Program
 		switch (words.ElementAtOrDefault(0))
 		{
 			case "plan" or "5yil":
-				return await VisionPlanCommand(json, words);
+				return await VisionPlanCommand(json);
 			case "add" or "ekle":
 				return await VisionAdd(words);
 		}

@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// Mentoring groups (Squad › Training › Mentoring, §8.106, §8.188): which players
+/// Mentoring groups (Squad › Training › Mentoring): which players
 /// are grouped to learn from one another. Read from the team's own data, no page; set up by asking
 /// the assistant, or made in the game's group editor, each control told by what it does and every
 /// step confirmed from the data.
@@ -166,8 +166,8 @@ internal static partial class Program
 
 	/// <summary>The group editor's Confirm (it edits the group).</summary>
 	private const string MentoringConfirm = "EventToPlugin:EventFmxEditMentoringGroup";
-	/// <summary>The group editor's Cancel: shown only while the editor is open (FM27 draws the editor inside the
-	/// Mentoring page, not as a page of its own as FM26 did, so its own button is the sign).</summary>
+	/// <summary>The group editor's Cancel: shown only while the editor is open (it is drawn inside the
+	/// Mentoring page, so its own button is the sign).</summary>
 	private const string MentoringCancel = "EventToPlugin:EventFmxRevertMentoringGroupChanges";
 
 	/// <summary>A button the game shows that sends this event (the editor's ones are laid out but hidden when it is shut).</summary>

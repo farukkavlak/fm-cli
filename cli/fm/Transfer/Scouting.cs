@@ -127,17 +127,17 @@ internal static partial class Program
 		return null;
 	}
 
-	/// <summary>
-	/// Selects a focus in the page's list and reads the selected focus's record once it is the one
-	/// at that place in the club's list (by UniqueId): its name and status, who is assigned, and how
-	/// many players are matched, nearly matched and still being looked at.
-	/// </summary>
 	/// <summary>The club's focuses in the list now shown, by record, from its data.</summary>
 	private static async Task<List<string>> FocusIds() =>
 		(await Fm.Pull("Human.ScoutingInfo.RecruitmentFocusesList", "UniqueId", list: true)).EnumerateArray().Select(e => Field(e, "UniqueId")).ToList();
 
 	/// <param name="ids">The list's records when the caller has them (read once for a whole listing:
 	/// each reading of a list leaves its rows bound).</param>
+	/// <summary>
+	/// Selects a focus in the page's list and reads the selected focus's record once it is the one
+	/// at that place in the club's list (by UniqueId): its name and status, who is assigned, and how
+	/// many players are matched, nearly matched and still being looked at.
+	/// </summary>
 	private static async Task<Focus> FocusAt(int index, List<string>? ids = null)
 	{
 		if (await FocusList() is not { } list) return null;

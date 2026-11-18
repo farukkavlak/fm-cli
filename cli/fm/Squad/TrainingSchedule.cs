@@ -37,7 +37,6 @@ internal static partial class Program
 		if (!style && await ChangeSessionInWeek(day, int.Parse(words[0]), string.Join(" ", words.Skip(1))) is { } done) return done;
 		if (style && await ChangeWeekInSelector(day, string.Join(" ", words), args.Contains("--json")) is { } weekDone) return weekDone;
 
-		// FM26's calendar was found by its English words ("Monday", "Training", "Today"); it is not tried.
 		Console.Error.WriteLine(L("The training page shows no session buttons."));
 		return 1;
 	}

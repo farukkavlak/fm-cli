@@ -251,7 +251,7 @@ def catalog(folder: Path) -> int:
     folder.mkdir(parents=True, exist_ok=True)
     sig = ["dotnet", "run", "--project", str(ROOT / "tools/sigdump"), "--"]
     for name, args in [("enums.txt", ["--enums"]), ("events.txt", ["--catalog", "events"]), ("members.tsv", ["--members"])]:
-        print(f"  {name} (sigdump {' '.join(args)}, FM_BEP={os.environ.get('FM_BEP', '~/fm26_bep')})")
+        print(f"  {name} (sigdump {' '.join(args)}, FM_BEP={os.environ.get('FM_BEP', '~/fm27_bep')})")
         with (folder / name).open("w", encoding="utf-8") as out:
             subprocess.run(sig + args, stdout=out, check=False)
     for name, route in [("data-model.txt", "schema"), ("panels.txt", "panels")]:

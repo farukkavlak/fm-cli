@@ -106,7 +106,7 @@ internal static partial class Program
 			// which pick a level at once: the data shows that level, not "Automatic".
 			var automatic = wanted == IntensityLevels[0].Value;
 			// A rest is counted from today: asked for one day in the evening, the game shows two (measured
-			// 27 Ekim 2026: 1 → 2, 3 → 4). Any rest the player was not on before is the one asked for.
+			// 27 October 2026: 1 → 2, 3 → 4). Any rest the player was not on before is the one asked for.
 			static bool Rest(int value) => value is >= 10 and <= 17;
 			bool Took(IntensityRow r) => r.Value == wanted || Rest(wanted) && Rest(r.Value) && r.Value != player.Value;
 			IntensityRow now = player;

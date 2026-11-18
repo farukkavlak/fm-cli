@@ -5,22 +5,6 @@ namespace FmCli;
 /// <summary>Read-only views: the league table and the fixture list.</summary>
 internal static partial class Program
 {
-	/// <summary>
-	/// Reads a shaped endpoint, opening the page that binds it when nothing is bound yet, and
-	/// waiting for the rows rather than for a fixed delay.
-	/// </summary>
-	private static async Task<JsonElement> Shown(string route, string screen)
-	{
-		var data = await Fm.GetJson(route);
-		if (data.GetArrayLength() > 0) return data;
-
-		var opened = await OpenPage(screen);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
-
-		await Until(async () => (data = await Fm.GetJson(route)).GetArrayLength() > 0);
-		return data;
-	}
-
 	/// <summary>Pages are not opened over a match or the results page after it; null when it is safe to read.</summary>
 	private static async Task<int?> NotNow()
 	{
@@ -38,7 +22,7 @@ internal static partial class Program
 		}
 		// After a match the game stands on its results and news page until it is passed. A page opened
 		// from there leaves that step undone: Continue then did nothing at all, for the rest of the
-		// session, and only loading the save again brought time back (Stevenage, 18 Nisan 2026).
+		// session, and only loading the save again brought time back (Stevenage, 18 April 2026).
 		if (Field(state, "State") == "Results")
 		{
 			Console.Error.WriteLine(L("The game is on the post-match results screen; go past it before opening another page: next"));
@@ -93,10 +77,6 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Types a name into the game's search and returns what it found. The search box only takes
-	/// text typed into it, and its results arrive a moment after.
-	/// </summary>
-	/// <summary>
 	/// Shuts the game's search window when it is up, by its own close button (the window's page, the ClosePanel
 	/// it sends); done when its box is gone. A command that found someone with it and then stopped leaves it over
 	/// the page otherwise (15 Nov: `actions` with an entry it had not, the window stayed up).
@@ -113,6 +93,10 @@ internal static partial class Program
 		await Until(async () => !(await Fm.GetJson("textboxes")).EnumerateArray().Any(Box), seconds: 5, every: 0.25);
 	}
 
+	/// <summary>
+	/// Types a name into the game's search and returns what it found. The search box only takes
+	/// text typed into it, and its results arrive a moment after.
+	/// </summary>
 	private static async Task<List<JsonElement>> SearchFor(string text)
 	{
 		var boxes = (await Fm.GetJson("textboxes")).EnumerateArray().ToList();

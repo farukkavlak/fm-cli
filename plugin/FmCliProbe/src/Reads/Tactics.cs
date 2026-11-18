@@ -224,19 +224,6 @@ internal static class Tactics
 		catch { return false; }
 	}
 
-	/// <summary>
-	/// What hangs beside a slot's position record: the roles by name, and the player picked for
-	/// it. A role without the ball is the one whose name starts with "OP".
-	/// </summary>
-	/// <summary>
-	/// The player a cell of a squad table row belongs to: the nearest ancestor with a player
-	/// index a few levels down is the row, and that index is his.
-	/// </summary>
-	/// <summary>
-	/// A tactical effectiveness score out of 100: "53", or "45-60" while the game is not sure of
-	/// it (a player not fully scouted). Its numbers are bound on first asking and arrive over the
-	/// next frames, so a first read may have none.
-	/// </summary>
 	/// <summary>The value at a path, bound first if need be (null until the game fills it in).</summary>
 	private static string Bound(string path)
 	{
@@ -249,6 +236,11 @@ internal static class Tactics
 		catch { return null; }
 	}
 
+	/// <summary>
+	/// A tactical effectiveness score out of 100: "53", or "45-60" while the game is not sure of
+	/// it (a player not fully scouted). Its numbers are bound on first asking and arrive over the
+	/// next frames, so a first read may have none.
+	/// </summary>
 	private static string Score(string path)
 	{
 		var b = Game.Bindings;
@@ -266,6 +258,10 @@ internal static class Tactics
 		return Value("UsesRange") == "True" && Value("MaxValue") is { Length: > 0 } high && high != low ? $"{low}-{high}" : low;
 	}
 
+	/// <summary>
+	/// The player a cell of a squad table row belongs to: the nearest ancestor with a player
+	/// index a few levels down is the row, and that index is his.
+	/// </summary>
 	private static string RowPlayer(IReadOnlyNode cell)
 	{
 		var holder = cell.Parent;
@@ -287,6 +283,10 @@ internal static class Tactics
 		return null;
 	}
 
+	/// <summary>
+	/// What hangs beside a slot's position record: the roles by name, and the player picked for
+	/// it. A role without the ball is the one whose name starts with "OP".
+	/// </summary>
 	private static void Around(IReadOnlyNode holder, Dictionary<string, string> slot)
 	{
 		var queue = new Queue<IReadOnlyNode>();

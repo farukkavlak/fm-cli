@@ -101,8 +101,7 @@ internal static class PlayerCard
 					var type = Child(node, "AttributeTypeInfo");
 					if (type == null) break;
 					if (!Report.Fields(type).TryGetValue("Name", out var attribute)) break;
-					// FM26 bound the rating on the attribute itself; FM27 binds it on another element of
-					// the same row, still as the attribute's AttributeValues.PropertyValue.
+					// The rating is bound on another element of the same row than the attribute, as the attribute's AttributeValues.PropertyValue.
 					if (Rating(node) is not { } rating) break;
 
 					// Each block of attributes is a list of its own, and the lists come in the

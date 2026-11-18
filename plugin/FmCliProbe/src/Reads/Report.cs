@@ -40,7 +40,7 @@ internal static class Report
 			if (node.Value?.DataType?.Name != "PersonReference") continue;
 
 			// What /pull has put at nodes of its own is not a row of the screen: a squad read
-			// that way stays bound and would turn up in every list of people after it (§8.92).
+			// that way stays bound and would turn up in every list of people after it.
 			if (path.StartsWith("fmcli.", StringComparison.Ordinal) || path.Contains(".fmcli.", StringComparison.Ordinal)) continue;
 
 			var fields = Fields(node);

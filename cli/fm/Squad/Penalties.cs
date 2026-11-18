@@ -7,7 +7,7 @@ namespace FmCli;
 /// and penalty taking, and the three rules on when the next one steps up. The
 /// rules are switched here. The order is changed on the page by dragging a row, taking one out,
 /// or adding a player from a list; the table's own handlers for those are called through
-/// /rowmove and /rowremove, and the list is chosen from like any other (§8.90).
+/// /rowmove and /rowremove, and the list is chosen from like any other.
 /// </summary>
 internal static partial class Program
 {
@@ -247,7 +247,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// Moves a player to a place in the order, adds one to it or takes one out, and waits for
-	/// the page to show it (§8.90). Null when it went through; otherwise the exit code.
+	/// the page to show it. Null when it went through; otherwise the exit code.
 	/// </summary>
 	private static async Task<int?> Reorder(DraggedList list, string verb, List<string> words)
 	{
@@ -273,7 +273,7 @@ internal static partial class Program
 		}
 
 		// A call that lands while the page is being painted is thrown out of, sometimes after
-		// it has done its work (§8.91): the page says which, and it is sent again only when
+		// it has done its work: the page says which, and it is sent again only when
 		// nothing has changed. Null when the page shows it, "" when it does not, else the error.
 		async Task<string> Dragged(Func<List<Placed>, bool> done, string route, params (string, string)[] query)
 		{

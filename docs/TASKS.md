@@ -417,6 +417,9 @@ Details of past work: git history. Port notes: `PORTING.md`. Crawl data: `refere
     - `actions` left the game's search window up when it stopped (a wrong entry, a list, a refusal): shut by its
       own ClosePanel, read back by its box going. EN 5/5.
   - [x] T85j `opponent --json`: the summary's keys are stable (Formation, TopScorer…), not our labels
+  - [x] T85k By identity now (`round73.toml` EN + TR): mentality and style lists by what they bind (`Tactic.MentalityDropdown`,
+    `tactic.TacticalStyleDropdown`, `match.tactic.mentalitydropdown`), the wage total row, the value limit row, the last
+    match played; the tactic panels closed by the close on their own page
 
 ## 13. Later (v2)
 

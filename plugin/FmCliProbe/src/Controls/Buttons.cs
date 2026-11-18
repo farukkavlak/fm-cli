@@ -640,7 +640,7 @@ internal static partial class Buttons
 			if (value.Get()?.TryCast<DynamicReference>() != null) return Choice(value, shown);
 
 			// A list of people shows each as a person reference, which has no text of its own;
-			// the row's value is his index, and the caller knows the squad by that (§8.90). A
+			// the row's value is his index, and the caller knows the squad by that. A
 			// set piece taker's value is a record with the index in it, beside the kind and side.
 			var text = shown ? Text.ShownOf(value) : Text.Of(value);
 			if (text.EndsWith("PersonReference", StringComparison.Ordinal)

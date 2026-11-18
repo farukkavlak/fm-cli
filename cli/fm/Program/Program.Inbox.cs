@@ -34,7 +34,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// The inbox under its own Tasks filter, then back to all messages. A waiting task can be
-	/// missing from the default list and its scrolled pages (an illness, 3 Şubat 2029) while the
+	/// missing from the default list and its scrolled pages (an illness, 3 February 2029) while the
 	/// filter shows it.
 	/// </summary>
 	internal static async Task<List<JsonElement>> TaskInbox(bool stay = false)

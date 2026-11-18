@@ -5,8 +5,8 @@ using SI.Bindable;
 namespace FmCliProbe;
 
 /// <summary>
-/// The opposition instructions: a row per player of the next opponent, his name (FM27 a text bound
-/// to primarytext, FM26 <c>#NameText</c>) and four lists in the same row, each known by the field it
+/// The opposition instructions: a row per player of the next opponent, his name (a text bound
+/// to primarytext) and four lists in the same row, each known by the field it
 /// writes: tight marking, closing down, tackling, show onto foot. A list belongs to the row it sits
 /// in: the nearest element above it that holds one name text. Nothing is paired by order, so the
 /// club's own name over the card (also primarytext) never takes a row's lists while the rows are

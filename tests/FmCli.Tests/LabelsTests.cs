@@ -22,7 +22,7 @@ public class LabelsTests
 		Assert.Equal("highlight speed", Labels.Source("vurgu hızı"));
 
 	// An interpolated L() numbers its holes in the order they come, so a key that starts at {1}
-	// is never looked up: the text stays English (" ({1} in {0} matches)", 27 Ekim 2026).
+	// is never looked up: the text stays English (" ({1} in {0} matches)", 27 October 2026).
 	[Fact]
 	public void CatalogKeysNumberTheirHolesInOrder()
 	{

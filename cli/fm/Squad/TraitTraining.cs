@@ -21,7 +21,6 @@ internal static partial class Program
 		if (await OpenPlayer(wanted) is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
 		if (await TraitMenu(name, args) is { } done) return done;
-		// FM26's card was read by its English headings; it is not tried.
 		Console.Error.WriteLine(L($"{name}: the training page's actions menu has no trait entries."));
 		return 1;
 	}

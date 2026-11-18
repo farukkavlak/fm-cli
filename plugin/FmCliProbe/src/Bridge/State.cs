@@ -36,7 +36,7 @@ internal static class State
 		// The packed date as the game gives it, not as a day: its clock bits are wanted too.
 		var date = Date(Read(bindings, "game.CurrentGameDate", raw: true));
 		// The game's day on its own. On deadline day, once its coverage was taken part in, the packed date went
-		// unbound for days while this one went on (stuck on 3 Sep, the day being 7 Sep, 5 Kasım 2026): when it
+		// unbound for days while this one went on (stuck on 3 Sep, the day being 7 Sep, 5 November 2026): when it
 		// is later than what the packed date says, or that is missing, the day is this one's, with its own clock.
 		var day = Date(Read(bindings, "game.CurrentGameDay", raw: true));
 		if (day != null && (date == null ? lastDate == null || day.Value.Day > lastDate.Value.Day : day.Value.Day > date.Value.Day))

@@ -78,7 +78,7 @@ internal static partial class FmApi
 		"rowput" => Submenus.Put(q),
 		"menu" => Submenus.Menu(q),
 		"menukinds" => Submenus.Kinds(q),
-		"menuoptions" => Buttons.MenuOptions(q),
+		"menuoptions" => Buttons.MenuOptions(),
 		"menuoption" => Buttons.MenuOption(q),
 		"instructions" => Instructions.Current(),
 		"tiles" => Instructions.Tiles(),
@@ -92,10 +92,8 @@ internal static partial class FmApi
 		"rowremove" => TableRows.Remove(q),
 		"rowselect" => TableRows.Select(q),
 		"checkrows" => TableRows.Checkable(q),
-#if !FM26
 		"rowtexts" => TableRows.Shown(q),
 		"rowlinks" => TableRows.Links(q),
-#endif
 		"actions" => ContextMenus.Handle(q),
 		"scoped" => Scoped.Handle(q),
 		"opposition" => Opposition.Current(),
@@ -267,10 +265,6 @@ internal static partial class FmApi
 	}
 
 	/// <summary>
-	/// Resume the most recent save. The main menu exposes it as a DynamicReference, which
-	/// derives from Record, so it can be handed straight to the load event the game listens for.
-	/// </summary>
-	/// <summary>
 	/// The main menu's Continue: loads the last save. Not the in-game Continue (that is /next).
 	/// Refused once a save is loaded, where it would throw away everything since the last save.
 	/// </summary>
@@ -344,11 +338,10 @@ internal static partial class FmApi
 	}
 
 
-	/// <summary>Bindings.Exists through a span, to test path addressing without side effects.</summary>
 	/// <summary>
 	/// Does the by-ref span overload survive interop where the by-value one did not?
 	///
-	/// Passing a span by value flattened it to empty (§8.2), which is what made every
+	/// Passing a span by value flattened it to empty, which is what made every
 	/// string-addressed call unusable. By-ref passes a pointer to the span struct instead, so it
 	/// may well arrive intact. A garbage path is tested alongside a real one, because an
 	/// always-true answer is exactly the false positive that misled us before.
@@ -418,15 +411,15 @@ internal static partial class FmApi
 	private static Bindings.ValueChangedCallback _noOp;
 
 	/// <summary>
-	/// Binding requires a callback; we only want the side effect. It must be a real il2cpp
-	/// delegate — handing the game a null function pointer crashes it when the value changes.
-	/// </summary>
-	/// <summary>
 	/// The owner FM27's Bind wants beside the callback (a null one throws in SubscriptionOwnerTable);
 	/// one object for the whole session, so the game's weak table keeps every binding of ours.
 	/// </summary>
 	internal static readonly Il2CppSystem.Object Owner = new();
 
+	/// <summary>
+	/// Binding requires a callback; we only want the side effect. It must be a real il2cpp
+	/// delegate — handing the game a null function pointer crashes it when the value changes.
+	/// </summary>
 	internal static Bindings.ValueChangedCallback NoOp =>
 		_noOp ??= DelegateSupport.ConvertDelegate<Bindings.ValueChangedCallback>(
 			(Action<Bindings.Key, TypedValue>)((_, _) => { }));

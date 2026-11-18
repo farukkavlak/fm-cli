@@ -38,11 +38,11 @@ internal static class WindowHider
 	/// <summary>How many windows were made transparent so far, for health.</summary>
 	internal static int Hidden;
 
-	/// <summary>Makes every window of the game transparent and click-through; cheap when they already are.</summary>
 	/// <summary>The window's opacity while hidden (FMCLI_HIDE_ALPHA, for measuring; 0 by default).</summary>
 	private static readonly double Alpha = double.TryParse(System.Environment.GetEnvironmentVariable("FMCLI_HIDE_ALPHA"),
 		System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var a) ? a : 0;
 
+	/// <summary>Makes every window of the game transparent and click-through; cheap when they already are.</summary>
 	internal static void Apply()
 	{
 		// AppKit windows are the main thread's only; BepInEx's tick also fires on the game's other threads.

@@ -182,12 +182,6 @@ internal static partial class Program
 		return spaced.ToString().ToUpperInvariant();
 	}
 
-	/// <summary>
-	/// The player database: every player the game knows, as its Player Database page lists them.
-	/// A quick filter narrows it (transfer listed, contract expiring…) and a view decides which
-	/// columns the rows carry. Only the rows the page has on screen are bound, so this is the
-	/// top of the list, not all of it.
-	/// </summary>
 	/// <summary>The CLI's words for the player search's quick filters, by the list's own values.</summary>
 	private static readonly Dictionary<string, int> QuickFilterValues = new()
 	{
@@ -196,6 +190,12 @@ internal static partial class Program
 		["midfielders"] = 2048, ["attackers"] = 4096, ["well known"] = 8192, ["no work permit"] = 16384,
 	};
 
+	/// <summary>
+	/// The player database: every player the game knows, as its Player Database page lists them.
+	/// A quick filter narrows it (transfer listed, contract expiring…) and a view decides which
+	/// columns the rows carry. Only the rows the page has on screen are bound, so this is the
+	/// top of the list, not all of it.
+	/// </summary>
 	private static async Task<int> Players(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;

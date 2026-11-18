@@ -12,7 +12,7 @@ internal static partial class Program
 	{
 		// The last fixture is still the previous match for a moment after the simulation ends,
 		// so its own key is kept and the report is not read until it has moved on. Otherwise
-		// an instant result printed the match before it (Cagliari, 31 Mart 2028: the Monza
+		// an instant result printed the match before it (Cagliari, 31 March 2028: the Monza
 		// report came back for a match that had just been lost 1-2).
 		async Task<(string Key, string Score)> LastResult()
 		{
@@ -159,9 +159,9 @@ internal static partial class Program
 			return 0;
 		}
 
-		// The result is on the fixture itself once played; the newest one with a result is this match.
+		// The result is on the fixture itself once played; the latest date with a result is this match.
 		TeamFixture? played = null;
-		try { played = (await TeamFixtures())?.LastOrDefault(f => f.Played && f.Result != ""); }
+		try { played = (await TeamFixtures())?.Where(f => f.Played && f.Result != "").MaxBy(f => f.Date, StringComparer.Ordinal); }
 		catch (FmError) { }
 		Console.WriteLine(L("The match was simulated."));
 		Console.WriteLine();

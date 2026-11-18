@@ -4,7 +4,7 @@ namespace FmCli;
 /// <summary>
 /// Resigning from the club (Career › My Contract). Held by the game's own ids: the button is the one
 /// sending the action <c>HumanClubResign</c> (or <c>HumanNationResign</c>; InteropEventIDs,
-/// docs/reference/actions.txt), FM27 as a GenericAction (FM26 spoke to it); its question is the dialog
+/// docs/reference/actions.txt), as a GenericAction; its question is the dialog
 /// of Type <c>Confirm&lt;action id&gt;</c>, answered by its primary slot; done when the manager has no club.
 /// FM27 offers no "end of the club season" choice there (measured 12 Nov 2026, October, TR): asked for,
 /// it is refused rather than guessed. Should the board talk him round first, its lines are shown and the

@@ -101,7 +101,7 @@ internal static partial class Program
 	/// The button that takes the match on from a stop: "Confirm Changes". It is greyed out until the
 	/// game has seen a change made on its own screen, and still does its work when pressed: with a man
 	/// put into a slot through `tactic player` it stayed grey, and pressing it made the change and
-	/// played on (Draper for Collins, 11 Nisan 2026). With only the lit one looked for, `match` sat at
+	/// played on (Draper for Collins, 11 April 2026). With only the lit one looked for, `match` sat at
 	/// the stop for ever. The planner's "Cancel" is the last resort; it would drop such a change.
 	/// </summary>
 	private static JsonElement? PlannerStop(JsonElement controls)

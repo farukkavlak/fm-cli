@@ -319,7 +319,7 @@ internal static class Form
 
 		// A rating shown in stars and stepped with the buttons beside it; the value is the game's
 		// own scale, not a count of stars. Shown counts half stars; a rating that
-		// is a range (a youngster's potential) fills to Shown and outlines on to ShownMax (§8.152).
+		// is a range (a youngster's potential) fills to Shown and outlines on to ShownMax.
 		var stars = e.TryCast<FM.UI.FMStarRatingTemp>();
 		if (stars != null)
 			return "{\"Kind\": \"stars\", "

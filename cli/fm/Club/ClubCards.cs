@@ -22,38 +22,6 @@ internal static partial class Program
 		"Casual" => L("Casual"), "Hardcore" => L("Hardcore"), "Corporate" => L("Corporate"), _ => group,
 	};
 
-	/// <summary>
-	/// Opens a card from its tile on Club › Overview — the tile known by the panel it is laid out in
-	/// (BindingRemapper #Supporters), which no language changes — and reads it, each text with its
-	/// data path, once it shows what it should.
-	/// </summary>
-	private static async Task<List<(string Text, string Path)>> ClubCard(string panel, string anchorPath, int up, Func<List<(string Text, string Path)>, bool> ready)
-	{
-		var opened = await OpenPage(Screen.ClubHome);
-		if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
-
-		List<(string Text, string Path)> texts = [];
-		// A card left open by an earlier run is what is asked for already; its tile toggles, so
-		// clicking it again would close it.
-		if (ready(texts = await CardTexts(anchorPath, up))) return texts;
-
-		// The page answers as opened before its tiles are laid out: a click on one is taken
-		// ("clicked") but opens nothing, and the card's own texts are the sign that it did. So the
-		// click is repeated until they come, rather than trusted.
-		for (var attempt = 0; attempt < 4; attempt++)
-		{
-			var clicked = "";
-			await Until(async () => !(clicked = await Fm.Get("click", ("within", panel), ("name", "layout-tile-interaction-button"))).StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.5);
-			if (clicked.StartsWith("error", StringComparison.Ordinal)) throw new FmError(clicked);
-			if (await Until(async () => ready(texts = await CardTexts(anchorPath, up)), seconds: 1.5, every: 0.25)) return texts;
-		}
-		return null;
-	}
-
-	private static async Task<List<(string Text, string Path)>> CardTexts(string anchorPath, int up) =>
-		(await Fm.GetJson("texts", ("anchorpath", anchorPath), ("up", up.ToString()), ("paths", "1")))
-			.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
-
 	private static void CardHeading(string title)
 	{
 		if (Ui.Rich) Ui.Line($"\n[bold]{Ui.Safe(title)}[/]");

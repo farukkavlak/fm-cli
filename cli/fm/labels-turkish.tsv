@@ -41,13 +41,10 @@ The confirmation window did not close; answer it with: dialog	Onay penceresi kap
 \nParted ways with {0}.	\n{0} ile yollar ayrıldı.
 The board's view could not be read.	Yönetimin görüşü okunamadı.
 The board is not taking requests now: the card has no request option (no new one opens while requests await an answer).	Yönetim şu an talep almıyor: kartta talep seçeneği yok (cevap bekleyen talepler varken yenisi açılmıyor).
-The board card did not open.	Yönetim kartı açılmadı.
 TYPE	TÜR
 REQUEST	TALEP
-\nTo make a request: board request "<request>" --yes	\nTalep etmek için: board request "<talep>" --yes
 No request called '{0}' (all of them: board request).	'{0}' diye bir talep yok (hepsi: board request).
 '{0}' matches more than one request:	'{0}' birden çok talebe uyuyor:
-To ask the board for: {0}  ({1}). To confirm: board request "{2}" --yes	Yönetimden istenecek: {0}  ({1}). Onaylamak için: board request "{2}" --yes
 {0}: asked, but no answer came from the board.	{0}: istendi ama yönetimden bir cevap gelmedi.
 Asked: {0}	İstendi: {0}
   Board: {0}	  Yönetim: {0}
@@ -105,7 +102,6 @@ FM is open, save loaded. {0} {1}	FM açık, kayıt yüklü. {0} {1}
 Next match: {0}	Sıradaki maç: {0}
 Transfers: {0}	Transfer: {0}
 You are unemployed: not managing a club, so squad and tactic commands do not work. Job vacancies: jobs	İşsizsin: bir kulübün menajeri değilsin, kadro ve taktik komutları çalışmaz. İş ilanları: jobs
-To answer: talk   (to go on: next)	Cevaplamak için: talk   (geçmek için: next)
 Ready to continue: next	İlerlemeye hazır: next
 The club page could not be read.	Kulüp sayfası okunamadı.
 The supporters card could not be read.	Taraftar kartı okunamadı.
@@ -146,7 +142,6 @@ A signed contract cannot be undone.	Sözleşme imzalanınca geri alınamaz.
 Sign	İmzala
 The negotiation will close; the agent may not like it.	Görüşme kapanacak; menajer bundan hoşlanmayabilir.
 Cancel	İptal et
-No '{0}' / '{1}' button: either a term breaks a rule (red on the card), or the negotiation is at another step (look with talk).	'{0}' / '{1}' butonu yok: ya bir şart kurala uymuyor (kartta kırmızı), ya görüşme başka bir adımda (talk ile bak).
 Contract talks with {0} cannot be opened right now: the game does not give the option (a negotiation may have been cancelled recently; try again in a few days).	{0} ile şu an sözleşme görüşmesine girilemiyor: oyun bu seçeneği vermiyor (yakın zamanda iptal edilen bir görüşme olabilir; birkaç gün sonra yeniden dene).
 {0} is not our player. Talks with another club's player open once the offer is accepted: offer {1}	{0} bizim oyuncumuz değil. Başka kulübün oyuncusuyla görüşme, teklifi kabul edilince açılır: offer {1}
 The game says: {0}. {1}	Oyun diyor ki: {0}. {1}
@@ -222,14 +217,12 @@ The conversation is over.	Konuşma bitti.
 \nReactions: {0}	\nTepkiler: {0}
 \nTo say something: talk <number>	\nSöylemek için: talk <numara>
 (dry run) The set piece wizard would have been started.	(kuru) Duran top sihirbazı başlatılacaktı.
-The set piece wizard did not open. The routines may already be set up.	Duran top sihirbazı açılmadı. Rutinler zaten kurulmuş olabilir.
 The options of question {0} did not come.	{0}. sorunun seçenekleri gelmedi.
 Question {0}	{0}. soru
 The wizard was left open at this question. To go on: setpieces new	Sihirbaz bu soruda açık bırakıldı. Devam için: setpieces new
 \n(dry run) Stopped here; the wizard is open at this question.	\n(kuru) Burada duruldu; sihirbaz bu soruda açık.
 The wizard's continue button disappeared.	Sihirbazın ilerle butonu kayboldu.
 \nThe set piece routines are set up.	\nDuran top rutinleri kuruldu.
-\nConfirmed, but the wizard is still open.	\nOnaylandı ama sihirbaz hâlâ açık.
 The wizard was still not finished after twelve questions; left it.	Sihirbaz on iki sorudan sonra hâlâ bitmedi; bırakıldı.
 usage: tactic | tactic new … | tactic slot [<n>] | tactic copy [<tactic>] | tactic clear [<n>] --yes | tactic pi <position> [<instruction> [<value>]] | tactic instructions [<instruction> [<value>]] | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <position> [<role>] [--oop] | tactic player <position> <player>   [--dry]	kullanım: tactic | tactic new … | tactic slot [<n>] | tactic copy [<taktik>] | tactic clear [<n>] --yes | tactic pi <mevki> [<talimat> [<değer>]] | tactic instructions [<talimat> [<değer>]] | tactic mentality [<x>] | tactic style [<x>] | tactic pick | tactic role <mevki> [<rol>] [--oop] | tactic player <mevki> <oyuncu>   [--dry]
 Style: {0} · Mentality: {1}	Stil: {0} · Mentalite: {1}
@@ -278,8 +271,6 @@ The players heard a shout a moment ago; the game does not allow a new shout for 
 {0}{1}\nOptions: {2}	{0}{1}\nSeçenekler: {2}
 {0}: no '{1}'. Options: {2}	{0}: '{1}' yok. Seçenekler: {2}
 (dry run) {0}: {1}	(kuru) {0}: {1}
-{0}: {1} sent, but the game did not close the shouts list; it may not have been heard.	{0}: {1} gönderildi ama oyun bağırış listesini kapatmadı; duyulmamış olabilir.
- (the game closed new shouts for a while)	 (oyun yeni bağırışı bir süre kapattı)
 Shouts are only during a match.	Bağırışlar yalnızca maç sırasında.
 A new tactic cannot be made: all three tactic slots are taken. To empty one: tactic clear <n> --yes; for the slots: tactic slot	Yeni taktik kurulamıyor: üç taktik yuvası dolu. Birini boşaltmak için: tactic clear <n> --yes; yuvalar için: tactic slot
 Continue	Devam
@@ -309,15 +300,9 @@ The reasons of {0} players could not be read.	{0} oyuncunun nedenleri okunamadı
  [dim]none[/]	 [dim]yok[/]
 : none	: yok
 \nTo rest them: intensity <player> "rest 1"	\nDinlendirmek için: intensity <oyuncu> "dinlen 1"
-The individual training page did not open.	Bireysel antrenman sayfası açılmadı.
 No '{0}' in the list.	Listede '{0}' yok.
-{0} disappeared from the list.	{0} listede kayboldu.
 {0}: '{1}' is a submenu; its options: {2}  (e.g. "{3}>…")	{0}: '{1}' bir alt menü; seçenekleri: {2}  (ör. "{3}>…")
-\nTo change: training <player> --focus "Quickness" · --position "Midfielder (Centre)>Box-To-Box Midfielder" · --role "…"	\nDeğiştirmek: training <oyuncu> --focus "Quickness" · --position "Midfielder (Centre)>Box-To-Box Midfielder" · --role "…"
-The training intensity page did not open.	Antrenman yoğunluğu sayfası açılmadı.
 There is no option to leave the intensities to the coach.	Yoğunlukları antrenöre bırakma seçeneği yok.
-{0} sets all the intensities.	{0} bütün yoğunlukları ayarlıyor.
-'{0}' is not a level: automatic, half, normal, double, "rest <days>", "holiday <weeks>"	'{0}' bir seviye değil: otomatik, yarım, normal, çift, "dinlen <gün>", "tatil <hafta>"
 INTENSITY	YOĞUNLUK
 \nTo change: intensity <player> <automatic|half|normal|double|"rest 3"|"holiday 1">  ·  leave them all to the coach: intensity --auto	\nDeğiştirmek: intensity <oyuncu> <otomatik|yarım|normal|çift|"dinlen 3"|"tatil 1">  ·  hepsini antrenöre bırak: intensity --auto
 The squad could not be read.	Kadro okunamadı.
@@ -325,7 +310,6 @@ NATION	ÜLKE
 CAPS	MİLLİ MAÇ
 THIS SEASON	BU SEZON
 , {0} goals	, {0} gol
-\n{0} players have been capped; {1} of them played for their national team this season.	\n{0} oyuncu milli olmuş; {1} tanesi bu sezon milli takımda oynadı.
 There are no open job vacancies.	Açık iş ilanı yok.
 The job vacancies could not be read.	İş ilanları okunamadı.
 '{0}' is not among the vacancies. The list: jobs	'{0}' ilanlarda yok. Liste: jobs
@@ -336,13 +320,11 @@ LEAGUE	LİG
 POS	SIRA
 REPUTATION	İTİBAR
 FINANCES	MALİ DURUM
-APPLICATION	BAŞVURU
 \nDetails: jobs <club|#>   ·   apply: jobs <club> apply   ·   declare interest: jobs <club> interest	\nAyrıntı: jobs <kulüp|#>   ·   başvur: jobs <kulüp> apply   ·   ilgi bildir: jobs <kulüp> interest
 {0} — {1} ({2}), {3} in the league	{0} — {1} ({2}), ligde {3}
 Current manager: {0}	Şu anki menajer: {0}
 Reputation: {0}   Finances: {1}	İtibar: {0}   Mali durum: {1}
 Wage bill: {0}	Maaş gideri: {0}
-Training facilities: {0}	Antrenman tesisleri: {0}
 Manager rules:{0}	Menajer kuralları:{0}
  none	 yok
 \nApplications are closed. To declare interest: jobs "	\nBaşvuru kapalı. İlgi bildirmek için: jobs "
@@ -461,7 +443,6 @@ Substitution made: {0} off, {1} on.	Değişiklik yapıldı: {0} çıktı, {1} gi
 {0} was chosen, but {1} still appears on the pitch; the game may be waiting for confirmation (buttons).	{0} seçildi ama {1} hâlâ sahada görünüyor; oyun onay bekliyor olabilir (buttons).
 Cards: {0}	Kartlar: {0}
 Injured: {0}	Sakatlanan: {0}
-Our ratings: {0}	Puanlarımız: {0}
 There is no open confirmation window.	Açık bir onay penceresi yok.
 Answer	Cevap
 \n({0} more windows under this one.)	\n({0} pencere daha bunun altında.)
@@ -480,7 +461,6 @@ There is no form box for {0} (they may have no matches this season).	{0} için f
 {0} goals · {1} assists	{0} gol · {1} asist
 [dim]rating[/]  {0}  [dim]old → new[/]	[dim]puan[/]  {0}  [dim]eski → yeni[/]
 rating  {0}  old → new	puan  {0}  eski → yeni
-The mentoring page did not open.	Mentorluk sayfası açılmadı.
 The page has no option to have the assistant build groups.	Sayfada yardımcıya grup kurdurma seçeneği yok.
 No mentoring groups. To have the assistant build them: mentoring --auto	Mentorluk grubu yok. Yardımcıya kurdurmak için: mentoring --auto
 A mentoring group is three players:  mentoring new <player> <player> <player> [--name "<name>"]	Bir mentorluk grubu üç oyuncudan oluşur:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name "<ad>"]
@@ -489,7 +469,6 @@ LOAD	YÜK
 \nTo build a group, name all three:  mentoring new <player> <player> <player> [--name "<name>"]	\nGrup kurmak için üçünü yaz:  mentoring new <oyuncu> <oyuncu> <oyuncu> [--name "<ad>"]
 {0} was named twice.	{0} iki kez yazıldı.
 The game does not let this trio be confirmed; no group was built.	Oyun bu üçlüyü onaylatmıyor; grup kurulmadı.
-Confirmed, but the new group does not appear in the list.	Onaylandı ama yeni grup listede görünmüyor.
 Built: {0} — {1}	Kuruldu: {0} — {1}
 No mentoring groups.	Mentorluk grubu yok.
 Which group?  mentoring remove "<group>" --yes	Hangi grup?  mentoring remove "<grup>" --yes
@@ -556,8 +535,6 @@ The penalty takers table was not found on the page.	Penaltıcılar tablosu sayfa
 usage: penalties <1|2|3> on|off   (1 one who has scored twice, 2 one who has taken a penalty, 3 one who has missed one)	kullanım: penalties <1|2|3> açık|kapalı   (1 iki gol atan, 2 penaltı atan, 3 penaltı kaçıran)
 There is no '{0}' switch on the page.	'{0}' anahtarı sayfada yok.
 FOR MATCH	MAÇA
-COMPOSURE	SOĞUKKANLILIK
-PENALTY	PENALTI
 on	açık
 off	kapalı
 \nOrder: penalties move <player> <place> · add <player> [<place>] · remove <player>   ·   rule: penalties <1|2|3> on|off	\nSıra: penalties move <oyuncu> <sıra> · add <oyuncu> [<sıra>] · remove <oyuncu>   ·   kural: penalties <1|2|3> açık|kapalı
@@ -580,7 +557,6 @@ There is no scouting assignment running for {0}.	{0} için süren bir scout gör
 {0}: scouting assignment removed.	{0}: scout görevi kaldırıldı.
 error: the game's count of the players being scouted could not be read	hata: oyunun izlenen oyuncu sayısı okunamadı
 error: {0}'s record could not be read	hata: {0} oyuncusunun kaydı okunamadı
-{0} is being scouted, but the Scout Priorities page does not list him.	{0} izleniyor, ama Gözlem Öncelikleri sayfası onu listelemiyor.
 error: the Scout Priorities page has no button that cancels an assignment	hata: Gözlem Öncelikleri sayfasında görevi iptal eden düğme yok
 dry run, nothing changed: {0}'s assignment would be cancelled on the Scout Priorities page.	deneme, hiçbir şey değişmedi: {0} için görev Gözlem Öncelikleri sayfasında iptal edilirdi.
 error: {0}'s row could not be selected on the Scout Priorities page	hata: {0} satırı Gözlem Öncelikleri sayfasında seçilemedi
@@ -597,10 +573,8 @@ usage: shortlist add <name> [--for <length>]   (length: "1 month", "3 months", "
 usage: interest <name> [--top | --transfer | --loan]   (declares our interest)	kullanım: interest <ad> [--top | --transfer | --loan]   (ilgimizi duyurur)
 usage: trial <name> [--for <1-4 weeks>]   (invites them on trial)	kullanım: trial <ad> [--for <1-4 hafta>]   (denemeye çağırır)
 usage: enquire <name>   (asks their club what it would want)	kullanım: enquire <ad>   (kulübüne ne isteyeceğini sorar)
-The game does not offer 'Make Enquiry' for {0}. Their menu: actions "{1}"	{0} için oyun 'Make Enquiry' sunmuyor. Menüsü: actions "{1}"
 \nNot sent. To send it: the same command, with --yes at the end	\nGönderilmedi. Göndermek için aynı komut, sonuna --yes
 \n{0}: {1} — sent.	\n{0}: {1} — gönderildi.
-The match preparation could not be read (there may be no next match).	Maç hazırlığı okunamadı (sıradaki maç yok olabilir).
 Match preparation	Maç hazırlığı
   {0,-12} [dim]others: {1}[/]	  {0,-12} [dim]başka: {1}[/]
     others: {0}	    başka: {0}
@@ -661,12 +635,8 @@ required	zorunlu
 preferred	tercih
 wanted	istenen
 Major	Major
-Minor	Minor
-    Interested clubs: {0}   (all of them: offers)	    İlgilenen kulüpler: {0}   (hepsi: offers)
     {0,-22}{1,-22}average {2}	    {0,-22}{1,-22}ortalama {2}
-\n  Attached: opposition report — {0} {1}{2}	\n  Ek: rakip raporu — {0} {1}{2}
 option {0}	{0}. seçenek
-    Clauses: {0}	    Maddeler: {0}
 Message {0} ('{1}') is no longer in the inbox. For the current numbers: inbox	{0} numaralı mesaj ('{1}') artık gelen kutusunda yok. Güncel numaralar için: inbox
 There is no message {0}; the inbox has {1} messages.	{0} numaralı mesaj yok; gelen kutusunda {1} mesaj var.
 No message has '{0}' in its subject.	Konusunda '{0}' geçen mesaj yok.
@@ -682,8 +652,6 @@ usage: select <list> "<option>" [--dry]   (for the lists: `dropdowns`)	kullanım
 {0}: no help line; for all of them: help	{0}: yardım satırı yok; hepsi için: help
 unknown command: {0} — for the commands: `help`	bilinmeyen komut: {0} — komutlar için `help`
 usage: propose <player> [fee] [--yes]  ·  propose <player> --loan [--yes]   (offer to clubs; with no fee given, "unspecified")	kullanım: propose <oyuncu> [ücret] [--yes]  ·  propose <oyuncu> --loan [--yes]   (kulüplere öner; ücret yazılmazsa "belirtilmemiş")
-{0} is not our player, or their transfer options cannot be opened.	{0} bizim oyuncumuz değil ya da transfer seçenekleri açılamıyor.
-There is no option to offer {0} to clubs (they may already have been offered).	{0} için kulüplere önerme seçeneği yok (zaten önerilmiş olabilir).
 The offer screen did not open.	Önerme ekranı açılmadı.
 A loan offer takes no fee (the game only allows adding clauses); try without one: propose <player> --loan	Kiralık öneride ücret yazılmıyor (oyun yalnızca ek madde ekletiyor); ücretsiz dene: propose <oyuncu> --loan
 {0} will be offered to clubs on loan.	{0} kulüplere kiralık olarak önerilecek.
@@ -711,8 +679,6 @@ No other page opens during a match. For the match: match	Maç sırasında başka
 The game is on the post-match results screen; go past it before opening another page: next	Oyun maç sonrası sonuçlar ekranında; başka sayfa açmadan önce geç: next
 usage: search <text>	kullanım: search <metin>
 WHO	KİM
-No actions found for {0}.	{0} için aksiyon bulunamadı.
-\nTo do it: talk <number>   (for an offer: offer <player> <fee>)	\nYapmak için: talk <numara>   (teklif için: offer <oyuncu> <bonservis>)
 {0} is in the squad, but could be opened neither in search nor in the squad table.	{0} kadroda ama ne aramada ne kadro tablosunda açılabildi.
 No player called '{0}' in the squad or in search.	'{0}' adında bir oyuncu kadroda da aramada da yok.
 '{0}' did not come up exactly in search; the closest:	'{0}' aramada tam olarak çıkmadı; en yakınlar:
@@ -751,11 +717,9 @@ No match found in the calendar.	Takvimde maç bulunamadı.
  The list sent earlier stands.	 Daha önce gönderilen liste geçerli.
 {0} cannot be sent, the rules are not met:	{0} gönderilemiyor, kurallar tutmuyor:
 To take players out of the list or add them: register (in a terminal) or register --in/--out <player>	Listeden oyuncu çıkarıp eklemek için: register (terminalde) ya da register --in/--out <oyuncu>
-'{0}' did not open on screen.	Ekranda '{0}' açılmadı.
 No confirmation window came; the list may not have been sent. To look: dialog	Onay penceresi gelmedi; liste gönderilmemiş olabilir. Bakmak için: dialog
 {0} sent.	{0} gönderildi.
 The squad registration screen did not open.	Kadro kayıt ekranı açılmadı.
-error: 'Ask Assistant to Pick' is not on screen	error: 'Ask Assistant to Pick' ekranda yok
 {0} cannot be changed ({1}).	{0} değiştirilemiyor ({1}).
 The rules are met. To send it: register --send	Kurallar tutuyor. Göndermek için: register --send
 To add / remove a player: register --in <player> / --out <player>;  the assistant's choice: --auto	Oyuncu eklemek / çıkarmak için: register --in <oyuncu> / --out <oyuncu>;  yardımcının seçimi: --auto
@@ -788,8 +752,6 @@ The responsibilities page could not be read.	Sorumluluklar sayfası okunamadı.
 JOB	GÖREV
 {0} — contract until {1}	{0} — sözleşme {1} tarihine kadar
 {0} — contract	{0} — sözleşme
-{0}: their contract ends on {1}.	{0}: sözleşmesi {1} tarihinde bitiyor.
-{0}: their contract runs on.	{0}: sözleşmesi sürüyor.
 WHO HAS IT	KİMDE
 \nOne area only: responsibilities media | training | tactics | match day | set pieces | transfer | scouting | staff | board	\nYalnızca bir alan: responsibilities medya | antrenman | taktik | maç | duran top | transfer | scout | personel | yönetim
 \nTo delegate: responsibilities delegate "<duty>"   ·   to someone in particular: responsibilities give "<duty>" <person>   ·   to take back: responsibilities take "<duty>"	\nDevretmek: responsibilities delegate "<görev>"   ·   belirli birine: responsibilities give "<görev>" <kişi>   ·   geri almak: responsibilities take "<görev>"
@@ -852,7 +814,6 @@ Closing the game…	Oyun kapatılıyor…
 Loading '{0}'…	'{0}' yükleniyor…
 The training schedule could not be read.	Antrenman programı okunamadı.
 DAY\tSESSION 1\tSESSION 2\tSESSION 3	GÜN\t1. SEANS\t2. SEANS\t3. SEANS
-The form has no button to choose {0}.	Formda {0} seçme butonu yok.
 The window to choose {0} did not open.	{0} seçme penceresi açılmadı.
 {0} could not be chosen (the window did not show how many were chosen).	{0} seçilemedi (pencere seçilen sayısını göstermedi).
 '{0}' is a submenu; under it: {1}	'{0}' bir alt menü; altındakiler: {1}
@@ -861,13 +822,9 @@ Area: '{0}' matches more than one place: {1}	Bölge: '{0}' birden çok yere uyuy
 SCOUT	GÖZLEMCİ
 JUDGING ABILITY	YETENEĞİ GÖRME
 JUDGING POTENTIAL	POTANSİYELİ GÖRME
-AREA	BÖLGE
 FOCUSES	ODAKLARI
-\n{0}. To send one to a player: scout player <name> --by <scout> --for <length>	\n{0}. Bir oyuncuya göndermek: scout player <ad> --by <scout> --for <süre>
-The game does not allow a new focus right now: there is no 'Create a New Recruitment Focus' on the focus page or in the assignments panel.	Oyun şu an yeni odak açtırmıyor: ne odak sayfasında ne görevler panelinde 'Create a New Recruitment Focus' var.
 The focus form did not open.	Odak formu açılmadı.
 The area list was not found.	Bölge listesi bulunamadı.
-There is nothing under '{0}' (write the path with English names: scout areas "Nation>Europe").	'{0}' altında bir şey yok (yolu İngilizce adlarıyla yaz: scout areas "Nation>Europe").
 \nThose ending in › have more under them: scout areas "{0}<name>"	\n› ile bitenlerin altı var: scout areas "{0}<ad>"
 usage: scout edit <#|name> [--area "<area to add>, …"] [--age 18-23] [--ability <stars>] [--potential <stars>] [--by "<scout>, …"] [--analysts "<analyst>, …"] [--name <name>] [--priority top|standard|ongoing]\n	kullanım: scout edit <#|ad> [--area "<eklenecek bölge>, …"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by "<scout>, …"] [--analysts "<analist>, …"] [--name <ad>] [--priority top|standard|ongoing]\n
   the position and role do not change here; for that set up a new focus: scout new	  mevki ve rol buradan değişmez; onun için yeni odak kur: scout new
@@ -898,19 +855,13 @@ usage: scout restart <#|name>   (restarts a stopped or finished focus)	kullanım
 usage: scout remove <#|name> [--yes]   (stops the focus)	kullanım: scout remove <#|ad> [--yes]   (odağı durdurur)
 No scouting focuses.	Scout odağı yok.
 {0}: the focus did not open.	{0}: odak açılmadı.
-'{0}' is already running.	'{0}' zaten sürüyor.
-The game does not offer 'Restart Recruitment Focus' for '{0}' ({1}).	Oyun '{0}' ({1}) için 'Restart Recruitment Focus' sunmuyor.
-'{0}' is already stopped ({1}). To restart it: scout restart {2}	'{0}' zaten durmuş ({1}). Yeniden başlatmak için: scout restart {2}
-The game does not offer 'Restart Recruitment Focus' for '{0}'.	Oyun '{0}' için 'Restart Recruitment Focus' sunmuyor.
 '{0}' does not look restarted; look: scout	'{0}' yeniden başlamış görünmüyor; bak: scout
 Focus restarted: {0}  (the old one stays in the list as stopped)	Odak yeniden başlatıldı: {0}  (eskisi listede durmuş olarak kalır)
 Stop the focus '{0}'? ({1} matching, {2} near)	'{0}' odağını durduralım mı? ({1} eşleşen, {2} yakın)
 '{0}' ({1} matching, {2} near) is taken off the scouting priorities. To confirm: scout remove {3} --yes	'{0}' ({1} eşleşen, {2} yakın) scout önceliklerinden çıkarılır. Onaylamak için: scout remove {3} --yes
-The number of assignments could not be read on the page; look: scout	Sayfada görev sayısı okunamadı; bak: scout
 The game does not offer removing '{0}': there is no remove button on the focus page or in the assignments panel.	Oyun '{0}' için kaldırmayı sunmuyor: ne odak sayfasında ne görevler panelinde bir kaldır butonu var.
 The game did not ask about stopping; look: scout	Oyun durdurmayı sormadı; bak: scout
 '{0}' still looks running; look: scout	'{0}' hâlâ sürüyor görünüyor; bak: scout
-Focus stopped: {0}  (it stays in the list; to restart: scout restart)	Odak durduruldu: {0}  (listede kalır; yeniden başlatmak: scout restart)
 There is no scout report on {0} (one of our own players, or never scouted). To have them scouted: scout player "{1}" --for <length>	{0} için scout raporu yok (kendi oyuncumuz ya da hiç izlenmemiş). İzletmek için: scout player "{1}" --for <süre>
 {0}: the scout report did not open.	{0}: scout raporu açılmadı.
 {0} — scout report{1}	{0} — scout raporu{1}
@@ -931,9 +882,7 @@ NEAR	YAKIN
 ONGOING	SÜREN
 \nPlayers a focus has found: scout <#|name>   (--near: near matches, --progress: being looked at)	\nBir odağın bulduğu oyuncular: scout <#|ad>   (--near: yakın eşleşenler, --progress: incelenenler)
 No players on this tab.	Bu sekmede oyuncu yok.
-GRADE	NOT
 RECOMMENDATION	TAVSİYE
-({0} of {1} players on screen; the list draws only the rows in view.)	({1} oyuncunun {0} tanesi ekranda; liste yalnızca görünen satırları çiziyor.)
 fm session — commands: squad, inbox, next, continue, status, help · to leave: quit	fm oturumu — komutlar: squad, inbox, next, continue, status, help · çıkış: quit
 '{0}' is not a set piece type.\n{1}	'{0}' bir duran top türü değil.\n{1}
 {0}: the page did not open (set pieces may not be set up: setpieces new).	{0}: sayfa açılmadı (duran top düzeni kurulmamış olabilir: setpieces new).
@@ -964,10 +913,8 @@ Options: {0}	Seçenekler: {0}
 {0} cannot be changed right now (the game shows it closed).	{0} şu an değiştirilemiyor (oyun kapalı gösteriyor).
 {0} was set to {1}, but when the page was opened again {2}.	{0} {1} yapıldı ama sayfa yeniden açılınca {2}.
 could not be read	okunamadı
-The screens are in the new language; the game's own texts (match type, home / away…) change when the game is opened again: save, then stop and start.	Ekranlar yeni dilde; oyunun kendi yazıları (maç türü, iç saha / deplasman…) oyun yeniden açılınca değişir: save, sonra stop ve start.
 The settings page did not open.	Ayarlar sayfası açılmadı.
 error: the preferences' confirm button was not found	error: ayarların onay düğmesi bulunamadı
-The shortlist tile was not found.	Kısa liste döşemesi bulunamadı.
 The shortlist is empty.	Kısa liste boş.
 The staff card did not open.	Personel kartı açılmadı.
 \n[bold]{0}[/] {1} people	\n[bold]{0}[/] {1} kişi
@@ -1077,58 +1024,29 @@ There is no coach called '{0}'.	'{0}' adında bir antrenör yok.
 Coaches who can prepare the report on {0}:	{0} için raporu hazırlayabilecek antrenörler:
 \nTo ask: training "{0}" --report --coach "<name>"	\nİstemek için: training "{0}" --report --coach "<ad>"
 {0} will prepare the report; it will come to the inbox.	{0} raporu hazırlayacak; gelince gelen kutusunda.
-The report came but could not be read: reply "{0}"	Rapor geldi ama okunamadı: reply "{0}"
-[bold]{0}[/] — training report [dim]({1})[/]	[bold]{0}[/] — antrenman raporu [dim]({1})[/]
-\n  [bold]Progress:[/] {0}	\n  [bold]Gidişat:[/] {0}
-  Training rating [bold]{0}[/]{1}{2}	  Antrenman puanı [bold]{0}[/]{1}{2}
- · load {0}	 · yük {0}
-\n[dim]To follow or question the advice: reply "{0}"[/]	\n[dim]Tavsiyeyi uygulamak ya da eleştirmek için: reply "{0}"[/]
 {0} — training report ({1})	{0} — antrenman raporu ({1})
-  Progress: {0}	  Gidişat: {0}
-To follow or question the advice: reply "{0}"	Tavsiyeyi uygulamak ya da eleştirmek için: reply "{0}"
 usage: schedule style <day> [<schedule>]   (day: 14, "14 october", 2025-10-14, tomorrow, friday)	kullanım: schedule style <gün> [<program>]   (gün: 14, "14 ekim", 2025-10-14, yarın, cuma)
 usage: schedule set <day> <1|2|3> [<session>]   (day: 14, "14 october", 2025-10-14, tomorrow, friday)	kullanım: schedule set <gün> <1|2|3> [<seans>]   (gün: 14, "14 ekim", 2025-10-14, yarın, cuma)
 Which session? After the day, 1, 2 or 3 (in the day's order).	Hangi seans? Günden sonra 1, 2 ya da 3 (günün sırasıyla).
-{0} was not found in the calendar.	{0} takvimde bulunamadı.
 Session {0} of {1} could not be read.	{1} günü {0}. seans okunamadı.
-{0}, session {1} is the match itself ({2}); it cannot be changed.	{0}, {1}. seans maçın kendisi ({2}); değiştirilemez.
-{0}, session {1} ({2}) cannot be changed: a past day, or a match/travel.	{0}, {1}. seans ({2}) değiştirilemiyor: geçmiş bir gün ya da maç/yolculuk.
-{0}, session {1}: {2}	{0}, {1}. seans: {2}
-Categories: {0}	Kategoriler: {0}
-{0}, session {1} ({2}) — category	{0}, {1}. seans ({2}) — kategori
-{0} — session	{0} — seans
-'{0}' matches more than one session: {1}	'{0}' birden çok seansa uyuyor: {1}
-There is no session called '{0}'. To see the options: schedule set {1:yyyy-MM-dd} {2}	'{0}' diye bir seans yok. Seçenekleri görmek için: schedule set {1:yyyy-MM-dd} {2}
-'{0}' does not appear in the {1} category.	'{0}' {1} kategorisinde görünmüyor.
 {0}, session {1} is already {2}.	{0}, {1}. seans zaten {2}.
-Confirmed, but the calendar shows '{0}' as session {1}.	Onaylandı ama takvimde {1}. seans '{0}' görünüyor.
-{0}, session {1}: {2} → {3}	{0}, {1}. seans: {2} → {3}
 The schedule card of the week of {0} could not be read.	{0} haftasının program kartı okunamadı.
 The game does not let the week of {0} change its schedule (a week under way or gone).	Oyun {0} haftasının programını değiştirtmiyor (başlamış ya da geçmiş hafta).
-Types: {0}	Türler: {0}
 {0} ({1}) — schedule type	{0} ({1}) — program türü
 {0} — schedule	{0} — program
 No schedule called '{0}' was found. To see the options: schedule style {1:yyyy-MM-dd}	'{0}' diye bir program bulunamadı. Seçenekleri görmek için: schedule style {1:yyyy-MM-dd}
 Confirmed, but the week's card shows '{0}'.	Onaylandı ama haftanın kartında '{0}' görünüyor.
 The choice window did not open.	Seçim penceresi açılmadı.
-{0} is not among the months the calendar shows.	{0} takvimin gösterdiği aylarda yok.
-The calendar's training tab could not be read.	Takvimin antrenman sekmesi okunamadı.
 usage: training <player> --trait ["<trait>"] | --trait-remove "<trait>" | --trait-cancel	kullanım: training <oyuncu> --trait ["<alışkanlık>"] | --trait-remove "<alışkanlık>" | --trait-cancel
-Trait training did not open for {0}.	{0} için alışkanlık eğitimi açılmadı.
 To confirm, run the same command with --yes.	Onaylamak için aynı komutu --yes ile çalıştır.
-{0} is working on a trait now; for a suggestion cancel it first: --trait-cancel	{0} şu an bir alışkanlık üzerinde çalışıyor; öneri için önce iptal: --trait-cancel
 {0} is not working on a trait now.	{0} şu an bir alışkanlık üzerinde çalışmıyor.
 {0} is working on a trait now; cancel it first: --trait-cancel	{0} şu an bir alışkanlık üzerinde çalışıyor; önce iptal: --trait-cancel
 {0} — traits: {1}	{0} — alışkanlıkları: {1}
 none	yok
-Working on a trait now (the game does not say which on this screen).	Şu an bir alışkanlık üzerinde çalışıyor (oyun hangisi olduğunu bu ekranda yazmıyor).
-To cancel: training "{0}" --trait-cancel	İptal için: training "{0}" --trait-cancel
 Can be taught:	Öğretilebilecekler:
 Other	Diğer
 \nTo teach: training "{0}" --trait "<trait>"  ·  to drop one: --trait-remove "<trait>"	\nÖğretmek için: training "{0}" --trait "<alışkanlık>"  ·  bırakmak: --trait-remove "<alışkanlık>"
-'{0}' is not among those that can be taught.	Öğretilebilecekler arasında '{0}' yok.
 '{0}' matches {1} traits:	'{0}' {1} alışkanlığa uyuyor:
-{0}: which trait should they learn?	{0}: hangi alışkanlığı öğrensin?
 \nThe options on screen: {0}  (talk <no>)	\nEkrandaki seçenekler: {0}  (talk <no>)
 To reject or accept an incoming offer: reply <#> Reject | Accept to the offer's message	Gelen teklifi reddetmek ya da kabul etmek: teklifin mesajına reply <#> Reject | Accept
 usage: offer <player> [fee, e.g. 7.5M | 750K] [--term "Term=value"]… [--loan] [--dry] [--yes]	kullanım: offer <oyuncu> [bonservis, ör. 7.5M | 750K] [--term "Şart=değer"]… [--loan] [--dry] [--yes]
@@ -1156,12 +1074,10 @@ Club vision meeting	Kulüp vizyonu toplantısı
 \nAccept: vision confirm   ·   remove an objective: vision remove <no>, then vision suggest   ·   undo: vision undo / reset   ·   finish: vision end	\nKabul: vision confirm   ·   bir hedefi çıkar: vision remove <no>, sonra vision suggest   ·   geri al: vision undo / reset   ·   bitir: vision end
 The youth training table did not open.	Altyapı antrenman tablosu açılmadı.
  · average {0}	 · ortalama {0}
-ADDITIONAL FOCUS	EK ODAK
 This year's intake candidates have not come yet (intake date: youth).	Bu yılın alım adayları henüz gelmedi (alım tarihi: youth).
 ABILITY	YETENEK
 Academy           training level {0} · youth recruitment {1} · level {2}	Akademi           antrenman seviyesi {0} · genç oyuncu bulma {1} · seviye {2}
 Stadium           {0}	Stat              {0}
-Staff             coaches {0} · scouting {1} · medical {2}	Kadro             antrenör {0} · tarama {1} · sağlık {2}
 Youth intake      {0} {1} {2} (in {3} days)	Altyapı alımı     {0} {1} {2} ({3} gün sonra)
 Intake candidates none yet (they are known each March with a match)	Alım adayları     henüz yok (her yıl Mart'ta bir maçla belli oluyor)
 Intake candidates ARRIVED — the list: youth candidates	Alım adayları     GELDİ — liste: youth candidates
@@ -1184,7 +1100,6 @@ right {0} · left {1}	sağ {0} · sol {1}
  · {0} assists	 · {0} asist
 loan	kiralık
 free	bedelsiz
-undisclosed	açıklanmadı
 Sunday	Pazar
 Monday	Pazartesi
 Tuesday	Salı
@@ -1206,7 +1121,6 @@ To answer: reply "{0}"	Cevaplamak için: reply "{0}"
 To answer: reply <#>   (for the numbers: inbox)	Cevaplamak için: reply <#>   (numaralar için: inbox)
 The game is waiting for a press conference: {0}\nTo attend or skip it: reply "{1}"	Oyun basın toplantısı bekliyor: {0}\nKatılmak ya da geçmek için: reply "{1}"
 The game is waiting for a press conference. To attend or skip it, answer the press message: inbox, reply <#>	Oyun basın toplantısı bekliyor. Katılmak ya da geçmek için basın mesajını cevapla: inbox, reply <#>
-Note: the chosen squad has injured players ({0}); the match does not start with them. To have the assistant pick: tactic pick · yourself: tactic player <position> <player>	Dikkat: seçili kadroda sakat var ({0}); maç onlarla başlamaz. Yardımcıya seçtirmek: tactic pick · kendin: tactic player <mevki> <oyuncu>
 The game is waiting for the pre-match team news.	Oyun maç öncesi takım haberlerini bekliyor.
 The game is waiting for a team talk.	Oyun takım konuşması bekliyor.
 The game is waiting for a tunnel interview.	Oyun tünel röportajı bekliyor.
@@ -1253,7 +1167,6 @@ Right foot	Sağ ayak
 Left foot	Sol ayak
 Some --terms are not at this step; change them on the card by hand.	Bazı --term'ler bu aşamada yok; kartta elle değiştir.
 Could not go on to the terms; the agent may be waiting for something else (look with talk).	Şartlara geçilemedi; menajer başka bir şey bekliyor olabilir (talk ile bak).
-There is no cancel button in the negotiation.	Görüşmede iptal butonu yok.
 Told to cancel, but the negotiation screen is still open (look with talk).	İptal denildi ama görüşme ekranı hâlâ açık (talk ile bak).
 After tax	Vergi sonrası
 Squad status	Kadro statüsü
@@ -1296,7 +1209,6 @@ Fixtures	Fikstür
 Medical	Sağlık
 Contracts	Sözleşmeler
 Finances	Finans
-Other partners	Diğer ortaklar
  · ends {0} ({1})	 · bitiş {0} ({1})
 last month	geçen ay
 last season	geçen sezon
@@ -1308,16 +1220,10 @@ days	gün
 weeks	hafta
 application	başvurulacak
 declaration of interest	ilgi bildirilecek
-Worldwide	Dünya çapında
 Continental	Kıtasal
 National	Ulusal
-Regional	Bölgesel
 Local	Yerel
 Rich	Zengin
-Secure	Sağlam
-Okay	İdare eder
-Insecure	Kırılgan
-Precarious	Çok riskli
 applied	uygulandı
 dismissed	kaldırıldı
 Kick-off	Maç başladı
@@ -1336,9 +1242,6 @@ CONCEDED	YEDİĞİ
 [dim]did not play[/]	[dim]oynamadı[/]
 did not play	oynamadı
 just now	az önce
-{0} days ago	{0} gün önce
-{0} hours ago	{0} saat önce
-{0} min ago	{0} dk önce
 '{0}' did not appear on screen	'{0}' ekranda görünmedi
 the amount did not change on screen	tutar ekranda değişmedi
 '{0}' is not in this term; options: {1}	'{0}' bu şartta yok; seçenekler: {1}
@@ -1355,13 +1258,6 @@ Formation	Diziliş
 Top scorer	Gol kralı
 Top assists	Asist kralı
 Highest average rating	En yüksek ortalama
-goals per game	maç başı gol
-non-penalty xG/90	penaltısız xG/90
-conceded per game	maç başı yenen
-xGA per game	maç başı xGA
-shots per game	maç başı şut
-shots on target %	isabet %
-tackles won %	top kapma %
 A player who has scored twice may take one	İki gol atan da atabilir
 A player who has taken a penalty leaves the next one	Bir penaltı atan bir sonrakini bırakır
 A player who has missed a penalty leaves the next one	Penaltı kaçıran bir sonrakini bırakır
@@ -1388,8 +1284,6 @@ Corners	Korner
 Possession	Topla oynama
 Fouls	Faul
 {0} after tax	vergi sonrası {0}
-{0}% of the wage budget	maaş bütçesindeki payı %{0}
-{0} places free	{0} boş yer
 error: {0}, but the page did not show what was expected	error: {0}, ama sayfa beklenen içeriği göstermedi
 age	yaş
 nation	ülke
@@ -1406,12 +1300,6 @@ Youngest age	En küçük yaş
 Oldest age	En büyük yaş
 Contract status	Sözleşme durumu
 Loan status	Kiralık durumu
- (champions)	 (şampiyon)
- (play-offs certain)	 (play-off kesin)
- (promoted)	 (yükseldi)
- (relegated)	 (düştü)
-trained in nation (HGN+HGC)	ülkede yetişmiş (HGN+HGC)
-trained at club (HGC)	kulüpte yetişmiş (HGC)
 replacements	değişiklik
 at club	kulüpte
 in nation	ülkede
@@ -1470,7 +1358,6 @@ Apps	Maç
 Clean sheets	Gol yemedi
 Total {0} apps · {1} {2}{3}{4}	Toplam {0} maç · {1} {2}{3}{4}
 [dim]Next match:[/] {0}	[dim]Sıradaki maç:[/] {0}
-{0} · influence on the board {1}	{0} · yönetime etkisi {1}
 Income last month	Geçen ay gelir
 Expenditure last month	Geçen ay gider
 Weekly wages	Haftalık maaş
@@ -1503,7 +1390,6 @@ Could not reset.	Sıfırlanamadı.
 Cancel the negotiation	Görüşmeyi iptal et
 The negotiation closed.	Görüşme kapandı.
 The negotiation closed: the contract was either signed, or the decision will come to the inbox in a few days (contracts).	Görüşme kapandı: sözleşme ya imzalandı ya da kararı birkaç gün içinde gelen kutusuna düşer (contracts).
-The offer is with the other side; the decision will come to the inbox in a few days.	Teklif karşı tarafta; kararı birkaç gün içinde gelen kutusuna düşer.
 Contract signed; the negotiation is closed.	Sözleşme imzalandı; görüşme kapandı.
 {0}: removed	{0}: çıkarıldı
 The agent wants: {0}	Menajerin istediği: {0}
@@ -1559,8 +1445,6 @@ The 'First Team' page could not be opened.	'First Team' sayfası açılamadı.
 You are unemployed: there is no squad to manage. Job vacancies: jobs	İşsizsin: yönetecek bir kadro yok. İş ilanları: jobs
 The '{0}' view was not found in the squad table.	Kadro tablosunda '{0}' görünümü bulunamadı.
 The '{0}' view was chosen, but the '{1}' data did not come.	'{0}' görünümü seçildi ama '{1}' verisi gelmedi.
-Gaining status	Statü kazananlar
-Coming changes (status · date)	Yaklaşan değişiklikler (statü · tarih)
 {0} improving	{0} gelişen
 {0} {1} people, {2}	{0} {1} kişi, {2}
 unread	okunmadı
@@ -1583,10 +1467,6 @@ Away	Deplasman
 Neutral	Tarafsız
 Send the list	Listeyi gönder
 Let the assistant choose	Yardımcı seçsin
-No registration needed: those aged {0} and under on {1}	Kayıt gerekmez: {1} tarihinde {0} yaş ve altı olanlar
-No registration needed: goalkeepers	Kayıt gerekmez: kaleciler
-There are {0} free places in the list	Listede {0} boş yer var
-If a minimum is not met, a place must be left for it in the list	Bir alt sınır tutmuyorsa listede onun için yer bırakılmalı
 [dim]AGE[/]	[dim]YAŞ[/]
 [dim]POSITION[/]	[dim]MEVKİ[/]
 [dim]TRAINED[/]	[dim]YETİŞME[/]
@@ -1622,8 +1502,6 @@ Change the choice ({0})	Seçimi değiştir ({0})
 Change the amount ({0})	Tutarı değiştir ({0})
 Negotiation status ({0})	Pazarlık durumu ({0})
 {0} amount (e.g. 7.5M, 250K, 12000; empty: cancel)	{0} tutarı (ör. 7.5M, 250K, 12000; boş: vazgeç)
-Attributes: {0}	Özellikler: {0}
-{0}: training on the suggested trait has begun.	{0}: önerilen alışkanlığın eğitimi başladı.
 {0}: trait training cancelled.	{0}: alışkanlık eğitimi iptal edildi.
 Trait	Alışkanlık
 {0}: will try to drop "{1}".	{0}: "{1}" bırakılmaya çalışılacak.
@@ -1649,26 +1527,12 @@ December	Aralık
 Tue	Sal
 Thu	Per
 Fri	Cum
-On Course	yolunda
-Satisfied	memnun
-Reserving Judgement	henüz yargılamıyor
-Not Judging	değerlendirmiyor
-Unsatisfied	memnun değil
 Failed	başarısız
-Very Satisfied	çok memnun
 High	yüksek
-Medium	orta
 Low	düşük
 Good	iyi
-Great	çok iyi
-Excellent	mükemmel
-World Class	dünya çapında
 Pleased	hoşnut
-Concerned	endişeli
-Angry	öfkeli
 Delighted	çok mutlu
-Playing style	oyun tarzı
-Rivalry	rekabet
 Competition	turnuva
 Finance	finans
 Core	çekirdek
@@ -1676,28 +1540,20 @@ Fair Weather	iyi gün dostu
 Casual	ara sıra gelen
 Hardcore	fanatik
 Corporate	kurumsal
-Adequate	yeterli
 Basic	temel
 Superb	harika
-State Of The Art	son teknoloji
 Fair	idare eder
 Star Player	Yıldız
 Important Player	Önemli
 Regular Starter	Düzenli ilk 11
 Squad Player	Rotasyon
-Impact Sub	Etkili yedek
-Fringe Player	Kenarda
 Emergency Backup	Acil durum yedeği
 Youngster	Genç
-Not Needed	İhtiyaç yok
 Backup	Yedek
-Breakthrough Prospect	Çıkış yapan genç
 Future Prospect	Geleceğin oyuncusu
 Automatic	Otomatik
 Half Intensity	Yarım
 Double Intensity	Çift
-No pitch or gym work	Dinleniyor
-Send On Holiday	Tatilde
 Penalties	Penaltılar
 Players To Exchange	Takas oyuncuları
 Fee	Bonservis
@@ -1711,7 +1567,6 @@ Duration	Süre
 Can be recalled	Geri çağrılabilir
 Promises	Sözler
 Terms	Şartlar
-Contract Start Date	Başlangıç
 Agent Fee	Menajer ücreti
 Bonus After Competition Achievement	Turnuva başarısı primi
 Senior Squad	A takım
@@ -1725,14 +1580,7 @@ AMR	Attacking Midfielder (Right)
 AML	Attacking Midfielder (Left)
 AMC	Attacking Midfielder (Centre)
 ST	Striker (Centre)
-Right Footers	sağ ayaklılar
-Left Footers	sol ayaklılar
-Right Side	sağ taraf
-CRO	ORTA
 COR	KORNER
-FRE	FRİKİK
-LONG SH.	UZAK ŞUT
-L TH	UZUN TAÇ
 Submitting the team	Kadro gönderiliyor
 Team talk	Takım konuşması
 Walking out	Sahaya çıkış
@@ -1744,7 +1592,6 @@ Post-match reactions	Maç sonu tepkileri
 Leaving the match	Maçtan çıkış
 ASKING PRICE	İSTENEN
 TRANSFER STATUS	TRANSFER DURUMU
-FUTURE STATUS	GELECEK STATÜ
 ACTUAL TIME	GERÇEK SÜRE
 PLAYING TIME HAPPINESS	SÜRE MEMNUNİYETİ
 CONTRACT	SÖZLEŞME
@@ -1890,13 +1737,11 @@ otherwise {0}	{0} olmazsa
 error: no '{0}' in the search panel	error: arama panelinde '{0}' yok
 Attribute	Nitelik
 [dim]TEAM[/]	[dim]TAKIM[/]
-Free Agent (on trial)	Free Agent (denemede)
   (injured: {0})	  (sakat: {0})
 Playmaking	Oyun kurma
 Instruction	Talimat
 {0} · {1} / out of possession {2}	{0} · {1} / topsuz {2}
 Which player?	Hangi oyuncu?
-Effects: {0}	Etkiler: {0}
 {0} (spent this season {1}, at the start {2})	{0} (bu sezon harcanan {1}, başta {2})
 Wage budget	Maaş bütçesi
 {0} (weekly) · paid {1} / {2}	{0} (haftalık) · ödenen {1} / {2}
@@ -1914,8 +1759,6 @@ Set piece 1	Duran top 1
 Set piece 2	Duran top 2
 in	topla
 out	topsuz
-sp1	duran1
-sp2	duran2
 corner	korner
 freekick	frikik
 wide	kanat
@@ -1988,12 +1831,10 @@ Height	Boy
  goals	 gol
 AST	AS
 {0} months	{0} ay
-    Scout's view: {0} · {1}	    Gözlemci görüşü: {0} · {1}
 MATCH ({0})	MAÇ ({0})
 , crowd {0}	, {0} seyirci
 , {0} shown	, ekranda görünen {0}
 first XI	ilk 11
-There is an open contract talk with {0}. Finish or cancel it first: contract --cancel   (then: contract {0} --agent)	{0} ile açık bir sözleşme görüşmesi var. Önce onu bitir ya da iptal et: contract --cancel   (sonra: contract {0} --agent)
 Our ratings (live): {0}   ·   official: report	Puanlarımız (canlı): {0}   ·   resmî: report
 Game	Oyun
 BepInEx core	BepInEx çekirdeği
@@ -2083,8 +1924,6 @@ Could not answer the game's question; groups unchanged.	Oyunun sorusu cevaplanam
 Said no; groups unchanged. To confirm: mentoring --auto --yes	Hayır dendi, gruplar değişmedi. Onaylamak için: mentoring --auto --yes
 The assistant did not answer; groups unchanged.	Yardımcı cevap vermedi; gruplar değişmedi.
 error: the assistant's choice button is not on screen	error: yardımcının seçim düğmesi ekranda yok
-{0}: trait suggestion button not found.	{0}: alışkanlık önerisi düğmesi bulunamadı.
-{0}: trait training page did not open (no '{1}' tile).	{0}: alışkanlık eğitimi sayfası açılmadı ('{1}' döşemesi yok).
 Tried to exit but the contract talks are still open.	Çıkış denendi ama sözleşme görüşmesi hâlâ açık.
 Exit button not found in the talks.	Görüşmede çıkış düğmesi bulunamadı.
 Tried to exit but the contract talks are still open (check: talk).	Çıkış denendi ama sözleşme görüşmesi hâlâ açık (talk ile bak).
@@ -2105,7 +1944,6 @@ CLI language: auto (follow the game)	CLI dili: auto (oyunu izler)
 FM_LANG is set and overrides this for now.	FM_LANG ayarlı; şimdilik bunu geçersiz kılıyor.
 Set it with: lang english | lang turkish | lang auto	Ayarlamak için: lang english | lang turkish | lang auto
 The game's data keeps the game's language.	Oyunun verisi oyunun dilinde kalır.
-CLI language: auto (game: {0})	CLI dili: auto (oyun: {0})
 CLI language: auto{0}	CLI dili: auto{0}
  (game: {0})	 (oyun: {0})
 Injured: {0}. The game may still let them play, at the risk of making it worse; check: squad --fitness · change: tactic player <position> <player>	Sakat: {0}. Oyun yine de oynatabilir, sakatlık ağırlaşabilir; kontrol: squad --fitness · değiştir: tactic player <mevki> <oyuncu>
@@ -2120,7 +1958,6 @@ this month	bu ay
 The game is on the post-match results screen; go past it: next	Oyun maç sonu sonuç ekranında; geçmek için: next
 LIVE	CANLI
 Waiting for the first event…	İlk olay bekleniyor…
-sub <off> <on> · shout · dugout · tactic	sub <çıkan> <giren> · shout · dugout · tactic
 First half	İlk yarı
 Second half	İkinci yarı
 On target	İsabetli şut
@@ -2135,7 +1972,6 @@ full	tam
 key moments	önemli anlar
 score only	sadece skor
 No key moments yet.	Henüz önemli an yok.
-fm — run Football Manager from the terminal\n\n  fm start        start the game, load the save, enter the session   (--menu: leave it at the main menu)\n    --debug       show the window (normally kept out of the Dock and off screen)\n  fm              enter the session (while the game is open)\n  stop            close the game; asks whether to save first (--save / --no-save)\n\n  continue        load the last save in the open game\n  squad           print the squad\n    --fitness     condition and match sharpness, most tired first\n    --u19         the youth teams' squads (U21, U18…)\n    --morale      morale, hierarchy and social group\n    --stats       season stats: apps, minutes, goals, assists, average rating, cards\n    --views       list every view of the squad table\n    --view "<x>"  print that view's columns (Contract, Injuries, Playing Time…)\n  player <name>   player page: identity, contract, traits, attributes, position ratings, injury history (found by search if not ours)\n    --actions     what can be done for the player: offer, shortlist, scout, agent…\n    --report      scout report: grade, ability / potential, interest, value, pros and cons, place in the squad\n    --career      season by season: club, how they joined (fee / loan), apps, goals, rating\n    --matches     this season match by match: opponent, score, position/role, on/off, xG, goals, assists, rating\n  compare <a> <b> two players side by side: identity, then attribute by attribute, the better one marked (a name of several words: quotes or "vs")\n  search <text>   find it with the game's search: player, club, competition…\n  offer <player> [fee]  transfer offer: shown as a card, edited with the arrow keys in a terminal\n    --term "<term>=<value>"   set or change a term (e.g. "Percentage Of Next Sale=20%",\n                              "Fee=Non-Negotiable"); --loan a loan, --dry do not send;\n                              --close leave an unsent offer screen\n                              for one of ours with an offer waiting: their offer, sent back\n                              with our terms (--negotiate: talk it over with them instead)\n                  cannot be undone: asks in a terminal, wants --yes in a script\n  targets         transfer targets: the budget left and thin positions in the squad\n  targets <position> [--max-value <money>] [the search options of players]   players in that position the budget allows ("targets DL", "targets 'left back' --age 18-24"; --free: free agents only)\n  players         the player search (the rows on screen)\n    --filters / --filter "<x>"   the ready filters, by the game's name or: listed, loan listed, free, expiring, unhappy, goalkeepers…\n    --free                       free agents (contract expired)\n    --scouted / --unscouted      only the players the scouts know / everyone again\n    --clear                      remove the filter (it stays in the game)\n    --views / --view "<x>"       the views that set the columns\n  table [competition] league table; with a competition's name, that competition's table (e.g. table europa)\n  stages [competition] [stage]   cup rounds and their ties, a league stage's table; every competition in the world (--all, --list)\n  scout [#|focus] scouting focuses; the players a focus has found (--matched, --near, --progress)\n  scout new [--position <position>] [--role <role>] [--area "<area>, …"] [--age 18-23] [--ability <stars>] [--potential <stars>] [--by "<scout>, …"] [--analysts "<analyst>, …"] [--name <name>] --priority top|standard|ongoing   a new focus\n  scout edit <#|name> [--area …] [--age …] [--ability …] [--potential …] [--by …] [--analysts …] [--name …] [--priority …]   change a focus\n  scout areas [path] · scout remove <#|name> [--yes] · scout restart <#|name>   area options; stop / restart a focus\n  scout staff     the scouting team: judging ability / potential, how many areas and nations they know, their focuses\n  scout player <name> [--by <scout>] --for <length>   send a scout to a player ("1 week", "2 months", "3 matches", "extensive"); scout who <name>: who can be assigned\n  scout player <name> --cancel [--dry]   call the assignment off (Scout Priorities); --dry only says whether there is one\n  league [competition]  leaders: top-scoring team, top scorer / assists, highest rating (default: the league)\n  league [competition] --stat <name> [--teams] [--top <n> | --all]   the full ranking: goals, assists, xG, form…;  league --stats: every stat\n  fixtures        the next matches;  --all: the whole season's fixtures\n  calendar [month] calendar: that month's matches and key dates (transfer window, draws…);  --u19 youth matches too\n  report          the last match's report: score, goals, player of the match, stats\n  inbox           the inbox\n    --read-all    mark every message read\n    --all         every message the inbox holds, not only the ones loaded\n    --tasks       only the messages under the inbox's Tasks filter\n    --open        the message last opened, with the game's number for its kind\n    --attachment  the open message's attachment, once the game has drawn it\n  news [#]        what the press writes: the headlines on the news site, in the page's own order; with a number, the whole story\n  reply <#>       open a message: its full text and answers; in a terminal the answer is chosen with the arrow keys\n  reply <#> <no>  answer a message (a number or part of the answer)\n    --pick <n>    first choose what the message itself offers (the board's season expectations)\n  next [n]        move time on (n times; stops when something is in the way), say what happened\n    --until match   go on until match day;  --until message  until a message arrives\n    --skip        go past an open post-match question without answering\n  holiday week|month|match   go on holiday: the assistant runs the club until then\n    --jobs <kind> / --no-jobs   apply for manager jobs while away (any, top, higher, reputation, national …)\n  match           play the match day: asks whether to watch in the terminal or take an instant result\n    --play        watch the match: commentary, goals, result; asks what to say in the talks\n                  (in a script it stops at a talk: talk <no>, then match)\n    --no-talk     skip the talks\n    --stop-at-advice   pause and stop when the assistant gives advice that can be applied (for scripts)\n    --instant     do not play it, leave it to the assistants: the game simulates it in a few seconds\n    --pick        another of our teams playing the same day with nobody picked (the U19s): use its staff's suggested team\n  shout [<x>]     shout from the touchline during a match (Well Done, Up Your Game, Calm Down…)\n  tweak [<x>]     during a match, the tactical tweaks (Take a Breather, Lock It Down…): which are on;  tweak <x> puts one on, --off takes it off\n    tweak [<x>] --player <player>   his individual tweaks;  tweak --reset team|individual|all\n  sub             during a match: on the pitch and on the bench;  sub <off> <on>: make a substitution\n  pause / resume  during a match: pause it, play on;  skip: skip the replay that is playing\n  dugout          during a match, the assistant's advice;  dugout apply (the newest one, says what it turned on);  dugout <no> apply | dismiss\n    --play-on     a match paused to take it plays on, so a team instruction it sets is read back\n  manager         the manager's record: clubs, transfers, results at this club and over the career\n  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen\n  read [<page>] --of "<name>"   a club that is not ours, a nation, a national team or a competition: its page, or a page on its bar (it lists them)\n  meeting         hold a team meeting; answer it with talk\n  jobs [<club>] [apply|interest] [--yes] [--all]   job vacancies; apply or say you are interested\n  crawl <out.json> [--here] [--only <guid>,…] [--skip <guid>,…]   for developers: a map of the game's pages\n  draw            run a cup draw its message opened, and show the ties\n  friendly [<#|club> [--date yyyy-mm-dd] [--away] [--rules <no>] --yes]   arrange a friendly: the opponents offered, open dates, match rules\n  resign [--yes]  resign from the club (test career; then look at jobs)\n  dialog [answer] show or answer the open confirmation window\n  talk            show the open conversation: what was said, reactions, what you can say\n  talk <no>       say it (a number or part of the sentence);  talk leave: leave the conversation\n  tour            run the open guided tour to the end\n    --skip        skip the tour (if the tour allows it)\n  contract [player]  the contract negotiation card: promises, then terms; edited with the arrow keys in a terminal; --next: on to the terms · --sign --yes: offer it\n                  with a player given (one of ours) it opens a new contract negotiation\n    --term "Term=value"  set / add a term ("Wage=20K", "Appearance Fee=remove",\n                  "Will appoint player as captain", "Entire offer=Non-Negotiable")\n    --wage <amount>  wage, in the game's wage period;  --next: confirm the promises, go on to the terms\n    --sign --yes  put the terms to the agent / sign;  --cancel: cancel the negotiation\n  contract <player> --agent  ask their agent whether they are open to a renewal (then with talk)\n  offers          offers for our players awaiting an answer;  offers <# | player> view | accept | stall | reject\n  propose <player> [fee] [--loan] [--yes]  offer the player to clubs (a sale or a loan)\n  release <player> [--free | --mutual] [--yes]  release on a free (shows the compensation) or a mutual termination\n  training [player]  individual training: position/role, out-of-possession role, focus;  --focus / --position "A>B" / --role;  --control player|month|all takes it over from the assistant\n  training <player> --report [--coach <name>]  ask a coach for a training report and show it\n  training <player> --trait ["<trait>"]  traits and what can be taught; given one, teach it\n                  --trait-remove "<t>" drop one · --trait-cancel · --yes: despite the assistant's objection\n  prep            match preparation: the Match Preparation sessions up to the next match (change one: schedule set)\n  schedule        the training schedule: this week and next, three sessions a day\n  schedule set <day> <1|2|3> [<session>]   change a session; with no session given choose it with the arrow keys\n  schedule style <day> [<schedule>]        change that week's schedule (Tactical, Gegenpress…; --json: by number)\n  schedule copy | paste | clear [this|<weeks ahead>]   the training week's own buttons (next week unless told)\n  budget          the transfer, wage and scouting budgets;  budget adjust [<step>]: the transfer ↔ wage split\n  settings        game settings: match display and speed, auto save, language, currency, units\n  settings all    every preference of the game, each with its key\n  settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x; a title or key from settings all too); with no value it is chosen with the arrow keys\n  lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works\n  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii|auto]   the live match panel\n  happiness       the players' happiness, unhappiest first\n    happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about\n    --why           everyone with a complaint, with their complaints\n  internationals  internationals: nation, caps and goals, who played this season\n  mentoring       mentoring groups and their members;  --auto: have the assistant build the groups (--yes if there are groups)\n    new [<p1> <p2> <p3>] [--name "<name>"]   build a group by hand; without players: who can be chosen\n    remove "<group>" --yes                   break a group up\n  dynamics        the dressing room: atmosphere, support for the manager, hierarchy and social groups\n  contracts       contract calendar: whose contract ends when, soonest first\n  contracts <player>  a player's contract: wage, status, bonuses and clauses\n    --expiring [<player> <choice>]  the "contracts set to expire" message: each player's recommended action; with a player and a choice (its number), that decision\n  club            club summary: the board's grade and objectives, supporters, balance and wages, facilities, gaps in the staff\n  staff           the club's staff: who has which job, their age, wage, contract; what the teams lack and the board's view\n  finances        finances: balance, this month's income/expenditure, debt, FFP, payroll by player status, sponsorship, projection\n  finances income|expenditure [month|last month|season|last season]   income or expenditure item by item\n  supporters      supporters: atmosphere, expectations and reactions, attendance, season tickets, supporter profile\n  responsibilities [filter]   who has the staff duties;  delegate "<duty>" hand it over · take "<duty>" take it back · delegate all / take all "<group or area>"\n  youth           youth: academy levels and stadium, first-team prospects, the intake date; --training: the youth team's training ratings; candidates: the year's intake; preview: the look ahead at it\n  progress        who is getting better, who worse: every player's ability over the last four months and the change\n  staff find [text] [--filter <filter>] [--view <view>] [--own | --no-own]   the staff search: job, contract, wage, attributes; --own: our staff too\n  staff hire <name> [--wage <amount>] [--sign --yes]   hire staff: opens the contract negotiation, carried on with `contract`\n  staff fire <name> [--mutual] [--yes]   part ways with staff: the game names the compensation, says "No" without --yes\n  actions <person|club> ["<option>"]   the game's right-click menu for that person or club (assign a scout, shortlist, send on a course, a team report…); an option given is carried out\n  board           the board's and supporters' view: matches, squad, tactics, transfers, vision; what pleases them, their concerns; this season's expectations\n    request ["<request>" --yes]   what can be asked of the board; ask for one by name\n  doctor          what is wrong in the squad: injured, tired, low sharpness, ending contracts, thin positions, the board's concerns\n    --install     check the installation: game, BepInEx, shadow bundle, plugin, fm command, save folder\n  facilities      facilities: stadium (capacity, pitch, size), training facilities, youth, commercial\n  query "<conditions>"   query the squad: "age<23 and potential>140", "contract<1year", "position=ST and goals>2";  on its own it lists the fields\n    --sort <field> / --asc     ordering (default: the first condition's field)\n  health          squad health: injured, tired, low sharpness, highest injury risk\n  depth           squad depth: who can play each position, age profile\n  captains        captain and vice-captain;  --captain <player> / --vice <player>\n    captains --standins [quick | add <player> | remove <player> | clear]   the stand-ins, in order\n  vision          the end-of-season club vision meeting: objectives;  confirm | remove <no> | suggest | undo | reset | end | plan | add <no>\n  penalties       penalty order (composure, penalty taking) and the rules on who leaves the next one;  penalties <1|2|3> on|off\n  penalties move <player|place> <new place> · add <player> [<place>] · remove <player|place>   change the order\n  takers [<kind>] set piece takers: corner, freekick, wide, deep, throw; with a kind, both lists in detail\n  takers <kind> <right|left> move <player|place> <new place> · add <player> [<place>] · remove <player|place>   change that list's order\n  opponent        the next opponent: form, formation, top scorer / assists, squad news\n  world           the loaded save, when it was last saved, time played; how many nations / leagues / players are loaded\n  saves           the saves on disk, newest first\n    delete "<name>" --yes   delete a save (not the loaded one)\n  load "<name>"   load a particular save; if a save is loaded the game closes and opens again (--save / --no-save)\n  diff            what has changed since the last look: league position, balance, budget, in/out, injuries, contracts, apps/goals/assists\n    --keep        do not save this look (the comparison stays with the last one);  --reset: only save the state now\n  export [file.md] [command…]  the commands' output as one Markdown report, section by section (default: status, squad,\n                  table, fixtures, health, contracts, finances);  export <file.csv> "<command>": that command's table\n  --json / --csv / --md   with every command: JSON, CSV or Markdown in place of the table; no questions are asked\n  shortlist       the players on the shortlist (those with offers too)\n  transferroom    clubs' adverts for players you could offer (--loan);  offer <no or club> [player] | activity | wanted | responses | new --position <p> [--role <r>] [--oop-position <p>] [--oop-role <r>] [--min-age <n>] [--max-age <n>] [--time <t>] [--type <t>] (a list's word, or its value as an error or --choices lists it) | delete <no> | agents | discard <player> | discard --all\n  planner         the Squad Planner: the plan at a position (--season current|next|after, --position <p>);  add <player> | remove <player> | move <player> <place> | suggest position|tactic|season|all\n    --lists · --list "<name>" · --new "<name>"   the shortlists; show another; make one  (add … --to "<list>" with several)\n    add <name> --for <length> · remove <name>   put on the list ("3 months", "1 year", "indefinitely") / take off it\n  interest <name> --top|--transfer|--loan [--yes]   declare our interest in a player\n  enquire <name>  ask their club what it would want\n  trial <name> --for <1-4 weeks> [--yes]   invite a player on trial\n  intensity       training intensity player by player;  intensity <player> <double|"rest 3"|"holiday 1">, --auto [--yes]\n  coaches         coaching assignments: who is in which training area, the areas' workload and lead coach\n    coaches <coach> <area> [--off]   assign / remove ("coaches Cohen attacking tactical");  --auto: leave it to the assistant;  --clear: remove them all\n  opposition      player-by-player instructions against the next opponent (marking, pressing, tackling, foot)\n    --advice / --clear   apply / clear the assistant's suggestion;  opposition <player> Pressing=Always\n  register        competition squad list: who is on it, home-grown quotas, rules; add/remove with the arrow keys in a terminal\n    --in <player> / --out <player>   put on / take off the list (can be repeated)\n    --auto        let the assistant choose first;  --send: send it (once the rules are met)\n  numbers         squad numbers: who wears which, who asked for which, free numbers\n    numbers <player> <no>   give a number (while the game takes them: the start of the season or a new signing);  --send: save\n    --auto        let the assistant hand them out and send\n  setpieces new [<no> …]      set up the set piece routines (six questions; asks in the terminal what is not given)\n  setpieces <kind>            a routine: delivery, target, the players' duties (corner, freekick, wide, deep, throw)\n  setpieces <kind> delivery <in|out> | aim <option> | <place> <duty> [<otherwise>]   change the routine\n  tactic          the team's tactic: style, mentality, fluidity, eleven positions and roles\n  tactic mentality [<x>]      show or change the mentality\n  tactic style [<x>]          show or change the playing style\n  tactic pick                 have the game pick the starting eleven (Quick Pick)\n  tactic advice [evaluation | xi | opposition]   the assistant's advice on the tactic\n    --youth                   pick from the youth players too (when the first team is short)\n  tactic instructions ["<instruction>" [<value>]]  team instructions: in possession (phase by phase) and out of possession; with no value, the options\n  tactic pi <position|player> ["<instruction>" [<value>]]  player instructions (shooting, runs, pressing, marking…)\n  tactic slot [<n>]           tactic slots; with a number, switch to that tactic\n  tactic role <position> [<role>]  show or change a position's role (--oop: out-of-possession role)\n                              during a match: tactic role <player> [<role>]\n  tactic player <position> <player>  put a squad player in that position (the one there goes to the bench)\n  tactic player <substitute> <player>  swap a substitute (an injured one) for another squad player\n  tactic player <position> --clear  leave the position empty\n  tactic personal [<position> on|off [--dry]]  personalised roles: each starter's, or turn one on / off\n  tactic new ["<style>" ["<in-possession formation>" ["<out-of-possession formation>"]]]\n                  create a tactic; lists the options of the step left out\n  tactic copy [<tactic>]  copy a tactic to a new slot · tactic clear [<n>] --yes: empty a slot\n  tactic save "<name>" [--note "…"]  save the tactic to a file · tactic saved: the saved ones · tactic load "<name>" --yes: load into the active slot\n\n  pages [text]                every page of the game\n  open "<page>"               open a page\n    --tab <tab>               when several pages share a name\n  buttons [text]              the buttons on screen and what they send\n    --all                     show the unlabelled ones too\n  press "<label>"             press a button\n    --name <name>             when several share a label\n  dropdowns [text]            the dropdowns on screen and their options\n  select <list> "<option>"    choose from a list\n  type "<text>"               write in the box of the window on screen (a nickname)\n    --dry                     for press, select and type: do not do it, say what would be done\n  status          the date and what the game is waiting for now\n  save --yes      save the game (overwrites the file, cannot be undone)\n    --as "<name>" save under another name; later saves go to that file too\n\n  --json          raw data (scriptable)\n  completion zsh  tab completion: `source <(fm completion zsh)` in ~/.zshrc; in bash `eval "$(fm completion bash)"`\n\nShort forms: the start of a command is enough when it fits one command (sq → squad, fix → fixtures). Short names:\ns status · n next · i inbox · t table · fx fixtures · m match · p player · tc tactic.\nTurkish command names work too, with or without accents.\n  fm mcp          offer the commands as MCP tools (stdio); for a model to play\n\nIn the session you give the commands without typing `fm`; to leave: `quit`.	fm — Football Manager'ı terminalden yönet\n\n  fm start        oyunu başlat, kaydı yükle, oturuma gir   (--menu: kayıt yüklemeden ana menüde bırak)\n    --debug       pencereyi göster (normalde Dock'ta ve ekranda görünmez)\n  fm              oturuma gir (oyun açıkken)\n  stop            oyunu kapat; önce kaydedilsin mi diye sorar (--save / --no-save)\n\n  continue        açık oyunda son kaydı yükle\n  squad           kadroyu bas\n    --fitness     kondisyon ve maç formu, en yorgun önce\n    --u19         altyapı takımlarının kadroları (U21, U18…)\n    --morale      moral, hiyerarşi ve sosyal grup\n    --stats       sezon istatistikleri: maç, dakika, gol, asist, ortalama puan, kart\n    --views       kadro tablosunun bütün görünümlerini listele\n    --view "<x>"  o görünümün kolonlarını bas (Contract, Injuries, Playing Time…)\n  player <isim>   oyuncu sayfası: kimlik, sözleşme, alışkanlıklar, özellikler, mevki puanları, sakatlık geçmişi (kadro dışıysa aramayla bulur)\n    --actions     oyuncu için yapılabilecekler: teklif, kısa liste, scout, menajer…\n    --report      scout raporu: not, yetenek / potansiyel, ilgisi, değeri, artılar ve eksiler, kadrodaki sırası\n    --career      sezon sezon kariyeri: kulüp, geliş (bonservis / kiralık), maç, gol, puan\n    --matches     bu sezon maç maç: rakip, skor, mevki/rol, girdi/çıktı, xG, gol, asist, puan\n  compare <a> <b> iki oyuncu yan yana: kimlik, sonra özellik özellik, iyisi işaretli (çok kelimeli ad: tırnak ya da "vs")\n  search <metin>  oyunun aramasında bul: oyuncu, kulüp, turnuva…\n  offer <oyuncu> [bonservis]  transfer teklifi: kart olarak gösterir, terminalde okla düzenletir\n    --term "<şart>=<değer>"   bir şartı koy ya da değiştir (ör. "Percentage Of Next Sale=20%",\n                              "Fee=Non-Negotiable"); --loan kiralık, --dry gönderme;\n                              --close gönderilmemiş teklif ekranından çık\n                              teklif bekleyen kendi oyuncumuz için: onların teklifi, bizim\n                              şartlarımızla geri gönderilir (--negotiate: onlarla pazarlık et)\n                  geri alınamaz: terminalde sorar, script'te --yes ister\n  targets         transfer hedefleri: kalan bütçe ve kadroda ince mevkiler\n  targets <mevki> [--max-value <para>] [players'ın arama seçenekleri]   o mevkide bütçeye sığan oyuncular ("targets DL", "targets "sol bek" --age 18-24"; --free: yalnızca serbest oyuncular)\n  players         oyuncu veritabanı (ekrandaki satırlar)\n    --filters / --filter "<x>"   hazır süzgeçler: Transfer Listed, Contract Expiring…\n    --free                       serbest oyuncular (sözleşmesi bitmiş)\n    --scouted / --unscouted      yalnızca gözlemcilerin bildiği oyuncular / yeniden herkes\n    --clear                      süzgeci kaldır (süzgeç oyunda kalıyor)\n    --views / --view "<x>"       kolonları belirleyen görünümler\n  table [turnuva] lig tablosu; turnuva adıyla o turnuvanın tablosu (ör. table europa)\n  stages [turnuva] [aşama]   kupa turları ve eşleşmeleri, lig aşaması tablosu; dünyadaki her turnuva (--all, --list)\n  scout [#|odak]  scout odakları; bir odağın bulduğu oyuncular (--matched, --near, --progress)\n  scout new [--position <mevki>] [--role <rol>] [--area "<bölge>, …"] [--age 18-23] [--ability <yıldız>] [--potential <yıldız>] [--by "<scout>, …"] [--analysts "<analist>, …"] [--name <ad>] --priority top|standard|ongoing   yeni odak\n  scout edit <#|ad> [--area …] [--age …] [--ability …] [--potential …] [--by …] [--analysts …] [--name …] [--priority …]   var olan odağı değiştirir\n  scout areas [yol] · scout remove <#|ad> [--yes] · scout restart <#|ad>   bölge seçenekleri; odağı durdur / yeniden başlat\n  scout staff     scout ekibi: yeteneği / potansiyeli görme, bildiği bölge ve ülke sayısı, üzerindeki odaklar\n  scout player <ad> [--by <scout>] --for <süre>   oyuncuya scout gönder ("1 hafta", "2 ay", "3 maç", "tam"); scout who <ad>: kimler atanabilir\n  scout player <ad> --cancel [--dry]   görevi iptal et (Gözlem Öncelikleri); --dry yalnızca görev olup olmadığını söyler\n  league [turnuva]  liderler: en golcü takım, gol / asist kralı, en yüksek puan (varsayılan: lig)\n  league [turnuva] --stat <ad> [--teams] [--top <n> | --all]   tam sıralama: gol krallığı, asist, xG, form…;  league --stats: bütün istatistikler\n  fixtures        sıradaki maçlar;  --all: sezonun bütün fikstürü\n  calendar [ay]   takvim: o ayın maçları ve önemli tarihleri (transfer dönemi, kura…);  --u19 altyapı maçları da\n  report          son maçın raporu: skor, goller, maçın oyuncusu, istatistikler\n  inbox [--all|--tasks]   gelen kutusu (--all: arşiv; --tasks: görevler)\n    --read-all    bütün mesajları okundu işaretle\n    --all         gelen kutusundaki bütün mesajlar, yalnızca yüklenenler değil\n    --tasks       yalnızca gelen kutusunun Görevler süzgecindeki mesajlar\n    --open        son açılan mesaj, oyunun onun türüne verdiği numarayla\n    --attachment  açık mesajın eki, oyun çizmeyi bitirince\n  news [#]        basının yazdıkları: haber sitesindeki başlıklar, sayfanın dizdiği sırayla; numarayla haberin tamamı\n  reply <#>       mesajı aç: tam metni ve cevapları; terminalde cevabı okla seçtirir\n  reply <#> <no>  mesajı cevapla (numara ya da cevabın bir parçası)\n    --pick <n>    önce mesajın kendi içinde sunduğunu seç (yönetimin sezon beklentileri)\n  next [n]        zamanı ilerlet (n kez; bir şey engel olunca durur), ne olduğunu söyle\n    --until match   maç gününe kadar;  --until message  bir mesaj gelene kadar\n    --skip        maç sonu açık bir soru varsa cevaplamadan geç\n  holiday hafta|ay|maç   tatile çık: o zamana kadar kulübü asistan yönetir\n    --jobs <tür> / --no-jobs   tatildeyken menajerlik işlerine başvur (any, top, higher, reputation, national …)\n  match           maç gününü oyna: terminalde izlemek mi anında sonuç mu diye sorar\n    --play        maçı izle: anlatım, goller, sonuç; konuşmalarda sözü sorar\n                  (script'te konuşmada durur: talk <no>, sonra match)\n    --no-talk     konuşmaları geç\n    --stop-at-advice   yardımcı uygulanabilir bir öneri verince maçı duraklat ve dur (betikler için)\n    --instant     maçı oynatma, yardımcılara bırak: oyun birkaç saniyede simüle eder\n    --pick        aynı gün oynayan ve kimse seçilmemiş diğer takımımız (U19): hocalarının önerdiği kadroyu kullan\n  shout [<x>]     maç sırasında kenardan bağır (Well Done, Up Your Game, Calm Down…)\n  tweak [<x>]     maç sırasında taktik ince ayarları (Soluklan, Kepenkleri İndir…): hangileri açık;  tweak <x> açar, --off kapatır\n    tweak [<x>] --player <oyuncu>   bireysel ince ayarları;  tweak --reset team|individual|all\n  sub             maç sırasında: sahadakiler ve kulübe;  sub <çıkan> <giren>: oyuncu değiştir\n  pause / resume  maç sırasında: duraklat, devam;  skip: oynayan tekrarı atla\n  dugout          maç sırasında yardımcının tavsiyeleri;  dugout apply (en yenisi, neyi açtığını söyler);  dugout <no> uygula | kaldır\n    --play-on     onu almak için duraklatılmış maç devam eder, böylece koyduğu takım talimatı geri okunur\n  manager         menajerin sicili: kulüpler, transferler, bu kulüpte ve kariyer boyunca sonuçlar\n  read [<sayfa>]  oyunun yalnızca bakılan sayfaları (kulüp tarihi, kupalar, veri merkezi, turnuva kuralları…): adsız listeler; read here: ekrandaki\n  read [<sayfa>] --of "<ad>"   bizim olmayan bir kulüp, ülke, milli takım ya da turnuva: sayfası, ya da çubuğundaki bir sayfa (listeler)\n  meeting         takım toplantısı yap; talk ile cevapla\n  jobs [<kulüp>] [apply|interest] [--yes] [--all]   iş ilanları; başvur ya da ilgilendiğini söyle\n  crawl <out.json> [--here] [--only <guid>,…] [--skip <guid>,…]   geliştirici için: oyunun sayfa haritası\n  draw            mesajının açtığı kupa kurasını çek, eşleşmeleri göster\n  friendly [<#|kulüp> [--date yyyy-aa-gg] [--away] [--rules <no>] --yes]   hazırlık maçı ayarla: önerilen rakipler, açık tarihler, maç kuralları\n  resign [--yes]  menajerlikten istifa et (test kariyeri; sonra iş ilanları: jobs)\n  dialog [cevap]  açık onay penceresini göster ya da cevapla\n  talk            açık konuşmayı göster: ne dendi, tepkiler, söyleyebileceklerin\n  talk <no>       söyle (numara ya da cümlenin bir parçası);  talk leave: konuşmadan çık\n  tour            açık tanıtım turunu sonuna kadar yürüt\n    --skip        turu atla (tur izin veriyorsa)\n  contract [oyuncu]  sözleşme görüşmesi kartı: vaatler, sonra şartlar; terminalde okla düzenle; --next: şartlara geç · --sign --yes: teklif et\n                  oyuncu verilirse (bizim oyuncumuz) yeni sözleşme görüşmesini açar\n    --term "Şart=değer"  bir şartı ayarla / ekle ("Wage=20K", "Appearance Fee=kaldır",\n                  "Will appoint player as captain", "Tüm teklif=Pazarlıksız")\n    --wage <tutar>  ücret, oyunun maaş döneminde;  --next: vaatleri onayla, şartlara geç\n    --sign --yes  şartları menajere sun / imzala;  --cancel: görüşmeyi iptal et\n  contract <oyuncu> --agent  menajerine yenilemeye açık mı diye sor (sonra talk ile)\n  offers          oyuncularımıza gelen, cevap bekleyen teklifler;  offers <# | oyuncu> view | accept | stall | reject\n  propose <oyuncu> [ücret] [--loan] [--yes]  oyuncuyu kulüplere öner (satış ya da kiralık)\n  release <oyuncu> [--free | --mutual] [--yes]  bedelsiz serbest bırak (tazminatı gösterir) ya da karşılıklı fesih\n  training [oyuncu]  bireysel antrenman: mevki/rol, topsuz rol, odak;  --focus / --position "A>B" / --role;  --control player|month|all yardımcıdan devralır\n  training <oyuncu> --report [--coach <ad>]  antrenörden antrenman raporu iste ve göster\n  training <oyuncu> --trait ["<alışkanlık>"]  alışkanlıkları ve öğretilebilecekler; verilirse öğret\n                  --trait-remove "<a>" bıraktır · --trait-cancel · --yes: yardımcının itirazına rağmen\n  prep            maç hazırlığı: sıradaki maça kadarki Maç Hazırlığı seansları (değiştirmek: schedule set)\n  schedule        antrenman programı: bu hafta ve gelecek hafta, gün gün üç seans\n  schedule set <gün> <1|2|3> [<seans>]   bir seansı değiştir; seans yazılmazsa okla seç\n  schedule style <gün> [<program>]       o haftanın programını değiştir (Tactical, Gegenpress…; --json: numarayla)\n  schedule copy | paste | clear [this|<hafta>]   antrenman haftasının kendi düğmeleri (söylenmezse gelecek hafta)\n  budget          transfer, maaş ve scouting bütçesi;  budget ayarla [<adım>]: transfer ↔ maaş dağılımı\n  settings        oyun ayarları: maç gösterimi ve hızı, otomatik kayıt, dil, para birimi, birimler\n  settings all    oyunun bütün ayarları, her biri anahtarıyla\n  settings <ayar> [<değer>]   değiştir (ör. settings vurgu hızı 2x; settings all listesindeki başlık veya anahtar da olur); değer yoksa okla seçtirir\n  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii|auto]   canlı maç paneli\n  lang            CLI dili: english, turkish ya da auto (oyunu izler); FM_LANG de çalışır\n  happiness       oyuncuların mutluluğu, en mutsuz önce\n    happiness <oyuncu>   neden öyle: moral, soyunma odasındaki yeri, memnun olduğu ve şikâyet ettiği şeyler\n    --why           şikâyeti olan herkes, şikâyetleriyle\n  internationals  milli oyuncular: ülke, toplam milli maç ve gol, bu sezon oynadıkları\n  mentoring       mentorluk grupları ve üyeleri;  --auto: grupları yardımcıya kurdur (grup varsa --yes)\n    new [<o1> <o2> <o3>] [--name "<ad>"]   elle grup kur; oyuncusuz: kimler seçilebilir\n    remove "<grup>" --yes                  grubu dağıt\n  dynamics        soyunma odası: hava, menajere destek, hiyerarşi ve sosyal gruplar\n  contracts       sözleşme takvimi: kimin sözleşmesi ne zaman bitiyor, en yakın önce\n  contracts <oyuncu>  bir oyuncunun sözleşmesi: ücret, statü, primler ve maddeler\n    --expiring [<oyuncu> <seçim>]  "sözleşmeleri sona eriyor" mesajı: her oyuncu için önerilen; oyuncu ve seçimle (numarası) o karar\n  club            kulüp özeti: yönetim notu ve hedefler, taraftar, kasa ve maaş, tesisler, ekipteki boşluklar\n  staff           kulüp personeli: kim hangi işte, yaşı, maaşı, sözleşmesi; ekiplerdeki eksikler ve yönetimin görüşü\n  finances        finans: kasa, bu ayın gelir/gideri, borç, FFP, oyuncu tipine göre maaş bordrosu, sponsorluk, projeksiyon\n  finances gelir|gider [ay|geçen ay|sezon|geçen sezon]   kalem kalem gelir ya da gider\n  supporters      taraftarlar: hava, beklentiler ve tepkileri, seyirci, kombine, taraftar profili\n  responsibilities [süzgeç]   personel işleri kimde;  delegate "<görev>" devret · take "<görev>" geri al · delegate all / take all "<grup ya da alan>"\n  youth           altyapı: akademi seviyeleri ve stat, A takıma aday görülenler, altyapı alımının tarihi; --training: altyapı takımının antrenman puanları; candidates: o yılın alım adayları geldi mi; preview: alım önizlemesi\n  progress        kim gelişiyor, kim geriliyor: her oyuncunun son dört aylık yeteneği ve değişimi\n  staff find [metin] [--filter <süzgeç>] [--view <görünüm>]   personel veritabanı: görev, sözleşme, maaş, nitelikler; --own: kendi personelimiz de\n  staff hire <ad> [--wage <tutar>] [--sign --yes]   personel al: sözleşme görüşmesini açar, `contract` ile sürer\n  staff fire <ad> [--mutual] [--yes]   personelle yolları ayır: oyun tazminatı söyler, --yes olmadan "Hayır" der\n  actions <kişi|kulüp> ["<seçenek>"]   oyunun o kişi ya da kulüp için sağ tık menüsü (scout ata, listeye al, kursa gönder, takım raporu…); seçenek yazılırsa yapılır\n  board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transfer, vizyon; memnun oldukları, endişeleri; bu sezonun beklentileri\n    request ["<talep>" --yes]   yönetimden istenebilecekler; adıyla birini iste\n  doctor          kadroda ne yanlış: sakatlar, yorgunlar, maç formu düşükler, biten sözleşmeler, ince mevkiler, yönetimin endişeleri\n    --install     kurulumu denetle: oyun, BepInEx, gölge paket, eklenti, fm komutu, kayıt klasörü\n  facilities      tesisler: stadyum (kapasite, zemin, ölçüler), antrenman tesisi, altyapı, ticari\n  query "<koşullar>"   kadroda sorgu: "yaş<23 ve potansiyel>140", "sözleşme<1yıl", "mevki=ST ve gol>2";  çıplak hali alanları listeler\n    --sort <alan> / --asc      sıralama (varsayılan: ilk koşulun alanı)\n  health          kadro sağlığı: sakatlar, yorgunlar, maç formu düşükler, sakatlık riski en yüksekler\n  depth           kadro derinliği: her mevkide kimler oynayabiliyor, yaş profili\n  captains        kaptan ve yardımcısı;  --captain <oyuncu> / --vice <oyuncu>\n    captains --standins [quick | add <oyuncu> | remove <oyuncu> | clear]   yedek kaptanlar, sırasıyla\n  vision          sezon sonu kulüp vizyonu toplantısı: hedefler;  confirm | remove <no> | suggest | undo | reset | end | plan | add <no>\n  penalties       penaltı sırası (soğukkanlılık, penaltı özelliği) ve kim ne zaman bırakır kuralları;  penalties <1|2|3> açık|kapalı\n  penalties move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   sırayı değiştir\n  takers [<tür>]  duran top atıcıları: korner, frikik, kanat, derin, tac; türle birlikte iki liste ayrıntısıyla\n  takers <tür> <sağ|sol> move <oyuncu|sıra> <yeni sıra> · add <oyuncu> [<sıra>] · remove <oyuncu|sıra>   o listenin sırasını değiştir\n  opponent        sıradaki rakip: form, diziliş, gol/asist kralı, kadro haberleri\n  world           yüklü kayıt, son kayıt zamanı, oynanan süre; dünyada kaç ülke / lig / oyuncu yüklü\n  saves           diskteki kayıtlar, en yenisi önce\n    delete "<ad>" --yes   bir kaydı sil (yüklü olan silinmez)\n  load "<ad>"     belirli bir kaydı yükle; oyun bir kayıttaysa kapatıp yeniden açar (--save / --no-save)\n  diff            son bakıştan bu yana ne değişti: lig sırası, kasa, bütçe, gelen/giden, sakatlar, sözleşmeler, maç/gol/asist\n    --keep        bu bakışı kaydetme (karşılaştırma yine öncekiyle);  --reset: yalnızca şimdiki hali kaydet\n  export [dosya.md] [komut…]  komutların çıktısı başlık başlık tek Markdown rapor (varsayılan: durum, kadro,\n                  tablo, fikstür, sağlık, sözleşmeler, finans);  export <dosya.csv> "<komut>": o komutun tablosu\n  --json / --csv / --md   her komutta: tablo yerine JSON, CSV ya da Markdown; soru sorulmaz\n  shortlist       kısa listedeki oyuncular (teklif verilenler de)\n  transferroom    kulüplerin önerebileceğin oyuncu ilanları (--loan);  offer <no veya kulüp> [oyuncu] | activity | wanted | responses | new --position <m> [--role <r>] [--oop-position <m>] [--oop-role <r>] [--min-age <n>] [--max-age <n>] [--time <s>] [--type <t>] (listenin kelimesi ya da hata mesajının veya --choices'ın verdiği değeri) | delete <no> | agents | discard <oyuncu> | discard --all\n  planner         Kadro Planlayıcı: bir mevkinin planı (--season current|next|after, --position <m>);  add <oyuncu> | remove <oyuncu> | move <oyuncu> <sıra> | suggest position|tactic|season|all\n    --lists · --list "<ad>" · --new "<ad>"   takip listeleri; başkasını göster; yenisini yap  (birden çoksa add … --to "<liste>")\n    add <ad> --for <süre> · remove <ad>   listeye al ("3 ay", "1 yıl", "süresiz") / listeden çıkar\n  interest <ad> --top|--transfer|--loan [--yes]   oyuncuya ilgimizi duyur\n  enquire <ad>    kulübüne ne isteyeceğini sor\n  trial <ad> --for <1-4 hafta> [--yes]   oyuncuyu denemeye çağır\n  intensity       oyuncu oyuncu antrenman yoğunluğu;  intensity <oyuncu> <çift|"dinlen 3"|"tatil 1">, --auto [--yes]\n  coaches         antrenör görevleri: kim hangi antrenman alanında, alanların iş yükü ve baş antrenörü\n    coaches <antrenör> <alan> [--off]   ata / görevden al ("coaches Cohen topla taktik");  --auto: yardımcıya bırak;  --clear: hepsini kaldır\n  opposition      sıradaki rakibe oyuncu oyuncu talimatlar (markaj, pres, sert giriş, ayak)\n    --advice / --clear   yardımcının önerisini uygula / temizle;  opposition <oyuncu> Pres=Always\n  register        turnuva kadro listesi: kim listede, yetişme kotaları, kurallar; terminalde okla ekle/çıkar\n    --in <oyuncu> / --out <oyuncu>   listeye koy / listeden çıkar (tekrarlanabilir)\n    --auto        önce yardımcı seçsin;  --send: gönder (kurallar tutunca)\n  numbers         forma numaraları: kim kaç giyiyor, kim hangisini istedi, boş numaralar\n    numbers <oyuncu> <no>   numara ver (oyun aldığı sürece: sezon başı ya da yeni transfer);  --send: kaydet\n    --auto        yardımcı dağıtsın ve göndersin\n  setpieces new [<no> …]      duran top rutinlerini kur (altı soru; yazmadığını terminalde sorar)\n  setpieces <tür>             rutin: vuruş tipi, hedef, oyuncuların görevleri (korner, frikik, kanat, derin, tac)\n  setpieces <tür> vurus <in|out> | hedef <seçenek> | <yer> <görev> [<olmazsa>]   rutini değiştir\n  tactic          takımın taktiği: stil, mentalite, akıcılık, on bir mevki ve roller\n  tactic mentality [<x>]      mentaliteyi göster ya da değiştir\n  tactic style [<x>]          oyun stilini göster ya da değiştir\n  tactic pick                 ilk 11'i oyuna seçtir (Quick Pick)\n  tactic advice [degerlendirme | kadro | rakip]   yardımcının taktik önerisi\n    --youth                   gençlerden de seçtir (ilk takım yetmediğinde)\n  tactic instructions ["<talimat>" [<değer>]]  takım talimatları: topla (aşama aşama) ve topsuz; değer yoksa seçenekleri\n  tactic pi <mevki|oyuncu> ["<talimat>" [<değer>]]  oyuncu talimatları (şut, koşu, pres, markaj…)\n  tactic slot [<n>]           taktik yuvaları; numarayla o taktiğe geç\n  tactic role <mevki> [<rol>] bir mevkinin rolünü göster ya da değiştir (--oop: topsuz rol)\n                              maç sırasında: tactic role <oyuncu> [<rol>]\n  tactic player <mevki> <oyuncu>  kadrodan birini o mevkiye koy (oradaki yedeğe geçer)\n  tactic player <yedek> <oyuncu>  bir yedeği (sakat olanı) kadrodan başka biriyle değiştir\n  tactic player <mevki> --clear  mevkiyi boş bırak\n  tactic personal [<mevki> on|off [--dry]]  kişisel roller: her ilk 11 oyuncusununki ya da birini aç / kapat\n  tactic new ["<stil>" ["<topla diziliş>" ["<topsuz diziliş>"]]]\n                  taktik oluştur; eksik bıraktığın adımın seçeneklerini listeler\n  tactic copy [<taktik>]  taktiği yeni yuvaya kopyala · tactic clear [<n>] --yes: yuvayı boşalt\n  tactic save "<ad>" [--note "…"]  taktiği dosyaya kaydet · tactic saved: kaydedilenler · tactic load "<ad>" --yes: etkin yuvaya yükle\n\n  pages [metin]               oyunun bütün sayfaları\n  open "<sayfa>"              sayfayı aç\n    --tab <sekme>             aynı adda birden çok sayfa varsa\n  buttons [metin]             ekrandaki butonlar ve ne gönderdikleri\n    --all                     etiketsizleri de göster\n  press "<etiket>"            butona bas\n    --name <ad>               aynı etiketten birden çok varsa\n  dropdowns [metin]           ekrandaki açılır listeler ve seçenekleri\n  select <liste> "<seçenek>"  listeden seç\n  type "<yazı>"               ekrandaki pencerenin kutusuna yaz (lakap)\n    --dry                     press, select ve type için: yapma, ne yapacağını söyle\n  status          tarih ve oyunun şu an neyi beklediği\n  save --yes      oyunu kaydet (dosyanın üzerine yazar, geri alınamaz)\n    --as "<ad>"   başka adla kaydet; sonraki kayıtlar da o dosyaya gider\n\n  --json          ham veri (script'lenebilir)\n  completion zsh  tab tamamlama: ~/.zshrc'ye `source <(fm completion zsh)`; bash'te `eval "$(fm completion bash)"`\n\nKısaltmalar: komutun başı yeter, tek komuta uyuyorsa (sq → squad, fix → fixtures). Kısa adlar:\ns status · n next · i inbox · t table · fx fixtures · m match · p player · tc tactic.\nTürkçe adlar da olur, aksansız da: kadro, taktik, maç, tablo, fikstür, gelen, ileri, sağlık, yönetim…\n  fm mcp          komutları MCP araçları olarak sun (stdio); bir modelin oynaması için\n\nOturumda komutları `fm` yazmadan verirsin; çıkmak için `quit`.
 Panel: {0} · pitch {1} · {2} events · colour {3} · radar {4} ({5})	Panel: {0} · saha {1} · {2} olay · renk {3} · radar {4} ({5})
 File: {0}	Dosya: {0}
 Panel view: full, key or score	Panel görünümü: full, key ya da score
@@ -2242,7 +2078,6 @@ Asked to close, but the offer screen is still open.	Kapatılması istendi ama te
 '{0}' is not something to continue until: match or message	'{0}' devam edilecek bir hedef değil: match ya da message
 Stopped after {0} steps without getting there.	{0} adımda oraya varılamadı, durduruldu.
 Youth training: average {0}\n	Altyapı antrenmanı: ortalama {0}\n
-This year's intake candidates cannot be read yet; see them in the game: Youth Setup › Youth Candidates.	Bu yılın alım adayları henüz okunamıyor; oyunda bak: Altyapı › Genç Oyuncu Adayları.
 {0}: your assistant looks after his individual training. To take it over: --control player (him only) · month (him, for the next month) · all (every player)	{0}: bireysel antrenmanıyla yardımcınız ilgileniyor. Devralmak için: --control player (yalnız o) · month (o, önümüzdeki ay) · all (bütün oyuncular)
 --control: player, month or all.	--control: player, month ya da all.
 The game did not ask to take over individual training.	Oyun bireysel antrenmanı devralmayı sormadı.
@@ -2300,7 +2135,6 @@ The week's editor did not open.	Haftanın düzenleyicisi açılmadı.
 Sent, but the calendar shows {0} for {1} session {2}.	Gönderildi ama takvim {1} {2}. seansta {0} gösteriyor.
 There is no session called '{0}'. Sessions: {1}	'{0}' adında seans yok. Seanslar: {1}
 {0}: no trait can be started now (the game's actions offer none).	{0}: şu an özellik antrenmanı başlatılamaz (oyunun eylemleri sunmuyor).
-In FM27 only starting a trait is done by command so far: training <player> --trait "<trait>"	FM27'de şimdilik yalnız özellik başlatma komutla yapılıyor: training <oyuncu> --trait "<özellik>"
 {0}: "{1}" was chosen, but the game still offers it.	{0}: "{1}" seçildi ama oyun hâlâ sunuyor.
 {0}: asked to cancel, but the trait training still runs.	{0}: iptal istendi ama özellik antrenmanı sürüyor.
 {0} is working on a trait now; to stop it: training "{1}" --trait-cancel	{0} şu an bir özellik üzerinde çalışıyor; durdurmak için: training "{1}" --trait-cancel
@@ -2315,7 +2149,6 @@ FM27 offers no trait suggestion from the assistant; his misgivings come up when 
 \nTo teach: training "{0}" --trait "<trait>"  ·  to drop one: --trait-remove "<trait>"	\nÖğretmek için: training "{0}" --trait "<alışkanlık>"  ·  bırakmak: --trait-remove "<alışkanlık>"
 The game does not offer this for {0} now. Their menu: actions "{1}"	{0} için oyun bunu şu an sunmuyor. Menüsü: actions "{1}"
 {0}: there is no option '{1}'. Options: {2}	{0}: '{1}' diye bir seçenek yok. Seçenekler: {2}
-{0}: whether the assignment was removed could not be read back; see: scout player "{1}"	{0}: görevin kalkıp kalkmadığı geri okunamadı; bakmak için: scout player "{1}"
 {0}: whether they left the shortlist could not be read back; see: shortlist	{0}: kısa listeden çıkıp çıkmadığı geri okunamadı; bakmak için: shortlist
 {0}: the game took the answer but kept them on the shortlist.	{0}: oyun cevabı aldı ama kısa listede tuttu.
 {0}: taken off the shortlist.	{0}: kısa listeden çıkarıldı.
@@ -2405,7 +2238,6 @@ take back	geri alınacak
 hand over	devredilecek
 {0}: nothing to {1}.	{0}: {1} bir şey yok.
 {0}: {1} yours, {2} delegated.	{0}: {1} sende, {2} devredildi.
-The captains page has no stand-ins list.	Kaptanlar sayfasında yedek kaptan listesi yok.
 Quick Pick is closed (the list may be full: captains --standins clear).	Hızlı Seçim kapalı (liste dolu olabilir: captains --standins clear).
 Whom?  captains --standins add <player>	Kimi?  captains --standins add <oyuncu>
 {0} is already a stand-in.	{0} zaten yedek kaptan.
@@ -2577,11 +2409,8 @@ On screen	Ekranda
 No cup draw is open. A draw's message offers one: reply	Açık kupa kurası yok. Kura mesajı açar: reply
 Told to run the draw, but it did not finish.	Kura çekilsin denildi ama bitmedi.
 The cup draw is open; the message closes when it is done. To run it: draw	Kupa kurası açık; bitince mesaj kapanır. Çekmek için: draw
-The training page has no such button now.	Antrenman sayfasında şu an bu düğme yok.
 Nothing has been copied yet: schedule copy	Henüz kopyalanmış hafta yok: schedule copy
-The game does not allow it for this week.	Oyun bu hafta için izin vermiyor.
 The week is copied. To put it on another: schedule paste <weeks ahead>	Hafta kopyalandı. Başka haftaya koymak için: schedule paste <kaç hafta sonra>
-Told to copy the week, but Paste did not come on.	Hafta kopyalansın denildi ama Yapıştır açılmadı.
 The copied week is pasted.	Kopyalanan hafta yapıştırıldı.
 The week is cleared.	Hafta temizlendi.
 The game took it, but the sessions are as they were.	Oyun aldı ama seanslar değişmedi.
@@ -2764,7 +2593,6 @@ Chosen: {0} → {1}	Seçildi: {0} → {1}
 \nIn the message, to choose before answering (reply <message> --pick <number>):	\nMesajın içinde, cevaplamadan önce seçilecek (reply <mesaj> --pick <numara>):
     … {0} more rows (the table lays out only those in view)	    … {0} satır daha (tablo yalnızca görünenleri çiziyor)
 The game does not allow that choice now: {0}	Oyun bu seçime şu an izin vermiyor: {0}
-{0} turned the application down at once; the post is as it was. Their answer: inbox	{0} başvuruyu hemen geri çevirdi; ilan olduğu gibi duruyor. Cevapları: inbox
 Waiting for an answer, listed under the inbox's Tasks filter:	Cevap bekleyen, gelen kutusunun Görevler süzgecinde:
 To answer: inbox --tasks, then reply <#>	Cevaplamak için: inbox --tasks, sonra reply <#>
   [breaks a rule]	  [kurala uymuyor]

@@ -371,15 +371,15 @@ internal static partial class Program
 		async Task<long?> Fee() => Money(await FeeLabel() ?? "");
 	}
 
+	/// <summary>The actions the menu listed when the one asked for was not there: what else could be done instead.</summary>
+	private static string LastActions = "";
+
 	/// <summary>
 	/// Runs one of the open player page's actions, by the game's action id: they sit in the page's
 	/// actions menu (#FrameActions), which is filled a moment after it opens; two readings alike are
 	/// taken as whole. False when the menu has no such action (closed again), null when the menu
 	/// could not be used (said already).
 	/// </summary>
-	/// <summary>The actions the menu listed when the one asked for was not there: what else could be done instead.</summary>
-	private static string LastActions = "";
-
 	private static async Task<bool?> RunPlayerAction(string action)
 	{
 		await Fm.Get("actions", ("close", "1"));

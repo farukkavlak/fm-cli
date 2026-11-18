@@ -66,13 +66,13 @@ internal static partial class Program
 
 		// Names and points come first and the other columns a moment after: read by those two alone, a
 		// table counted as settled while its games were still to come, and went out with places and
-		// points only (18 Nisan 2026).
+		// points only (18 April 2026).
 		static string Key(JsonElement t) => string.Join("|", t.EnumerateArray().Select(r => Field(r, "Name") + Field(r, "LeaguePoints") + "/" + Field(r, "LeagueGamesPlayed") + "/" + Field(r, "LeagueGamesWon")));
 		async Task<JsonElement?> Biggest() =>
 			(await Fm.GetJson("table", ("groups", "1"))).EnumerateArray().Cast<JsonElement?>()
 				.Where(t => t!.Value.GetArrayLength() >= 10)
 				// Two tables of the same league can be up at once, a tile with places and points only and the
-				// full one; of equals the one with the games played is the table (18 Nisan 2026).
+				// full one; of equals the one with the games played is the table (18 April 2026).
 				.OrderByDescending(t => t!.Value.GetArrayLength())
 				.ThenByDescending(t => t!.Value.EnumerateArray().Count(r => Field(r, "LeagueGamesPlayed").Length > 0)).FirstOrDefault();
 		JsonElement? tile = null;

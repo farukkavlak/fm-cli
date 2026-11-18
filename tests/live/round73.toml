@@ -1,0 +1,111 @@
+# Round 73 (T85k): lists and rows that were found by an English word or by their place, now by identity.
+# Run: tools/fm-round.py dry tests/live/round73.toml, then run --lang en,tr.
+
+[[test]]
+task = "T85"
+name = "mentality and style lists: from a fresh load, the tactics page and another page"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "tactic mentality", path = "Choices.#", is = "7" },
+  { read = "tactic style", path = "Choices.#", not = "0", keep = "styles" },
+  { run = "tactic" },
+  { read = "tactic mentality", path = "Choices.#", is = "7" },
+  { read = "tactic style", path = "Choices.#", same_as = "styles" },
+  { run = "squad" },
+  { read = "tactic mentality", path = "Choices.#", is = "7" },
+  { read = "tactic style", path = "Choices.#", same_as = "styles" },
+]
+
+[[test]]
+task = "T85"
+name = "mentality: chosen, read back, put back; an unknown one refused and nothing changed"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "tactic mentality", path = "Value", keep = "was" },
+  { read = "tactic mentality", path = "Choices.0", keep = "low" },
+  { read = "tactic mentality", path = "Choices.6", keep = "high" },
+  { run = "tactic mentality {low}" },
+  { read = "tactic mentality", path = "Value", same_as = "low" },
+  { run = "tactic mentality {high}" },
+  { read = "tactic mentality", path = "Value", same_as = "high" },
+  { run = "tactic mentality zzqq", rc = "fail" },
+  { read = "tactic mentality", path = "Value", same_as = "high" },
+  { run = "tactic mentality {was}" },
+  { read = "tactic mentality", path = "Value", same_as = "was" },
+]
+
+[[test]]
+task = "T85"
+name = "style: chosen, read back, put back; an unknown one refused and nothing changed"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "tactic style", path = "Value", keep = "was" },
+  { read = "tactic style", path = "Choices.0", keep = "one" },
+  { read = "tactic style", path = "Choices.2", keep = "other" },
+  { run = "tactic style {one}" },
+  { read = "tactic style", path = "Value", same_as = "one" },
+  { run = "tactic style {other}" },
+  { read = "tactic style", path = "Value", same_as = "other" },
+  { run = "tactic style zzqq", rc = "fail" },
+  { read = "tactic style", path = "Value", same_as = "other" },
+  { run = "tactic style {was}" },
+  { read = "tactic style", path = "Value", same_as = "was" },
+]
+
+[[test]]
+task = "T85"
+name = "mentality on the match screen: listed, chosen, read back; an unknown one refused"
+at = "kickoff"
+fresh = true
+repeat = 2
+tries = 4
+steps = [
+  { start = "match --play --no-talk" },
+  { until = "tactic mentality", path = "Choices.#", is = "7", seconds = 600, every = 5, live = true },
+  { read = "tactic mentality", path = "Choices.0", keep = "low", live = true },
+  { run = "tactic mentality {low}" },
+  { read = "tactic mentality", path = "Value", same_as = "low", live = true },
+  { run = "tactic mentality zzqq", rc = "fail" },
+  { read = "tactic mentality", path = "Value", same_as = "low", live = true },
+  { stop = true },
+]
+
+[[test]]
+task = "T85"
+name = "wages by status: the whole-squad entry left out, the statuses add up to the squad"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "finances", path = "WagesByStatus.#", not = "0", keep = "statuses" },
+  { run = "squad" },
+  { read = "finances", path = "WagesByStatus.#", same_as = "statuses" },
+]
+
+[[test]]
+task = "T85"
+name = "the training schedule is read from its session buttons"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "schedule", path = "#", not = "0", keep = "days" },
+  { run = "squad" },
+  { read = "schedule", path = "#", same_as = "days" },
+]
+
+[[test]]
+task = "T85"
+name = "a value limit lands on the row just added, each search on its own"
+at = "calm"
+repeat = 3
+steps = [
+  { read = "targets GK --max-value 5M", path = "#", keep = "limited" },
+  { read = "targets GK --max-value 10M", path = "#", present = true },
+  { read = "targets GK --max-value 5M", path = "#", same_as = "limited" },
+  { run = "targets GK --max-value nonsense", rc = 64 },
+]

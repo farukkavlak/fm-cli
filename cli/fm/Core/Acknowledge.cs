@@ -6,7 +6,7 @@ namespace FmCli;
 /// Moving past what the assistant last said ("Acknowledge and Move On"): the card's
 /// own button, addressed by the event it sends (<c>EventFmxClearChanges</c>, 31) rather than by its
 /// label. The label is the game's own string and would be translated in another language, while the
-/// event is the same everywhere; it is the identity the mentoring flow already uses (§8.188).
+/// event is the same everywhere; it is the identity the mentoring flow already uses.
 /// </summary>
 internal static partial class Program
 {
@@ -47,8 +47,8 @@ internal static partial class Program
 	/// <summary>
 	/// The button standing for the given action (its ActionID), or null when the screen does not
 	/// offer it. Its label is one of the game's own strings, and this language's table may not
-	/// carry its English, so it cannot be asked for by words; the action is the same everywhere
-	/// (§8.209). Its action is found by the button's own event list pointing at it.
+	/// carry its English, so it cannot be asked for by words; the action is the same everywhere.
+	/// Its action is found by the button's own event list pointing at it.
 	/// </summary>
 	private static async Task<JsonElement?> SpeakToAction(string actionID)
 	{
@@ -81,7 +81,7 @@ internal static partial class Program
 	/// <summary>
 	/// The button standing for the speak-to action that <b>sends</b> the given event, or null. Some
 	/// actions carry no id of their own and are named by the event they send instead (the offer
-	/// card's own send, EventFmxTransferOfferResponse, §8.217); like the action id above, the event
+	/// card's own send, EventFmxTransferOfferResponse); like the action id above, the event
 	/// is the same in every language where the label is the game's own string.
 	/// </summary>
 	private static async Task<JsonElement?> SpeakToActionEvent(string sent) => await SpeakToActionWith("Event", sent);

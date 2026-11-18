@@ -51,7 +51,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// Steps the speed highlights play at, by notches of the game's own slider, from the match
-	/// screen's settings panel: the change holds at once (1x to 10x mid-match, 8 Nisan 2029).
+	/// screen's settings panel: the change holds at once (1x to 10x mid-match, 8 April 2029).
 	/// The panel opens from the button inside the template's #settings block and closes with
 	/// its own PanelHistoryClose; the slider is the preferences' one, found by its preference key.
 	/// </summary>
@@ -99,7 +99,7 @@ internal static partial class Program
 		var low = (int)double.Parse(Field(slider.Value, "Low"), System.Globalization.CultureInfo.InvariantCulture);
 		var high = (int)double.Parse(Field(slider.Value, "High"), System.Globalization.CultureInfo.InvariantCulture);
 		// The panel opened again a few seconds after a change still shows the speed before it, so a
-		// press counted from the slider was lost now and then (Salernitana, 4 Mayıs 2029: five presses
+		// press counted from the slider was lost now and then (Salernitana, 4 May 2029: five presses
 		// two seconds apart came to four steps). Nobody else moves it during a match: the last one set counts.
 		var at = speedSet ?? (int)double.Parse(Field(slider.Value, "Value"), System.Globalization.CultureInfo.InvariantCulture);
 		var next = Math.Clamp(at + step, low, high);
@@ -160,7 +160,6 @@ internal static partial class Program
 		catch (FmError) { return ""; }
 	}
 
-	/// <summary>The score with the sides' names, as the live panel shows it.</summary>
 	/// <summary>
 	/// The key moments played since the last reading, put on <paramref name="moments"/> with the clock
 	/// they happened at; the index to read from next. Each commentary event comes with the class the
@@ -185,6 +184,7 @@ internal static partial class Program
 		return next;
 	}
 
+	/// <summary>The score with the sides' names, as the live panel shows it.</summary>
 	private static string LiveBoard(JsonElement state, (string Own, string Opponent)? names)
 	{
 		var home = Field(state, "HomeScore");
@@ -219,7 +219,7 @@ internal static partial class Program
 		}
 
 		// Not brought forward: a whole match, its stops and half-time Continue included, ran with
-		// the game hidden and another app in front (Sampdoria, 22 Nisan 2029).
+		// the game hidden and another app in front (Sampdoria, 22 April 2029).
 		await LearnShape();
 		var state = await Fm.GetJson("state");
 		var inMatch = Field(state, "DuringMatch") == "True";
@@ -682,7 +682,7 @@ internal static partial class Program
 							break;
 						}
 						// Pressed together, the steps are made at once: four presses one after another
-						// came to two steps (Modena, 29 Nisan 2029).
+						// came to two steps (Modena, 29 April 2029).
 						case '+' or '=': speedSteps++; break;
 						case '-': speedSteps--; break;
 					}

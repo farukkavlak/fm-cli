@@ -12,7 +12,7 @@ internal static partial class Buttons
 	/// names the action (FMMenuOptionEvent.FMMenuOption: Preferences, SaveGame…), the same in every
 	/// language, and whose PanelID is the page it opens. Read off the list's own event.
 	/// </summary>
-	public static string MenuOptions(NameValueCollection q)
+	public static string MenuOptions()
 	{
 		var rows = new List<string>();
 		foreach (var control in Controls(out _))

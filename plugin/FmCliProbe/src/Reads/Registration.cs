@@ -20,11 +20,7 @@ namespace FmCliProbe;
 internal static class Registration
 {
 	// The player's name in a row.
-#if FM26
-	private const string NameText = "NameText";
-#else
 	private const string NameText = "primary-text";
-#endif
 
 	public static string Current()
 	{
@@ -109,35 +105,18 @@ internal static class Registration
 	/// <summary>The list switch of every player row on screen.</summary>
 	private static IEnumerable<SICheckBox> Switches()
 	{
-#if FM26
-		foreach (var element in Buttons.Elements())
-		{
-			TableRowNavigatable row;
-			try { row = element.TryCast<TableRowNavigatable>(); } catch { continue; }
-			if (row == null || Find(row, NameText) == null) continue;
-
-			// The squad page behind has rows too, without a switch.
-			if (Inner<SICheckBox>(row) is { } box) yield return box;
-		}
-#else
 		foreach (var (row, _, _) in TableRows.Laid())
 		{
 			if (Find(row, NameText) == null) continue;
 			if (Inner<SICheckBox>(row) is { } box) yield return box;
 		}
-#endif
 	}
 
 	private static Dictionary<string, string> Row(SICheckBox box)
 	{
-#if FM26
-		VisualElement row = box;
-		while (row != null && row.TryCast<TableRowNavigatable>() == null) row = row.hierarchy.parent;
-#else
 		var laid = TableRows.Laid().Select(r => r.Row.Pointer).ToHashSet();
 		VisualElement row = box;
 		while (row != null && !laid.Contains(row.Pointer)) row = row.hierarchy.parent;
-#endif
 
 		var fields = new Dictionary<string, string>
 		{

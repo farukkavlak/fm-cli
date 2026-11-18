@@ -57,7 +57,7 @@ internal sealed class HttpBridge
 	public void Start()
 	{
 		// A game killed while it held the port can sit in the kernel for a long time, exiting but
-		// not gone, and keep the port the whole while (11 Ekim 2026); the next free one is taken
+		// not gone, and keep the port the whole while (11 October 2026); the next free one is taken
 		// then, and written where the CLI looks for it.
 		var first = _port;
 		for (var port = first; ; port++)
@@ -155,7 +155,7 @@ internal sealed class HttpBridge
 	/// <summary>
 	/// Several requests in one frame: one a line, <c>route?query</c>, run in order, their answers a
 	/// JSON array in the same order. Each request otherwise waits for a frame of its own, so a
-	/// reading of a hundred small parts took seconds (the match players, 26 Ekim 2026).
+	/// reading of a hundred small parts took seconds (the match players, 26 October 2026).
 	/// </summary>
 	private string Batch(string lines)
 	{

@@ -93,7 +93,7 @@ executable_path=$(resolve_executable_path "${executable_path}")
 # copy of the main executable, ad-hoc re-signed with the original
 # entitlements + the JIT ones. Rebuilt automatically whenever Steam updates
 # the game binary.
-shadow_root="${FM26_BEP:-$HOME/fm26_bep}"
+shadow_root="${FM26_BEP:-$HOME/fm27_bep}"
 shadow_app="$shadow_root/fm.app"
 shadow_bin="$shadow_app/Contents/MacOS/$(basename "$executable_path")"
 real_contents="$(dirname "$(dirname "$executable_path")")"

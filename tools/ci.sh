@@ -20,7 +20,7 @@ dotnet publish cli/fm/fm.csproj -c Release -o "$OUT" --nologo >/dev/null
 "$OUT/fm" help >/dev/null
 
 echo "— plugin"
-BEP="${FM26_BEP:-$HOME/fm26_bep}"
+BEP="${FM26_BEP:-$HOME/fm27_bep}"
 if [[ -f "$BEP/BepInEx/core/BepInEx.Core.dll" ]]; then
 	dotnet build plugin/FmCliProbe/FmCliProbe.csproj -c Release --nologo
 else

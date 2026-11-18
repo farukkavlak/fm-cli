@@ -15,8 +15,7 @@ namespace FmCli;
 internal static class EngineTexts
 {
 	/// <summary>The game's language setting and the name its block goes by in the file.</summary>
-	// The block a language's texts are in: FM26 named some in English ("Turkish"), FM27 names them all
-	// in their own language ("Türkçe"); either is taken.
+	// The block a language's texts are in: named in its own language ("Türkçe") or in English ("Turkish").
 	private static readonly Dictionary<string, string[]> BlockNames = new(StringComparer.OrdinalIgnoreCase)
 	{
 		["turkish"] = ["Turkish", "Türkçe"], ["german"] = ["German", "Deutsch"], ["french"] = ["French", "Français"],
@@ -45,8 +44,8 @@ internal static class EngineTexts
 		if (language.Length == 0 || language.StartsWith("english", StringComparison.OrdinalIgnoreCase) && language.Length <= 7) return;
 		var target = Path.Combine(Folder, language + ".tsv");
 		var file = Field(engine, "File");
-		// The table is the game file's: one written from another game or version (FM26's, before an
-		// update) is written again. Which file it came from is kept beside it.
+		// The table is the game file's: one written from another game or version is written
+		// again. Which file it came from is kept beside it.
 		var stamp = target + ".stamp";
 		var from = file.Length > 0 && File.Exists(file) ? $"{new FileInfo(file).Length}:{File.GetLastWriteTimeUtc(file).Ticks}" : "";
 		if (File.Exists(target) && (from.Length == 0 || File.Exists(stamp) && File.ReadAllText(stamp).Trim() == from))

@@ -187,15 +187,6 @@ internal static partial class Buttons
 	}
 
 	/// <summary>
-	/// The page whose data an event is fed from: the nearest node above its source named for a
-	/// page's Guid (the page binds its data under "&lt;guid&gt;B0"). Tells apart two buttons that
-	/// send the same event from two pages open together, whatever they say.
-	/// </summary>
-	/// <summary>
-	/// The panel an OpenPanel button opens, by its asset's GUID: the same in every language, where
-	/// the button's label is not and its event alone ("OpenPanel") is shared by every such button.
-	/// </summary>
-	/// <summary>
 	/// What a datastore button writes, as "destination=source" ("selectedtab=tab2"): a page's own
 	/// tabs are told apart by the value each sets, the same in every language.
 	/// </summary>
@@ -212,6 +203,10 @@ internal static partial class Buttons
 		catch { return null; }
 	}
 
+	/// <summary>
+	/// The panel an OpenPanel button opens, by its asset's GUID: the same in every language, where
+	/// the button's label is not and its event alone ("OpenPanel") is shared by every such button.
+	/// </summary>
 	internal static string OpensOf(EventContextBase context)
 	{
 		try
@@ -241,6 +236,11 @@ internal static partial class Buttons
 		catch { return null; }
 	}
 
+	/// <summary>
+	/// The page whose data an event is fed from: the nearest node above its source named for a
+	/// page's Guid (the page binds its data under "&lt;guid&gt;B0"). Tells apart two buttons that
+	/// send the same event from two pages open together, whatever they say.
+	/// </summary>
 	internal static string PageOf(EventContextBase context)
 	{
 		try
@@ -714,31 +714,6 @@ internal static partial class Buttons
 					found.Add(($"0x{element.Pointer.ToInt64():x}", LabelOf(element), NameOf(element), LabelOf(element, shown: true)));
 					continue;
 				}
-
-				var hierarchy = element.hierarchy;
-				for (var i = hierarchy.childCount - 1; i >= 0; i--) stack.Push(hierarchy.ElementAt(i));
-			}
-			catch { }
-		}
-		return found;
-	}
-
-	/// <summary>The labelled, enabled controls inside one element, as pointer and label.</summary>
-	internal static List<(string Pointer, string Label, string Name)> ControlsUnder(VisualElement root)
-	{
-		var found = new List<(string, string, string)>();
-		var stack = new Stack<VisualElement>();
-		stack.Push(root);
-		var seen = 0;
-
-		while (stack.Count > 0 && seen++ < 2000)
-		{
-			var element = stack.Pop();
-			try
-			{
-				var control = AsControl(element);
-				if (control != null && control.Label.Length > 0 && element.enabledInHierarchy)
-					found.Add(($"0x{element.Pointer.ToInt64():x}", control.Label, NameOf(element)));
 
 				var hierarchy = element.hierarchy;
 				for (var i = hierarchy.childCount - 1; i >= 0; i--) stack.Push(hierarchy.ElementAt(i));

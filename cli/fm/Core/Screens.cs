@@ -44,14 +44,11 @@ internal static class Screen
 	public const string Mentoring = "d4f349f49047bdb47a53216fa71298f3";
 	/// <summary>The game's search window (the title bar's search), over every page.</summary>
 	public const string Search = "14f9276410b237a4e86d9fe9982ed05e";
-	/// <summary>The mentoring group editor that "Create New Mentoring Group" opens over Mentoring.</summary>
-	public const string MentoringEditor = "57590a1a52e2c334485fd4134fa6e0cc";
 	public const string TrainingIntensity = "6f6099935b22261459f76dc63f312b14";
 	public const string CoachAssignments = "b134c6823f6d1784c97dfd072102c8dc";
 	public const string YouthSetup = "fdc4ca40b0312734b9a99317f9d351d0";
 	// Youth Setup's own subtabs, opened from its bar.
 	public const string YouthEnvironment = "1ebaf239acfff9f469dfd35b2a14b3a1";
-	public const string YouthPerformance = "80bb01289cbbf7748b70ebae7ce8f477";
 	public const string YouthCandidates = "e88d1df476224bc4aa5751e7ff122497";
 	public const string Dynamics = "7d9c93953e66d3d468a7acd301e08618";
 	// Squad Dynamics' own subtabs, opened from its bar: see <see cref="Program.OpenSubpage"/>.
@@ -64,14 +61,11 @@ internal static class Screen
 	public const string SquadNumbers = "4b39af3b111fcfd4f84f4d1fa74ceaf9";
 
 	// Recruitment
-	public const string RecruitmentHome = "fba8a55c175acc34d9b0eb9ea1eb6671";
 	/// <summary>Club › Supporters (FM27: a subtab of the Club tab; it was a card behind a tile).</summary>
 	public const string SupportersPage = "0bc05f9601b07db468b6ec7078a417db";
 	/// <summary>Transfers › Shortlists (FM27: a row of the Transfers menu of its own).</summary>
 	public const string Shortlists = "6eb3e66627a5fe7469f9d179885acaa9";
 	public const string PlayerDatabase = "bfe5117deac3c454f8970018733ac664";
-	/// <summary>A player's page: his value in the header opens his transfer status (the transfer actions).</summary>
-	public const string PlayerTransferStatus = "4e92c72ee28a583469674458c2a78141";
 	/// <summary>A player's page: his wage in the header opens his contract (the contract actions).</summary>
 	public const string PlayerContract = "c189a411fa71fde46b2950f12e96a2e8";
 	public const string StaffDatabase = "a6331fde9dbe9fa47a9da59a7fc09715";

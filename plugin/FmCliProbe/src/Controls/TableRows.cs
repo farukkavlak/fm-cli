@@ -44,64 +44,6 @@ internal static class TableRows
 	/// </summary>
 	public static string Select(NameValueCollection q)
 	{
-#if FM26
-		if (!string.IsNullOrEmpty(q["table"])) return Check(q);
-		var wanted = q["text"];
-		if (string.IsNullOrEmpty(wanted)) return "error: ?text=<a cell's text> required";
-
-		foreach (var e in Buttons.Elements())
-		{
-			TableRowNavigatable row;
-			try
-			{
-				row = e.TryCast<TableRowNavigatable>();
-				if (row == null || row.panel == null || row.worldBound.width <= 0) continue;
-			}
-			catch { continue; }
-
-			if (!Shows(row, wanted, 0)) continue;
-			// A name alone can be a row of the page behind, a description alone two players'
-			// ("24 year-old winger"): ?and= asks the row to show a second text too.
-			if (!string.IsNullOrEmpty(q["and"]) && !Shows(row, q["and"], 0)) continue;
-			// The same name can be a row of the page behind as well; the one meant is the one
-			// that has what is asked of it.
-			if (q["check"] is "1" or "0" && Toggle(row, 0) == null) continue;
-
-			var list = row.TableParent;
-			if (list == null) return "error: that row has no list";
-			if (q["dry"] == "1") return $"dry run, NOT selected: row {row.Index}";
-
-			// A row that stands for several — a career with its older files — opens with the
-			// toggle at its start.
-			if (q["expand"] is "1" or "0")
-			{
-				var toggle = Toggle(row, 0);
-				if (toggle == null) return "error: that row has nothing to expand";
-				toggle.value = q["expand"] == "1";
-				return $"row {row.Index} {(toggle.value ? "expanded" : "collapsed")}";
-			}
-
-			// A table that takes several rows ticks them one by one, with the box at the row's
-			// start — the players of a mentoring group.
-			if (q["check"] is "1" or "0")
-			{
-				var box = Toggle(row, 0);
-				if (box == null) return "error: that row has no box to tick";
-				// The box only shows the state; what counts is the list's own selection, which a
-				// click on the box adds the row to or takes it from.
-				var selection = list.ListElement?.SelectionInternal;
-				if (selection == null) return "error: that row's list keeps no selection";
-				var on = q["check"] == "1";
-				var before = selection.Contains(row.Index);
-				if (before != on) selection.SetSelected(row.Index, on);
-				return $"row {row.Index} {(before ? "ticked" : "unticked")} -> {(selection.Contains(row.Index) ? "ticked" : "unticked")}";
-			}
-
-			list.SetListSelection(row.Index);
-			return $"selected row {row.Index}";
-		}
-		return $"error: no row shows '{wanted}'";
-#else
 		if (!string.IsNullOrEmpty(q["table"])) return Check(q);
 		var wanted = q["text"];
 		if (string.IsNullOrEmpty(wanted)) return "error: ?text=<a cell's text> required";
@@ -135,7 +77,6 @@ internal static class TableRows
 			return $"selected row {index}";
 		}
 		return $"error: no row shows '{wanted}'";
-#endif
 	}
 
 	/// <summary>
@@ -148,21 +89,6 @@ internal static class TableRows
 	/// </summary>
 	public static string Checkable(NameValueCollection q)
 	{
-#if FM26
-		var tables = new List<StreamedListView>();
-		foreach (var e in Buttons.Elements())
-		{
-			try
-			{
-				var row = e.TryCast<TableRowNavigatable>();
-				if (row == null || row.panel == null || row.worldBound.width <= 0 || Toggle(row, 0) == null) continue;
-				var table = row.TableParent;
-				if (table?.ListElement?.SelectionInternal == null || tables.Any(t => t.Pointer == table.Pointer)) continue;
-				tables.Add(table);
-			}
-			catch { }
-		}
-#else
 		var tables = new List<StreamedListView>();
 		foreach (var (row, table, _) in Laid())
 		{
@@ -171,7 +97,6 @@ internal static class TableRows
 			    || table.ListElement?.SelectionInternal == null || tables.Any(t => t.Pointer == table.Pointer)) continue;
 			tables.Add(table);
 		}
-#endif
 
 		var under = $"fmcli.checkrows.g{q["gen"] ?? "0"}";
 		var rows = new List<string>();
@@ -210,7 +135,6 @@ internal static class TableRows
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}
 
-#if !FM26
 	/// <summary>
 	/// The texts of every laid-out row of the tables that show a text bound to ?has= (a data path:
 	/// "Person.PlayerDescription"), each with its data path, and the row's item put at a path of
@@ -272,7 +196,6 @@ internal static class TableRows
 		}
 		return "[" + string.Join(",\n ", rows) + "]\n";
 	}
-#endif
 
 	/// <summary>Ticks (check=1) or unticks (check=0) the item at ?index= of the table at ?table=.</summary>
 	private static string Check(NameValueCollection q)
@@ -311,13 +234,6 @@ internal static class TableRows
 		return false;
 	}
 
-#if !FM26
-	/// <summary>
-	/// Every row a table on screen has laid out, with its table and the place of its item in the
-	/// order the table shows them. FM27 dropped TableRowNavigatable, which knew both; the table
-	/// itself keeps which item each laid-out row element is for, by its place in view (measured on
-	/// the squad table: Archie Brown's row 9, his source place 5).
-	/// </summary>
 	/// <summary>
 	/// The links in every laid-out row (a squad table's player name), each with the data path its
 	/// text is bound to and the row's item put at a path of its own (?gen=) to be read for whose it
@@ -395,6 +311,12 @@ internal static class TableRows
 		return found;
 	}
 
+	/// <summary>
+	/// Every row a table on screen has laid out, with its table and the place of its item in the
+	/// order the table shows them. FM27 dropped TableRowNavigatable, which knew both; the table
+	/// itself keeps which item each laid-out row element is for, by its place in view (measured on
+	/// the squad table: Archie Brown's row 9, his source place 5).
+	/// </summary>
 	internal static IEnumerable<(UnityEngine.UIElements.VisualElement Row, StreamedListView Table, int Index)> Laid()
 	{
 		var found = new List<(UnityEngine.UIElements.VisualElement, StreamedListView, int)>();
@@ -418,7 +340,6 @@ internal static class TableRows
 		}
 		return found;
 	}
-#endif
 
 	private static UnityEngine.UIElements.Toggle Toggle(UnityEngine.UIElements.VisualElement element, int depth)
 	{

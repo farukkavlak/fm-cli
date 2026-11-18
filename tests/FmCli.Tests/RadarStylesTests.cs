@@ -111,7 +111,7 @@ public class RadarStylesTests
 		Assert.False(MatchLive.ShowShape(false, 11, ["the radar needs at least 40x15"]));
 	}
 
-	// The simulation's list as the game sent it (Empoli–Frosinone, 26 Ekim 2026): each side's eleven,
+	// The simulation's list as the game sent it (Empoli–Frosinone, 26 October 2026): each side's eleven,
 	// keeper first, then its bench, bench keeper first; 23 a side.
 	private static List<(string Kit, bool Sub)> Block(string keeper, string outfield) =>
 		[(keeper, false), .. Enumerable.Repeat((outfield, false), 10), (keeper, true), .. Enumerable.Repeat((outfield, true), 11)];

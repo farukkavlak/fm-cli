@@ -142,7 +142,7 @@ internal static partial class Program
 		}
 		var answer = await Fm.Get("select", ("ptr", shown.Dropdown), ("choice", choice), ("fire", "1"));
 		// The number's menu carries no events of its own: the choice is written to its value all
-		// the same, which is all the page needs (Cancellieri took 19 this way, 10 Ocak 2026).
+		// the same, which is all the page needs (Cancellieri took 19 this way, 10 January 2026).
 		if (answer.StartsWith("error", StringComparison.Ordinal) && !answer.Contains("has no events to send", StringComparison.Ordinal)) return Report(answer);
 
 		NumberRow after = null;
@@ -268,7 +268,7 @@ internal static partial class Program
 					Close();
 					picker = control;
 					break;
-				// The name: FM27 a text bound to primarytext, FM26 a button.
+				// The name: a text bound to primarytext.
 				case "text" when picker != null && name == null && Field(control, "Path") == "primarytext":
 				case "button" when picker != null && name == null && Field(control, "Name") == "NameButton":
 					name = Field(control, "Text");

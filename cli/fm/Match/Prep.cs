@@ -84,7 +84,7 @@ internal static partial class Program
 			var typed = string.Join(" ", words.Skip(1));
 			// The list shows the game's word for a focus (the game's word for "Progression")
 			// and that is what someone reads and types back; the data carries the English. Both are
-			// taken, as with the opposition card's values (§8.211).
+			// taken, as with the opposition card's values.
 			FocusChoice Found() => Matching(slot.Choices, c => GameWords.Of(c.Name), typed) is { Count: 1 } seen ? seen[0]
 				: Matching(slot.Choices, c => c.Name, typed) is { Count: 1 } english ? english[0] : null;
 			var named = int.TryParse(typed, out var at) && at >= 1 && at <= slot.Choices.Count ? slot.Choices[at - 1] : Found();

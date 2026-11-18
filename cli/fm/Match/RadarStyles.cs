@@ -481,7 +481,7 @@ internal static partial class Program
 			var skin = Skins[Math.Abs(d.Man.Number * 31 + d.Man.Team * 7) % Skins.Length];
 			var hair = d.Man.Number % 3 == 0 ? new Rgb(58, 40, 26) : new Rgb(24, 18, 14);
 			// A small man is a few pixels: shorts in the number's colour made blue-over-white and
-			// white-over-blue sides look the same (Empoli–Carrarese, 26 Ekim 2026), so his shorts are
+			// white-over-blue sides look the same (Empoli–Carrarese, 26 October 2026), so his shorts are
 			// his shirt's darker shade and each side reads as one colour.
 			var shorts = small ? d.Shirt.Shade(0.55) : d.Shorts;
 			for (var r = 0; r < sprite.Length; r++)

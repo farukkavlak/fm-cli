@@ -48,7 +48,6 @@ internal static partial class Program
 		return Ours() ? page : [];
 	}
 
-	/// <summary>A message by its number in the inbox listing, or by a piece of its subject.</summary>
 	/// <summary>
 	/// Where the numbers last shown by `inbox` are kept. The inbox drops read messages and takes
 	/// new ones between commands, so "reply 17" means the seventeenth as it was shown, not as
@@ -85,9 +84,6 @@ internal static partial class Program
 	/// </summary>
 	private static bool NumberedElsewhere(List<JsonElement> inbox, string wanted) =>
 		int.TryParse(wanted, out var number) && Remembered(number) is { } kept && !inbox.Any(m => Field(m, "UniqueId") == kept.Id);
-
-	private static JsonElement? Pick(List<JsonElement> inbox, string wanted, bool quiet = false) =>
-		Pick(inbox, wanted, quiet, out _);
 
 	/// <summary>
 	/// The message a number or a piece of its subject names. <paramref name="many"/> holds the messages of that subject

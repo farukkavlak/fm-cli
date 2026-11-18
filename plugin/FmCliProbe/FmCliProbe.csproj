@@ -10,15 +10,15 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Set FM26_BEP to the shadow bundle the arm64 launcher builds (default ~/fm26_bep). -->
+  <!-- Set FM26_BEP to the shadow bundle the arm64 launcher builds (default ~/fm27_bep). -->
   <PropertyGroup>
     <BepRoot Condition="'$(FM26_BEP)' != ''">$(FM26_BEP)</BepRoot>
-    <BepRoot Condition="'$(BepRoot)' == ''">$(HOME)/fm26_bep</BepRoot>
+    <BepRoot Condition="'$(BepRoot)' == ''">$(HOME)/fm27_bep</BepRoot>
     <BepCore>$(BepRoot)/BepInEx/core</BepCore>
     <BepInterop>$(BepRoot)/BepInEx/interop</BepInterop>
   </PropertyGroup>
 
-  <!-- The game's UI texts in English by number (FINDINGS §8.167), for reading the game in another language. -->
+  <!-- The game's UI texts in English by number, for reading the game in another language. -->
   <ItemGroup>
     <EmbeddedResource Include="../../docs/reference/translations-en.tsv" LogicalName="translations-en.tsv" />
   </ItemGroup>

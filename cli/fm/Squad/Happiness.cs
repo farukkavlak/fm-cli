@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace FmCli;
 
 /// <summary>
-/// How happy each player is, and why (Squad › Dynamics › Happiness, §8.127).
+/// How happy each player is, and why (Squad › Dynamics › Happiness).
 /// Everything but the level's word is the players' own data: the game's score for the level
 /// (HierarchyOverallHappinessLevel), morale, standing and the reasons (HappinessPositives /
 /// HappinessNegatives, each a list of reasons with a Name). The level's word has no path: it is

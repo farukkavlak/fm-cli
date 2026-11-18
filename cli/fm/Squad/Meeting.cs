@@ -6,7 +6,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static async Task<int> Meeting(bool json, string[] args)
+	private static async Task<int> Meeting(bool json)
 	{
 		if (await NotNow() is { } refused) return refused;
 		var opened = await OpenPage(Screen.Squad);

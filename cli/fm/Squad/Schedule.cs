@@ -8,7 +8,7 @@ namespace FmCli;
 /// The training schedule: Training › Overview, shown for this week and the next. FM27 draws each
 /// session as a button whose sent value names its day, place and kind (Date, SessionIndex,
 /// SessionType); a match day's match is the place with no button, told from the team's fixture on
-/// that date. FM26 drew a calendar of texts, read by each text's data path.
+/// that date.
 /// </summary>
 internal static partial class Program
 {
@@ -29,8 +29,8 @@ internal static partial class Program
 		// The page opened is the Training tab's Overview itself (its GUID): nothing is chosen by its words.
 		var state = await Fm.GetJson("state");
 		var today = DateTime.TryParseExact(Field(state, "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
-		var days = await SessionDays(today) ?? TrainingDays(await CalendarTexts(), today, (await FixtureFacts()).ToDictionary(f => f.Key, f => f.Value.Venue));
-		if (days.Count == 0)
+		var days = await SessionDays(today);
+		if (days is not { Count: > 0 })
 		{
 			Console.Error.WriteLine(L("The training schedule could not be read."));
 			return 1;
@@ -92,7 +92,7 @@ internal static partial class Program
 	/// FM27's schedule from the session buttons on Training › Overview: each sends its day, place
 	/// and kind (Date, SessionIndex, SessionType). Read until two readings in a row agree (the month is
 	/// drawn over a few frames). A day's place with no button is its match, known by the team's fixture
-	/// on that day (its venue letter). Null when the page has no such buttons (FM26).
+	/// on that day (its venue letter). Null when the page has no such buttons.
 	/// </summary>
 	private static async Task<List<TrainingDay>?> SessionDays(DateTime today)
 	{
@@ -140,7 +140,7 @@ internal static partial class Program
 	/// FM27's week from the training calendar's data when the page draws no session buttons (the team's
 	/// end-of-season holiday: every session a rest). Each day of <c>Human.TrainingCalendar.DaysOverview</c>
 	/// lists its sessions as training events (EventType 1000) with SessionIndex, SessionType and the
-	/// session's English name, put in the game's words. Null when the calendar has no such days (FM26).
+	/// session's English name, put in the game's words. Null when the calendar has no such days.
 	/// </summary>
 	private static async Task<List<TrainingDay>?> CalendarDays()
 	{
@@ -186,57 +186,4 @@ internal static partial class Program
 		}).ToList();
 	}
 
-	/// <summary>
-	/// FM26's calendar texts, read once two readings in a row agree (it is drawn over a few frames). It is
-	/// found by its days' data path, not a weekday's name: the squad overview left open underneath has a
-	/// week's headings of its own.
-	/// </summary>
-	private static async Task<List<(string Text, string Path)>> CalendarTexts()
-	{
-		List<(string Text, string Path)> texts = [];
-		var previous = "";
-		await Until(async () =>
-		{
-			texts = (await Fm.GetJson("texts", ("anchorpath", "day.DayOfTheMonth"), ("up", "12"), ("paths", "1"), ("most", "1")))
-				.EnumerateArray().Select(t => (Field(t, "Text"), Field(t, "Path"))).ToList();
-			var now = string.Join("|", texts.Select(t => t.Text));
-			var settled = now == previous && texts.Count(t => t.Path == "day.DayOfTheMonth") >= 7;
-			previous = now;
-			return settled;
-		}, seconds: 10, every: 0.5);
-		return texts;
-	}
-
-	/// <summary>
-	/// FM26: splits the calendar's texts into days by their data paths: a day (day.DayOfTheMonth) and its
-	/// sessions (Event.SessionName), or a match (Event.MatchVenueShort, whose letter is the game's shown
-	/// one; the venue is taken from the fixture list's team ids by the day instead). A rest or travel
-	/// session is not told apart here: only its shown name would say so. FM26 draws this week and the next, from Monday. The grid's first date is where today's number falls in its run of day numbers
-	/// (a month's name on the first is not read); this week and the next are kept.
-	/// </summary>
-	private static List<TrainingDay> TrainingDays(List<(string Text, string Path)> texts, DateTime today, Dictionary<string, string> venues)
-	{
-		List<(int Number, List<(string Text, bool Match)> Sessions)> cells = [];
-		foreach (var (text, path) in texts)
-		{
-			if (path == "day.DayOfTheMonth")
-			{
-				if (!int.TryParse(System.Text.RegularExpressions.Regex.Match(text, @"^\d+").Value, out var number)) break;
-				cells.Add((number, []));
-			}
-			else if (cells.Count > 0 && path is "Event.SessionName" or "Event.MatchVenueShort") cells[^1].Sessions.Add((text, path == "Event.MatchVenueShort"));
-		}
-
-		var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
-		for (var at = 0; at < cells.Count; at++)
-		{
-			var start = today.AddDays(-at);
-			if (start.DayOfWeek != DayOfWeek.Monday || cells.Select((c, i) => c.Number == start.AddDays(i).Day).Any(ok => !ok)) continue;
-			return cells.Select((c, i) => new TrainingDay(start.AddDays(i), c.Sessions.Select(s => s.Match
-					? new DaySession("", venues.GetValueOrDefault(start.AddDays(i).ToString("yyyy-MM-dd"), "match"))
-					: new DaySession(GameWords.Of(s.Text), "")).ToList()))
-				.Where(x => x.Day >= monday && x.Day < monday.AddDays(14)).ToList();
-		}
-		return [];
-	}
 }

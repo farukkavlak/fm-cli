@@ -10,7 +10,7 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>
-	/// The youth team's training ratings (FM27; FM26's Youth Performance page is gone).
+	/// The youth team's training ratings.
 	/// </summary>
 	private static async Task<int> YouthTraining(bool json)
 	{
@@ -103,7 +103,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The youth team's training ratings, FM27 (FM26's Youth Performance page is gone): the youth team (the club's
+	/// The youth team's training ratings: the youth team (the club's
 	/// YouthTeam, else its highest youth team), its training squad (TeamTraining.TrainingSquad), each player's status
 	/// (his contract's agreed playing time, in the game's words), positions and his PlayerTraining.TrainingRating
 	/// (0 when he did not train: "-"); the average is the team's own (AverageTrainingRating). No page is opened.

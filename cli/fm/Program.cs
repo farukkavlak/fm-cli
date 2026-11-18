@@ -33,7 +33,7 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The game and probe versions the bridge reports. The CLI is written for FM26; another major
+	/// The game and probe versions the bridge reports. The CLI is written for FM27; another major
 	/// version could read the same paths into different meanings, so it stops instead of guessing.
 	/// </summary>
 	private static async Task<int?> VersionGuard()
@@ -237,7 +237,7 @@ internal static partial class Program
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
 				"read" => await ReadPage(json, args),
-				"meeting" => await Meeting(json, args),
+				"meeting" => await Meeting(json),
 				"transferroom" => await TransferRoom(json, args),
 				"planner" => await Planner(json, args),
 				"draw" => await CupDraw(json),

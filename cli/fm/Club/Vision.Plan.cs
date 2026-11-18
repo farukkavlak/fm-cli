@@ -148,7 +148,7 @@ internal static partial class Program
 		return (pointer, entries);
 	}
 
-	private static async Task<int> VisionPlanCommand(bool json, List<string> words)
+	private static async Task<int> VisionPlanCommand(bool json)
 	{
 		if (await VisionData() is not { } data)
 		{

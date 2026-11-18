@@ -65,7 +65,7 @@ internal static partial class Program
 			if (allMany.Count > 0) (many, manyIn) = (allMany, all);
 		}
 		// A waiting task can be listed only under the inbox's Tasks filter (a loan offer for one of
-		// ours, 16 Mart 2029), the way `next` finds it: the filter stays on while it is answered.
+		// ours, 16 March 2029), the way `next` finds it: the filter stays on while it is answered.
 		if (message == null && !byNumber && many.Count == 0)
 		{
 			taskFilterOn = true;
@@ -90,7 +90,7 @@ internal static partial class Program
 
 		// A message is open when its own page is on screen, not only when the inbox still reports it
 		// as the selected row: opening one unbinds the list that carries that number, so the page is
-		// the mark that holds either way (the post-match conference kept it, 22 Ekim 2026).
+		// the mark that holds either way (the post-match conference kept it, 22 October 2026).
 		async Task<bool> OnScreen() =>
 			await MessageTexts() is { ValueKind: JsonValueKind.Array } page
 			&& page.EnumerateArray().Any(t => Field(t, "Path") == "newsitem.NewsTitleString"
@@ -102,7 +102,7 @@ internal static partial class Program
 		var open = await OnScreen();
 		// A conversation already going on (a player's, opened from another message) keeps its lines on
 		// screen beside the next message, where they read as that message's own question (Kortazar's
-		// message offering what was being said to Konaté, 27 Ekim 2026). They are the conversation's.
+		// message offering what was being said to Konaté, 27 October 2026). They are the conversation's.
 		var talkBefore = open ? [] : (await TalkOptions()).Select(l => l.Label).ToHashSet();
 		var previous = open || await Selected() == id ? null : Set((await Answers()).Select(a => Field(a, "Label")));
 
@@ -157,7 +157,7 @@ internal static partial class Program
 
 		// A message whose teammate failed to talk the player round offers its choices again a moment
 		// after the talk ends, while the inbox row read before it still says it takes none
-		// (Hofmeister, 26 Ekim 2026). The game marks it answerable first; its buttons follow.
+		// (Hofmeister, 26 October 2026). The game marks it answerable first; its buttons follow.
 		if (answers.Count == 0 && Field(chosen, "CanRespond") != "True" && Field(chosen, "NewsItemIsPriority") == "True")
 			await Until(async () =>
 				(await Fm.GetJson("inbox")).EnumerateArray().Any(m => Field(m, "UniqueId") == id && Field(m, "CanRespond") == "True")
@@ -177,7 +177,7 @@ internal static partial class Program
 			var body = await MessageBody(title, Field(chosen, "NewsFirstBubbleSpeechString"), previousBody);
 			if (body.Length > 0) Console.WriteLine($"  {body.Replace("\n", "\n  ")}");
 			// A report or a piece of advice is mostly its attachment; with nothing to answer it was not
-			// shown at all (30 Nisan 2026).
+			// shown at all (30 April 2026).
 			await WriteAttachment([]);
 			Console.WriteLine(L("\n(no answer options)"));
 			return 0;

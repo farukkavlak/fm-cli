@@ -10,8 +10,8 @@ using System.Reflection;
 //   dotnet run --project tools/sigdump -- <assembly.dll> <Type.Full.Name> [member ...]
 
 var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-// FM_BEP points at another game's BepInEx install (FM27's), so its metadata can be compared.
-var bep = Environment.GetEnvironmentVariable("FM_BEP") ?? Path.Combine(home, "fm26_bep");
+// FM_BEP points at another BepInEx install, so its metadata can be compared.
+var bep = Environment.GetEnvironmentVariable("FM_BEP") ?? Path.Combine(home, "fm27_bep");
 var interop = Path.Combine(bep, "BepInEx/interop");
 var core = Path.Combine(bep, "BepInEx/core");
 

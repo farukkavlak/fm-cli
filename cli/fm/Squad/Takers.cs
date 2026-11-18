@@ -6,7 +6,7 @@ namespace FmCli;
 /// The set piece takers (Match Day › Set Pieces): corners, the three kinds of free kick and
 /// throw-ins in the attacking third each keep two lists of takers in order, one for each foot or side
 ///. The page shows one kind at a time and its taker button opens the two lists;
-/// they are dragged tables like the penalty takers', and are changed the same way (§8.90).
+/// they are dragged tables like the penalty takers', and are changed the same way.
 /// </summary>
 internal static partial class Program
 {

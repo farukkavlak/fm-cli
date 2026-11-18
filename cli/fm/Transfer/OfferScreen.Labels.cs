@@ -23,10 +23,6 @@ internal sealed partial class OfferScreen
 	public static string SayDetail(string detail) => string.Join(" · ", detail.Split(" · ").Select(Say));
 
 	/// <summary>
-	/// A text read from the screen in the game's own words: the plugin hands labels over in English
-	/// and the words it saw beside them (<see cref="GameWords"/>).
-	/// </summary>
-	/// <summary>
 	/// A term's value in the game's words. The plugin gives it as the game's English; a value the game builds of two
 	/// of its words ("Important Player (Suggested)") is not one entry of its table, so each part is put in its words.
 	/// Only for showing: nothing is decided by it.
@@ -40,6 +36,10 @@ internal sealed partial class OfferScreen
 			: value;
 	}
 
+	/// <summary>
+	/// A text read from the screen in the game's own words: the plugin hands labels over in English
+	/// and the words it saw beside them (<see cref="GameWords"/>).
+	/// </summary>
 	public static string Say(string label) =>
 		label.EndsWith(" ›", StringComparison.Ordinal) ? Say(label[..^2]) + " ›"
 		// A heading's colon is in some of the game's texts and not in others.

@@ -445,10 +445,10 @@ internal static partial class Program
 		canvas.Ellipse(cx - r * 0.62, cy - r * 0.7, cx - r * 0.2, cy - r * 0.36, new Rgba(255, 255, 255, 220));
 	}
 
-	/// <summary>Sky, stands, pitch, boards, goals, figures and ball in the right order for the camera.</summary>
 	/// <summary>Metres in front of a perspective camera within which no one is drawn.</summary>
 	private const double CloseToCamera = 6;
 
+	/// <summary>Sky, stands, pitch, boards, goals, figures and ball in the right order for the camera.</summary>
 	private static void Stadium(Stage st, Look look, List<Figure> people, V3 ball, Rgb homeCol, Rgb awayCol, double scale)
 	{
 		var cam = st.Cam;

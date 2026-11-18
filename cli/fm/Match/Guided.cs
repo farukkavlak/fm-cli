@@ -140,32 +140,9 @@ internal static partial class Program
 	private static string Says(JsonElement tour) =>
 		tour.TryGetProperty("Says", out var says) ? string.Join("\n", says.EnumerateArray().Select(l => l.GetString() ?? "")) : "";
 
-	private static async Task<JsonElement?> Labelled(string label, string? name = null)
-	{
-		// In another language the game can write two English texts the same way ("Make Offer" and
-		// "Make An Offer" are both "Teklif Yap"), and the plugin gives back only one of them: the
-		// button is the one the game labels as it would label ours.
-		await GameWords.Ask(Fm, label);
-		foreach (var control in (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray())
-		{
-			if (!GameWords.Same(Field(control, "Label"), label) || Field(control, "Enabled") != "True") continue;
-			if (name != null && Field(control, "Name") != name) continue;
-			return control;
-		}
-		return null;
-	}
-
 	/// <summary>Something that can be said: a button to press, or one choice of a dropdown answer.</summary>
 	private sealed record Line(string Label, string Pointer, string? Choice, string? Heading);
 
-	/// <summary>
-	/// What can be said in the conversation on screen.
-	///
-	/// Most answers are buttons, on screen once per layout the panel keeps, so they are told
-	/// apart by their text. Some questions are answered from a dropdown instead ("Choose a
-	/// position"), and then each of its choices is an answer. A message's own answers are
-	/// buttons of another kind and are not part of a conversation.
-	/// </summary>
 	/// <summary>
 	/// The window a promise about a fee opens ("Propose a fee": a list of fees and Confirm), which is
 	/// neither a dialog nor a line of the talk: its list, the one the game shows. Null when there is no
@@ -232,6 +209,14 @@ internal static partial class Program
 		await FeeAsked(["onayla"]);
 	}
 
+	/// <summary>
+	/// What can be said in the conversation on screen.
+	///
+	/// Most answers are buttons, on screen once per layout the panel keeps, so they are told
+	/// apart by their text. Some questions are answered from a dropdown instead ("Choose a
+	/// position"), and then each of its choices is an answer. A message's own answers are
+	/// buttons of another kind and are not part of a conversation.
+	/// </summary>
 	private static async Task<List<Line>> TalkOptions()
 	{
 		var controls = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
@@ -263,10 +248,6 @@ internal static partial class Program
 		return lines;
 	}
 
-	/// <summary>
-	/// A conversation — a squad meeting, a chat with a player, a press conference — one line at
-	/// a time: what was said back, how the room is taking it, and what can be said next.
-	/// </summary>
 	/// <summary>The reactions shown last, so the next showing can say what moved.</summary>
 	private static Dictionary<string, int> LastMood = [];
 
@@ -288,6 +269,10 @@ internal static partial class Program
 		return $"[{colour}]{now} {Ui.Safe(reaction)}[/]{(moved.Length > 0 ? $"[bold]{moved}[/]" : "")}";
 	}
 
+	/// <summary>
+	/// A conversation — a squad meeting, a chat with a player, a press conference — one line at
+	/// a time: what was said back, how the room is taking it, and what can be said next.
+	/// </summary>
 	private static async Task<int> TalkTo(bool json, string[] args)
 	{
 		var words = Words(args).ToList();

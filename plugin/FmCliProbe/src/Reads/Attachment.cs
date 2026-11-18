@@ -12,22 +12,12 @@ namespace FmCliProbe;
 internal static class Attachment
 {
 	/// <summary>
-	/// The attachment as blocks in the order it is drawn (for showing, not for telling things apart): a table's
-	/// headings (its <c>ScrollView_Headers</c>), each laid-out row of a table (a row of its list), and every other
-	/// group of texts that share one element (a figure and its label). Every text is in the game's own words, with
-	/// its data path; the body (<c>newsitem.NewsBodyString</c>) is left out. A table's whole length is its Count:
-	/// it lays out only the rows in view.
-	/// </summary>
-	/// <summary>
 	/// Whether the attachment is still being built (T117): its UI sections whose dependencies are not resolved yet
 	/// (<c>SI.UI.UISection.DependenciesResolved</c>, the flag the game shows a section by) and its grids' content still
 	/// waiting (<c>BindableGridLayoutElement.m_pendingDynamicContent</c>, <c>m_isBuiltContentStale</c>). A question route.
 	/// </summary>
 	public static string State()
 	{
-#if FM26
-		return "error: FM27 only";
-#else
 		VisualElement root = null;
 		foreach (var e in Buttons.Elements())
 		{
@@ -78,14 +68,17 @@ internal static class Attachment
 			catch { }
 		}
 		return $"{{\"Sections\": {sections}, \"Unresolved\": {unresolved}, \"Grids\": {grids}, \"Pending\": {pending}, \"Stale\": {stale}, \"Uninitialised\": {uninitialised}, \"Elements\": {elements}, \"Texts\": {texts}, \"Bound\": {bound}, \"Waiting\": {waiting}, \"NotReady\": {notReady}, \"NotFinal\": {notFinal}, \"Styling\": {styling}}}";
-#endif
 	}
 
+	/// <summary>
+	/// The attachment as blocks in the order it is drawn (for showing, not for telling things apart): a table's
+	/// headings (its <c>ScrollView_Headers</c>), each laid-out row of a table (a row of its list), and every other
+	/// group of texts that share one element (a figure and its label). Every text is in the game's own words, with
+	/// its data path; the body (<c>newsitem.NewsBodyString</c>) is left out. A table's whole length is its Count:
+	/// it lays out only the rows in view.
+	/// </summary>
 	public static string Read()
 	{
-#if FM26
-		return "error: FM27 only";
-#else
 		VisualElement root = null;
 		foreach (var e in Buttons.Elements())
 		{
@@ -166,7 +159,6 @@ internal static class Attachment
 		}
 		Flush();
 		return "[" + string.Join(",\n ", blocks) + "]\n";
-#endif
 	}
 
 	/// <summary>

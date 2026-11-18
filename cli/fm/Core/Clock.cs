@@ -214,13 +214,6 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// States in which Continue goes on. Besides being free to continue, the game stops
-	/// to show a page — the news site, the latest scores — and pressing Continue there is how
-	/// a player gets past it. Everything else wants something done first. FM27 also stops on new
-	/// messages (Messages) and on the world news page (AroundTheWorld), with nothing to answer:
-	/// one press goes on.
-	/// </summary>
-	/// <summary>
 	/// FM27 also stops on NeedAction with nothing to answer, when a message it wants read is waiting
 	/// (a forwarded match story, not in the inbox's first window). The Continue's must-respond kind
 	/// says which: 0 then, 1 for a message wanting an answer, 3 an offer, 14 the set-piece wizard.
@@ -261,6 +254,13 @@ internal static partial class Program
 	// The pages the game only wants looked at, which Continue shows and then moves on from: FM27 adds the
 	// transfer hub as a window opens, and the training, news, competition, data hub and youth pages
 	// (ContinueFlowFlags; each has its EventFmxRemove…ForcedScreen).
+	/// <summary>
+	/// States in which Continue goes on. Besides being free to continue, the game stops
+	/// to show a page — the news site, the latest scores — and pressing Continue there is how
+	/// a player gets past it. Everything else wants something done first. FM27 also stops on new
+	/// messages (Messages) and on the world news page (AroundTheWorld), with nothing to answer:
+	/// one press goes on.
+	/// </summary>
 	private static bool Passable(string flow) =>
 		flow is "CanContinue" or "NewsAggregator" or "Portal" or "LatestScores" or "Fixtures" or "Results" or "Messages" or "AroundTheWorld"
 			or "CompetitionHub" or "ManagerVacancies" or "TransferHub" or "NewsForYou" or "CompetitionOverview" or "DataHub" or "YouthSetup";
@@ -381,7 +381,7 @@ internal static partial class Program
 
 	/// <summary>
 	/// No club to manage: the manager has a name but `Human.Team` gives none (after the sack,
-	/// 10 Ocak 2026). The manager's own record says so without a timed second
+	/// 10 January 2026). The manager's own record says so without a timed second
 	/// look: a working manager's `Team` names a team reference, and an unemployed one's `Club`
 	/// is the game's null reference. Until either has answered the record is still binding, so
 	/// it is asked again rather than nodded through.
@@ -485,7 +485,7 @@ internal static partial class Program
 						if (button is { Length: > 0 } and not ("Continue" or "Response Required")) output.WriteLine(L($"Continue button: {GameWords.Of(button)}"));
 						return;
 					}
-					// The kind of thing waiting, by the game's number (3: an offer for one of ours, 16 Temmuz
+					// The kind of thing waiting, by the game's number (3: an offer for one of ours, 16 July
 					// 2026); the button's words are another language's in another game.
 					if (Field(state, "Respond") == "3")
 					{

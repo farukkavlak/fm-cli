@@ -10,7 +10,7 @@ namespace FmCliProbe;
 /// Calls the binding tree's path-taking methods through il2cpp directly, with the span built
 /// by hand.
 ///
-/// The generated wrappers for these methods lose the span on the way (§8.12): every path,
+/// The generated wrappers for these methods lose the span on the way: every path,
 /// garbage included, came back as the same answer. A ReadOnlySpan&lt;char&gt; is only a pointer
 /// and a length, so here it is laid out in native memory as exactly that, and the method is
 /// invoked by its il2cpp MethodInfo with a pointer to it, as a byref argument is passed.
@@ -86,7 +86,7 @@ internal static class RawPath
 		var setFlags = (int)Bindings.SetFlags.Default;
 		unsafe
 		{
-			var result = Invoke("NativeMethodInfoPtr_Set_Public_Key_byref_ReadOnlySpan_1_Char_TypedValue_NodeFlags_SetFlags_0", path,
+			Invoke("NativeMethodInfoPtr_Set_Public_Key_byref_ReadOnlySpan_1_Char_TypedValue_NodeFlags_SetFlags_0", path,
 				[IL2CPP.Il2CppObjectBaseToPtrNotNull(value), (IntPtr)(&flags), (IntPtr)(&setFlags)], out var error);
 			return error;
 		}

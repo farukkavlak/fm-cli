@@ -34,7 +34,7 @@ internal sealed class Bridge
 
 	/// <summary>
 	/// Whether a bridge answers at all, asked briefly: a dying game can hold the port and take
-	/// the connection without ever answering (11 Ekim 2026), which the usual long wait would sit on.
+	/// the connection without ever answering (11 October 2026), which the usual long wait would sit on.
 	/// </summary>
 	public async Task<bool> Answers()
 	{
@@ -60,7 +60,7 @@ internal sealed class Bridge
 			var body = await response.Content.ReadAsStringAsync();
 			if (Trace) Console.Error.WriteLine(L($"[{started / 1000.0,6:0.00}s +{Clock.ElapsedMilliseconds - started,5}ms] {route} {Uri.UnescapeDataString(url[(Base.Length + route.Length)..])}"));
 			// The plugin gives up on a request the main thread never ran; read as an answer it said "no
-			// save is loaded" of a game that had frozen with one (27 Ekim 2026).
+			// save is loaded" of a game that had frozen with one (27 October 2026).
 			if (body.StartsWith("timeout: the main thread", StringComparison.Ordinal)) throw new FmBusy();
 			return body;
 		}

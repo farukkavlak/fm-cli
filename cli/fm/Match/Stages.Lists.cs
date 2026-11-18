@@ -203,7 +203,7 @@ internal static partial class Program
 
 		// After a match the news tiles leave tables of their own behind, three rows of places and points
 		// each, bound after the page's: "the last bound" was one of those, and the league came out three
-		// teams long (18 Nisan 2026). The page's table is the longest, and of equals the one with its
+		// teams long (18 April 2026). The page's table is the longest, and of equals the one with its
 		// columns; only then the latest.
 		var table = tables.EnumerateArray().Where(t => t.GetArrayLength() >= 2).Reverse()
 			.OrderByDescending(t => t.GetArrayLength())

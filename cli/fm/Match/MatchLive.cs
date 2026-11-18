@@ -10,10 +10,10 @@ internal static class MatchLive
 	private static (string Text, DateTime Until)? note;
 	private static bool drawing;
 
-	/// <summary>A short word for the panel's footer, kept there a few seconds; false when no panel is drawn.</summary>
 	/// <summary>The next draw writes the whole panel again: something else has written over it.</summary>
 	public static void Redraw() => last = "";
 
+	/// <summary>A short word for the panel's footer, kept there a few seconds; false when no panel is drawn.</summary>
 	public static bool Note(string text)
 	{
 		if (!drawing) return false;

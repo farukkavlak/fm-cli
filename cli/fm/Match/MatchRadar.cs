@@ -56,7 +56,7 @@ internal static partial class Program
 	/// other's, each its eleven and then its bench, and it keeps that order all match while the
 	/// substitute flags change: a man taken off is flagged in the eleven and one brought on is not
 	/// in the bench. Cutting it at every bench-to-eleven step put the men after a substitution on
-	/// the wrong side (Spezia–Empoli, 26 Ekim 2026). So a man goes by his outfield kit, the commonest
+	/// the wrong side (Spezia–Empoli, 26 October 2026). So a man goes by his outfield kit, the commonest
 	/// in each half of the list; a keeper, whose kit is neither, by the next man whose kit is (a
 	/// keeper heads his eleven and his bench). Kits that cannot be told apart split the list in half.
 	/// </summary>

@@ -8,7 +8,7 @@ internal static partial class Program
 	/// Shows or changes one of the planner's dropdown settings. The change is read back from the
 	/// tactic itself rather than taken on the dropdown's word.
 	/// </summary>
-	private static async Task<int> TacticSetting(string what, string field, string marker, string wanted, bool dry)
+	private static async Task<int> TacticSetting(string what, string field, string binds, string wanted, bool dry)
 	{
 		if (await Planner() is not { } tactic)
 		{
@@ -18,9 +18,7 @@ internal static partial class Program
 
 		JsonElement? list = null;
 		await Until(async () => (list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray()
-			.Where(d => Field(d, "Name") == "dropdown-base-no-background")
-			.Cast<JsonElement?>()
-			.FirstOrDefault(d => d!.Value.GetProperty("Choices").EnumerateArray().Any(c => c.GetString() == marker))) != null, seconds: 8);
+			.Where(d => Field(d, "Binds") == binds && Field(d, "Visible") == "True").ToList() is [var only] ? only : null) != null, seconds: 8);
 		if (list is not { } dropdown)
 		{
 			Console.Error.WriteLine(L($"The {what} list was not found on the tactics screen."));
