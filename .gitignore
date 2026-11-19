@@ -26,3 +26,6 @@ tests/live/results/
 # A deep crawl is ~40 MB: the repo keeps it gzipped; the report is made from it (tools/crawl-report.py).
 docs/reference/fm27/crawl-deep-*.json
 docs/reference/fm27/crawl-deep-*.md
+
+# Local working notes for the coding assistant (kept on disk, not published)
+CLAUDE.md
