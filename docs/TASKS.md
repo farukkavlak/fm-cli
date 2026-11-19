@@ -135,7 +135,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - After a declined card, `--yes` said "nothing to apply" with the card still open (TR): the panel is now read again first. EN 3/3, TR 8/8 since
   - Left: a removed team instruction and an opposition instruction read back
     - Opposition: the card's change is in the match tactic's NextOppositionInstructions (seen live 19 Nov: Pressing 2 on the
-      two men named by cards); `dugout apply` now reads it before and after, by each man's UniqueId (Kind "opposition"). Not yet seen live
+      two men named by cards); `dugout apply` now reads it before and after, by each man's UniqueId (Kind "opposition").
+      Live TR 1/3: "Yusuf Sertkaya için rakip talimatı ekle: Sürekli pres yap" read back as his Pressing 0 → 2. Left: 2 more, and EN
 - [x] T161 `dugout` pressing card in a TR match
 - [x] T163 `dugout` player card met live
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
