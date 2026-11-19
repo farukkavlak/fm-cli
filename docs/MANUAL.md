@@ -187,7 +187,7 @@ fm tweak [<x>] --player <player>   # one player's tweaks
 fm tweak --reset team|individual|all
 fm pause             # during a match; fm resume goes on
 fm skip              # skip the replay that is playing
-fm dugout [apply | <no> <apply|dismiss>]
+fm dugout [apply | <no> <apply|dismiss>] [--yes]
 fm report            # the last match: score, scorers, player of the match, stats
 fm opponent          # the next opponent: form, formation, key players, news
 ```
@@ -199,6 +199,8 @@ fm opponent          # the next opponent: form, formation, key players, news
 - `--reset` also takes back changes still waiting.
 - A goal with a change waiting: the game asks; `match` stops and says `dialog`.
 - After `pause`, `match` carries on as `resume` does.
+- `dugout apply` during play holds the match, takes the card, reads back what changed, then plays on.
+- A card that would take a tweak off: the game asks first. Without `--yes` nothing is applied and the question is shown.
 
 ![Tactical tweaks of one player](manual/img/match/tweak.png)
 
@@ -315,6 +317,7 @@ fm supporters
 fm staff
 fm facilities
 fm responsibilities [<duty>]
+fm advice         # the staff's advice by area; advice <no>|<name> apply | seen; advice all seen
 fm world          # loaded save, date, nations, leagues, players
 ```
 
@@ -333,6 +336,12 @@ fm world          # loaded save, date, nations, leagues, players
 ![fm facilities](manual/img/club/facilities.png)
 
 ![fm responsibilities](manual/img/club/responsibilities.png)
+
+- `advice` lists what the staff advise: who it is about, what they say, the action they offer.
+- `apply` carries one out (tactics advice: for the next match); `seen` marks it seen. Both are read back.
+- Advice that opens a card of its own in the game is listed, not carried out.
+
+![fm advice](manual/img/club/advice.png)
 
 ![fm world](manual/img/start/world.png)
 

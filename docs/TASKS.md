@@ -131,6 +131,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - `EventFmxMatchDugoutGenerateDebugEvent` sent to a dugout control made no card. Not tried: a payload, another target
   - Hunt 19 Nov (9 matches, 37 cards): advice to push for the win or to play more directly came 3 times TR, 1 EN; `dugout apply` said Done false each time
 - [ ] T171 `dugout apply` cards with nothing read back (hunt 19 Nov): an added team instruction Done false (TR); a removed team instruction and an opposition instruction Done true, no change listed
+  - Cause of the Done false: cards taken while the match played (the hunt took them every 8 s), and cards whose tweak clashes with one on: the game asks "Change From Tactical Tweak?" first. `dugout apply` now holds the match, and answers that question only with `--yes`
 - [x] T161 `dugout` pressing card in a TR match
 - [x] T163 `dugout` player card met live
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
@@ -204,7 +205,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T75 `AI-CHECKLIST.md` sorted
 - [x] T76 `BACKLOG.md` sorted
 - [x] T77 `fm crawl` TR + EN at the end: 193 of 209 pages open in both; each event's reason in `reference/fm27/events-no-command.md`; menu actions: see section 9
-- [ ] T170 Staff advice (Overview's advice panel) has no command: list, apply, acknowledge; `press` reaches it today
+- [x] T170 `advice`: the staff's advice by area, one applied or marked seen, read back by the game's flags (round76 TR+EN 3/3)
+  - Advice that opens a card of its own (a talk, a contract offer, a staff signing) is listed, not carried out
 - [x] T100 `:` on the live panel opens a prompt
 - [x] T101 Keys on the live panel
 - [x] T102 Long commands show progress on one line

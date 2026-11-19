@@ -133,7 +133,7 @@ internal static partial class Program
 		"squad", "offer", "offers", "register", "numbers", "contract", "contracts", "release", "propose", "opposition", "intensity",
 		"coaches", "shortlist", "progress", "youth", "responsibilities", "opponent", "captains", "vision", "depth", "targets",
 		"happiness", "mentoring", "dynamics", "staff", "finances", "supporters", "board", "facilities", "health", "doctor",
-		"tactic", "setpieces", "penalties", "takers", "training", "prep", "schedule", "budget", "club", "scout", "match", "shout", "tweak", "sub", "dugout",
+		"tactic", "setpieces", "penalties", "takers", "training", "prep", "schedule", "budget", "club", "scout", "match", "shout", "tweak", "sub", "dugout", "advice",
 		"resign", "manager", "meeting", "transferroom", "planner", "friendly", "pause", "resume", "skip", "interest", "trial", "enquire",
 	];
 
@@ -236,6 +236,7 @@ internal static partial class Program
 					: args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json),
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
+				"advice" => await Advice(json, args),
 				"read" => await ReadPage(json, args),
 				"meeting" => await Meeting(json),
 				"transferroom" => await TransferRoom(json, args),

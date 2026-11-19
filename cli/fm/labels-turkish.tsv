@@ -2800,6 +2800,7 @@ sub             during a match: on the pitch and on the bench;  sub <off> <on>: 
 pause / resume  during a match: pause it, play on;  skip: skip the replay that is playing	pause / resume  maçta: duraklat, devam et;  skip: oynayan tekrarı atla
 dugout          during a match, the assistant's advice;  dugout apply (the newest one, says what it turned on);  dugout <no> apply | dismiss	dugout          maçta yardımcının önerileri;  dugout apply (en yenisi, neyi açtığını söyler);  dugout <no> apply | dismiss
 --play-on     a match paused to take it plays on, so a team instruction it sets is read back	--play-on     uygulamak için duraklatılan maç sürer, böylece verdiği takım talimatı geri okunur
+--yes         when the card would take a tweak that is on off, the game asks: yes to that	--yes         kart açık bir taktik ayarı kapatacaksa oyun sorar: ona evet
 manager         the manager's record: clubs, transfers, results at this club and over the career	manager         menajerin geçmişi: kulüpler, transferler, bu kulüpte ve kariyer boyunca sonuçlar
 read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen	read [<sayfa>]   oyunun yalnızca bakılan sayfaları olduğu gibi (kulüp tarihi, başarılar, veri merkezi, turnuva kuralları…): adsız listeler; read here: ekranda olan
 read [<page>] --of "<name>"   a club that is not ours, a nation, a national team or a competition: its page, or a page on its bar (it lists them)	read [<sayfa>] --of "<ad>"   bizim olmayan kulüp, ülke, milli takım ya da turnuva: sayfası veya çubuğundaki bir sayfa (onları listeler)
@@ -2952,3 +2953,36 @@ Turkish command names work too, with or without accents.	Türkçe komut adları 
 fm mcp          offer the commands as MCP tools (stdio); for a model to play	fm mcp          komutları MCP araçları olarak sun (stdio); bir modelin oynaması için
 In the session you give the commands without typing `fm`; to leave: `quit`.	Oturumda komutları `fm` yazmadan verirsin; çıkmak için: `quit`.
 No one called '{0}'. The closest name found: {1}; to mean them, give that name.	'{0}' adında kimse yok. Bulunan en yakın ad: {1}; onu kastediyorsan bu adı yaz.
+The game asked: {0} Not applied.	Oyun sordu: {0} Uygulanmadı.
+The game asked: {0} Not applied. To go ahead: dugout apply --yes	Oyun sordu: {0} Uygulanmadı. Yine de uygulamak için: dugout apply --yes
+The game asks: {0} To answer: dialog	Oyun soruyor: {0} Cevaplamak için: dialog
+Transfers	Transfer
+Training	Antrenman
+The staff's advice panel did not open from this screen.	Teknik ekibin tavsiye paneli bu ekrandan açılmadı.
+The staff have no advice right now.	Teknik ekibin şu an tavsiyesi yok.
+\nTo apply: advice <no> apply   ·   to mark it seen: advice <no> seen   ·   all seen: advice all seen	\nUygulamak: tavsiye <no> uygula   ·   görüldü demek: tavsiye <no> gördüm   ·   hepsi görüldü: tavsiye hepsi gördüm
+No advice is about '{0}'.	'{0}' hakkında tavsiye yok.
+Advice about more than one '{0}': give its number (advice).	Birden fazla '{0}' hakkında tavsiye var: numarasını ver (tavsiye).
+Mark seen	Görüldü say
+'{0}' not understood: apply or seen.	'{0}' anlaşılmadı: uygula ya da gördüm.
+  (done)	  (yapıldı)
+  (seen)	  (görüldü)
+  (opens a card in the game)	  (oyunda kendi kartını açar)
+  (nothing to apply)	  (uygulanacak bir şey yok)
+The staff's {0} advice could not be brought up.	Teknik ekibin {0} tavsiyeleri açılamadı.
+{0} — already done.	{0} — zaten yapıldı.
+{0} — already seen.	{0} — zaten görüldü.
+{0} — this advice opens a card of its own in the game; the tool does not carry it out.	{0} — bu tavsiye oyunda kendi kartını açıyor; araç bunu yapmıyor.
+{0} — there is nothing in it to apply.	{0} — bunda uygulanacak bir şey yok.
+{0} — the game does not take a 'seen' for it now.	{0} — oyun şu an bunun için 'gördüm' almıyor.
+{0} — applied.	{0} — uygulandı.
+{0} — marked seen.	{0} — görüldü sayıldı.
+{0} — the button was pressed, but the game does not show it as {1}.	{0} — düğmeye basıldı ama oyun bunu {1} göstermiyor.
+done	yapıldı olarak
+seen	görüldü olarak
+Nothing left to mark seen.	Görüldü sayılacak tavsiye kalmadı.
+{0}: {1} marked seen.	{0}: {1} tavsiye görüldü sayıldı.
+{0}: the button was pressed, but not every piece of advice shows as seen.	{0}: düğmeye basıldı ama tavsiyelerin hepsi görüldü görünmüyor.
+advice          the staff's advice by area (squad, tactics, transfers, training, club);  advice <no>|<name> apply | seen;  advice all seen	advice          teknik ekibin alanlara göre tavsiyeleri (kadro, taktik, transfer, antrenman, kulüp);  advice <no>|<isim> apply | seen;  advice all seen
+That advice is no longer listed; see the list again: advice	Bu tavsiye artık listede yok; listeye yeniden bak: tavsiye
+{0} — the game does not take it now.	{0} — oyun bunu şu an almıyor.

@@ -28,6 +28,8 @@ From `fm crawl --deep`, English and Turkish (`tools/crawl-report.py`). 104 event
 - `opposition`: `EventFmxOppositionInstructionsApplyAdvice`
 - `responsibilities`: `EventFmxSetResponsibilitiesTabToOpen`
 - `search`: `SearchResultClicked`
+- `advice`: `EventFmxAcknowledgeAdvice`, `EventFmxAcknowledgeAllAdvice`, `EventFmxActionSuggestion`,
+  `EventFmxApplyChangeForNextMatch`
 
 ## Nothing to do: the frame, navigation, tutorials
 
@@ -43,8 +45,7 @@ From `fm crawl --deep`, English and Turkish (`tools/crawl-report.py`). 104 event
 
 ## No command of its own: `buttons` and `press` reach them
 
-- Staff advice (T170): `EventFmxAcknowledgeAdvice`, `EventFmxAcknowledgeAllAdvice`, `EventFmxActionSuggestion`,
-  `EventFmxApplyAllAdviceSingleCategory`
+- Staff advice, all of one area at once: `EventFmxApplyAllAdviceSingleCategory`, `EventFmxApplyAllAdviceAllMatches`
 - Scouting centre options: `EventFmxScoutingCentreSelectAll`, `EventFmxScoutingCentreClearAll`,
   `EventFmxScoutingCentreOptionsEditConfirm`, `EventFmxScoutingCentreOptionsEditCancel`,
   `EventFmxPlayerInterestLevelSelected`, `EventFmxPlayerInterestTypeAndLevelChanged`

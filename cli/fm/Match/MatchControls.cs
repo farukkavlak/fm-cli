@@ -163,7 +163,8 @@ internal static partial class Program
 	private static async Task<int> Dugout(bool json, string[] args)
 	{
 		var playOn = args.Contains("--play-on");
-		args = args.Where(a => a != "--play-on").ToArray();
+		var yes = args.Contains("--yes");
+		args = args.Where(a => a is not ("--play-on" or "--yes")).ToArray();
 		if (Field(await Fm.GetJson("state"), "DuringMatch") != "True")
 		{
 			Console.Error.WriteLine(L("The assistant's in-match advice is only during a match."));
@@ -311,6 +312,34 @@ internal static partial class Program
 		// 2 remove), the way `tweak` does: that needs no panel, which hides during a move and lost most tries (T25).
 		if (event_ == AcceptEvent && entry.TweakAction is "1" or "2" && await DugoutTweak(entry, json) is { } byTweak) return byTweak;
 
+		// A card taken while the match plays is taken held: the panel hides at every move, so a card pressed in play was
+		// never seen closing nor its change read (the 19 Nov hunt: every card taken in play said Done false, each one
+		// taken held was read back). The match is held between moves, where the panel is up, the card taken the way
+		// --play-on takes it, and the match played on after.
+		var heldByUs = Field(await Fm.GetJson("state"), "Playing") == "True";
+		if (heldByUs)
+		{
+			playOn = true;
+			if (await Until(DugoutShowing, seconds: 60, every: 0.25)) await Quietly(MatchPause("pause"));
+		}
+		try
+		{
+			return await DugoutTake(entry, event_, verb!, json, playOn, yes);
+		}
+		finally
+		{
+			if (heldByUs && Field(await Fm.GetJson("state"), "Playing") != "True") await Quietly(MatchPause("resume"));
+		}
+	}
+
+	/// <summary>One card on the timeline applied or dismissed by the panel's own button, and what it changed read back.</summary>
+	private static async Task<int> DugoutTake(DugoutEntry entry, string event_, string verb, bool json, bool playOn, bool yes)
+	{
+		// A card whose change would take another tweak off is asked about first: the game's "Change From Tactical
+		// Tweak?" question (its type below), the card waiting on it (19 Nov TR: "Get Physical" while "Press Less
+		// Aggressively" was on). Answered yes with --yes or by the manager; otherwise backed out of and told.
+		string? asked = null;
+		bool declined = false, other = false;
 		// The buttons act on whichever entry is showing, so that one is brought up first.
 		// The timeline is laid out again as the match goes on: a card that goes renumbers the rest (the game's
 		// event index is a place in the list, 15 Nov), and the game gives a card no id of its own. So a mark gone
@@ -365,6 +394,23 @@ internal static partial class Program
 			|| (playersBefore.Count > 0 && (await PlayerInstructionsOf(playerWatches)).Any(n => playersBefore.TryGetValue(n.Key, out var was) && was != n.Value));
 		async Task<bool> Taken()
 		{
+			if (asked == null && await Fm.GetJson("dialog") is { ValueKind: JsonValueKind.Array } dialogs && dialogs.GetArrayLength() > 0 && DialogAsks(dialogs[0]))
+			{
+				asked = DialogWords(dialogs[0], "Description");
+				if (Field(dialogs[0], "Type") != TweakConflictQuestion)
+				{
+					// Some other question: left on screen for the manager, said below.
+					declined = other = true;
+					return false;
+				}
+				var go = yes || (!json && Ui.Interactive && Ui.Ask($"{DialogWords(dialogs[0], "Title")} {asked}", [DialogWords(DialogAnswer(dialogs[0], true)!.Value, "Label"), DialogWords(DialogAnswer(dialogs[0], false)!.Value, "Label")]) == 0);
+				if (!await AnswerDialog(go) || !go)
+				{
+					declined = true;
+					return false;
+				}
+			}
+			if (declined) return false;
 			if (event_ == AcceptEvent && await Changed()) return true;
 			if (!await DugoutShowing()) return false;
 			var same = (await DugoutEntries()).FirstOrDefault(Same);
@@ -373,11 +419,11 @@ internal static partial class Program
 		// --play-on with the match held: some cards (a mentality, 14 Nov) are taken only once play goes on, the card
 		// staying open while it is held. A few seconds held, then played on, and the same signs waited for.
 		var held = playOn && event_ == AcceptEvent && Field(await Fm.GetJson("state"), "Playing") != "True";
-		var done = await Until(Taken, seconds: held ? 8 : 60, every: 1);
-		if (!done && held)
+		var done = await Until(async () => await Taken() || declined, seconds: held ? 8 : 60, every: 1) && !declined;
+		if (!done && held && !declined)
 		{
 			await Quietly(MatchPause("resume"));
-			done = await Until(Taken, seconds: 60, every: 1);
+			done = await Until(async () => await Taken() || declined, seconds: 60, every: 1) && !declined;
 		}
 		// The card closes at once, but a team instruction reaches the match's tactic only at the next dead ball: the
 		// change itself is waited for too, or it is read back as nothing ("Pass Into Space", 14 Nov EN).
@@ -422,11 +468,17 @@ internal static partial class Program
 		{
 			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff,
 				InstructionsChanged = instructions, MentalityChanged = mentality, PlayerInstructionsChanged = players,
-				Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).Concat(players).ToList(), Changes = changes }));
+				Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).Concat(players).ToList(), Changes = changes,
+				Asked = asked, Declined = declined }));
+			if (declined) Console.Error.WriteLine(DeclinedHint());
 			return done ? 0 : 1;
 		}
+		string DeclinedHint() => asked == null ? "" : other ? L($"The game asks: {asked} To answer: dialog") : yes || Ui.Interactive
+			? L($"The game asked: {asked} Not applied.")
+			: L($"The game asked: {asked} Not applied. To go ahead: dugout apply --yes");
 		Console.WriteLine(done
 			? $"{entry.Minute}'  {entry.Text} — {verb}."
+			: declined ? $"{entry.Minute}'  {entry.Text}\n{DeclinedHint()}"
 			: L($"{entry.Minute}'  {entry.Text} — the button was pressed, but the game {(event_ == AcceptEvent ? L("does not show the advice as applied") : L("did not remove the advice from the list"))}."));
 		foreach (var name in tweaksOn) Console.WriteLine(L($"  Tactical tweak on: {name}"));
 		foreach (var name in tweaksOff) Console.WriteLine(L($"  Tactical tweak off: {name}"));
@@ -485,6 +537,9 @@ internal static partial class Program
 
 	/// <summary>One entry on the timeline, at its place there; Open while the game calls it actionable.</summary>
 	private sealed record DugoutEntry(string Minute, int Index, string Pointer, string Text, bool Open, string TweakId = "", string TweakAction = "");
+
+	/// <summary>The game's dialog type for "Change From Tactical Tweak?": a card's change would take a tweak that is on off.</summary>
+	private const string TweakConflictQuestion = "changeFromTacticalTweak";
 
 	/// <summary>The event on the panel's "Do it" button.</summary>
 	private const string AcceptEvent = "DugoutAdviceAccept";

@@ -88,6 +88,8 @@ internal static partial class Program
 			  pause / resume  during a match: pause it, play on;  skip: skip the replay that is playing
 			  dugout          during a match, the assistant's advice;  dugout apply (the newest one, says what it turned on);  dugout <no> apply | dismiss
 			    --play-on     a match paused to take it plays on, so a team instruction it sets is read back
+			    --yes         when the card would take a tweak that is on off, the game asks: yes to that
+			  advice          the staff's advice by area (squad, tactics, transfers, training, club);  advice <no>|<name> apply | seen;  advice all seen
 			  manager         the manager's record: clubs, transfers, results at this club and over the career
 			  read [<page>]   the game's look-only pages as they stand (club history, honours, data hub, competition rules…): without a name lists them; read here: what is on screen
 			  read [<page>] --of "<name>"   a club that is not ours, a nation, a national team or a competition: its page, or a page on its bar (it lists them)

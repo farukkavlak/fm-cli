@@ -1,0 +1,26 @@
+# Round 76: the staff's advice (T170): listed from every tab, one applied and one marked seen, each read back by the
+# game's own flag; a card the tool does not carry out, a wrong number and a wrong name refused.
+# Three starting states: the home page (fresh), the panel already up (the second call), another page (Squad, which
+# has no advice button). Run: tools/fm-round.py dry tests/live/round76.toml, then run --lang en,tr.
+
+[[test]]
+task = "T170"
+name = "advice listed, one applied and one seen, read back; refusals change nothing"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "advice", path = "#", not = "0", keep = "rows" },
+  { read = "advice", path = "?Kind=apply.0.No", keep = "apply" },
+  { read = "advice {apply} apply", path = "Done", is = "True" },
+  { read = "advice", path = "?Kind=apply.0.No", keep = "seen" },
+  { read = "advice {seen} seen", path = "Seen", is = "True" },
+  { run = "squad" },
+  { read = "advice", path = "#", not = "0", note = "from a page with no advice button" },
+  { read = "advice", path = "?Kind=card.0.No", keep = "card" },
+  { run = "advice {card} apply", rc = "fail", note = "a card of its own in the game: not carried out" },
+  { run = "advice 999 apply", rc = "fail" },
+  { run = "advice zzzq apply", rc = "fail" },
+  { run = "advice 1 zzzq", rc = "fail" },
+  { read = "advice", path = "#", not = "0" },
+]

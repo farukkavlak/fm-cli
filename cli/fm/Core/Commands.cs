@@ -12,7 +12,7 @@ internal static partial class Program
 	private static readonly string[] CommandNames =
 	[
 		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "offers", "contract", "contracts", "release", "propose",
-		"table", "stages", "league", "fixtures", "calendar", "holiday", "report", "inbox", "reply", "next", "match", "shout", "tweak", "sub", "dugout",
+		"table", "stages", "league", "fixtures", "calendar", "holiday", "report", "inbox", "reply", "next", "match", "shout", "tweak", "sub", "dugout", "advice",
 		"resign", "manager", "read", "meeting", "transferroom", "planner", "draw", "friendly", "pause", "resume", "skip", "dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "coaches", "budget", "settings", "happiness", "dynamics", "jobs", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "vision", "opponent",
 		"opposition", "saves", "save", "load", "world", "shortlist", "scout", "responsibilities", "youth", "progress", "register", "numbers", "tactic", "setpieces", "pages", "crawl", "open", "buttons",
@@ -36,7 +36,7 @@ internal static partial class Program
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["hedef"] = "targets", ["hedefler"] = "targets", ["doktor"] = "doctor",
 		["oner"] = "propose", ["aksiyon"] = "actions", ["aksiyonlar"] = "actions", ["teklifler"] = "offers", ["kaptan"] = "captains", ["vizyon"] = "vision", ["hazirlik"] = "friendly", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["yukle"] = "load", ["dunya"] = "world", ["gelisim"] = "progress", ["altyapi"] = "youth", ["genclik"] = "youth", ["sorumluluk"] = "responsibilities", ["gorevler"] = "responsibilities", ["turlar"] = "stages", ["asamalar"] = "stages", ["liste"] = "shortlist",
-		["numara"] = "numbers", ["taktik"] = "tactic", ["dil"] = "lang", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers", ["sorgu"] = "query", ["yaz"] = "type",
+		["numara"] = "numbers", ["taktik"] = "tactic", ["dil"] = "lang", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers", ["sorgu"] = "query", ["yaz"] = "type", ["tavsiye"] = "advice", ["oneriler"] = "advice",
 	};
 
 	/// <summary>
@@ -100,7 +100,8 @@ internal static partial class Program
 		["query"] = ["--sort", "--asc"],
 		["next"] = ["--skip"],
 		["match"] = ["--play", "--instant", "--no-talk", "--stop-at-advice", "--pick"],
-		["dugout"] = ["uygula", "kaldir", "apply", "dismiss", "--play-on"],
+		["dugout"] = ["uygula", "kaldir", "apply", "dismiss", "--play-on", "--yes"],
+		["advice"] = ["apply", "seen", "all", "uygula", "gordum", "hepsi"],
 		["offer"] = ["--loan", "--dry", "--term", "--yes", "--negotiate", "--close"],
 		["contract"] = ["--agent", "--term", "--wage", "--next", "--sign", "--cancel", "--yes"],
 		["release"] = ["--free", "--mutual", "--yes"],

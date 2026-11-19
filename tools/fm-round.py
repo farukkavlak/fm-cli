@@ -1236,7 +1236,7 @@ class Hunt:
 
 def take_card(hunt, minute):
     """Every card is taken: what it changed says which moment it was, by the game's ids."""
-    rc, out, _, _ = fm("dugout apply --json --play-on", 180)
+    rc, out, _, _ = fm("dugout apply --json --play-on --yes", 180)
     if not out.lstrip().startswith("{"):
         return
     data = json.loads(out)
