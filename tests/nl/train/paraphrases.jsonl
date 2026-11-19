@@ -764,3 +764,27 @@
 {"en": "hello there", "call": null}
 {"en": "order a pizza", "call": null}
 {"en": "make the other team lose", "call": null}
+{"tr": "kutuya Ahmet yaz", "call": "fm_type", "args": {"text": "Ahmet"}}
+{"tr": "kutuya Big Boss yaz", "call": "fm_type", "args": {"text": "Big Boss"}}
+{"tr": "açılan kutuya Usta yaz", "call": "fm_type", "args": {"text": "Usta"}}
+{"tr": "yazı kutusuna Kaptan yaz", "call": "fm_type", "args": {"text": "Kaptan"}}
+{"tr": "kutucuğa Hızlı yaz", "call": "fm_type", "args": {"text": "Hızlı"}}
+{"tr": "pencerede kutuya Kral yazalım", "call": "fm_type", "args": {"text": "Kral"}}
+{"tr": "takma ad kutusuna Aslan yaz", "call": "fm_type", "args": {"text": "Aslan"}}
+{"tr": "lakap kutusuna Duvar yaz", "call": "fm_type", "args": {"text": "Duvar"}}
+{"tr": "kutunun içine Tank yaz", "call": "fm_type", "args": {"text": "Tank"}}
+{"tr": "şu kutuya Şimşek yazar mısın", "call": "fm_type", "args": {"text": "Şimşek"}}
+{"tr": "kutuya 25 yaz", "call": "fm_type", "args": {"text": "25"}}
+{"tr": "boş kutuya Panter yaz", "call": "fm_type", "args": {"text": "Panter"}}
+{"tr": "kutuya Demir Adam yazıver", "call": "fm_type", "args": {"text": "Demir Adam"}}
+{"tr": "ekrandaki kutuya Kartal yaz", "call": "fm_type", "args": {"text": "Kartal"}}
+{"en": "type Ahmet into the box", "call": "fm_type", "args": {"text": "Ahmet"}}
+{"en": "write The Wall in the box", "call": "fm_type", "args": {"text": "The Wall"}}
+{"en": "put Tank in the text box", "call": "fm_type", "args": {"text": "Tank"}}
+{"en": "enter Speedy in the field", "call": "fm_type", "args": {"text": "Speedy"}}
+{"en": "type Captain in the window's box", "call": "fm_type", "args": {"text": "Captain"}}
+{"en": "fill the box with Rocket", "call": "fm_type", "args": {"text": "Rocket"}}
+{"en": "write 25 in the box", "call": "fm_type", "args": {"text": "25"}}
+{"en": "type the nickname Lion into the box", "call": "fm_type", "args": {"text": "Lion"}}
+{"en": "put Iron Man in that box", "call": "fm_type", "args": {"text": "Iron Man"}}
+{"en": "type King in the empty box", "call": "fm_type", "args": {"text": "King"}}

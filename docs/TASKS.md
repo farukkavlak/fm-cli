@@ -187,8 +187,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - [ ] Two clubs of one name and nation (Arsenal, ENG twice) cannot be told apart by `( )`
   - [ ] A requested team report's entry shows `- string#2` (a game string not filled)
   - [x] `crawl --deep` closes the windows its buttons open
-- [ ] T77 Menu actions the code never names (46): each has a command, was run through `actions` and read back, or needs none
-  - [ ] By sentence: the rules route "kutuya X yaz" to `fm_type`, but the live model does not know the tool yet (retrain)
+- [x] T77 Menu actions the code never names (46): each has a command, was run through `actions` and read back, or needs none
+  - [x] By sentence: "kutuya X yaz" / "type X into the box" reach `fm_type` (24 train sentences, no retrain; 6/6 unseen, held score unchanged)
   - [x] Read-back (round78 TR+EN 3/3): Keep History After Retirement by the player's KeepHistoryAfterRetirement, on and off;
     Available For U19 Squad shows nowhere readable, and is said so; Trigger Contract Extension Clause asks first, Yes takes the
     entry off the menu, the end date stays (a one-year extension)
