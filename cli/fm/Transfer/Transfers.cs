@@ -79,6 +79,8 @@ internal static partial class Program
 		// with our terms. The club is named too when more than one has made an offer.
 		// Each word typed is in the player's name or the club's ("Levent Brugge").
 		var named = Fold(wanted).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		// Another club's offer for one of ours: the money comes in, so the card says nothing of our budget.
+		var forOurs = false;
 		if (!resumed && (await WaitingOffers()).Where(o => o.Incoming && named.All(w => Fold($"{o.Player} {o.Club}").Contains(w, StringComparison.Ordinal))).ToList() is { Count: > 0 } theirs)
 		{
 			if (theirs.Count > 1)
@@ -93,6 +95,7 @@ internal static partial class Program
 			}
 			open = await OfferScreen.Read(Fm);
 			resumed = open != null;
+			forOurs = true;
 		}
 
 		string name;
@@ -242,7 +245,11 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(read.Summary()));
 			return 0;
 		}
-		if (await OfferScreen.Read(Fm) is { } offer) offer.Draw();
+		if (await OfferScreen.Read(Fm) is { } offer)
+		{
+			offer.Incoming = forOurs;
+			offer.Draw();
+		}
 		else Console.WriteLine($"{name}: {what}{(await FeeLabel() is { } shown ? L($", fee {shown}") : "")}");
 
 		if (dry)

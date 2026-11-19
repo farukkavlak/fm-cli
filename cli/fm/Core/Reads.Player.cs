@@ -191,8 +191,10 @@ internal static partial class Program
 			return lines;
 		}
 
-		lines.Add(L($"Injury history: {injuries.Count} injuries · this season {Field(summary, "InjuriesThisSeason")}, last season {Field(summary, "InjuriesLastSeason")}")
+		lines.Add(L($"Injury history: {injuries.Count} injuries · this season {Count(Field(summary, "InjuriesThisSeason"))}, last season {Count(Field(summary, "InjuriesLastSeason"))}")
 		          + (Field(summary, "InjuriesPercentageMissedString") is { Length: > 0 } missed ? L($" · matches missed: {missed.Replace(" missed", "")}") : ""));
+		// The game leaves a season with no injury blank: that is none.
+		static string Count(string n) => n.Length > 0 ? n : "0";
 		foreach (var injury in injuries.Take(5))
 			lines.Add(L($"  {(injury.When is { } on ? $"{Months[on.Month - 1]} {on.Year}" : "?"),-9}  {injury.What}, {injury.Days} days{(injury.Now ? L(" (ongoing)") : "")}"));
 		if (injuries.Count > 5) lines.Add(L($"  … and {injuries.Count - 5} more past injuries"));

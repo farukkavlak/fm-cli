@@ -150,7 +150,8 @@ internal static partial class Program
 		if (Field(team, "NextOppositionThreatLevelAssessment") is { Length: > 0 } expected) Console.WriteLine(L($"  Expectation: {expected}"));
 		foreach (var t in tiles.Where(t => t.Stats.Count > 0 || t.Verdict.Length > 0))
 		{
-			Console.WriteLine($"{GameWords.Of(t.Name)}: {GameWords.Of(t.Verdict)}");
+			// A tile the analysts have no word on yet is its name over its figures.
+			Console.WriteLine(t.Verdict.Length > 0 ? $"{GameWords.Of(t.Name)}: {GameWords.Of(t.Verdict)}" : GameWords.Of(t.Name));
 			if (t.Stats.Count > 0) Console.WriteLine("  " + string.Join(" · ", t.Stats.Select(x => $"{x.Label} {x.Value}")));
 		}
 		if (news.Count > 0)
