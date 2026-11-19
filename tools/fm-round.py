@@ -1112,7 +1112,7 @@ def hunt_problems(spec):
     """The hunt list's own shape, told without the game."""
     found = []
     tasks = {m.get("task") for m in spec.get("moment", [])}
-    for step in spec.get("setup", []):
+    for step in spec.get("setup", []) + [st for sc in spec.get("scenario", []) for st in sc.get("setup", [])]:
         if not {"run", "read"} & set(step):
             found.append("the setup is run / read steps only")
     for scenario in spec.get("scenario", []):
@@ -1368,7 +1368,8 @@ def hunt_run(args):
                 must(f'settings "{name}" "{value}"')
             # The list's own setup before kick-off (everything at full tempo: hurt men and the staff's advice come sooner).
             kept = {}
-            for number, step in enumerate(spec.get("setup", []), 1):
+            # A scenario may carry a setup of its own in place of the list's (a defensive side, where the staff advise more attack).
+            for number, step in enumerate(scenario.get("setup", spec.get("setup", [])), 1):
                 plain_step(number, {k: filled(v, kept) if k in ("run", "read") else v for k, v in step.items()}, kept)
             matches += 1
             how = watch_match(scenario, hunt, scenario.get("minutes", 100) * 60)

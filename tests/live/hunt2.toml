@@ -1,0 +1,66 @@
+# Hunt 2 (19 Nov night): the match moments hunt 1 never met, each provoked rather than waited for.
+# T160: our side starts at the most defensive mentality, with its play slowed and kept short, so the staff advise more
+#   attack (a mentality card) and taking an instruction off (T171's removal card); hunt 1 started attacking and met none.
+# T63: extra time steered level, our side shut tight, for a shootout in a Turkish game.
+# Every card is taken as hunt 1 does; one read back with no change is listed at the end (T171).
+# Run: tools/fm-round.py hunt tests/live/hunt2.toml --dry, then hunt ... --lang tr,en --hours 6.
+
+[[scenario]]
+at = "kickoff"
+serves = ["T160"]
+speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
+setup = [
+  { run = 'tactic instructions "Passing Directness" "Much Shorter"' },
+  { run = 'tactic instructions "Tempo" "Very Low"' },
+  { run = 'tactic instructions "Time Wasting" "More Often"' },
+  { run = 'tactic instructions "Line of Engagement" "Low Block"' },
+  { read = "tactic mentality", path = "Choices.0", keep = "defensive" },
+  { run = "tactic mentality {defensive}" },
+]
+
+[[scenario]]
+at = "cup"
+serves = ["T160"]
+speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
+setup = [
+  { run = 'tactic instructions "Passing Directness" "Much Shorter"' },
+  { run = 'tactic instructions "Tempo" "Very Low"' },
+  { read = "tactic mentality", path = "Choices.0", keep = "defensive" },
+  { run = "tactic mentality {defensive}" },
+]
+
+[[scenario]]
+at = "hunt-cup-extra-time"
+serves = ["T63"]
+steer = true
+speeds = { "highlight speed" = "10x", "speed between highlights" = "4x" }
+setup = [
+  { read = "tactic mentality", path = "Choices.0", keep = "defensive" },
+  { run = "tactic mentality {defensive}" },
+]
+
+[[moment]]
+task = "T160"
+name = "a mentality card applied reads back the match tactic's mentality, from and to"
+probe = "dugout apply"
+seen = "Changes.?Kind=mentality.#"
+not = "0"
+quota = { tr = 2 }
+checks = [
+  { path = "Done", is = "True" },
+  { path = "MentalityChanged.#", not = "0" },
+  { path = "Changes.?Kind=mentality.0.From", keep = "from", present = true },
+  { path = "Changes.?Kind=mentality.0.To", differs_from = "from" },
+]
+
+[[moment]]
+task = "T63"
+name = "a penalty shootout: the board's own score read while the period is Penalties"
+probe = "status"
+seen = "Period"
+is = "Penalties"
+quota = { tr = 2 }
+checks = [
+  { path = "ShootoutHome", present = true },
+  { path = "ShootoutAway", present = true },
+]
