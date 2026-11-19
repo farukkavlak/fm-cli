@@ -160,13 +160,13 @@ fm prep                      # match preparation sessions up to the next match
 fm setpieces new             # set-piece routines
 fm takers                    # set-piece takers
 fm penalties                 # penalty order and rules
-fm scout focus               # scouting focuses
+fm scout                     # scouting focuses; scout <#|name>: the players one found
 fm youth [candidates]        # academy and prospects; the year's intake
 ```
 
 ![fm schedule](manual/img/tactics/schedule.png)
 
-![fm scout focus](manual/img/tactics/scout-focus.png)
+![fm scout](manual/img/tactics/scout-focus.png)
 
 ![fm youth](manual/img/tactics/youth.png)
 
