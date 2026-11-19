@@ -129,6 +129,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 
 - [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live
   - `EventFmxMatchDugoutGenerateDebugEvent` sent to a dugout control made no card. Not tried: a payload, another target
+  - Hunt 19 Nov (9 matches, 37 cards): advice to push for the win or to play more directly came 3 times TR, 1 EN; `dugout apply` said Done false each time
+- [ ] T171 `dugout apply` cards with nothing read back (hunt 19 Nov): an added team instruction Done false (TR); a removed team instruction and an opposition instruction Done true, no change listed
 - [x] T161 `dugout` pressing card in a TR match
 - [x] T163 `dugout` player card met live
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
