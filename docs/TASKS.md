@@ -193,10 +193,10 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
     Available For U19 Squad shows nowhere readable, and is said so; Trigger Contract Extension Clause asks first, Yes takes the
     entry off the menu, the end date stays (a one-year extension)
 - [x] T69 Settings pages; the main menu
-  - [x] A list of bare numbers (3D, colour blind) gets its words from its open rows: a row's number is the option's
-    own index, the value the game stores for it, not a place on screen; every change is read back
-  - [x] Blocks with no control on the list are not settings here: data language (`fm lang` changes the game's), save
-    location, shortcuts, online, third party; none is needed to play
+  - [ ] A list of bare numbers (3D, colour blind) gets its words from its open rows by their place in the list:
+    no identity found; every change is read back
+  - [ ] Blocks with no control on the list are not settings here: data language, save location, shortcuts, online,
+    third party
 - [x] T70 Pages of a club that is not ours; a nation's and a competition's (`read --of`)
   - [x] Slow: measured 19 Nov (TR, 5 pages of Fenerbahçe): 5.6–7.8 s with `--of`, 2.1 s for our own page; the rest is finding and opening the other club
 
