@@ -356,8 +356,33 @@ internal static class Submenus
 			// FM27 dropped DropdownRow.Index: the row's place among its siblings.
 			int index;
 			try { index = row.hierarchy.parent?.IndexOf(row) ?? -1; } catch { index = -1; }
-			sb.AppendLine($"0x{row.Pointer.ToInt64():x}  #{index}  \"{label}\"{shown}{child}");
+			sb.AppendLine($"0x{row.Pointer.ToInt64():x}  #{index}  \"{label}\"{shown}{child}{RowValue(row)}");
 		}
 		return sb.Length > 0 ? sb.ToString() : "no dropdown rows laid out\n";
+	}
+
+	/// <summary>
+	/// The value the list gave this row, the same in every language and whatever order the rows are drawn in: the
+	/// row's own binding root holds it as its row parameter ("row", the list's m_rowParamName), e.g. 1, 2, 4, 8 for a
+	/// list whose rows read Off … High (T69). Empty when the row has none.
+	/// </summary>
+	private static string RowValue(DropdownRow row)
+	{
+		try
+		{
+			for (var i = 0; i < row.hierarchy.childCount; i++)
+			{
+				if (row.hierarchy[i].TryCast<BindingRoot>() is not { } root) continue;
+				var path = Elements.KeyPath(root.Key);
+				var b = Game.Bindings;
+				if (string.IsNullOrEmpty(path) || b == null) return "";
+				var key = PathKey.Of(".." + path + ".row");
+				if (!b.Exists(ref key)) return "";
+				var value = b.Get(ref key);
+				return value == null || value.IsNull ? "" : $"  value={Text.Of(value)}";
+			}
+		}
+		catch { }
+		return "";
 	}
 }

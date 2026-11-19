@@ -51,23 +51,26 @@ internal static partial class Program
 	{
 		if (now.Setting.Kind != SettingKind.Dropdown || !now.Enabled || !BareNumbers(now.Choices)) return now;
 		await Fm.Get("submenu", ("ptr", now.Pointer));
-		var words = new Dictionary<int, string>();
+		// Each row by the value the list gave it (its own binding's row parameter), not by its place: the choices are
+		// those values ("1, 2, 4, 8"), so a word is matched to the choice it stands for whatever order the rows are in (T69).
+		var words = new Dictionary<string, string>();
 		await Until(async () =>
 		{
 			words = Rows(await Fm.Get("dropdownrows"));
-			return words.Count == now.Choices.Count;
+			return now.Choices.All(words.ContainsKey);
 		}, seconds: 5, every: 0.1);
 		// The same rows in the game's language: what is shown; the English above is matched too.
 		var inGame = Rows(await Fm.Get("dropdownrows", ("shown", "1")));
 		await Fm.Get("submenu", ("ptr", now.Pointer), ("close", "1"));
 		await Until(async () => !(await Fm.Get("dropdownrows")).Contains('#'), seconds: 3, every: 0.1);
-		if (words.Count != now.Choices.Count) return now;
-		var source = Enumerable.Range(0, now.Choices.Count).Select(i => words.GetValueOrDefault(i, now.Choices[i])).ToList();
-		var shown = Enumerable.Range(0, now.Choices.Count).Select(i => inGame.GetValueOrDefault(i, source[i])).ToList();
+		if (!now.Choices.All(words.ContainsKey)) return now;
+		var source = now.Choices.Select(c => words[c]).ToList();
+		var shown = now.Choices.Select((c, i) => inGame.GetValueOrDefault(c, source[i])).ToList();
 		return now with { Choices = shown, Source = source };
 
-		static Dictionary<int, string> Rows(string listed) =>
-			System.Text.RegularExpressions.Regex.Matches(listed, "#(\\d+)\\s+\"(.*)\"").ToDictionary(m => int.Parse(m.Groups[1].Value), m => m.Groups[2].Value);
+		static Dictionary<string, string> Rows(string listed) =>
+			System.Text.RegularExpressions.Regex.Matches(listed, "#\\d+\\s+\"(.*)\"[^\\n]*?value=(\\S+)")
+				.GroupBy(m => m.Groups[2].Value).ToDictionary(g => g.Key, g => g.First().Groups[1].Value);
 	}
 
 	private static bool BareNumbers(List<string> choices) => choices.Count > 0 && choices.All(c => int.TryParse(c, out _));
