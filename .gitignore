@@ -23,9 +23,9 @@ tools/window-watch/window-watch
 # Live test reports
 tests/live/results/
 
-# A deep crawl is ~40 MB: the repo keeps it gzipped; the report is made from it (tools/crawl-report.py).
-docs/reference/fm27/crawl-deep-*.json
-docs/reference/fm27/crawl-deep-*.md
+# Screen dumps (`fm crawl`, /moments) hold game text and names: made locally, not kept in the repository
+docs/reference/fm27/crawl-*
+docs/reference/fm27/moments/
 
 # Local working notes for the coding assistant (kept on disk, not published)
 CLAUDE.md
