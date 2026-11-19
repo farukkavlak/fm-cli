@@ -2,8 +2,8 @@ namespace FmCli;
 
 internal static partial class Program
 {
-	/// <summary>The help text, in English; the Turkish catalog holds its translation.</summary>
-	private const string HelpEnglish = """
+	/// <summary>The help text, in English; the Turkish catalog holds each line's translation.</summary>
+	internal const string HelpEnglish = """
 			fm — run Football Manager from the terminal
 
 			  fm start        start the game, load the save, enter the session   (--menu: leave it at the main menu)
@@ -41,8 +41,12 @@ internal static partial class Program
 			    --scouted / --unscouted      only the players the scouts know / everyone again
 			    --clear                      remove the filter (it stays in the game)
 			    --views / --view "<x>"       the views that set the columns
+			    --position <p> / --role <r> / --age 18-23 / --max-value <money>   search by position, role, age, value
+			    --attr "pace>=15"            an attribute condition (>=, <=, >, <); can be repeated
+			    --grade <x> / --contract <x>   the scouts' grade; the contract status
+			    --listed / --loan-listed     on the transfer list / on the loan list
 			  table [competition] league table; with a competition's name, that competition's table (e.g. table europa)
-			  stages [competition] [stage]   cup rounds and their ties, a league stage's table; every competition in the world (--all, --list)
+			  stages [competition] [stage]   cup rounds and their ties, a league stage's table; every competition in the world (--all, --list; --refresh: read that list again)
 			  scout [#|focus] scouting focuses; the players a focus has found (--matched, --near, --progress)
 			  scout new [--position <position>] [--role <role>] [--area "<area>, …"] [--age 18-23] [--ability <stars>] [--potential <stars>] [--by "<scout>, …"] [--analysts "<analyst>, …"] [--name <name>] --priority top|standard|ongoing   a new focus
 			  scout edit <#|name> [--area …] [--age …] [--ability …] [--potential …] [--by …] [--analysts …] [--name …] [--priority …]   change a focus
@@ -89,7 +93,7 @@ internal static partial class Program
 			  read [<page>] --of "<name>"   a club that is not ours, a nation, a national team or a competition: its page, or a page on its bar (it lists them)
 			  meeting         hold a team meeting; answer it with talk
 			  jobs [<club>] [apply|interest] [--yes] [--all]   job vacancies; apply or say you are interested
-			  crawl <out.json> [--here] [--only <guid>,…] [--skip <guid>,…]   for developers: a map of the game's pages
+			  crawl <out.json> [--here] [--deep] [--only <guid>,…] [--skip <guid>,…]   for developers: a map of the game's pages (--deep: each page's menus too)
 			  draw            run a cup draw its message opened, and show the ties
 			  friendly [<#|club> [--date yyyy-mm-dd] [--away] [--rules <no>] --yes]   arrange a friendly: the opponents offered, open dates, match rules
 			  resign [--yes]  resign from the club (test career; then look at jobs)
@@ -143,6 +147,7 @@ internal static partial class Program
 			  youth           youth: academy levels and stadium, first-team prospects, the intake date; --training: the youth team's training ratings; candidates: the year's intake; preview: the look ahead at it
 			  progress        who is getting better, who worse: every player's ability over the last four months and the change
 			  staff find [text] [--filter <filter>] [--view <view>] [--own | --no-own]   the staff search: job, contract, wage, attributes; --own: our staff too
+			    --role <job> / --free / --employed <Yes|No> / --reputation <x>   search by job, employment, reputation
 			  staff hire <name> [--wage <amount>] [--sign --yes]   hire staff: opens the contract negotiation, carried on with `contract`
 			  staff fire <name> [--mutual] [--yes]   part ways with staff: the game names the compensation, says "No" without --yes
 			  actions <person|club> ["<option>"]   the game's right-click menu for that person or club (assign a scout, shortlist, send on a course, a team report…); an option given is carried out
@@ -173,10 +178,10 @@ internal static partial class Program
 			                  table, fixtures, health, contracts, finances);  export <file.csv> "<command>": that command's table
 			  --json / --csv / --md   with every command: JSON, CSV or Markdown in place of the table; no questions are asked
 			  shortlist       the players on the shortlist (those with offers too)
-			  transferroom    clubs' adverts for players you could offer (--loan);  offer <no or club> [player] | activity | wanted | responses | new --position <p> [--role <r>] [--oop-position <p>] [--oop-role <r>] [--min-age <n>] [--max-age <n>] [--time <t>] [--type <t>] (a list's word, or its value as an error or --choices lists it) | delete <no> | agents | discard <player> | discard --all
-			  planner         the Squad Planner: the plan at a position (--season current|next|after, --position <p>);  add <player> | remove <player> | move <player> <place> | suggest position|tactic|season|all
 			    --lists · --list "<name>" · --new "<name>"   the shortlists; show another; make one  (add … --to "<list>" with several)
 			    add <name> --for <length> · remove <name>   put on the list ("3 months", "1 year", "indefinitely") / take off it
+			  transferroom    clubs' adverts for players you could offer (--loan);  offer <no or club> [player] | activity | wanted | responses | new --position <p> [--role <r>] [--oop-position <p>] [--oop-role <r>] [--min-age <n>] [--max-age <n>] [--time <t>] [--type <t>] (a list's word, or its value as an error or --choices lists it) | delete <no> | agents | discard <player> | discard --all
+			  planner         the Squad Planner: the plan at a position (--season current|next|after, --position <p>);  add <player> | remove <player> | move <player> <place> | suggest position|tactic|season|all
 			  interest <name> --top|--transfer|--loan [--yes]   declare our interest in a player
 			  enquire <name>  ask their club what it would want
 			  trial <name> --for <1-4 weeks> [--yes]   invite a player on trial
@@ -219,11 +224,11 @@ internal static partial class Program
 			    --tab <tab>               when several pages share a name
 			  buttons [text]              the buttons on screen and what they send
 			    --all                     show the unlabelled ones too
-			  press "<label>"             press a button
+			  press "<label>" [--dry]     press a button
 			    --name <name>             when several share a label
 			  dropdowns [text]            the dropdowns on screen and their options
-			  select <list> "<option>"    choose from a list
-			  type "<text>"               write in the box of the window on screen (a nickname)
+			  select <list> "<option>" [--dry]   choose from a list
+			  type "<text>" [--dry]       write in the box of the window on screen (a nickname)
 			    --dry                     for press, select and type: do not do it, say what would be done
 			  status          the date and what the game is waiting for now
 			  save --yes      save the game (overwrites the file, cannot be undone)

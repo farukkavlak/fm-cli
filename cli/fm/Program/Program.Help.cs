@@ -31,7 +31,14 @@ internal static partial class Program
 	}
 
 	/// <summary>Also where tab completion takes each command's description from; in the game's language.</summary>
-	private static string HelpText => L(HelpEnglish);
+	private static string HelpText => string.Join('\n', HelpEnglish.Split('\n').Select(HelpLine));
+
+	/// <summary>One help line in the game's language, its indent kept: the indent says which command it belongs to.</summary>
+	private static string HelpLine(string line)
+	{
+		var text = line.TrimStart();
+		return text.Length == 0 ? line : line[..(line.Length - text.Length)] + L(text);
+	}
 
 
 	private static int Unknown(string command)

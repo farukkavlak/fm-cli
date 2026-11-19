@@ -12,6 +12,9 @@ fm start          # launch the game, load the last save, enter a session
 fm status         # date, next match, what is waiting
 fm next           # continue; stops at a real blocker
 fm next --until match    # on to match day (or the first thing that wants an answer)
+fm holiday week|month|match   # the assistant runs the club until then
+fm continue       # load the last save in the open game
+fm stop [--save|--no-save]    # close the game; asks about saving first
 ```
 
 ![fm status](manual/img/start/status.png)
@@ -390,6 +393,8 @@ fm read [<page>]            # the game's look-only pages, read as they stand
 fm read [<page>] --of "<name>"   # a club not ours, a nation, a national team, a competition
 fm meeting                  # a team meeting of your own; answer with talk
 fm draw                     # a cup draw its message opened: runs it, shows the ties
+fm friendly [<#|club> [--date yyyy-mm-dd] [--away] [--rules <no>] --yes]   # opponents, dates, rules
+fm manager                  # your record: clubs, transfers, results
 ```
 
 ![fm read](manual/img/club/read.png)
@@ -412,6 +417,8 @@ fm select <list> "<option>" [--dry]
 fm type "<text>" [--dry]
 fm dialog [answer]
 fm tour [--skip]
+fm completion zsh|bash      # tab completion
+fm crawl <out.json> [--here] [--deep]   # for developers: a map of the game's pages
 ```
 
 Not here: `fm help <command>`. A screen with no command: `pages`, `buttons`, `press`.
