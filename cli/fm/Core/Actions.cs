@@ -166,9 +166,10 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// The UniqueId of the record at each path ("" where none). A club drawn on screen answers no field
-	/// at its own path, only once copied to a row of ours (measured: the next opponent's card, a search
-	/// row); a person answers either way, so every record is read the same way.
+	/// The UniqueId of the record at each path ("" where none). The binding tree holds only the fields the screen
+	/// itself binds: a club's row binds its Name, not its UniqueId, so at its own path that field does not exist (a person's
+	/// row binds his for its clicks). Copied to a node of ours, a field asked for is bound then and answers (T68, 19 Nov:
+	/// a search row's club, UniqueId "does not exist" until bound, Name there all along). Every record is read that way.
 	/// </summary>
 	private static async Task<List<string>> IdsOf(List<string> paths)
 	{

@@ -191,7 +191,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T66 `fm meeting`
 - [x] T67 Every list's submenus (`crawl --deep`)
 - [x] T68 Every row's right-click menu, per kind of row
-  - [ ] A club's id at an on-screen path answers only once copied to a row of ours (`IdsOf`); why, not known
+  - [x] A club's id at an on-screen path answers only once copied to a row of ours (`IdsOf`): the binding tree holds only the fields the screen binds; a club row binds Name, not UniqueId (a person row binds his). Copied to a node of ours, the field is bound when asked. Measured on a search row (TR, 19 Nov)
   - [x] Two clubs of one name and nation (Arsenal, ENG twice): told apart by their league, `Arsenal (BWSL)` / `Arsenal (Premier League)` (TR, 19 Nov)
   - [x] A requested team report's entry shows `- string#2`: the game leaves its placeholder unfilled; `actions` drops the game's placeholders from what it shows, and the cleaned words match too
   - [x] `crawl --deep` closes the windows its buttons open
