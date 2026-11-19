@@ -222,18 +222,31 @@ internal static partial class Program
 	/// </summary>
 	internal static async Task<bool> DrawMessage(string id)
 	{
-		bool Drawn(JsonElement rows) => rows.ValueKind == JsonValueKind.Array && rows.EnumerateArray().Any(m => Field(m, "UniqueId") == id);
-		if (Drawn(await Fm.GetJson("inbox"))) return true;
-		var list = (await Fm.Get("inboxlist")).Trim();
-		if (list.StartsWith("error", StringComparison.Ordinal)) return false;
-		for (var step = 0; step <= 20; step++)
+		// Drawn as a row of the list (its NewsItem), not only held by the game's record of the message last selected:
+		// a message answered and still waited on is in that record alone, and was taken for drawn (T173).
+		bool Drawn(JsonElement rows) => rows.ValueKind == JsonValueKind.Array && rows.EnumerateArray()
+			.Any(m => Field(m, "UniqueId") == id && Field(m, "Path").EndsWith(".NewsItem", StringComparison.Ordinal));
+		async Task<JsonElement> Rows() => await Fm.GetJson("inbox", ("paths", "1"));
+		if (Drawn(await Rows())) return true;
+		if (await ScrollTo()) return true;
+		// The portal's Overview carries a short list of its own, which never holds an older message: the inbox page's
+		// list is scrolled instead (a grievance answered and waited on again, 2034 career, T173).
+		if ((await OpenPage(Screen.Inbox)).StartsWith("error", StringComparison.Ordinal)) return false;
+		return Drawn(await Rows()) || await ScrollTo();
+
+		async Task<bool> ScrollTo()
 		{
-			var to = (step / 20.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-			if ((await Fm.Get("scroll", ("ptr", list), ("to", to))).StartsWith("error", StringComparison.Ordinal)) return false;
-			// The rows are drawn again a moment after the list moves: the read that holds it is waited for.
-			if (await Until(async () => Drawn(await Fm.GetJson("inbox")), seconds: 1, every: 0.1)) return true;
+			var list = (await Fm.Get("inboxlist")).Trim();
+			if (list.StartsWith("error", StringComparison.Ordinal)) return false;
+			for (var step = 0; step <= 20; step++)
+			{
+				var to = (step / 20.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+				if ((await Fm.Get("scroll", ("ptr", list), ("to", to))).StartsWith("error", StringComparison.Ordinal)) return false;
+				// The rows are drawn again a moment after the list moves: the read that holds it is waited for.
+				if (await Until(async () => Drawn(await Rows()), seconds: 1, every: 0.1)) return true;
+			}
+			return false;
 		}
-		return false;
 	}
 
 	/// <summary>

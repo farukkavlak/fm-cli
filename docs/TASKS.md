@@ -231,6 +231,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   but keeps waiting for the conference (its Continue: "Basın Toplantısına Katıl"); seen twice (TR, Börner and Hami, 2034 career)
   - `status` then names no message (it lists only unanswered ones); `reply "<subject>"` says "the message's row is not drawn",
     `reply <no>` opens it with Reddet / Katıl left; Reddet frees the game
+  - [x] `reply "<subject>"` with the Overview up: a message answered and waited on again is held only in the game's record of
+    the last one selected, and was taken for drawn; now a row must be drawn, and the inbox page is opened to find it (3/3, TR)
 - [ ] T169 Each resolution change takes the game longer to recover (about 3 minutes by the 16th)
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
