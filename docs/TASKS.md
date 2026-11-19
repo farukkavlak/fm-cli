@@ -132,6 +132,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - Hunt 19 Nov (9 matches, 37 cards): advice to push for the win or to play more directly came 3 times TR, 1 EN; `dugout apply` said Done false each time
 - [ ] T171 `dugout apply` cards with nothing read back (hunt 19 Nov): an added team instruction Done false (TR); a removed team instruction and an opposition instruction Done true, no change listed
   - Cause of the Done false: cards taken while the match played (the hunt took them every 8 s), and cards whose tweak clashes with one on: the game asks "Change From Tactical Tweak?" first. `dugout apply` now holds the match, and answers that question only with `--yes`
+  - Left: 1 of 3 EN: after a card was declined (75'), `dugout apply --yes` said "could not be opened in the panel; the list may have changed"
 - [x] T161 `dugout` pressing card in a TR match
 - [x] T163 `dugout` player card met live
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
@@ -154,7 +155,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet
 - [ ] T130 `jobs <club> apply` said "sent" when the club turned it down at once
   - The game's answer is now waited for (`round45.toml` EN + TR 3/3). Left: a real turn-down seen
-- [ ] T131 A new club's first days: Continue stuck on "Messages" (check with T150's fix)
+- [x] T131 A new club's first days through the tool: briefings, the tactics tour, captains, then `next` moves on (round77 TR+EN 3/3)
 - [x] T132 Contract card in Turkish
 - [x] T133 `reply "<subject>"` with several of that subject
 - [x] T134 Pitch size message
@@ -214,6 +215,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T152 Text scaling, information display, colour blind mode and resolution: answers do not follow the screen
 - [ ] T167 Game froze once for 6+ minutes: main thread inside the .NET JIT, compiling plugin code; not reproduced
 - [ ] T168 `read club-history` gave its table as loose lines in 1 of 10 sweeps; not reproduced
+- [ ] T172 `opposition` after a match, on the menu-less messages screen: "no subtab bar … ask again" every time; passed after `next` (TR, 19 Nov)
+  - Not reproduced: an instant match's end (right message), a press conference waiting or open, the advice panel up. Seen after a played match with its talk open
 - [ ] T169 Each resolution change takes the game longer to recover (about 3 minutes by the 16th)
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)

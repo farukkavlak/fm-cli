@@ -545,6 +545,11 @@ internal static partial class Program
 			case "Match": output.WriteLine(L("There is a match.")); break;
 			case "Processing" or "Saving" or "Waiting": output.WriteLine(L("The game is busy (processing or saving).")); break;
 			case "OnHoliday": output.WriteLine(L("The manager is on holiday.")); break;
+			// A message opened from the inbox holds Continue at "next unread message"; a guided tour opened by one keeps it
+			// there until the tour ends (a new club's tactics briefing, T131).
+			case "NextUnreadMessage":
+				output.WriteLine(await TourOpen() ? L("A guided tour is open; to run it: tour") : L("The game is waiting for a message to be read; next opens it."));
+				break;
 			default: output.WriteLine(L($"The game does not move on: {flow}")); break;
 		}
 

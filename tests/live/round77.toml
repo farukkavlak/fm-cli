@@ -1,0 +1,32 @@
+# Round 77: a new club's first days, through the tool alone (T131): the briefings answered (one starts the tactics
+# tour, which wants a tactic made), the captains confirmed, and the day goes on. Messages by their UniqueId.
+# Run: tools/fm-round.py dry tests/live/round77.toml, then run --lang en,tr.
+
+[[test]]
+task = "T131"
+name = "a new club's first days: briefings, the tactics tour, captains, then next moves the day on"
+at = "caught-2031-03-26b"
+fresh = true
+repeat = 3
+steps = [
+  { read = "status", path = "Date+Clock", keep = "day" },
+  { run = "next", rc = "any", note = "names what waits; the day does not move" },
+  { read = "status", path = "Date+Clock", same_as = "day" },
+  { read = "inbox", path = "?UniqueId=1464280.0.NewsTitleString", keep = "duties", live = true },
+  { read = "inbox", path = "?UniqueId=1464281.0.NewsTitleString", keep = "squad", live = true },
+  { read = "inbox", path = "?UniqueId=1464279.0.NewsTitleString", keep = "tactics", live = true },
+  { read = "inbox", path = "?UniqueId=1464286.0.NewsTitleString", keep = "captains", live = true },
+  { run = "reply {duties} 9", rc = "fail" },
+  { run = "reply {duties} 1", note = "no briefing" },
+  { run = "reply {squad} 1", note = "no briefing" },
+  { run = "reply {tactics} 1", note = "the briefing: a guided tour" },
+  { run = "status" },
+  { run = "tour", rc = "any", note = "stops where the tour wants a tactic made" },
+  { run = "tactic new 5 2 1" },
+  { run = "tour", rc = "any" },
+  { run = "next", rc = "any", note = "reads the unread, names the captains message" },
+  { read = "status", path = "Date+Clock", same_as = "day" },
+  { run = "reply {captains} 3", note = "confirm the captains" },
+  { run = "next" },
+  { read = "status", path = "Date+Clock", differs_from = "day", note = "time moved: on a new club's first day it can stay the same date (11:15 → 16:00, EN)" },
+]
