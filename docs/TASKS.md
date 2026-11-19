@@ -149,6 +149,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T59 Youth intake
 - [ ] T60 Board meeting and requests; job offers while employed; being sacked
   - Left: a job offer while employed (not met in FM27)
+    - 19 Nov: interest declared in 8 posts (Antalyaspor, 2034), the game moved on to mid-September: no offer. A board confidence meeting came and ran through `reply` / `talk`, `board` read it back
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
   - [x] An unhappy player's demand (TR, 19 Nov): a squad player listed and dropped to Not Needed, days on; a teammate (Abdulkadir) asked to talk: reply, the talk's grouped answers, its end, `happiness` reads him back
   - [ ] A player asking for a new contract: not met yet
