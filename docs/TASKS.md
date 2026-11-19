@@ -141,6 +141,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T90 Tactical tweaks in extra time
 - [x] T156 An injured man on the pitch
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique
+  - 19 Nov: goalkeeper up front and a striker in goal, a day on: still "no advice" (the game's own panel says so too)
 - [x] T55 Season's end: vision meeting, awards, contracts ending, retirements
 - [x] T56 Transfer window and deadline day
 - [x] T57 Cup draws (`fm draw`)
@@ -149,11 +150,14 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [ ] T60 Board meeting and requests; job offers while employed; being sacked
   - Left: a job offer while employed (not met in FM27)
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
+  - [x] An unhappy player's demand (TR, 19 Nov): a squad player listed and dropped to Not Needed, days on; a teammate (Abdulkadir) asked to talk: reply, the talk's grouped answers, its end, `happiness` reads him back
+  - [ ] A player asking for a new contract: not met yet
 - [x] T62 Pre-season
 - [ ] T63 Match: substitution screen, shouts, set pieces edited in a match
   - Left: a shootout in a TR match (its board's score)
 - [x] T64 Press conferences
 - [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet
+  - 19 Nov: evasive answers at a post-match conference (TR): the journalist moved on, no pressing
 - [x] T130 `jobs <club> apply` said "sent" when the club turned it down at once
   - The game's answer is now waited for (`round45.toml` EN + TR 3/3)
   - Real turn-downs seen (19 Nov, TR, 7 applications): the game always answers "application received" first; the refusal comes days later and `next` lists it as new. A refusal at the press itself was not met
@@ -240,7 +244,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [ ] T85 Audit `cli/fm` and the plugin: nothing held by text, order, position or a fixed wait
   - [x] T85a `opponent`
   - [x] T85b `propose`
-  - [ ] `contract --agent`: the panel opens by GUID, but the game has offered no ask yet (not met in FM27)
+  - [x] `contract --agent`: the agent's ask met (TR, 31 May 2034 save, Asaf Altay): it stays on the contract page (PlayerAgentDemands); asked again, `--agent` shows it line by line (3/3); a player whose agent was not asked is not shown another's
   - [x] T85c A message row is pressed by its binding
   - [x] T85d `dugout` finds a card by minute + its own sentence (the game gives a card no id)
   - [x] T85e `OfferScreen.AddPath`

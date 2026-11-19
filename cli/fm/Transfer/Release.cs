@@ -63,6 +63,14 @@ internal static partial class Program
 		}, seconds: 10, every: 0.25);
 		if (offering is not { } ask)
 		{
+			// Spoken to already: his answer stays on the contract page, the agent's ask (T85).
+			if (await AgentDemands() is { Count: > 0 } demands)
+			{
+				Console.WriteLine(L($"{name}'s agent has answered already; his ask:"));
+				foreach (var line in demands) Console.WriteLine($"  {line}");
+				Console.WriteLine(L($"\nTo open talks on it: contract {name}"));
+				return 0;
+			}
 			// The game takes the ask away once talks are open: the page cannot be
 			// brought back with it, and cancelling talks to get it is a decision the manager makes,
 			// not one made here.
@@ -83,6 +91,26 @@ internal static partial class Program
 			return now.Length > 0 && now != before;
 		}, seconds: 10, every: 0.25);
 		return await TalkTo(false, ["talk"]);
+	}
+
+	/// <summary>
+	/// The agent's answer on the player's contract page (his PlayerAgentDemands): what his client wants, line by line, in
+	/// the game's words, as the page lists it. Empty when the agent has not answered.
+	/// </summary>
+	private static async Task<List<string>> AgentDemands()
+	{
+		List<string> lines = [];
+		await Until(async () =>
+		{
+			var rows = await Fm.GetJson("pullbound", ("name", "AgentPlayerDemandsStrings"), ("under", Screen.PlayerContract),
+				("props", "AgentPlayerDemandsStringDataString"), ("gen", $"ad{Environment.TickCount64}"));
+			if (rows.ValueKind != JsonValueKind.Array) return false;
+			var read = rows.EnumerateArray().ToList();
+			lines = read.Select(r => Field(r, "AgentPlayerDemandsStringDataString")).Where(t => t.Length > 0).ToList();
+			// A list bound just now has its texts a reading later.
+			return read.Count == 0 || lines.Count == read.Count;
+		}, seconds: 3, every: 0.3);
+		return lines;
 	}
 
 	private static async Task<int> Release(string[] args)

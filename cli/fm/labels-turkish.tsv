@@ -2994,3 +2994,5 @@ no longer kept after he retires	emekli olunca geçmişi artık saklanmayacak
 A conversation is waiting for an answer; pages open once it is over. To answer: talk	Bir konuşma cevap bekliyor; sayfalar o bitince açılır. Cevaplamak için: talk
 Transfer Activity	Transfer Hareketliliği
 The match's tweaks could not be read.	Maçın taktik ayarları okunamadı.
+{0}'s agent has answered already; his ask:	{0} adlı oyuncunun temsilcisi cevap verdi; talebi:
+\nTo open talks on it: contract {0}	\nBunun üzerine görüşme açmak için: contract {0}
