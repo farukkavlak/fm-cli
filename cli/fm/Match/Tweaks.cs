@@ -275,9 +275,13 @@ internal static partial class Program
 				return 1;
 			}
 
-			async Task<HashSet<string>> OnFor()
+			async Task<HashSet<string>?> OnFor()
 			{
-				var now = JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"p{Environment.TickCount64}"))).RootElement;
+				// The route answers "error: …" while the tactic is being built again (seen right after a pause): asked
+				// again until it reads, never parsed as JSON.
+				JsonElement? read = null;
+				if (!await Until(async () => (read = await TweaksNow("p")) != null, seconds: 8, every: 0.3)) return null;
+				var now = read!.Value;
 				var on = now.GetProperty("Active").EnumerateArray().Where(a => Field(a, "TacticTweakTargetPlayerIndex") == Field(player, "Index"))
 					.Select(a => Field(a, "TacticTweakID")).ToHashSet();
 				foreach (var op in now.GetProperty("Pending").EnumerateArray().Where(o => Field(o, "UniqueId") == Field(player, "Id")))
@@ -290,7 +294,11 @@ internal static partial class Program
 			// In the game's own order: its list of individual tweaks (a row's list reads in reverse).
 			var shownOrder = read.GetProperty("Options").EnumerateArray().Select(o => Field(o, "Number")).ToList();
 			options = options.OrderBy(o => shownOrder.IndexOf(Field(o, "Number"))).ToList();
-			var active = await OnFor();
+			if (await OnFor() is not { } active)
+			{
+				Console.Error.WriteLine(L("The individual tweaks could not be read."));
+				return 1;
+			}
 			var words = Words(args).ToList();
 			if (words.Count == 0)
 			{
@@ -324,7 +332,7 @@ internal static partial class Program
 			}
 			var said = await Fm.Get("tweaks", ("toggle", Field(tweak, "Id")), ("player", Field(player, "Id")), ("off", off ? "1" : "0"));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-			if (!await Until(async () => (await OnFor()).Contains(Field(tweak, "Number")) != off, seconds: 5, every: 0.25))
+			if (!await Until(async () => await OnFor() is { } on && on.Contains(Field(tweak, "Number")) != off, seconds: 5, every: 0.25))
 			{
 				Console.Error.WriteLine(L($"{Field(tweak, "Name")}: sent, but the game did not take the change."));
 				return 1;
@@ -339,7 +347,7 @@ internal static partial class Program
 			}
 			var made = Field(await Fm.GetJson("state"), "Playing") == "True" && await Until(async () =>
 			{
-				var now = JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"c{Environment.TickCount64}"))).RootElement;
+				if (await TweaksNow("c") is not { } now) return false;
 				var rows = now.GetProperty("Active").EnumerateArray().ToList();
 				// A row bound just now has its fields a frame later: not believed until it reads.
 				if (rows.Any(a => Field(a, "TacticTweakID").Length == 0)) return false;
@@ -384,7 +392,12 @@ internal static partial class Program
 		// then Reset, came on when play went on). Each is taken back as its own row's click would.
 		bool ForPlayer(JsonElement op) => Field(op, "TacticTweakTargetPlayerIndex") is { Length: > 0 } at && at != "-1";
 		bool InScope(JsonElement op) => scope == 2 || ForPlayer(op) == (scope == 1);
-		async Task<JsonElement> Now() => JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"r{Environment.TickCount64}"))).RootElement;
+		async Task<JsonElement> Now()
+		{
+			JsonElement? read = null;
+			await Until(async () => (read = await TweaksNow("r")) != null, seconds: 8, every: 0.3);
+			return read ?? throw new FmError(L("The match's tweaks could not be read."));
+		}
 		// The pending list is a log: taking a change back adds a removal after it, so a tweak's last entry is what it will be.
 		List<JsonElement> Waiting(JsonElement now) => now.GetProperty("Pending").EnumerateArray()
 			.GroupBy(op => (Field(op, "TacticTweakID"), Field(op, "TacticTweakTargetPlayerIndex"))).Select(g => g.Last())
@@ -431,8 +444,18 @@ internal static partial class Program
 				_ => true,
 			});
 		var cleared = Field(await Fm.GetJson("state"), "Playing") == "True"
-			&& await Until(async () => !Left(JsonDocument.Parse(await Fm.Get("tweaks", ("gen", $"r{Environment.TickCount64}"))).RootElement), seconds: 60, every: 0.5);
+			&& await Until(async () => await TweaksNow("r") is { } now && !Left(now), seconds: 60, every: 0.5);
 		Console.WriteLine(cleared ? L("Tactical tweaks reset.") : L("Reset sent; the game makes it when play goes on."));
 		return 0;
+	}
+
+	/// <summary>
+	/// The match's tweaks (team, active, pending), or null while the route answers "error: …" (the tactic being built
+	/// again, seen right after a pause): never parsed as JSON then.
+	/// </summary>
+	private static async Task<JsonElement?> TweaksNow(string tag)
+	{
+		var said = await Fm.Get("tweaks", ("gen", $"{tag}{Environment.TickCount64}"));
+		return said.StartsWith("error", StringComparison.Ordinal) ? null : JsonDocument.Parse(said).RootElement;
 	}
 }

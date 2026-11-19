@@ -205,6 +205,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T71 Every command has its MCP tool and help line
 - [x] T72 Every command reachable by sentence
 - [ ] T73 `MANUAL.md` images refreshed for every changed output
+  - 19 Nov: the 23 images whose command changed since they were drawn, redrawn in a Turkish game. Left: `scout focus` (needs a save with a focus)
 - [x] T74 Full sweep passes (`tools/sweep.sh`, `tools/mcp-check.py`)
 - [x] T75 `AI-CHECKLIST.md` sorted
 - [x] T76 `BACKLOG.md` sorted
