@@ -7,7 +7,7 @@
 - `Match/`: match day, live panel, radar, report, fixtures, table, calendar, tactics planner, talks.
 - `Squad/`: squad, health, training, tactics files, set pieces, registration, captains, mentoring.
 - `Transfer/`: offers, contract talks, scouting, shortlist, targets, TransferRoom, planner.
-- `Club/`: club, board, finances, staff, vision, responsibilities, youth, jobs.
+- `Club/`: club, board, finances, staff and their advice, vision, responsibilities, youth, jobs.
 - `Nl/`: sentences instead of commands (router, embedder, rules).
 - `Program/`: inbox, reply, messages, help, buttons and pages.
 
