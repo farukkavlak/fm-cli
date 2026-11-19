@@ -134,6 +134,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - Cause of the Done false: cards taken while the match played (the hunt took them every 8 s), and cards whose tweak clashes with one on: the game asks "Change From Tactical Tweak?" first. `dugout apply` now holds the match, and answers that question only with `--yes`
   - After a declined card, `--yes` said "nothing to apply" with the card still open (TR): the panel is now read again first. EN 3/3, TR 8/8 since
   - Left: a removed team instruction and an opposition instruction read back
+    - Opposition: the card's change is in the match tactic's NextOppositionInstructions (seen live 19 Nov: Pressing 2 on the
+      two men named by cards); `dugout apply` now reads it before and after, by each man's UniqueId (Kind "opposition"). Not yet seen live
 - [x] T161 `dugout` pressing card in a TR match
 - [x] T163 `dugout` player card met live
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it

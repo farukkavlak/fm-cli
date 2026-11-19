@@ -388,6 +388,8 @@ internal static partial class Program
 		var mentalityBefore = event_ == AcceptEvent && matchTactic != null ? await MatchMentality() : null;
 		// A card for one player ("Tell Salifou: Shoot Less Often") changes his player instruction: everyone's are read.
 		var playerWatches = event_ == AcceptEvent ? await WatchPlayerInstructions() : [];
+		// A card for one of theirs ("… için rakip talimatı ekle: Sürekli pres yap") sets that man's opposition instruction (T171).
+		var oppositionBefore = event_ == AcceptEvent && matchTactic != null ? await OppositionNow() : [];
 		var playersBefore = await PlayerInstructionsOf(playerWatches);
 		var said = await Fm.Get("press", ("ptr", Field(button, "Pointer")));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
@@ -399,7 +401,8 @@ internal static partial class Program
 			(before.Count > 0 && (await ReadTweaks()).Any(t => before.FirstOrDefault(b => b.Id == t.Id) is { } was && was.WillBeOn != t.WillBeOn))
 			|| (instructionsBefore.Count > 0 && (await TeamInstructionsNow(catalogue)).Any(n => instructionsBefore.TryGetValue(n.Key, out var was) && was != n.Value))
 			|| (mentalityBefore != null && await MatchMentality() is { } m && m.Number != mentalityBefore.Value.Number)
-			|| (playersBefore.Count > 0 && (await PlayerInstructionsOf(playerWatches)).Any(n => playersBefore.TryGetValue(n.Key, out var was) && was != n.Value));
+			|| (playersBefore.Count > 0 && (await PlayerInstructionsOf(playerWatches)).Any(n => playersBefore.TryGetValue(n.Key, out var was) && was != n.Value))
+			|| (oppositionBefore.Count > 0 && OppositionChanges(oppositionBefore, await OppositionNow()).Count > 0);
 		async Task<bool> Taken()
 		{
 			if (asked == null && await Fm.GetJson("dialog") is { ValueKind: JsonValueKind.Array } dialogs && dialogs.GetArrayLength() > 0 && DialogAsks(dialogs[0]))
@@ -471,11 +474,18 @@ internal static partial class Program
 			changes.Add(new { Kind = "mentality", Id = "", Name = "", From = mentalityBefore.Value.Number.ToString(), To = mentalityAfter.Number.ToString() });
 		}
 		var players = done && playersBefore.Count > 0 ? await PlayerInstructionChanges(playerWatches, playersBefore, changes) : [];
+		var opposition = new List<string>();
+		if (done && oppositionBefore.Count > 0)
+			foreach (var (id, name, field, from, to) in OppositionChanges(oppositionBefore, await OppositionNow()))
+			{
+				opposition.Add($"{name} · {OppositionFieldWord(field)}");
+				changes.Add(new { Kind = "opposition", Id = id, Name = name, Field = field, From = from, To = to });
+			}
 		foreach (var (tweakId, name, on) in tweakIds) changes.Add(new { Kind = "tweak", Id = tweakId, Name = name, From = (!on).ToString(), To = on.ToString() });
 		if (json)
 		{
 			Console.WriteLine(JsonOut.Of(new { entry.Minute, entry.Text, Done = done, TweaksOn = tweaksOn, TweaksOff = tweaksOff,
-				InstructionsChanged = instructions, MentalityChanged = mentality, PlayerInstructionsChanged = players,
+				InstructionsChanged = instructions, MentalityChanged = mentality, PlayerInstructionsChanged = players, OppositionChanged = opposition,
 				Applied = tweaksOn.Concat(tweaksOff).Concat(instructions).Concat(mentality).Concat(players).ToList(), Changes = changes,
 				Asked = asked, Declined = declined }));
 			if (declined) Console.Error.WriteLine(DeclinedHint());
@@ -493,8 +503,55 @@ internal static partial class Program
 		foreach (var change in instructions) Console.WriteLine(L($"  Team instruction: {change}"));
 		foreach (var change in mentality) Console.WriteLine(L($"  Mentality: {change}"));
 		foreach (var change in players) Console.WriteLine(L($"  Player instruction: {change}"));
+		foreach (var change in opposition) Console.WriteLine(L($"  Opposition instruction: {change}"));
 		return done ? 0 : 1;
 	}
+
+	/// <summary>The four opposition instructions a man of theirs can be given, by the match tactic's own field names.</summary>
+	private static readonly string[] OppositionFields = ["OppositionPlayerMarking", "OppositionPlayerPressingTrigger", "OppositionPlayerTackling", "OppositionPlayerShowOnToFoot"];
+
+	private static string OppositionFieldWord(string field) => field switch
+	{
+		"OppositionPlayerMarking" => L("Tight marking"),
+		"OppositionPlayerPressingTrigger" => L("Pressing"),
+		"OppositionPlayerTackling" => L("Tackling"),
+		_ => L("Show onto foot"),
+	};
+
+	/// <summary>
+	/// The opposition instructions the match tactic holds, man by man: his UniqueId, his name and the game's number for each
+	/// of the four (its NextOppositionInstructions, the predicted eleven and bench). Keyed by the man, never by his place.
+	/// </summary>
+	private static async Task<Dictionary<string, (string Name, Dictionary<string, string> Values)>> OppositionNow()
+	{
+		var found = new Dictionary<string, (string, Dictionary<string, string>)>();
+		if (matchTactic == null) return found;
+		var scope = $"fmcli.oi{DateTime.UtcNow.Ticks % 100000000}x{Interlocked.Increment(ref tacticScopes)}";
+		if ((await Fm.Get("pathset", ("to", scope), ("from", matchTactic))).StartsWith("error", StringComparison.Ordinal)) return found;
+		var list = $"{scope}.NextOppositionInstructions.OppositionPredictedLineupInstructions";
+		List<JsonElement> rows = [];
+		// A list bound just now has its values on the second reading.
+		await Until(async () =>
+		{
+			var read = await Fm.GetJson("pull", ("path", list), ("props", string.Join(",", OppositionFields)), ("list", "1"), ("gen", scope));
+			rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().ToList() : [];
+			return rows.Count > 0 && rows.All(r => Field(r, OppositionFields[0]).Length > 0);
+		}, seconds: 3, every: 0.2);
+		foreach (var row in rows)
+		{
+			var who = await Fm.GetJson("pull", ("path", $"{Field(row, "Row")}.Player"), ("props", "UniqueId,Name"), ("gen", scope));
+			if (Field(who, "UniqueId").Length == 0) who = await Fm.GetJson("pull", ("path", $"{Field(row, "Row")}.Player"), ("props", "UniqueId,Name"), ("gen", scope));
+			if (Field(who, "UniqueId") is not { Length: > 0 } id) continue;
+			found[id] = (Field(who, "Name"), OppositionFields.ToDictionary(f => f, f => Field(row, f)));
+		}
+		return found;
+	}
+
+	private static List<(string Id, string Name, string Field, string From, string To)> OppositionChanges(
+		Dictionary<string, (string Name, Dictionary<string, string> Values)> before, Dictionary<string, (string Name, Dictionary<string, string> Values)> after) =>
+		[.. after.Where(a => before.ContainsKey(a.Key)).SelectMany(a => OppositionFields
+			.Where(f => before[a.Key].Values.GetValueOrDefault(f) is { Length: > 0 } was && a.Value.Values.GetValueOrDefault(f) is { Length: > 0 } now && was != now)
+			.Select(f => (a.Key, a.Value.Name, f, before[a.Key].Values[f], a.Value.Values[f])))];
 
 	/// <summary>The match tactic's mentality: the game's number for it and its name (the plugin's English).</summary>
 	private static async Task<(int Number, string Name)?> MatchMentality()
