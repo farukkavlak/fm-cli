@@ -247,6 +247,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - [x] T85i Fee window, `mentoring new`, `Texts.TopBody`, `?any=1` row lists, the search window `actions` left up
   - [x] T85j `opponent --json` keys
   - [x] T85k Mentality and style lists, wage total, value limit, last match, tactic panels
+  - [x] T85l Last sweep (19 Nov): fixed waits are all a poll's pace; order only in the CLI's own lists or a row's shape; no position, colour or currency. Fixed: the squad table's injured mark looked for "Inj"
 
 ## 13. Later (v2)
 

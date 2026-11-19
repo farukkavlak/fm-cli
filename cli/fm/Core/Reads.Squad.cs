@@ -68,6 +68,7 @@ internal static partial class Program
 		}
 
 		var youth = await YouthTeams();
+		await GameWords.Ask(Fm, "Inj");
 		Columns(squad.EnumerateArray().Where(p => !youth.Contains(Field(p, "Team"))).ToList());
 		return 0;
 
@@ -119,7 +120,9 @@ internal static partial class Program
 		foreach (var c in shown) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{Ui.Safe(Heading(c.Field))}[/]") { NoWrap = true });
 		for (var i = 0; i < ordered.Count; i++)
 		{
-			var injured = Field(ordered[i], "StatusTitleShort").Contains("Inj", StringComparison.Ordinal) || Field(ordered[i], "IsInjured") == "True";
+			// The status column in the game's own word for "injured" (its table, asked for by the caller), never the English.
+			var injured = Field(ordered[i], "IsInjured") == "True"
+				|| Field(ordered[i], "StatusTitleShort").Split([',', ' '], StringSplitOptions.RemoveEmptyEntries).Any(w => w == GameWords.Of("Inj"));
 			var name = injured ? $"[red]{Ui.Safe(names[i])}[/]" : Ui.Safe(names[i]);
 			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c!.Values[i]))]);
 		}
