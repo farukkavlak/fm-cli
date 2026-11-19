@@ -171,7 +171,10 @@ internal static partial class Program
 
 		if (words.Count > 1 && words[0] is "bedel" or "fee")
 		{
-			if (Choose(fees, string.Join(" ", words.Skip(1)), "Bedel") is not { } pick) return 64;
+			var typed = string.Join(" ", words.Skip(1));
+			// An amount ("250000", "250K") is the list's fee of that amount, in whatever way the game writes it.
+			var byAmount = Money(typed) is { } amount ? fees.FirstOrDefault(f => Money(f) == amount) : null;
+			if ((byAmount ?? Choose(fees, typed, "Bedel")) is not { } pick) return 64;
 			var said = await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("choice", pick));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 			Console.WriteLine(L($"Fee: {pick}. To send it: talk confirm"));

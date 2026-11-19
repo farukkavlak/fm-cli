@@ -94,7 +94,7 @@ internal static class Report
 	public static string Inbox(bool paths = false)
 	{
 		var messages = new List<Dictionary<string, string>>();
-		var seen = new HashSet<string>();
+		var seen = new Dictionary<string, Dictionary<string, string>>();
 
 		var lists = new HashSet<string>();
 		foreach (var (path, found) in Walk())
@@ -113,7 +113,16 @@ internal static class Report
 		void Message(string path, IReadOnlyNode node)
 		{
 			var fields = Fields(node);
-			if (!fields.TryGetValue("UniqueId", out var id) || !seen.Add(id)) return;
+			if (!fields.TryGetValue("UniqueId", out var id)) return;
+			if (seen.TryGetValue(id, out var earlier))
+			{
+				// The message selected is also bound by the game's record of the last one selected; its row in the
+				// list is the one to press, so the row's path is kept over that record's.
+				if (paths && path.EndsWith(".NewsItem", StringComparison.Ordinal)
+				    && !(earlier.TryGetValue("Path", out var kept) && kept.EndsWith(".NewsItem", StringComparison.Ordinal)))
+					earlier["Path"] = path;
+				return;
+			}
 			// The title as the game shows it: a translated one ("Fitness tests") is otherwise put back into English.
 			for (var c = node.FirstChild; c != null; c = c.NextSibling)
 				if (c.Name == "NewsTitleString" && Text.ShownOf(c.Value) is { Length: > 0 } shown) fields["NewsTitleString"] = shown;
@@ -124,6 +133,7 @@ internal static class Report
 			if (sender != null && Fields(sender).TryGetValue("Name", out var who)) fields["Sender"] = who;
 
 			if (paths) fields["Path"] = path;
+			seen[id] = fields;
 			messages.Add(fields);
 		}
 

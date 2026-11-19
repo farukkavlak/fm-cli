@@ -137,6 +137,9 @@ internal static partial class Program
 		(_, "-1" or "-" or "None" or "False") => "",
 		(_, "True") => L("yes"),
 		("ShortGradeString", "Scouting Required") => "",
+		// The scouts' recommendation by the game's number for it (the search panel's grade list: 12 is A+, 1 is F).
+		("ScoutRecommendationGrade", _) => int.TryParse(value, out var grade) && grade is >= 1 and <= 12
+			? new[] { "F", "E", "D", "C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+" }[grade - 1] : "",
 		_ => value,
 	};
 
@@ -167,7 +170,7 @@ internal static partial class Program
 		["InjuryDescription"] = L("INJURY"), ["TrainingRating"] = L("TRAINING RATING"), ["MoraleString"] = "MORAL",
 		["StatusTitleShort"] = L("STATUS"), ["Nation"] = L("NATION"), ["ThreeLetterName"] = L("NATION"), ["Club"] = L("CLUB"), ["Personality"] = L("PERSONALITY"),
 		["HierarchyInfluenceCategoryString"] = L("HIERARCHY"), ["SocialGroupString"] = L("GROUP"), ["Height"] = L("HEIGHT"),
-		["ShortName"] = L("CLUB"), ["JobString"] = L("JOB"), ["ShortGradeString"] = "SCOUT", ["ScoutingCosts"] = L("SCOUTING COST"),
+		["ShortName"] = L("CLUB"), ["JobString"] = L("JOB"), ["ShortGradeString"] = "SCOUT", ["ScoutRecommendationGrade"] = L("RECOMMENDATION"), ["ScoutingCosts"] = L("SCOUTING COST"),
 		["DaysSinceLastScouted"] = L("LAST SCOUTED"), ["ScoutedMinWage"] = L("WAGE (MIN)"), ["ScoutedMaxWage"] = L("WAGE (MAX)"),
 	};
 
@@ -237,7 +240,14 @@ internal static partial class Program
 			return 0;
 		}
 
-		var before = (await Fm.GetJson("people", ("teamless", "1"))).ToString();
+		// A staff search left open under this page lists its rows too: theirs carry a job (JobString).
+		static async Task<JsonElement> PlayerRows()
+		{
+			var all = await Fm.GetJson("people", ("teamless", "1"));
+			return all.ValueKind != JsonValueKind.Array ? all
+				: JsonSerializer.SerializeToElement(all.EnumerateArray().Where(p => !p.TryGetProperty("JobString", out _)).ToList());
+		}
+		var before = (await PlayerRows()).ToString();
 
 		// A quick filter stays on until the page's own Clear is pressed; the button is found by
 		// the event it sends, which no language changes.
@@ -266,8 +276,8 @@ internal static partial class Program
 		}
 		if (Option(args, "--grade") is { } grade) search.Add(("filter.FilterRuleScoutingGrade.MinValue", grade, L("Scout's note")));
 		if (Option(args, "--contract") is { } contract) search.Add(("filter.filterrulecontract.filtervalue", contract, L("Contract status")));
-		if (args.Contains("--listed")) search.Add(("filter.filterruletransferstatus.filtervalue", "Listed", L("Transfer status")));
-		if (args.Contains("--loan-listed")) search.Add(("filter.filterruleloanstatus.filtervalue", "Listed", L("Loan status")));
+		if (args.Contains("--listed")) search.Add(("filter.filterruletransferstatus.filtervalue", TransferListed, L("Transfer status")));
+		if (args.Contains("--loan-listed")) search.Add(("filter.filterruleloanstatus.filtervalue", LoanListed, L("Loan status")));
 		// --attr "pace>=15" (also <=, >, <), as many as wanted.
 		var conditions = new List<(string Attribute, bool AtLeast, int Value)>();
 		for (var i = 0; i + 1 < args.Length; i++)
@@ -302,7 +312,7 @@ internal static partial class Program
 		// filter's free agents are: contract run out).
 		var freeInSearch = args.Contains("--free") && Option(args, "--filter") == null
 			&& (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null);
-		if (freeInSearch) search.Add(("filter.filterrulecontract.filtervalue", "Expired", L("Contract status")));
+		if (freeInSearch) search.Add(("filter.filterrulecontract.filtervalue", ContractExpired, L("Contract status")));
 		if (search.Count > 0 || conditions.Count > 0 || position != null || maxValue != null)
 		{
 			// A search is added to whatever an earlier one left on, and two positions both
@@ -371,7 +381,7 @@ internal static partial class Program
 		var asked = searched || Option(args, "--filter") != null || Option(args, "--view") != null || args.Contains("--clear") || args.Contains("--free");
 		await Until(async () =>
 		{
-			var now = await Fm.GetJson("people", ("teamless", "1"));
+			var now = await PlayerRows();
 			var text = now.ToString();
 			var settled = text == last && now.GetArrayLength() > 0 && (!asked || text != before || ++waited >= 5);
 			last = text;
@@ -379,7 +389,7 @@ internal static partial class Program
 			return settled;
 		}, seconds: 25);
 
-		if (people.ValueKind != JsonValueKind.Array) people = await Fm.GetJson("people", ("teamless", "1"));
+		if (people.ValueKind != JsonValueKind.Array) people = await PlayerRows();
 		if (json)
 		{
 			Console.WriteLine(people.ToString());

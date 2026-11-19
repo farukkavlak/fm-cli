@@ -18,6 +18,10 @@ internal static partial class Program
 			return 1;
 		}
 		var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList();
+		// The list's own names can be the English ones while the game shows its language ("Cautious" beside "Temkinli"):
+		// a choice is found by either, at the same place in both lists.
+		var shown = list!.Value.TryGetProperty("Shown", out var sh) && sh.GetArrayLength() == choices.Count
+			? sh.EnumerateArray().Select(c => (c.GetString() ?? "").Replace(" ›", "")).ToList() : choices;
 		var current = Field(list!.Value, "Label");
 
 		// Read only: what it holds and offers, as the planner's list gives it (also while the game has it shut).
@@ -40,22 +44,24 @@ internal static partial class Program
 			Console.WriteLine(L($"{what}{(current.Length > 0 ? $": {current}" : "")}\nOptions: {string.Join(" · ", choices)}"));
 			return 0;
 		}
-		var hit = choices.Where(c => Fold(c) == Fold(wanted)).ToList();
-		if (hit.Count == 0) hit = choices.Where(c => Fold(c).StartsWith(Fold(wanted), StringComparison.Ordinal)).ToList();
+		var places = Enumerable.Range(0, choices.Count).ToList();
+		var at = places.Where(i => Fold(shown[i]) == Fold(wanted) || Fold(choices[i]) == Fold(wanted)).Distinct().ToList();
+		if (at.Count == 0) at = places.Where(i => Fold(shown[i]).StartsWith(Fold(wanted), StringComparison.Ordinal) || Fold(choices[i]).StartsWith(Fold(wanted), StringComparison.Ordinal)).ToList();
+		var hit = at.Select(i => choices[i]).ToList();
 		if (hit.Count != 1)
 		{
-			Console.Error.WriteLine(L($"{what}: no '{wanted}'. Options: {string.Join(" · ", choices)}"));
+			Console.Error.WriteLine(L($"{what}: no '{wanted}'. Options: {string.Join(" · ", shown)}"));
 			return 1;
 		}
 		if (dry)
 		{
-			Console.WriteLine(L($"(dry run) {what}: {hit[0]}"));
+			Console.WriteLine(L($"(dry run) {what}: {shown[at[0]]}"));
 			return 0;
 		}
 		var said = await Fm.Get("select", ("ptr", Field(list!.Value, "Pointer")), ("path", choices.IndexOf(hit[0]).ToString()), ("fire", "0"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-		Console.WriteLine($"{what}: {hit[0]}");
+		Console.WriteLine($"{what}: {shown[at[0]]}");
 		return 0;
 	}
 
@@ -89,7 +95,7 @@ internal static partial class Program
 				: L("There is no shout list on the match screen."));
 			return 1;
 		}
-		List<(string Pointer, string Title, string Action)> shouts = [];
+		List<(string Pointer, string Title, string Action, string Shown)> shouts = [];
 		await Until(async () =>
 		{
 			shouts = [];
@@ -97,11 +103,17 @@ internal static partial class Program
 				         .Where(b => Field(b, "Name") == "shout-button" && Field(b, "Visible") == "True" && Field(b, "Source").Length > 0))
 			{
 				var row = await Fm.Pull($"{Field(b, "Source").TrimStart('.')}.row", "Title,TouchlineShoutAction");
-				shouts.Add((Field(b, "Pointer"), Field(row, "Title"), Field(row, "TouchlineShoutAction")));
+				// The row's title and the button's words can come back in English while the game shows its language
+				// ("Well done" for "Aferin", Turkish game): both are kept, and matched in the game's words too.
+				shouts.Add((Field(b, "Pointer"), Field(row, "Title"), Field(row, "TouchlineShoutAction"), Field(b, "Label")));
 			}
 			return shouts.Count > 0 && shouts.All(x => x.Title.Length > 0 && x.Action.Length > 0);
 		}, seconds: 5, every: 0.2);
 		async Task Close() => await Fm.Get("popup", ("within", "shouts-cooldown-disable"), ("close", "1"));
+		// The title in the game's language, through the game's table: the button's own words, else the row's title.
+		static string Said((string Pointer, string Title, string Action, string Shown) x) => GameWords.Of(x.Shown.Length > 0 ? x.Shown : x.Title);
+		// The titles come in English: the game's words for them are asked for before one is matched or shown.
+		await GameWords.Ask(Fm, shouts.SelectMany(x => new[] { x.Title, x.Shown }).ToArray());
 		if (shouts.Count == 0)
 		{
 			await Close();
@@ -111,27 +123,27 @@ internal static partial class Program
 		if (words.Count == 0)
 		{
 			await Close();
-			if (json) Console.WriteLine(JsonOut.Of(shouts.Select((x, i) => new { No = i + 1, Shout = x.Title, Action = x.Action })));
+			if (json) Console.WriteLine(JsonOut.Of(shouts.Select((x, i) => new { No = i + 1, Shout = Said(x), Action = x.Action })));
 			else
 			{
-				for (var i = 0; i < shouts.Count; i++) Console.WriteLine($"  {i + 1}  {shouts[i].Title}");
+				for (var i = 0; i < shouts.Count; i++) Console.WriteLine($"  {i + 1}  {Said(shouts[i])}");
 				Console.WriteLine(L("To shout: shout <no | name>"));
 			}
 			return 0;
 		}
 		var typed = string.Join(" ", words);
 		var hits = int.TryParse(typed, out var no) && no >= 1 && no <= shouts.Count ? [shouts[no - 1]]
-			: shouts.Where(x => Fold(x.Title).Contains(Fold(typed), StringComparison.Ordinal)).ToList();
+			: shouts.Where(x => Fold(x.Title).Contains(Fold(typed), StringComparison.Ordinal) || Fold(Said(x)).Contains(Fold(typed), StringComparison.Ordinal)).ToList();
 		if (hits.Count != 1)
 		{
 			await Close();
-			Console.Error.WriteLine(L($"No single shout '{typed}'. Shouts: {string.Join(" · ", shouts.Select((x, i) => $"{i + 1} {x.Title}"))}"));
+			Console.Error.WriteLine(L($"No single shout '{typed}'. Shouts: {string.Join(" · ", shouts.Select((x, i) => $"{i + 1} {Said(x)}"))}"));
 			return 64;
 		}
 		if (args.Contains("--dry"))
 		{
 			await Close();
-			Console.WriteLine(L($"(dry run) {hits[0].Title} would be shouted."));
+			Console.WriteLine(L($"(dry run) {Said(hits[0])} would be shouted."));
 			return 0;
 		}
 		async Task<bool> Pending()
@@ -145,11 +157,11 @@ internal static partial class Program
 			|| (await Fm.Get("popup", ("within", "shouts-cooldown-disable"), ("close", "1"))).Contains("disabled", StringComparison.Ordinal), seconds: 5, every: 0.2);
 		if (!heard)
 		{
-			Console.Error.WriteLine(L($"{hits[0].Title} was pressed, but the game shows no shout pending."));
+			Console.Error.WriteLine(L($"{Said(hits[0])} was pressed, but the game shows no shout pending."));
 			return 1;
 		}
-		if (json) Console.WriteLine(JsonOut.Of(new { Shout = hits[0].Title, Action = hits[0].Action, Heard = true }));
-		else Console.WriteLine(L($"Shouted: {hits[0].Title}"));
+		if (json) Console.WriteLine(JsonOut.Of(new { Shout = Said(hits[0]), Action = hits[0].Action, Heard = true }));
+		else Console.WriteLine(L($"Shouted: {Said(hits[0])}"));
 		return 0;
 	}
 

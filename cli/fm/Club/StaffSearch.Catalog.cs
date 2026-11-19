@@ -92,4 +92,14 @@ internal static partial class Program
 	private const string SearchCompare = "rule.selectedcompareflag";
 	private const string SearchValue = "rule.minvalue";
 	private const string SearchMaxValue = "rule.maxvalue";
+	// A search rule's row picked by the game's own value for it, not its words: "id:" then the value.
+	private const string ById = "id:";
+	// The comparison list's flags (rule.selectedcompareflag): "Is At Least", "Is At Most".
+	private const string CompareAtLeast = "4";
+	private const string CompareAtMost = "8";
+	// Status flags in the search's lists: on the transfer list (transfer status), on the loan list (loan
+	// status); a contract run out (contract status).
+	private const string TransferListed = ById + "1";
+	private const string LoanListed = ById + "2";
+	private const string ContractExpired = ById + "2";
 }

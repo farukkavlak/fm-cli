@@ -57,6 +57,15 @@ internal static partial class Program
 			var row = rows.EnumerateArray().FirstOrDefault(r => r.ValueKind == JsonValueKind.Object && Field(r, "Id") == code);
 			return row.ValueKind == JsonValueKind.Object ? Field(row, "Text") : null;
 		}
+		// A list's row by the game's own value for it (a status flag, a comparison's flag): its words are
+		// the language's, and are only carried back to the game to pick it.
+		async Task<string?> RowById(JsonElement list, string id)
+		{
+			var rows = await Fm.GetJson("menu", ("ptr", Field(list, "Pointer")), ("ids", "1"));
+			if (rows.ValueKind != JsonValueKind.Array) return null;
+			var row = rows.EnumerateArray().FirstOrDefault(r => r.ValueKind == JsonValueKind.Object && Field(r, "Id") == id);
+			return row.ValueKind == JsonValueKind.Object ? Field(row, "Text") : null;
+		}
 
 		foreach (var (rule, typed, what) in wanted)
 		{
@@ -64,8 +73,15 @@ internal static partial class Program
 			await Until(async () => (list = await Under(rule)) != null, seconds: 6, every: 0.4);
 			if (list == null) return await Close(L($"error: no '{what}' in the search panel"));
 			var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
-			// A number typed is the choice itself (an age), not its place in the list.
-			var choice = choices.FirstOrDefault(c => string.Equals(c, typed, StringComparison.OrdinalIgnoreCase)) ?? Choose(choices, typed, what);
+			// A choice the code makes is the game's value for the row ("id:1"); one the user typed is in the
+			// game's words. A number typed is the choice itself (an age), not its place in the list.
+			string? choice;
+			if (typed.StartsWith(ById, StringComparison.Ordinal))
+			{
+				choice = await RowById(list!.Value, typed[ById.Length..]);
+				if (choice == null) return await Close(L($"error: no row for '{what}' in the search panel's list"));
+			}
+			else choice = choices.FirstOrDefault(c => string.Equals(c, typed, StringComparison.OrdinalIgnoreCase)) ?? Choose(choices, typed, what);
 			if (choice == null) return await Close("");
 			if (Field(list!.Value, "Label") == choice) continue;
 
@@ -124,7 +140,9 @@ internal static partial class Program
 				&& (string.Equals(Field(i, "Binds"), SearchValue, StringComparison.OrdinalIgnoreCase)
 				    || string.Equals(Field(i, "Binds"), SearchMaxValue, StringComparison.OrdinalIgnoreCase));
 			var how = Next(Compare);
-			var wantedHow = atLeast ? "Is At Least" : "Is At Most";
+			// The comparison by the game's flag for it (at least 4, at most 8), not by its words.
+			if (await RowById(how, atLeast ? CompareAtLeast : CompareAtMost) is not { } wantedHow)
+				return await Close(L($"error: {name}: no comparison row in the search panel"));
 			if (Field(how, "Label") != wantedHow)
 			{
 				var switched = await Fm.Get("select", ("ptr", Field(how, "Pointer")), ("choice", wantedHow), ("fire", "1"));

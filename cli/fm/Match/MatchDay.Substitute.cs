@@ -86,7 +86,7 @@ internal static partial class Program
 				words.Add(onPitch[goingOff]);
 			}
 
-			if (Choose(onPitch, words[0], L("Off")) is not { } named) return 1;
+			if (Choose(onPitch, words[0], L("Coming off")) is not { } named) return 1;
 			var allowed = menus[onPitch.IndexOf(named)].Bench;
 			if (Ui.Ask(L($"Who comes on for {named}?"), allowed.Select(b => b.Shown).ToList()) is not { } comingOn) return 0;
 			words.Add(allowed[comingOn].Name);
@@ -115,6 +115,11 @@ internal static partial class Program
 			var planner = await Fm.GetJson("tactic");
 			var slots = planner.TryGetProperty("Slots", out var listed) ? listed.EnumerateArray().ToList() : [];
 			var hurtAt = slots.FindIndex(slot => Named(Field(slot, "Player"), words[0]));
+			// The planner can hold the first name instead of the surname ("Ali" for Ali Pağda): taken only when no
+			// other slot holds the same.
+			if (hurtAt < 0 && slots.Select((slot, i) => (Short: Field(slot, "Player"), At: i))
+			        .Where(x => x.Short.Length > 0 && words[0].StartsWith(x.Short + " ", StringComparison.OrdinalIgnoreCase)).ToList() is [var first])
+				hurtAt = first.At;
 			if (hurtAt >= 0)
 			{
 				var going = Field(slots[hurtAt], "Player");
@@ -129,7 +134,7 @@ internal static partial class Program
 			}
 		}
 
-		if (Choose(onPitch, words[0], L("Off")) is not { } leaving) return 1;
+		if (Choose(onPitch, words[0], L("Coming off")) is not { } leaving) return 1;
 		var from = menus[onPitch.IndexOf(leaving)];
 
 		// The bench is listed per player, since who may replace whom can differ.
