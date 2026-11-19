@@ -197,8 +197,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
     no identity found; every change is read back
     - 19 Nov: FM27's `SI.Bindable.DropdownRow` has no index or value of its own (FM26's `Index` is gone); the plugin's
       `#n` is the row's place among its siblings. Left open
-  - [ ] Blocks with no control on the list are not settings here: data language, save location, shortcuts, online,
-    third party
+  - [x] Blocks with no control on the list are not settings here: data language (`fm lang` changes the game's), save
+    location, shortcuts, online, third party; none is needed to play
 - [x] T70 Pages of a club that is not ours; a nation's and a competition's (`read --of`)
   - [x] Slow: measured 19 Nov (TR, 5 pages of Fenerbahçe): 5.6–7.8 s with `--of`, 2.1 s for our own page; the rest is finding and opening the other club
 
