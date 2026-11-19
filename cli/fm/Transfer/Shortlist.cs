@@ -76,7 +76,7 @@ internal static partial class Program
 			return settled;
 		}, seconds: 10, every: 0.5);
 		players = players.Where(p => Field(p, "Name").Length > 0).ToList();
-		if (players.Count == 0)
+		if (players.Count == 0 && !json)
 		{
 			Console.WriteLine(L("The shortlist is empty."));
 			return 0;

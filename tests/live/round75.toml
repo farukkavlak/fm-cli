@@ -1,0 +1,94 @@
+# Round 75: the commands no live list had reached: read, refused on a wrong word, changed and read back.
+# Run: tools/fm-round.py dry tests/live/round75.toml, then run --lang en,tr.
+
+[[test]]
+task = "T85"
+name = "reads answer, and a wrong word is refused with nothing changed"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "saves", path = "#", not = "0", keep = "saves" },
+  { read = "squad", path = "0.Name", keep = "a" },
+  { read = "squad", path = "1.Name", keep = "b" },
+  { read = "squad", path = "#", keep = "players" },
+  { read = "compare {a} {b}", live = true, path = "Players.#", is = "2" },
+  { read = "compare {a} {b}", live = true, path = "Attributes.#", not = "0" },
+  { read = "takers corner", path = "0.Lists.#", not = "0" },
+  { read = "responsibilities", path = "#", not = "0" },
+  { read = "intensity", path = "#", not = "0" },
+  { read = "shortlist", path = "#", keep = "shortlist" },
+  { read = "diff --reset", path = "First", is = "True" },
+  { read = "diff", path = "League.Points.#", is = "2" },
+  { run = "export /tmp/fm-round75.md status" },
+  { run = "completion zsh" },
+  { run = "help" },
+  { run = "lang" },
+  { run = "compare zzzq zzzr", rc = "fail" },
+  { run = "takers zzzq", rc = "fail" },
+  { run = "release zzzq", rc = "fail" },
+  { run = "propose zzzq", rc = "fail" },
+  { run = "interest zzzq --top", rc = "fail" },
+  { run = "enquire zzzq", rc = "fail", note = "the game's search answers with a like name; nothing is done to it" },
+  { run = "trial zzzq --for '1 week'", rc = "fail" },
+  { run = "holiday zzzq", rc = "fail" },
+  { run = "sub", rc = "fail", note = "only during a match" },
+  { run = "skip", rc = "fail", note = "only during a match" },
+  { run = "draw", rc = "fail", note = "no draw open" },
+  { run = "select zzzq zzzr --dry", rc = "fail" },
+  { run = "intensity {a} zzzq", rc = "fail" },
+  { run = "responsibilities delegate zzzq", rc = "fail" },
+  { run = "shortlist add zzzq --for '1 year'", rc = "fail" },
+  { read = "shortlist", path = "#", same_as = "shortlist" },
+  { read = "squad", path = "#", same_as = "players" },
+  { read = "saves", path = "#", same_as = "saves" },
+]
+
+[[test]]
+task = "T85"
+name = "a change read back and undone: intensity, a staff duty, a taker, the shortlist"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "1.Name", keep = "b" },
+  { read = "intensity", path = "?Name={b}.0.Value", live = true, keep = "level" },
+  { run = "intensity {b} double" },
+  { read = "intensity", path = "?Name={b}.0.Value", live = true, differs_from = "level" },
+  { run = "intensity {b} automatic" },
+  { read = "responsibilities", path = "?By=manager.0.Duty", keep = "duty" },
+  { read = "responsibilities", path = "?By=manager.#", keep = "mine" },
+  { run = "responsibilities delegate {duty}" },
+  { read = "responsibilities", path = "?By=manager.#", live = true, differs_from = "mine" },
+  { run = "responsibilities take {duty}" },
+  { read = "responsibilities", path = "?By=manager.#", live = true, same_as = "mine" },
+  { read = "takers corner", path = "0.Lists.0.Takers.0.Name", keep = "first" },
+  { run = "takers corner right move 1 2" },
+  { read = "takers corner", path = "0.Lists.0.Takers.0.Name", live = true, differs_from = "first" },
+  { run = "takers corner right move 2 1" },
+  { read = "takers corner", path = "0.Lists.0.Takers.0.Name", live = true, same_as = "first" },
+  { read = "players", path = "0.Name", keep = "target" },
+  { read = "shortlist --lists", path = "?Active=True.0.Name", keep = "list" },
+  { run = "shortlist add {target} --for '1 year' --to {list}" },
+  { read = "shortlist", path = "?Name={target}.#", live = true, is = "1" },
+  { run = "shortlist remove {target}" },
+  { read = "shortlist", path = "?Name={target}.#", live = true, is = "0" },
+]
+
+[[test]]
+task = "T85"
+name = "without --yes a sale stays unsent and a player stays; a holiday moves the date"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "1.Name", keep = "b" },
+  { read = "squad", path = "#", keep = "players" },
+  { run = "propose {b}", rc = "any" },
+  { run = "release {b}", rc = "any" },
+  { read = "squad", path = "?Name={b}.#", live = true, is = "1" },
+  { read = "squad", path = "#", same_as = "players" },
+  { read = "status", path = "Date", keep = "date" },
+  { run = "holiday week", within = 900 },
+  { read = "status", path = "Date", live = true, differs_from = "date" },
+]

@@ -53,7 +53,17 @@ internal static partial class Program
 			Console.Error.WriteLine(kind == "Staff" ? L($"No staff member called '{wanted}'. To search: staff find") : L($"'{wanted}' not found."));
 			return null;
 		}
-		if (found.Count > 1)
+		// The game's search also answers with names only like the words typed ("zzzq": Matteo Zazza). What follows is
+		// done to a person, so such a name is offered, never taken (as `player` does, T141).
+		var typed = Fold(wanted).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		var named = found.Where(r => typed.All(w => Fold(Field(r, "Name")).Split(' ', '-', '\'').Any(x => x.StartsWith(w, StringComparison.Ordinal)))).ToList();
+		if (named.Count > 0) found = named;
+		else if (!Ui.Interactive)
+		{
+			Console.Error.WriteLine(L($"No one called '{wanted}'. The closest name found: {Field(found[0], "Name")}; to mean them, give that name."));
+			return null;
+		}
+		if (found.Count > 1 || named.Count == 0)
 		{
 			var who = await Who(found);
 			var labels = found.Select((r, i) => $"{Field(r, "Name")} ({(Field(r, "Kind") == "Player" ? "" : Field(r, "Shown") + ", ")}{who[i]})").ToList();

@@ -51,7 +51,7 @@ internal static partial class Program
 		var listed = all ? jobs : jobs.Where(j => j.Open).ToList();
 		if (words.Count == 0)
 		{
-			if (listed.Count == 0)
+			if (listed.Count == 0 && !json)
 			{
 				Console.WriteLine(L("There are no open job vacancies."));
 				return 0;

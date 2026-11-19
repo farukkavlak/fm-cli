@@ -19,7 +19,7 @@ internal static partial class Program
 			return 1;
 		}
 		var files = new DirectoryInfo(SavesFolder).GetFiles("*.fm").OrderByDescending(f => f.LastWriteTime).ToList();
-		if (files.Count == 0)
+		if (files.Count == 0 && !json)
 		{
 			Console.WriteLine(L("No saves."));
 			return 0;

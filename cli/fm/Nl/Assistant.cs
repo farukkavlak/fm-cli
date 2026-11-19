@@ -59,7 +59,7 @@ internal static partial class Program
 		var chosen = false;
 		if (calls.Count == 0)
 		{
-			if (Choose(understood.Options) is not { } pick) return 0;
+			if (Choose(understood.Options) is not { } pick) return NothingRun;
 			calls = [pick];
 			chosen = true;
 		}
@@ -69,13 +69,13 @@ internal static partial class Program
 		for (var i = 0; i < calls.Count; i++)
 		{
 			var call = calls[i];
-			if (!AskFor(call)) return Stopped(done, calls.Skip(i), 0, calls.Count);
+			if (!AskFor(call)) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
 			if (Typed(call) is not { } words) continue;
 			var shown = Shown(words);
 			// a pick from the list, with nothing asked after, was already a yes
 			if (IsWeighty(call) && !(chosen && call.Ask.Count == 0))
 			{
-				if (!Confirm(L($"Run `{shown}`?"))) return Stopped(done, calls.Skip(i), 0, calls.Count);
+				if (!Confirm(L($"Run `{shown}`?"))) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
 			}
 			else Console.WriteLine(Dim($"→ {shown}"));
 			code = await execute(words);
@@ -85,6 +85,9 @@ internal static partial class Program
 		}
 		return code;
 	}
+
+	/// <summary>The exit code of a line left undone: a person said no, a script got nothing it asked for.</summary>
+	private static int NothingRun => Ui.Interactive ? 0 : 1;
 
 	private static string Shown(IEnumerable<string> words) => string.Join(' ', words.Select(w => w.Contains(' ') ? $"\"{w}\"" : w));
 
