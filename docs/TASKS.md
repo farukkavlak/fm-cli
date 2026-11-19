@@ -195,6 +195,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T69 Settings pages; the main menu
   - [ ] A list of bare numbers (3D, colour blind) gets its words from its open rows by their place in the list:
     no identity found; every change is read back
+    - 19 Nov: FM27's `SI.Bindable.DropdownRow` has no index or value of its own (FM26's `Index` is gone); the plugin's
+      `#n` is the row's place among its siblings. Left open
   - [ ] Blocks with no control on the list are not settings here: data language, save location, shortcuts, online,
     third party
 - [x] T70 Pages of a club that is not ours; a nation's and a competition's (`read --of`)
