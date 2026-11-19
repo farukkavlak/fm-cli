@@ -1,0 +1,22 @@
+# Round 78: the last menu actions with no read-back (T77). Keep History After Retirement is read back by the player's
+# KeepHistoryAfterRetirement and turns it on and off; Available For U19 is said to show nowhere; Trigger Contract
+# Extension Clause asks first, and No leaves the entry in the menu.
+# Run: tools/fm-round.py dry tests/live/round78.toml, then run --lang en,tr.
+
+[[test]]
+task = "T77"
+name = "keep history read back both ways; U19 said unreadable; a clause trigger answered No changes nothing"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "0.Name", keep = "a" },
+  { run = "actions {a} 'Keep History After Retirement'", note = "on or off, read back" },
+  { run = "actions {a} 'Keep History After Retirement'", note = "and back again" },
+  { run = "actions {a} 'Available For U19 Squad > 45 minutes'", rc = "any", note = "said unreadable, or not offered to this player" },
+  { run = "actions 'Enes Şahin' 'Trigger Contract Extension Clause'", note = "the game asks" },
+  { run = "dialog No" },
+  { run = "actions 'Enes Şahin' 'Trigger Contract Extension Clause'", note = "No left it offered: the game asks again" },
+  { run = "dialog No" },
+  { run = "actions {a} zzq", rc = "fail" },
+]

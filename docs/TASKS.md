@@ -188,8 +188,9 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - [x] `crawl --deep` closes the windows its buttons open
 - [ ] T77 Menu actions the code never names (46): each has a command, was run through `actions` and read back, or needs none
   - [ ] By sentence: the rules route "kutuya X yaz" to `fm_type`, but the live model does not know the tool yet (retrain)
-  - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension
-    Clause leaves the end date as it was (the entry goes)
+  - [x] Read-back (round78 TR+EN 3/3): Keep History After Retirement by the player's KeepHistoryAfterRetirement, on and off;
+    Available For U19 Squad shows nowhere readable, and is said so; Trigger Contract Extension Clause asks first, Yes takes the
+    entry off the menu, the end date stays (a one-year extension)
 - [x] T69 Settings pages; the main menu
   - [ ] A list of bare numbers (3D, colour blind) gets its words from its open rows by their place in the list:
     no identity found; every change is read back

@@ -2986,3 +2986,8 @@ Nothing left to mark seen.	Görüldü sayılacak tavsiye kalmadı.
 advice          the staff's advice by area (squad, tactics, transfers, training, club);  advice <no>|<name> apply | seen;  advice all seen	advice          teknik ekibin alanlara göre tavsiyeleri (kadro, taktik, transfer, antrenman, kulüp);  advice <no>|<isim> apply | seen;  advice all seen
 That advice is no longer listed; see the list again: advice	Bu tavsiye artık listede yok; listeye yeniden bak: tavsiye
 {0} — the game does not take it now.	{0} — oyun bunu şu an almıyor.
+{0}: {1} — taken by the game; it shows this nowhere the tool can read it back.	{0}: {1} — oyun aldı; bunu aracın geri okuyabileceği bir yerde göstermiyor.
+{0}: {1} — the entry was chosen, but the game shows no change.	{0}: {1} — seçenek seçildi ama oyunda bir değişiklik görünmüyor.
+{0}: {1} — done: {2}.	{0}: {1} — yapıldı: {2}.
+kept after he retires	emekli olunca geçmişi saklanacak
+no longer kept after he retires	emekli olunca geçmişi artık saklanmayacak

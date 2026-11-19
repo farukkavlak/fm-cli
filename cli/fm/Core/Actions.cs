@@ -247,7 +247,7 @@ internal static partial class Program
 
 	/// <summary>What came of a choice: the game's question, a conversation, contract talks — or nothing to see.</summary>
 	/// <param name="talkBefore">The talk buttons that were showing before the choice (see <see cref="TalkButtons"/>).</param>
-	private static async Task<int> AfterAction(string name, string path, string talkBefore, HashSet<string>? windowsBefore = null, HashSet<string>? pagesBefore = null)
+	private static async Task<int> AfterAction(string name, string path, string talkBefore, HashSet<string>? windowsBefore = null, HashSet<string>? pagesBefore = null, string action = "", Func<Task<string?>>? readBack = null)
 	{
 		JsonElement dialogs = default;
 		OfferScreen? talks = null;
@@ -287,6 +287,16 @@ internal static partial class Program
 		if (window != null) return await WindowOpened(name, path, window, pagesBefore ?? []);
 		if (talks != null) return await Contract(["contract"]);
 		if (said) return await TalkTo(false, ["talk"]);
+		if (NoReadBack.Contains(action))
+		{
+			Console.WriteLine(L($"{name}: {path} — taken by the game; it shows this nowhere the tool can read it back."));
+			return 0;
+		}
+		if (readBack != null && await readBack() is { } changed)
+		{
+			Console.WriteLine(changed.Length > 0 ? L($"{name}: {path} — done: {changed}.") : L($"{name}: {path} — the entry was chosen, but the game shows no change."));
+			return changed.Length > 0 ? 0 : 1;
+		}
 		Console.WriteLine(L($"{name}: {path} — done."));
 		return 0;
 	}
@@ -387,10 +397,41 @@ internal static partial class Program
 		var before = await TalkButtons();
 		var windowsBefore = await Windows();
 		var pagesBefore = await ButtonPages();
+		var readBack = await ReadBackAction(Field(entry, "Action"));
 		var chosen = await ChooseEntry(entry, entries);
 		if (chosen.StartsWith("error", StringComparison.Ordinal)) return Report(chosen);
-		return await AfterAction(name, path, before, windowsBefore, pagesBefore);
+		return await AfterAction(name, path, before, windowsBefore, pagesBefore, Field(entry, "Action"), readBack);
 	}
+
+	/// <summary>
+	/// What an entry that opens nothing did, read back where the game keeps it (T77), by the entry's action id. Asked
+	/// before the entry is chosen; the task it gives answers after: a word for what changed, "" for the game showing no
+	/// change, null for nothing known to read. Keeping a player's history is his record's KeepHistoryAfterRetirement,
+	/// and the entry turns it on or off. (Triggering a contract clause asks first; after Yes its entry leaves the menu.)
+	/// </summary>
+	private static async Task<Func<Task<string?>>?> ReadBackAction(string action)
+	{
+		switch (action)
+		{
+			case "PersonKeepRetiredPersonData":
+				const string person = "fmcli.actreadback";
+				if ((await Fm.Get("pathset", ("to", person), ("from", LastPersonPath))).StartsWith("error", StringComparison.Ordinal)) return null;
+				async Task<string> Kept() => Field(await Fm.GetJson("pull", ("path", person), ("props", "KeepHistoryAfterRetirement"), ("gen", $"kh{Environment.TickCount64}")), "KeepHistoryAfterRetirement");
+				var before = await Kept();
+				if (before is not ("True" or "False")) return null;
+				return async () =>
+				{
+					var now = before;
+					await Until(async () => (now = await Kept()) is ("True" or "False") && now != before, seconds: 5, every: 0.5);
+					return now == before ? "" : now == "True" ? L("kept after he retires") : L("no longer kept after he retires");
+				};
+			default:
+				return null;
+		}
+	}
+
+	/// <summary>Entries the game takes and shows nowhere to read back (T77): said so, not "done".</summary>
+	private static readonly HashSet<string> NoReadBack = ["PersonMakePlayersAvailableForReserves"];
 
 	/// <summary>
 	/// The windows over the screen: the elements under the game's #ModalDialog layer, by their own names
