@@ -68,8 +68,9 @@ internal static partial class Program
 		}
 
 		var youth = await YouthTeams();
-		await GameWords.Ask(Fm, "Inj");
-		Columns(squad.EnumerateArray().Where(p => !youth.Contains(Field(p, "Team"))).ToList());
+		var hurt = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
+			.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToHashSet();
+		Columns(squad.EnumerateArray().Where(p => !youth.Contains(Field(p, "Team"))).ToList(), hurt: hurt);
 		return 0;
 
 		static string Keys(JsonElement squad) =>
@@ -77,7 +78,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Prints people with every field their rows carry as a column, less the table's own bookkeeping.</summary>
-	private static void Columns(List<JsonElement> rows, string? who = null)
+	private static void Columns(List<JsonElement> rows, string? who = null, HashSet<string>? hurt = null)
 	{
 		who ??= L("PLAYER");
 		// Bound by a table for its own use (sorting, icons, the pitch view), in every view.
@@ -120,9 +121,9 @@ internal static partial class Program
 		foreach (var c in shown) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{Ui.Safe(Heading(c.Field))}[/]") { NoWrap = true });
 		for (var i = 0; i < ordered.Count; i++)
 		{
-			// The status column in the game's own word for "injured" (its table, asked for by the caller), never the English.
-			var injured = Field(ordered[i], "IsInjured") == "True"
-				|| Field(ordered[i], "StatusTitleShort").Split([',', ' '], StringSplitOptions.RemoveEmptyEntries).Any(w => w == GameWords.Of("Inj"));
+			// By the player's record (IsInjured), never the status column's words: those come part English, part the
+			// game's language ("End", "Fit" beside "Kir" in a Turkish game).
+			var injured = Field(ordered[i], "IsInjured") == "True" || hurt?.Contains(names[i]) == true;
 			var name = injured ? $"[red]{Ui.Safe(names[i])}[/]" : Ui.Safe(names[i]);
 			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c!.Values[i]))]);
 		}

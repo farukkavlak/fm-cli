@@ -267,6 +267,14 @@ internal static partial class Program
 		if (!int.TryParse(words[0], out _) && Fold(words[0]) is "uygula" or "apply" or "do" or "evet" or "yes")
 		{
 			var newest = entries.FindLastIndex(e => e.Open);
+			// Right after a card was backed out of (its tweak question answered No) the panel is drawn again and the card
+			// read for a moment as closed, or the list came from memory while the panel was away: "nothing to apply" was
+			// said with the card still open (19 Nov TR). The panel is brought back and read until a card shows open.
+			if (newest < 0 && (fromMemory ? await DugoutComesBack(playOn) : await DugoutShowing()))
+			{
+				await Until(async () => (entries = await DugoutEntries()).Any(e => e.Open), seconds: 3, every: 0.25);
+				newest = entries.FindLastIndex(e => e.Open);
+			}
 			if (newest < 0)
 			{
 				Console.Error.WriteLine(L("There is nothing to apply right now."));

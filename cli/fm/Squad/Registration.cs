@@ -151,7 +151,12 @@ internal static partial class Program
 	/// </summary>
 	private static readonly string[] RegistrationWords = ["Min.", "Replacements", "HGC", "HGN", "Inj", "Wnt"];
 
-	private static bool IsWord(string shown, string english) => shown == GameWords.Of(english) || shown == english;
+	/// <summary>The words asked of the game's table: the flags, and the injured flag's own key.</summary>
+	private static readonly string[] RegistrationAsked = [.. RegistrationWords, "Inj."];
+
+	// The game's table keys the injured flag as "Inj." (Turkish "Skt."), shown "Inj" in English: both are asked.
+	private static bool IsWord(string shown, string english) => shown == GameWords.Of(english) || shown == english
+		|| english == "Inj" && shown == GameWords.Of("Inj.");
 
 	private static bool IsReplacements(RegRule rule) => IsWord(rule.Title, "Replacements");
 
@@ -237,7 +242,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<(List<RegRule>, List<Registered>)> ReadRegistration()
 	{
-		await GameWords.Ask(Fm, RegistrationWords);
+		await GameWords.Ask(Fm, RegistrationAsked);
 		var rules = new List<RegRule>();
 		var players = new List<Registered>();
 		var seen = new HashSet<string>();

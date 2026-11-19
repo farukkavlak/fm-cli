@@ -132,7 +132,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - Hunt 19 Nov (9 matches, 37 cards): advice to push for the win or to play more directly came 3 times TR, 1 EN; `dugout apply` said Done false each time
 - [ ] T171 `dugout apply` cards with nothing read back (hunt 19 Nov): an added team instruction Done false (TR); a removed team instruction and an opposition instruction Done true, no change listed
   - Cause of the Done false: cards taken while the match played (the hunt took them every 8 s), and cards whose tweak clashes with one on: the game asks "Change From Tactical Tweak?" first. `dugout apply` now holds the match, and answers that question only with `--yes`
-  - The EN miss after a declined card ("could not be opened in the panel") not seen again: EN 3/3 (19 Nov afternoon)
+  - After a declined card, `--yes` said "nothing to apply" with the card still open (TR): the panel is now read again first. EN 3/3, TR 8/8 since
+  - Left: a removed team instruction and an opposition instruction read back
 - [x] T161 `dugout` pressing card in a TR match
 - [x] T163 `dugout` player card met live
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
@@ -217,8 +218,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T152 Text scaling, information display, colour blind mode and resolution: answers do not follow the screen
 - [ ] T167 Game froze once for 6+ minutes: main thread inside the .NET JIT, compiling plugin code; not reproduced
 - [ ] T168 `read club-history` gave its table as loose lines in 1 of 10 sweeps; not reproduced
-- [ ] T172 Pages while the post-match tunnel interview waits: the game opens none, and `opposition` said "no subtab bar … ask again"
-  - Now said: a conversation waits, answer it with `talk` (EN 3/3, `squad` too; after it, the menu-less screen as before). Left: TR
+- [x] T172 Pages while the post-match tunnel interview waits: the game opens none, and `opposition` said "no subtab bar … ask again"
+  - Now said: a conversation waits, answer it with `talk` (EN 3/3, TR 2/2, `squad` too; after it, the menu-less screen as before)
 - [ ] T169 Each resolution change takes the game longer to recover (about 3 minutes by the 16th)
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
@@ -248,7 +249,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - [x] T85i Fee window, `mentoring new`, `Texts.TopBody`, `?any=1` row lists, the search window `actions` left up
   - [x] T85j `opponent --json` keys
   - [x] T85k Mentality and style lists, wage total, value limit, last match, tactic panels
-  - [x] T85l Last sweep (19 Nov): fixed waits are all a poll's pace; order only in the CLI's own lists or a row's shape; no position, colour or currency. Fixed: the squad table's injured mark looked for "Inj"
+  - [x] T85l Last sweep (19 Nov): fixed waits are all a poll's pace; order only in the CLI's own lists or a row's shape; no position, colour or currency. Fixed: the squad table's injured mark looked for "Inj" (the game's key is "Inj.", and the column comes part English in a Turkish game): now the player's IsInjured; registration's flag asks "Inj." too
 
 ## 13. Later (v2)
 
