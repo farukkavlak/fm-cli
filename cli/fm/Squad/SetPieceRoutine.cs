@@ -17,7 +17,7 @@ internal static partial class Program
 	/// order by the value each sends; Aim is what the aim menu shows, or the aim button whose sent value
 	/// is the routine's SetPieceStrategy.
 	/// </summary>
-	private sealed record Routine(int? Delivery, List<JsonElement> DeliveryButtons, string Taker, string Aim, JsonElement? AimMenu, List<JsonElement> AimButtons, List<RoutineSlot> Slots, string Key)
+	private sealed record Routine(int? Delivery, List<JsonElement> DeliveryButtons, string? Taker, string? Aim, JsonElement? AimMenu, List<JsonElement> AimButtons, List<RoutineSlot> Slots, string Key)
 	{
 		public string DeliveryName(int index) => index < DeliveryButtons.Count ? Field(DeliveryButtons[index], "Label") : "";
 

@@ -21,7 +21,7 @@ SAFE = [
     "fm_captains", "fm_takers", "fm_penalties", "fm_tactic", "fm_depth", "fm_opponent",
     "fm_opposition", "fm_progress", "fm_world", "fm_league", "fm_supporters", "fm_numbers",
     "fm_register", "fm_responsibilities", "fm_youth", "fm_saves", "fm_targets", "fm_stages",
-    "fm_prep", "fm_doctor", "fm_jobs", "fm_read", "fm_manager",
+    "fm_prep", "fm_doctor", "fm_jobs", "fm_read", "fm_manager", "fm_advice",
 ]
 
 

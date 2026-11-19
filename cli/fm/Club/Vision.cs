@@ -105,7 +105,7 @@ internal static partial class Program
 		}
 		JsonElement? Button(string simulationEvent) => controls.Cast<JsonElement?>().FirstOrDefault(c => VisionSends(c!.Value, simulationEvent));
 		// took: the game's own sign that the press was taken, read back before saying so.
-		async Task<int> Press(string simulationEvent, string done, string closedHint = "", Func<Task<bool>> took = null)
+		async Task<int> Press(string simulationEvent, string done, string closedHint = "", Func<Task<bool>>? took = null)
 		{
 			if (Button(simulationEvent) is not { } button || Field(button, "Enabled") != "True")
 			{
