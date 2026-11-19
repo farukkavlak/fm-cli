@@ -12,8 +12,8 @@ __pycache__/
 
 dist/
 
-# Terminal output of the catalog, regenerated with tools/radar-catalog.py --ansi
-docs/experiments/catalog-ansi/
+# Radar experiments (tools/radar-*.py write here); not kept in the repository
+docs/experiments/
 tests/nl/expanded/
 
 # local secrets (API keys)
