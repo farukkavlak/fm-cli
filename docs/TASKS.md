@@ -132,7 +132,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - Hunt 19 Nov (9 matches, 37 cards): advice to push for the win or to play more directly came 3 times TR, 1 EN; `dugout apply` said Done false each time
 - [ ] T171 `dugout apply` cards with nothing read back (hunt 19 Nov): an added team instruction Done false (TR); a removed team instruction and an opposition instruction Done true, no change listed
   - Cause of the Done false: cards taken while the match played (the hunt took them every 8 s), and cards whose tweak clashes with one on: the game asks "Change From Tactical Tweak?" first. `dugout apply` now holds the match, and answers that question only with `--yes`
-  - Left: 1 of 3 EN: after a card was declined (75'), `dugout apply --yes` said "could not be opened in the panel; the list may have changed"
+  - The EN miss after a declined card ("could not be opened in the panel") not seen again: EN 3/3 (19 Nov afternoon)
 - [x] T161 `dugout` pressing card in a TR match
 - [x] T163 `dugout` player card met live
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
@@ -217,8 +217,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T152 Text scaling, information display, colour blind mode and resolution: answers do not follow the screen
 - [ ] T167 Game froze once for 6+ minutes: main thread inside the .NET JIT, compiling plugin code; not reproduced
 - [ ] T168 `read club-history` gave its table as loose lines in 1 of 10 sweeps; not reproduced
-- [ ] T172 `opposition` after a match, on the menu-less messages screen: "no subtab bar … ask again" every time; passed after `next` (TR, 19 Nov)
-  - Not reproduced: an instant match's end (right message), a press conference waiting or open, the advice panel up. Seen after a played match with its talk open
+- [ ] T172 Pages while the post-match tunnel interview waits: the game opens none, and `opposition` said "no subtab bar … ask again"
+  - Now said: a conversation waits, answer it with `talk` (EN 3/3, `squad` too; after it, the menu-less screen as before). Left: TR
 - [ ] T169 Each resolution change takes the game longer to recover (about 3 minutes by the 16th)
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)

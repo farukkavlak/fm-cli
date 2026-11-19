@@ -312,6 +312,7 @@ internal static partial class Program
 				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0
 					|| (await Fm.Get("queue")).Split(' ')[0] != "0"
 					? await PagesClosed()
+					: (await TalkOptions()).Count > 0 ? TalkHoldsPagesWords
 					: L("The 'First Team' page could not be opened."));
 
 			if (!await Seen(team))

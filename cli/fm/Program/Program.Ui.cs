@@ -125,8 +125,19 @@ internal static partial class Program
 				.StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.25);
 			answer = await OpenWith(query.ToArray());
 		}
-		return answer;
+		return await TalkHoldsPages(answer);
 	}
+
+	/// <summary>
+	/// A page that did not open while a conversation waits for an answer (the tunnel interview after a match): the
+	/// game opens no page until it is over, and the bar's own "ask again" said nothing of that (T172).
+	/// </summary>
+	private static async Task<string> TalkHoldsPages(string answer) =>
+		answer.StartsWith("error", StringComparison.Ordinal) && (await TalkOptions()).Count > 0
+			? "error: " + TalkHoldsPagesWords
+			: answer;
+
+	private static string TalkHoldsPagesWords => L("A conversation is waiting for an answer; pages open once it is over. To answer: talk");
 
 	/// <summary>
 	/// A page listed in another page's subtab menu (Squad Dynamics › Happiness), by its GUID: the
@@ -152,7 +163,7 @@ internal static partial class Program
 			opened = await OpenPage(parent, team);
 			if (opened.Contains("ask again", StringComparison.Ordinal)) opened = "";
 		}
-		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return await TalkHoldsPages(opened);
 		var answer = "";
 		for (var attempt = 0; attempt < 4; attempt++)
 		{
@@ -168,7 +179,7 @@ internal static partial class Program
 			// the squad page, 2 in 16): it is opened again rather than given up on.
 			if (answer.StartsWith("error", StringComparison.Ordinal))
 			{
-				if (attempt == 3) return answer;
+				if (attempt == 3) return await TalkHoldsPages(answer);
 				// The parent can say it opened without its tab coming up (Portal › Competitions after the
 				// transfer search): the portal's home is opened by its own page first.
 				await OpenPage(Screen.Home);
@@ -192,7 +203,7 @@ internal static partial class Program
 				return settled;
 			}, seconds: 8, every: 0.3)) return answer;
 		}
-		return L($"error: {answer}, but the page did not show what was expected");
+		return await TalkHoldsPages(L($"error: {answer}, but the page did not show what was expected"));
 	}
 
 	/// <summary>
