@@ -1,5 +1,5 @@
 # Round 62 (night): the crash moments again, now that Il2CppInterop's type lookup hook is on the right function
-# (771a3c3, T149). Before it, on arm64 the hook took a function with another argument list; whether that was so before
+# (T149). Before it, on arm64 the hook took a function with another argument list; whether that was so before
 # 27.0.1 too is not known, and wrong types are one way to the GC Finalizer crashes of T92.
 # - T11: round 61's TransferRoom list; `delete 1 --loan` brought the game's fatal error 3 of 3 on 12 Nov.
 # - T92: round 47's instant result with the U19 friendly (lost 5 in about 13 while the match loaded).
