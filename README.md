@@ -76,3 +76,9 @@ tools/ci.sh                  # build and tests, no game needed
 tools/sweep.sh               # every read command against the running game
 python3 tools/mcp-check.py   # a real MCP client, read only
 ```
+
+## License
+
+MIT, see [LICENSE](LICENSE). The sentence model is fine-tuned from `paraphrase-multilingual-mpnet-base-v2` (Apache-2.0).
+
+Not affiliated with Sports Interactive or SEGA. Football Manager is their trademark; you need your own copy of the game.
