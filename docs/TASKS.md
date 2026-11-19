@@ -180,7 +180,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - [ ] A club's id at an on-screen path answers only once copied to a row of ours (`IdsOf`); why, not known
   - [ ] Two clubs of one name and nation (Arsenal, ENG twice) cannot be told apart by `( )`
   - [ ] A requested team report's entry shows `- string#2` (a game string not filled)
-  - [ ] `crawl --deep` leaves popups it opened by a button up (seen: Load Item, scouting options, player interest)
+  - [x] `crawl --deep` closes the windows its buttons open
 - [ ] T77 Menu actions the code never names (46): each has a command, was run through `actions` and read back, or needs none
   - [ ] By sentence: the rules route "kutuya X yaz" to `fm_type`, but the live model does not know the tool yet (retrain)
   - [ ] No read-back found: Available For U19 Squad, Keep History After Retirement; Trigger Contract Extension
@@ -201,7 +201,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T74 Full sweep passes (`tools/sweep.sh`, `tools/mcp-check.py`)
 - [x] T75 `AI-CHECKLIST.md` sorted
 - [x] T76 `BACKLOG.md` sorted
-- [ ] T77 `fm crawl` TR + EN at the end: no event or page without a command (or a reason); menu actions: see section 9
+- [x] T77 `fm crawl` TR + EN at the end: 193 of 209 pages open in both; each event's reason in `reference/fm27/events-no-command.md`; menu actions: see section 9
+- [ ] T170 Staff advice (Overview's advice panel) has no command: list, apply, acknowledge; `press` reaches it today
 - [x] T100 `:` on the live panel opens a prompt
 - [x] T101 Keys on the live panel
 - [x] T102 Long commands show progress on one line

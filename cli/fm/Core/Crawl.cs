@@ -116,6 +116,34 @@ internal static partial class Program
 			return await Until(async () => !await QueueHeld(), seconds: 5, every: 0.25);
 		}
 
+		// A window's way out that changes nothing: it only closes, cancels, or reports the choice the window opened with.
+		static bool LeavesAsItWas(JsonElement button)
+		{
+			var sent = Field(button, "Events").Split(", ", StringSplitOptions.RemoveEmptyEntries).Select(e => e.Replace("EventToPlugin:", "")).ToList();
+			var rest = sent.Where(e => e is not ("ClosePanel" or "PanelHistoryClose")).ToList();
+			return rest.Count < sent.Count && rest.All(e => e.EndsWith("Cancel", StringComparison.Ordinal)
+				|| e.EndsWith("Changed", StringComparison.Ordinal) || e.EndsWith("Selected", StringComparison.Ordinal));
+		}
+
+		// The windows a walk's button opened stay up over every page after: each is left by its own way out.
+		async Task CloseWindows(string after)
+		{
+			for (var round = 0; round < 8; round++)
+			{
+				var way = OnScreen(await Fm.GetJson("buttons", ("json", "1")))
+					.FirstOrDefault(b => Field(b, "Type") == "SIButton" && Field(b, "Enabled") == "True" && LeavesAsItWas(b));
+				if (way.ValueKind != JsonValueKind.Object) return;
+				var pointer = Field(way, "Pointer");
+				Console.Error.WriteLine($"   a window is up after {after}: closed");
+				await Fm.Get("press", ("ptr", pointer));
+				if (!await Until(async () => OnScreen(await Fm.GetJson("buttons", ("json", "1"))).All(b => Field(b, "Pointer") != pointer), seconds: 5, every: 0.25))
+				{
+					Console.Error.WriteLine($"   a window after {after} did not close");
+					return;
+				}
+			}
+		}
+
 		// --deep: on each page, every kind of menu a right click or an actions button raises is opened, listed by the
 		// game's own action ids and closed again; every list's submenus are read from its choices without opening it.
 		var deep = args.Contains("--deep");
@@ -249,6 +277,7 @@ internal static partial class Program
 				Console.Error.WriteLine($"the game's event queue stays held after {title}; stopped. Leave it out with --skip {guid}");
 				break;
 			}
+			await CloseWindows(title);
 
 			// The panels this screen opens that no menu or bar listed: one control each, up to three deep.
 			var via = chains.TryGetValue(guid, out var mine) ? mine : [guid];
@@ -265,6 +294,7 @@ internal static partial class Program
 		if ((await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } last && last.GetArrayLength() > 0) await AnswerDialog(false);
 		// The walk's last screen can leave the queue held too (seen after the opposition report's panels).
 		if (!await LetGo("the walk")) Console.Error.WriteLine("the game's event queue stays held after the walk");
+		await CloseWindows("the walk");
 		await File.WriteAllTextAsync(output, JsonSerializer.Serialize(pages, new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
 		Console.WriteLine($"{pages.Count} pages -> {output}");
 		return 0;
