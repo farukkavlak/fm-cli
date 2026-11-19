@@ -153,8 +153,9 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - Left: a shootout in a TR match (its board's score)
 - [x] T64 Press conferences
 - [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet
-- [ ] T130 `jobs <club> apply` said "sent" when the club turned it down at once
-  - The game's answer is now waited for (`round45.toml` EN + TR 3/3). Left: a real turn-down seen
+- [x] T130 `jobs <club> apply` said "sent" when the club turned it down at once
+  - The game's answer is now waited for (`round45.toml` EN + TR 3/3)
+  - Real turn-downs seen (19 Nov, TR, 7 applications): the game always answers "application received" first; the refusal comes days later and `next` lists it as new. A refusal at the press itself was not met
 - [x] T131 A new club's first days through the tool: briefings, the tactics tour, captains, then `next` moves on (round77 TR+EN 3/3)
 - [x] T132 Contract card in Turkish
 - [x] T133 `reply "<subject>"` with several of that subject
