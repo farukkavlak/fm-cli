@@ -198,7 +198,7 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
   - [ ] Blocks with no control on the list are not settings here: data language, save location, shortcuts, online,
     third party
 - [x] T70 Pages of a club that is not ours; a nation's and a competition's (`read --of`)
-  - [ ] Slow: 15–20 s a page, most of it `read`'s table scroll (as `read here`)
+  - [x] Slow: measured 19 Nov (TR, 5 pages of Fenerbahçe): 5.6–7.8 s with `--of`, 2.1 s for our own page; the rest is finding and opening the other club
 
 ## 10. Quality
 
