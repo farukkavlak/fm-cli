@@ -1,7 +1,7 @@
 {
  "manifest": {
   "when": "2026-10-28T18:28:45+03:00",
-  "router": "/Users/farukkavlak/Documents/GitHub/fm-cli/cli/fm/bin/Debug/net10.0/fm __route",
+  "router": "cli/fm/bin/Debug/net10.0/fm __route",
   "given_tool": true,
   "model": null,
   "data": {

@@ -1323,7 +1323,7 @@ def watch_match(scenario, hunt, limit):
 
 def hunt_run(args):
     """Matches in the languages taken in turn (en, tr, en …): a moment counts in whichever comes first, so neither
-    language waits hours on the other (Faruk, 14 Nov). The whole hunt shares one upper bound, --hours."""
+    language waits hours on the other. The whole hunt shares one upper bound, --hours."""
     with open(args.list, "rb") as file:
         spec = tomllib.load(file)
     if problems := hunt_problems(spec):

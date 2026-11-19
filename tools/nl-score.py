@@ -243,6 +243,12 @@ def git(*args):
 	return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
+def short(path) -> str:
+	"""A path as saved in a result: the repo relative, the home as ~, so no machine's user name is kept."""
+	text = str(path)
+	return text.replace(str(ROOT) + "/", "").replace(os.path.expanduser("~"), "~")
+
+
 def manifest(cmd, which, given_tool, final, group, only=None):
 	"""Everything needed to tell two results apart, or to get the same one again."""
 	words = shlex.split(cmd) if isinstance(cmd, str) else cmd
@@ -250,16 +256,16 @@ def manifest(cmd, which, given_tool, final, group, only=None):
 	if "--model" in words:
 		d = Path(os.path.expanduser(words[words.index("--model") + 1])).resolve()
 		onnx = d / "model.onnx"
-		model = {"dir": str(d), "name": d.name, "sha256": sha256([onnx], named=False) if onnx.exists() else None}
+		model = {"dir": short(d), "name": d.name, "sha256": sha256([onnx], named=False) if onnx.exists() else None}
 	if "--remote" in words:
 		model = {"remote": words[words.index("--remote") + 1], "name": words[words.index("--remote") + 1], "candidates": model}
 	if "--gguf" in words:
 		g = Path(os.path.expanduser(words[words.index("--gguf") + 1])).resolve()
 		runner = subprocess.run(["llama-server", "--version"], capture_output=True, text=True)
-		model = {"gguf": str(g), "name": g.name, "sha256": sha256([g], named=False) if g.exists() else None,
+		model = {"gguf": short(g), "name": g.name, "sha256": sha256([g], named=False) if g.exists() else None,
 			"runner": (runner.stdout + runner.stderr).strip().splitlines()[0:1], "candidates": model}
 	elif os.environ.get("FM_NL_MODEL"):
-		model = {"dir": os.environ["FM_NL_MODEL"], "note": "FM_NL_MODEL set; not read by fm __route"}
+		model = {"dir": short(os.environ["FM_NL_MODEL"]), "note": "FM_NL_MODEL set; not read by fm __route"}
 	files = sorted(CASES.glob("*.jsonl")) + sorted((CASES / "train").glob("*.jsonl"))
 	data = {"tests+train": sha256(files)}
 	if which in ("expanded", "all") and EXPANDED.exists():
@@ -267,7 +273,7 @@ def manifest(cmd, which, given_tool, final, group, only=None):
 	cpu = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True).stdout.strip() if sys.platform == "darwin" else platform.processor()
 	return {
 		"when": datetime.now().astimezone().isoformat(timespec="seconds"),
-		"router": cmd if isinstance(cmd, str) else shlex.join(cmd),
+		"router": short(cmd if isinstance(cmd, str) else shlex.join(cmd)),
 		"given_tool": given_tool,
 		"model": model,
 		"data": data,

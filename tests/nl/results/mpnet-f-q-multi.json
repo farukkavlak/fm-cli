@@ -4,7 +4,7 @@
   "router": "cli/fm/bin/Debug/net10.0/fm __route --model ~/.cache/fm-cli/nl/mpnet-f-q",
   "given_tool": false,
   "model": {
-   "dir": "/Users/farukkavlak/.cache/fm-cli/nl/mpnet-f-q",
+   "dir": "~/.cache/fm-cli/nl/mpnet-f-q",
    "name": "mpnet-f-q",
    "sha256": "e0b1a5282c5705beda1f4ca6aac0749fa0357379e21faab96d12c1ba036c0bf3"
   },

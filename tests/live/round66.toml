@@ -9,7 +9,7 @@ task = "T29"
 name = "a change waiting when a goal goes in (mentality or a team instruction): the game's cancelChanges question, answered Yes"
 at = "kickoff"
 fresh = true
-repeat = 2  # Faruk, 13 Nov: a moment that takes luck, 2 a language is enough for this one
+repeat = 2  # a moment that takes luck: 2 a language
 # Slow, as T25: a change waits only until the next dead ball; at full speed that is gone in a moment of real time,
 # so goals mostly fell between changes (1 in 4 matches). Slow, a change is nearly always waiting.
 tries = 5
@@ -35,7 +35,7 @@ task = "T25"
 name = "slow speed: a dugout card applied puts its tweak or team instruction on; a wrong number refused"
 at = "kickoff"
 fresh = true
-repeat = 2  # Faruk, 13 Nov: cards are rare, 2 a language is enough for this one
+repeat = 2  # cards are rare: 2 a language
 tries = 5
 steps = [
   { run = "settings 'highlight speed' 1x" },

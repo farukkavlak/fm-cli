@@ -1,10 +1,10 @@
 {
  "manifest": {
   "when": "2026-10-29T02:13:49+03:00",
-  "router": "tools/nl-llm.py --gguf /Users/farukkavlak/.cache/fm-cli/llm/qwen3.5-4b.gguf",
+  "router": "tools/nl-llm.py --gguf ~/.cache/fm-cli/llm/qwen3.5-4b.gguf",
   "given_tool": true,
   "model": {
-   "gguf": "/Users/farukkavlak/.cache/fm-cli/llm/qwen3.5-4b.gguf",
+   "gguf": "~/.cache/fm-cli/llm/qwen3.5-4b.gguf",
    "name": "qwen3.5-4b.gguf",
    "sha256": "13c16f426047e2de38cd075bdade4a7bcbc8c774384876f677740cda65f8a983",
    "runner": [

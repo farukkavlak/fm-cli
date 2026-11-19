@@ -1,11 +1,11 @@
 # Hunt 1 (14 Nov night): every match moment still open in one hunt (fm-round.py hunt).
 # Each match is watched for all of them at once: every dugout card applied and told by what it changed
 # (the game's ids in `dugout apply --json` Changes), every stop answered, a hurt man taken off and read back,
-# extra time met by its period. Rare moments: 2 a language (Faruk, 13 Nov); T90 needs only its TR pass.
+# extra time met by its period. Rare moments: 2 a language; T90 needs only its TR pass.
 # Run: tools/fm-round.py hunt tests/live/hunt1.toml --dry, then hunt ... --lang en,tr --hours 6.
 
-# Before each kick-off our side is set to run itself into the ground (Faruk, 14 Nov: at full tempo at both ends men
-# get hurt), and to the most attacking mentality, where the staff's mentality advice is likelier. By the plugin's
+# Before each kick-off our side is set to run itself into the ground (at full tempo at both ends men get hurt),
+# and to the most attacking mentality, where the staff's mentality advice is likelier. By the plugin's
 # names, the same in every language.
 setup = [
   { run = 'tactic instructions "Tempo" "Much Higher"' },
