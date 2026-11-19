@@ -184,8 +184,8 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [x] T67 Every list's submenus (`crawl --deep`)
 - [x] T68 Every row's right-click menu, per kind of row
   - [ ] A club's id at an on-screen path answers only once copied to a row of ours (`IdsOf`); why, not known
-  - [ ] Two clubs of one name and nation (Arsenal, ENG twice) cannot be told apart by `( )`
-  - [ ] A requested team report's entry shows `- string#2` (a game string not filled)
+  - [x] Two clubs of one name and nation (Arsenal, ENG twice): told apart by their league, `Arsenal (BWSL)` / `Arsenal (Premier League)` (TR, 19 Nov)
+  - [x] A requested team report's entry shows `- string#2`: the game leaves its placeholder unfilled; `actions` drops the game's placeholders from what it shows, and the cleaned words match too
   - [x] `crawl --deep` closes the windows its buttons open
 - [x] T77 Menu actions the code never names (46): each has a command, was run through `actions` and read back, or needs none
   - [x] By sentence: "kutuya X yaz" / "type X into the box" reach `fm_type` (24 train sentences, no retrain; 6/6 unseen, held score unchanged)

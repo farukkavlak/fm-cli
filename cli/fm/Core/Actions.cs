@@ -204,11 +204,18 @@ internal static partial class Program
 
 	/// <summary>An entry's path as the menu shows it, "›" between its levels; its English path from an older plugin.</summary>
 	private static string ShownPath(JsonElement entry) =>
-		(Field(entry, "ShownPath") is { Length: > 0 } shown ? shown : Field(entry, "Path")).Replace(">", " › ");
+		NoPlaceholders(Field(entry, "ShownPath") is { Length: > 0 } shown ? shown : Field(entry, "Path")).Replace(">", " › ");
+
+	/// <summary>
+	/// The game's own placeholders it left unfilled ("Adana 01 FK - string#2" once its team report is asked for, T68):
+	/// its token syntax, the same in every language, taken out of what is shown. Matching keeps the words as they came.
+	/// </summary>
+	private static string NoPlaceholders(string text) =>
+		System.Text.RegularExpressions.Regex.Replace(text, @"\s*[-–·:,]?\s*\b[a-z]+#\d+\b", "");
 
 	/// <summary>An entry's words as the menu shows them; the English ones put back into the game's from an older plugin.</summary>
 	private static string ShownName(JsonElement entry) =>
-		Field(entry, "Shown") is { Length: > 0 } shown ? shown : GameWords.Of(Field(entry, "Name"));
+		NoPlaceholders(Field(entry, "Shown") is { Length: > 0 } shown ? shown : GameWords.Of(Field(entry, "Name")));
 
 	private static bool IsFolder(JsonElement entry) => entry.TryGetProperty("Folder", out var f) && f!.ValueKind == JsonValueKind.True;
 	private static bool IsEnabled(JsonElement entry) => entry.TryGetProperty("Enabled", out var e) && e.ValueKind == JsonValueKind.True;
@@ -219,8 +226,8 @@ internal static partial class Program
 		var items = entries.Where(e => !IsFolder(e)).ToList();
 		var want = Fold(typed.Replace("›", ">").Replace(" > ", ">"));
 		// Typed in the menu's own words or in English.
-		static string[] Paths(JsonElement e) => [Fold(Field(e, "Path")), Fold(Field(e, "ShownPath"))];
-		static string[] Names(JsonElement e) => [Fold(Field(e, "Name")), Fold(Field(e, "Shown"))];
+		static string[] Paths(JsonElement e) => [Fold(Field(e, "Path")), Fold(Field(e, "ShownPath")), Fold(NoPlaceholders(Field(e, "ShownPath")))];
+		static string[] Names(JsonElement e) => [Fold(Field(e, "Name")), Fold(Field(e, "Shown")), Fold(NoPlaceholders(Field(e, "Shown")))];
 		var whole = items.Where(e => Paths(e).Contains(want)).ToList();
 		if (whole.Count == 1) return whole[0];
 		var ending = items.Where(e => Paths(e).Any(p => p.EndsWith(">" + want, StringComparison.Ordinal)) || Names(e).Contains(want)).ToList();
@@ -332,7 +339,7 @@ internal static partial class Program
 		{
 			await Fm.Get("actions", ("close", "1"));
 			await CloseSearch();
-			Console.WriteLine(JsonOut.Of(new { Name = name, Actions = entries.Where(e => !IsFolder(e)).Select(e => new { Path = Field(e, "ShownPath") is { Length: > 0 } shown ? shown : Field(e, "Path"), Enabled = IsEnabled(e) }) }));
+			Console.WriteLine(JsonOut.Of(new { Name = name, Actions = entries.Where(e => !IsFolder(e)).Select(e => new { Path = NoPlaceholders(Field(e, "ShownPath") is { Length: > 0 } shown ? shown : Field(e, "Path")), Enabled = IsEnabled(e) }) }));
 			return 0;
 		}
 
