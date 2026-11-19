@@ -227,10 +227,13 @@ A closed task keeps one line; how it was done and measured is in git. Port notes
 - [ ] T168 `read club-history` gave its table as loose lines in 1 of 10 sweeps; not reproduced
 - [x] T172 Pages while the post-match tunnel interview waits: the game opens none, and `opposition` said "no subtab bar … ask again"
   - Now said: a conversation waits, answer it with `talk` (EN 3/3, TR 2/2, `squad` too; after it, the menu-less screen as before)
-- [ ] T173 A new signing's press introduction answered "Ekip Üyesi Yapsın" (a staff member does it): the game marks the message answered
+- [x] T173 A new signing's press introduction answered "Ekip Üyesi Yapsın" (a staff member does it): the game marks the message answered
   but keeps waiting for the conference (its Continue: "Basın Toplantısına Katıl"); seen twice (TR, Börner and Hami, 2034 career)
   - `status` then names no message (it lists only unanswered ones); `reply "<subject>"` says "the message's row is not drawn",
     `reply <no>` opens it with Reddet / Katıl left; Reddet frees the game
+  - Why (TR, 13 Aug 2034): the club has no first-team assistant manager, so no one can take the conference; the game itself
+    writes "… için male#1 görevlendirildi" (its placeholder unfilled) and waits for the manager; `responsibilities delegate` of
+    it changes nothing. The tool already says the game still waits and what it asks now: a game rule, not a tool fault
   - [x] `reply "<subject>"` with the Overview up: a message answered and waited on again is held only in the game's record of
     the last one selected, and was taken for drawn; now a row must be drawn, and the inbox page is opened to find it (3/3, TR)
 - [ ] T169 Each resolution change takes the game longer to recover (about 3 minutes by the 16th)
