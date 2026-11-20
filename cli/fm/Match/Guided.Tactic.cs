@@ -187,19 +187,7 @@ internal static partial class Program
 		// A substitute's place has no position, so it goes by who is in it now: "tactic player Tosto
 		// Nabian" took an injured man off the bench, which the game will not start a match with.
 		var at = SlotOf(masks, words[0], L("Position"), quiet: true) ?? -1;
-		// The bench shows short names ("Engel"); each is also known by the full name of the man in it, by his index.
-		var benched = -1;
-		if (at < 0)
-		{
-			benched = Matching(benchNames, n => n, words[0]) is [var one] ? benchNames.IndexOf(one) : -1;
-			if (benched < 0 && squad.Count > 0)
-			{
-				var fullNames = (await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
-					.GroupBy(p => Field(p, "Index")).ToDictionary(g => g.Key, g => Field(g.First(), "Name"));
-				var benchFull = squad.Select(e => fullNames.GetValueOrDefault(Field(e, "PlayerIndex")) ?? "").ToList();
-				if (Matching(benchFull.Where(n => n.Length > 0).ToList(), n => n, words[0]) is [var whole]) benched = benchFull.IndexOf(whole);
-			}
-		}
+		var benched = at >= 0 ? -1 : await BenchPlace(squad, words[0]);
 		if (at < 0 && benched < 0)
 		{
 			SlotOf(masks, words[0], L("Position"));
@@ -306,19 +294,33 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"usage: tactic player <position> --clear   positions: {string.Join(" ", masks.Select(m => SpotShown(m)))}"));
 			return 64;
 		}
-		if (SlotOf(masks, words[0], L("Position")) is not { } at) return 1;
-		var spot = SpotShown(masks[at]);
-		var place = Field(slots[at], "TeamSelectionIndex");
-		var inPlace = Field(slots[at], "PlayerIndex");
+		// A place in the eleven by its position; a substitute's by the man in it (short name or full), as tactic player takes it.
+		var squad = tactic.TryGetProperty("Squad", out var listed) ? listed.EnumerateArray().Where(e => Field(e, "PlayerIndex") != "-1").ToList() : [];
+		var at = SlotOf(masks, words[0], L("Position"), quiet: true) ?? -1;
+		var benched = at >= 0 ? -1 : await BenchPlace(squad, words[0]);
+		if (at < 0 && benched < 0)
+		{
+			SlotOf(masks, words[0], L("Position"));
+			if (squad.Count > 0) Console.Error.WriteLine(L($"substitutes: {string.Join(", ", squad.Select(e => Field(e, "Name")))}"));
+			return 1;
+		}
+		var spot = at >= 0 ? SpotShown(masks[at]) : $"{L("bench")} ({Field(squad[benched], "Name")})";
+		var place = at >= 0 ? Field(slots[at], "TeamSelectionIndex") : Field(squad[benched], "Index");
+		var inPlace = at >= 0 ? Field(slots[at], "PlayerIndex") : Field(squad[benched], "PlayerIndex");
+		var leaving = at >= 0 ? Field(slots[at], "Player") : Field(squad[benched], "Name");
 		if (inPlace is "" or "-1")
 		{
 			Console.WriteLine(L($"{spot} is already empty."));
 			return 0;
 		}
 
+		// The eleven's buttons open a panel, the bench's swap players; both carry the clear on their right-click
+		// list and are told apart by the PlayerIndex of the row they stand in.
 		async Task<JsonElement?> Button()
 		{
-			var rows = await Fm.GetJson("rowcontrols", ("event", "OpenPanel"), ("name", "XIButton"), ("buttons", "1"), ("gen", Environment.TickCount64.ToString()));
+			var rows = at >= 0
+				? await Fm.GetJson("rowcontrols", ("event", "OpenPanel"), ("name", "XIButton"), ("buttons", "1"), ("gen", Environment.TickCount64.ToString()))
+				: await Fm.GetJson("rowcontrols", ("event", "EventFmxSwapPlayers"), ("gen", Environment.TickCount64.ToString()));
 			foreach (var row in rows.EnumerateArray())
 				if (Field(row, "Item") is { Length: > 0 } item && Field(await Fm.Pull(item, "PlayerIndex"), "PlayerIndex") == inPlace)
 					return row;
@@ -346,16 +348,32 @@ internal static partial class Program
 		var said = await Fm.Get("press", ("ptr", Field(button.Value, "Pointer")), ("list", "RightClickEvents"));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
 
-		var empty = await Until(async () => await Planner() is { } now
-			&& now.GetProperty("Slots").EnumerateArray().FirstOrDefault(s => Field(s, "TeamSelectionIndex") == place) is { ValueKind: JsonValueKind.Object } slot
-			&& Field(slot, "PlayerIndex") == "-1", seconds: 5, every: 0.25);
+		var empty = await Until(async () => await Planner() is { } now && (at >= 0
+			? now.GetProperty("Slots").EnumerateArray().FirstOrDefault(s => Field(s, "TeamSelectionIndex") == place) is { ValueKind: JsonValueKind.Object } slot
+			  && Field(slot, "PlayerIndex") == "-1"
+			: !(now.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "PlayerIndex") == inPlace))), seconds: 5, every: 0.25);
 		if (!empty)
 		{
 			Console.Error.WriteLine(L($"{spot}: the button was pressed, but the player is still there."));
 			return 1;
 		}
-		Console.WriteLine(L($"{spot} is empty now: {Field(slots[at], "Player")} left it."));
+		Console.WriteLine(L($"{spot} is empty now: {leaving} left it."));
 		return 0;
+	}
+
+	/// <summary>
+	/// A substitute's place by the man in it: the bench shows short names ("Engel"), so each is also known by the
+	/// full name of the man in it, found by his index. -1 for none or more than one.
+	/// </summary>
+	private static async Task<int> BenchPlace(List<JsonElement> squad, string typed)
+	{
+		var benchNames = squad.Select(e => Field(e, "Name")).ToList();
+		if (Matching(benchNames, n => n, typed) is [var one]) return benchNames.IndexOf(one);
+		if (squad.Count == 0) return -1;
+		var fullNames = (await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
+			.GroupBy(p => Field(p, "Index")).ToDictionary(g => g.Key, g => Field(g.First(), "Name"));
+		var benchFull = squad.Select(e => fullNames.GetValueOrDefault(Field(e, "PlayerIndex")) ?? "").ToList();
+		return Matching(benchFull.Where(n => n.Length > 0).ToList(), n => n, typed) is [var whole] ? benchFull.IndexOf(whole) : -1;
 	}
 
 	private static async Task<List<(string Index, string Name)>?> SlotChoices(string slot)
