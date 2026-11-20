@@ -24,8 +24,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique
   - 19 Nov: goalkeeper up front and a striker in goal, a day on: still "no advice" (the game's own panel says so too)
 - [ ] T60 Board meeting and requests; job offers while employed; being sacked
-  - Left: a job offer while employed (not met in FM27)
-    - 19 Nov: interest declared in 8 posts (Antalyaspor 2034), played on to mid-October: no offer
+  - Job offer while employed: TR 1/1 (20 Nov, Samsunspor: invite → interview → offer → refused); no scenario kept. Left: EN
+  - Being sacked: TR 1/1 (20 Nov, Antalyaspor, Jan 2036; scenario `sacked`), then interview and new job (scenario `new-job`). Left: EN
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
   - [ ] A player asking for a new contract: not met yet
 - [ ] T63 Match: substitution screen, shouts, set pieces edited in a match

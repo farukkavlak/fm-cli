@@ -327,11 +327,11 @@ Reputation: {0}   Finances: {1}	İtibar: {0}   Mali durum: {1}
 Wage bill: {0}	Maaş gideri: {0}
 Manager rules:{0}	Menajer kuralları:{0}
  none	 yok
-\nApplications are closed. To declare interest: jobs "	\nBaşvuru kapalı. İlgi bildirmek için: jobs "
+\nNo application can be made (the club takes none, or one was already sent). To declare interest: jobs "	\nBaşvuru yapılamıyor (kulüp başvuru almıyor ya da zaten başvuruldu). İlgi bildirmek için: jobs "
 " interest	" interest
 \nTo apply: jobs "	\nBaşvurmak için: jobs "
 " apply   ·   to declare interest: jobs "	" apply   ·   ilgi bildirmek için: jobs "
-{0} does not take applications. To declare interest: jobs "{1}" interest	{0} başvuru kabul etmiyor. İlgi bildirmek için: jobs "{1}" interest
+{0}: no application can be made (the club takes none, or one was already sent). To declare interest: jobs "{1}" interest	{0}: başvuru yapılamıyor (kulüp başvuru almıyor ya da zaten başvuruldu). İlgi bildirmek için: jobs "{1}" interest
 Interest cannot be declared for {0} (it may already have been).	{0} için ilgi bildirilemiyor (zaten bildirilmiş olabilir).
 {0} ({1}) job: {2}.	{0} ({1}) işine {2}.
 To send it: jobs "{0}" {1} --yes	Göndermek için: jobs "{0}" {1} --yes

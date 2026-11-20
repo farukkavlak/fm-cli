@@ -199,7 +199,7 @@ internal static partial class Program
 		Console.WriteLine(L($"Manager rules:{(rules.Count == 0 ? L(" none") : "")}"));
 		foreach (var line in rules) Console.WriteLine($"  · {line}");
 		Console.WriteLine(job.CanApply == false
-			? L("\nApplications are closed. To declare interest: jobs \"") + job.Club + L("\" interest")
+			? L("\nNo application can be made (the club takes none, or one was already sent). To declare interest: jobs \"") + job.Club + L("\" interest")
 			: L("\nTo apply: jobs \"") + job.Club + L("\" apply   ·   to declare interest: jobs \"") + job.Club + L("\" interest"));
 		return 0;
 	}
@@ -210,7 +210,7 @@ internal static partial class Program
 		if (await ButtonEnabled(answer) != true)
 		{
 			Console.Error.WriteLine(applies
-				? L($"{job.Club} does not take applications. To declare interest: jobs \"{job.Club}\" interest")
+				? L($"{job.Club}: no application can be made (the club takes none, or one was already sent). To declare interest: jobs \"{job.Club}\" interest")
 				: L($"Interest cannot be declared for {job.Club} (it may already have been)."));
 			return 1;
 		}

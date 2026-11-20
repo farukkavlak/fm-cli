@@ -132,7 +132,8 @@ internal sealed partial class OfferScreen
 			Options = data.GetProperty("Options").EnumerateArray().Select(o => o.TryGetProperty("Lock", out var l)
 				? new Term("", F(o, "Label"), "", "", null!, null!, "", LockOf(l)) { Key = F(o, "Key") }
 				: new Term("", F(o, "Label"), "", "", ControlOf(o), null!, "") { Key = F(o, "Key") }).ToList(),
-			Rows = rows.EnumerateArray().Select(r => new Term(F(r, "Section"), F(r, "Label"), F(r, "Detail"), F(r, "Remove"),
+			// A row can bind the same note twice (a player with no agent: his fee's note and the row's own say the same).
+			Rows = rows.EnumerateArray().Select(r => new Term(F(r, "Section"), F(r, "Label"), string.Join(" · ", F(r, "Detail").Split(" · ").Distinct()), F(r, "Remove"),
 				r.TryGetProperty("Choice", out var c) ? ControlOf(c) : null!,
 				r.TryGetProperty("Amount", out var a) ? new Control(F(a, "Pointer"), F(a, "Value"), []) : null!,
 				F(r, "Fixed"),
