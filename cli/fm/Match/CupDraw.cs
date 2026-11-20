@@ -22,6 +22,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L("Told to run the draw, but it did not finish."));
 			return 1;
 		}
-		return await PrintPage(json, new ReadablePage("here", "On screen", ""), [], opening: false);
+		// The ties are the screen's table; the rest is the draw's own controls (speed, start, pause, draw all).
+		return await PrintPage(json, new ReadablePage("here", "On screen", ""), [], opening: false, tablesOnly: true);
 	}
 }

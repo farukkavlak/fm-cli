@@ -71,7 +71,8 @@ internal static partial class Program
 		return await Until(Up, seconds: 10, every: 0.25) ? "" : "error: " + L("The page did not open.");
 	}
 
-	private static async Task<int> PrintPage(bool json, ReadablePage page, List<JsonElement> before, bool opening)
+	/// <param name="tablesOnly">Only the page's tables: a cup draw's screen also carries its own controls' words.</param>
+	private static async Task<int> PrintPage(bool json, ReadablePage page, List<JsonElement> before, bool opening, bool tablesOnly = false)
 	{
 		var opened = !opening ? "" : page.Menu != null
 			? await OpenMenuPage(page.Menu)
@@ -189,6 +190,7 @@ internal static partial class Program
 				(heading ??= []).Add(Field(text, "Text"));
 				continue;
 			}
+			if (tablesOnly) continue;
 			if (heading != null)
 			{
 				lines.Add(string.Join(" · ", heading));
