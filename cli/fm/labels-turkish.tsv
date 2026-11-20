@@ -199,7 +199,7 @@ The team has no tactic. To create one: tactic new	Takımın taktiği yok. Oluşt
 Fee: {0}. To send it: talk confirm	Bedel: {0}. Göndermek için: talk onayla
 There is no confirm button.	Onay düğmesi yok.
 Fee proposed. To go on: talk	Bedel önerildi. Devam için: talk
-Propose a fee: now {0}	Bir bedel öner: şu an {0}
+Propose a fee (in the box now: {0})	Bir bedel öner (kutuda şu an: {0})
   options: {0}	  seçenekler: {0}
 To change it: talk fee <value>   ·   to send it: talk confirm	Değiştirmek için: talk bedel <değer>   ·   göndermek için: talk onayla
 Which fee?	Hangi bedel?
