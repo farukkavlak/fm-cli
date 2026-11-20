@@ -106,7 +106,10 @@ internal static partial class Program
 			// The button is addressed by the panel it opens and its template name, not by the
 			// word it shows: the label is the game's own string and differs by language.
 			var opened = await Arriving("press", [("event", "OpenPanel"), ("name", "dashboard-hud-search-button")]);
-			if (opened.StartsWith("error", StringComparison.Ordinal)) throw new FmError(opened);
+			// A screen without the menu (the news pages after a match) has no search button and no pages:
+			// that is said, with the way past it, rather than the button not being found.
+			if (opened.StartsWith("error", StringComparison.Ordinal))
+				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0 ? await PagesClosed() : opened);
 			if (!await Until(async () => (boxes = (await Fm.GetJson("textboxes")).EnumerateArray().ToList())
 				    .Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.25))
 				boxes = [];
