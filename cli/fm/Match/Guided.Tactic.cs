@@ -339,6 +339,15 @@ internal static partial class Program
 			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 			await Until(async () => (button = await Button()) != null, seconds: 10, every: 0.25);
 		}
+		// The bench lays out six rows; a seventh substitute's is drawn once the list is moved to its end.
+		// The row is still found by the man in it, as above; moving the list only gets it drawn.
+		if (button == null && at < 0
+		    && (await Fm.GetJson("rowcontrols", ("event", "EventFmxSwapPlayers"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+			    .Select(r => Field(r, "Pointer")).FirstOrDefault(ptr => ptr.Length > 0) is { } anyRow)
+		{
+			await Fm.Get("scroll", ("ptr", anyRow), ("to", "1"));
+			await Until(async () => (button = await Button()) != null, seconds: 4, every: 0.25);
+		}
 		if (button == null)
 		{
 			Console.Error.WriteLine(L($"{spot}: the place's button is not on the tactics page."));
