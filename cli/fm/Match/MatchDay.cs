@@ -290,7 +290,7 @@ internal static partial class Program
 		var names = Field(state, "Period").Length > 0 || Field(state, "DuringMatch") != "True" ? await MatchNames() : null;
 		// Read before kick-off they can only be a guess (or an old match's): read again once it is under way.
 		if (Field(state, "DuringMatch") != "True") sidesFromMatch = false;
-		string stop = null, period = "", score = "", pressed = null, spoke = null, clock = null, commentary = null;
+		string stop = null, period = "", score = "", pressed = null, spoke = null, clock = null, commentary = null, waitedTalk = null;
 		Dictionary<string, MatchMan> finalMen = null;
 		var lastLook = DateTime.MinValue;
 		var stats = "";
@@ -469,8 +469,20 @@ internal static partial class Program
 				continue;
 			}
 
-			// Each talk stop offers something to say before its Continue.
-			if (!passTalks && spoke != flow && (await TalkOptions()) is { Count: > 0 } lines)
+			// Each talk stop offers something to say before its Continue. Its lines are drawn a moment after the
+			// stop is reached: read once at once, a half-time talk came back empty and was passed by (19 Aug 2035).
+			// So at a talk stop they are waited for, once per stop; the seconds are only an upper bound.
+			List<Line> talkLines = [];
+			if (!passTalks && spoke != flow)
+			{
+				talkLines = await TalkOptions();
+				if (talkLines.Count == 0 && waitedTalk != flow && flow is "TeamTalk" or "SecondHalf" or "FullTimeTeamTalk")
+				{
+					waitedTalk = flow;
+					await Until(async () => (talkLines = await TalkOptions()).Count > 0, seconds: 4, every: 0.3);
+				}
+			}
+			if (talkLines is { Count: > 0 } lines)
 			{
 				var talk = await Fm.GetJson("talk");
 				if (talk.TryGetProperty("Says", out var says))
