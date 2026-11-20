@@ -3001,3 +3001,8 @@ The set piece wizard could not be started: the set pieces page offers it only wh
 No player called '{0}' has the id {1}.	'{0}' adlı oyuncuların hiçbirinin kimliği {1} değil.
 '{0}' is the name of {1} players:	'{0}' adında {1} oyuncu var:
 One of them by its id: player "{0} #{1}"	Birini kimliğiyle açmak için: player "{0} #{1}"
+The match's tactics did not open.	Maçın taktik ekranı açılmadı.
+'{0}' is not in the eleven. On the pitch: {1}	'{0}' ilk on birde değil. Sahada: {1}
+The change was chosen, but the panel's Confirm stayed off.	Değişiklik seçildi ama ekranın onay düğmesi kapalı kaldı.
+Substitution made at the stop: {0} off. To play on: match	Duraklamada oyuncu değişikliği yapıldı: {0} çıktı. Devam için: match
+The change was confirmed, but the tactics panel is still open.	Değişiklik onaylandı ama taktik ekranı hâlâ açık.

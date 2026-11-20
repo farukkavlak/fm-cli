@@ -254,8 +254,10 @@ internal static partial class Program
 		var took = await Until(async () =>
 		{
 			after = await Fm.GetJson("tactic");
+			// In a match a substitute keeps his own place number and takes the position: he is read back by
+			// the position he now plays, not by the place number the man he replaced had.
 			return at >= 0
-				? after.TryGetProperty("Slots", out var now) && now.GetArrayLength() > at && Field(now[at], "PlayerIndex") == player
+				? after.TryGetProperty("Slots", out var now) && now.EnumerateArray().Any(s => Field(s, "PlayerIndex") == player && Field(s, "IPPosition") == masks[at])
 				: after.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "Index") == slot && Field(e, "PlayerIndex") == player);
 		}, seconds: 8);
 		Console.WriteLine(took ? $"{label}: {(current.Length > 0 ? current : L("empty"))} → {name}" : L($"{name} was chosen, but {label} still shows {current}."));

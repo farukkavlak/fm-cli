@@ -23,6 +23,9 @@ internal static partial class Program
 		var menus = await PlayerMenus(fresh: true);
 		if (menus.Count == 0)
 		{
+			// At half-time the players' menus are not drawn; the stop's Tactics button (MatchOpenTactics, EnableSubs)
+			// opens the team selection, where a change is made as before kick-off and kept by the panel's Confirm.
+			if (Words(args).ToList() is [var off, var on, ..] && await StopSubstitute(off, on, args.Contains("--dry")) is { } atStop) return atStop;
 			Console.Error.WriteLine(L("The menu of the players on the pitch is not on screen (it may be half-time or a talk screen)."));
 			return 1;
 		}
@@ -179,10 +182,12 @@ internal static partial class Program
 		return made ? 0 : 1;
 
 		// "Draper" names "Freddie Draper" and the planner's own "Draper".
-		static bool Named(string full, string typed) => full.Length > 0 && typed.Length > 0
-			&& (full.Equals(typed, StringComparison.OrdinalIgnoreCase) || full.EndsWith(" " + typed, StringComparison.OrdinalIgnoreCase)
-				|| typed.EndsWith(" " + full, StringComparison.OrdinalIgnoreCase));
 	}
+
+	/// <summary>A name as the match or the planner holds it ("Draper" or "Ben Draper") and one typed.</summary>
+	private static bool Named(string full, string typed) => full.Length > 0 && typed.Length > 0
+		&& (full.Equals(typed, StringComparison.OrdinalIgnoreCase) || full.EndsWith(" " + typed, StringComparison.OrdinalIgnoreCase)
+			|| typed.EndsWith(" " + full, StringComparison.OrdinalIgnoreCase));
 
 	/// <summary>
 	/// What the score leaves out: cards, injuries, and our players by
@@ -322,5 +327,68 @@ internal static partial class Program
 			catch (FmError) { done.Add(false); }
 		}
 		return done;
+	}
+
+	/// <summary>
+	/// A substitution at a stop with no players' menus (half-time): the Tactics button's own event opens the
+	/// team selection, the man going off is found by his slot, the one coming on is put there as before kick-off,
+	/// and the panel's Confirm (MatchCloseTacticalPanel:Confirm) keeps it. Null when the stop offers no way.
+	/// </summary>
+	private static async Task<int?> StopSubstitute(string off, string on, bool dry)
+	{
+		static JsonElement? Sending(JsonElement buttons, string ev) => buttons.EnumerateArray()
+			.Where(b => Field(b, "Visible") == "True" && Field(b, "Events").Contains(ev, StringComparison.Ordinal))
+			.Cast<JsonElement?>().FirstOrDefault();
+		const string open = "MatchOpenTactics", confirm = "MatchCloseTacticalPanel:Confirm", cancel = "MatchCloseTacticalPanel:Cancel";
+		var buttons = await Fm.GetJson("buttons", ("json", "1"));
+		var opened = false;
+		// A panel this command opened and changed nothing in is closed again on the way out; with no change its Cancel asks nothing.
+		async Task<int> Refuse()
+		{
+			if (opened && Sending(await Fm.GetJson("buttons", ("json", "1")), cancel) is { } back)
+			{
+				await Fm.Get("press", ("ptr", Field(back, "Pointer")));
+				await Until(async () => Sending(await Fm.GetJson("buttons", ("json", "1")), cancel) == null, seconds: 5, every: 0.3);
+			}
+			return 1;
+		}
+		if (Sending(buttons, confirm) == null)
+		{
+			opened = true;
+			if (Sending(buttons, open) is not { } tactics) return null;
+			await Fm.Get("press", ("ptr", Field(tactics, "Pointer")));
+			if (!await Until(async () => Sending(await Fm.GetJson("buttons", ("json", "1")), confirm) != null, seconds: 8, every: 0.3))
+			{
+				Console.Error.WriteLine(L("The match's tactics did not open."));
+				return 1;
+			}
+		}
+		var planner = await Fm.GetJson("tactic");
+		var slots = planner.TryGetProperty("Slots", out var listed) ? listed.EnumerateArray().ToList() : [];
+		var at = slots.FindIndex(slot => Named(Field(slot, "Player"), off));
+		// The planner can hold the first name instead of the surname ("Ali" for Ali Pağda): taken only when no other slot holds the same.
+		if (at < 0 && slots.Select((slot, i) => (Short: Field(slot, "Player"), At: i))
+		        .Where(x => x.Short.Length > 0 && off.StartsWith(x.Short + " ", StringComparison.OrdinalIgnoreCase)).ToList() is [var first])
+			at = first.At;
+		if (at < 0)
+		{
+			Console.Error.WriteLine(L($"'{off}' is not in the eleven. On the pitch: {string.Join(", ", slots.Select(x => Field(x, "Player")).Where(n => n.Length > 0))}"));
+			return await Refuse();
+		}
+		var going = Field(slots[at], "Player");
+		if (await TacticPlayer([Spot(Field(slots[at], "IPPosition")), on], dry) != 0) return await Refuse();
+		if (dry) { await Refuse(); return 0; }
+		JsonElement? keep = null;
+		if (!await Until(async () => Sending(await Fm.GetJson("buttons", ("json", "1")), confirm) is { } c && Field(c, "Enabled") == "True" && (keep = c) != null, seconds: 5, every: 0.3))
+		{
+			Console.Error.WriteLine(L("The change was chosen, but the panel's Confirm stayed off."));
+			return 1;
+		}
+		await Fm.Get("press", ("ptr", Field(keep!.Value, "Pointer")));
+		var closed = await Until(async () => Sending(await Fm.GetJson("buttons", ("json", "1")), confirm) == null, seconds: 8, every: 0.3);
+		Console.WriteLine(closed
+			? L($"Substitution made at the stop: {going} off. To play on: match")
+			: L("The change was confirmed, but the tactics panel is still open."));
+		return closed ? 0 : 1;
 	}
 }
