@@ -114,7 +114,7 @@ internal static partial class Program
 		{
 			if (await VisionYearList(data) is not { } list || list.Any(t => t.Length == 0)) return false;
 			goals = await VisionGoals(plan: true);
-			return VisionDrawn(goals) && goals.Select(g => g.Text).Order().SequenceEqual(list.Order());
+			return VisionDrawn(goals) && goals.Select(g => g.Text).Order().SequenceEqual(list.Select(GameWords.Of).Order());
 		}, seconds: 5, every: 0.2);
 		return agree ? goals : null;
 	}

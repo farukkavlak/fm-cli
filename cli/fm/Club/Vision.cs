@@ -54,7 +54,8 @@ internal static partial class Program
 		return rows.EnumerateArray()
 			.OrderBy(r => Field(r, "Table"), StringComparer.Ordinal).ThenBy(r => int.TryParse(JsonRead.RawText(r, "Index"), out var i) ? i : 0)
 			.Select(r => r.GetProperty("Texts").EnumerateArray().Where(t => Field(t, "Path") == "bubble.DisplayString").Select(t => Field(t, "Text")).FirstOrDefault() ?? "")
-			.Where(t => t.Length > 0).ToList();
+			// The plugin puts a bubble into English where the game's tables know it; it is only read to the user.
+			.Where(t => t.Length > 0).Select(GameWords.Of).ToList();
 	}
 
 	/// <param name="plan">The 5 Year Plan's rows (inside #FiveYearPlan) instead of the objectives' tab.</param>
@@ -70,7 +71,8 @@ internal static partial class Program
 			var record = await Fm.Pull(Field(row, "Item"), "ClubVisionMeetingCanObjectiveBeRemoved,VisionObjectiveImportance,ClubVisionMeetingCanObjectiveDisplayImportance");
 			return new VisionGoal(
 				row.GetProperty("Within").EnumerateArray().Any(n => n.GetString() == "ActionableSection"),
-				texts.Where(t => Field(t, "Path") == VisionObjectivePath).Select(t => Field(t, "Text")).FirstOrDefault() ?? "",
+				// In the game's words: printed, and matched against what the user types.
+				GameWords.Of(texts.Where(t => Field(t, "Path") == VisionObjectivePath).Select(t => Field(t, "Text")).FirstOrDefault() ?? ""),
 				texts.Where(t => Field(t, "Name") == "ImportanceText").Select(t => Field(t, "Text")).FirstOrDefault() ?? "",
 				int.TryParse(Field(record, "VisionObjectiveImportance"), out var importance) ? importance : 0,
 				Field(record, "ClubVisionMeetingCanObjectiveBeRemoved") == "True",
