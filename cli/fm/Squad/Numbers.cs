@@ -28,7 +28,12 @@ internal static partial class Program
 			return 1;
 		}
 
-		if (args.Contains("--send")) return await SendList(L("Squad numbers"));
+		// "numbers <player> <no> --send" gives the number first: sent alone, the list is locked without it.
+		if (args.Contains("--send"))
+		{
+			if (Words(args).ToList() is { Count: > 0 } giving && await GiveNumber(giving) is var given and not 0) return given;
+			return await SendList(L("Squad numbers"));
+		}
 		if (args.Contains("--auto"))
 		{
 			if (await EventButton("EventFmxAutoSelect") is not { } assist)
