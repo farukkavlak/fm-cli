@@ -70,7 +70,8 @@ internal static partial class Program
 		foreach (var (rule, typed, what) in wanted)
 		{
 			JsonElement? list = null;
-			await Until(async () => (list = await Under(rule)) != null, seconds: 6, every: 0.4);
+			// The list is drawn before its choices are filled: one read empty refused "21" as an age (8 Aug 2035).
+			await Until(async () => (list = await Under(rule)) != null && list.Value.GetProperty("Choices").GetArrayLength() > 0, seconds: 6, every: 0.4);
 			if (list == null) return await Close(L($"error: no '{what}' in the search panel"));
 			var choices = list!.Value.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 			// A choice the code makes is the game's value for the row ("id:1"); one the user typed is in the
@@ -235,7 +236,8 @@ internal static partial class Program
 			// The row just added is the one whose list was not there before.
 			async Task<JsonElement> Amounts() => (await AmountLists()).Where(d => !amountsBefore.Contains(Field(d, "Pointer"))).ToList() is [var only] ? only : default;
 			JsonElement amounts = default;
-			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object, seconds: 5, every: 0.4))
+			// As with the other lists, the amounts are filled a moment after the list is drawn.
+			if (!await Until(async () => (amounts = await Amounts()).ValueKind == JsonValueKind.Object && amounts.GetProperty("Choices").GetArrayLength() > 0, seconds: 5, every: 0.4))
 				return await Close(L("error: the value condition was not added to the panel"));
 			var figures = amounts.GetProperty("Choices").EnumerateArray().Select(c => c.GetString() ?? "").ToList();
 			var kept = amounts.GetProperty("Values").EnumerateArray().Select(v => v.ValueKind == JsonValueKind.Number ? v.GetRawText() : "").ToList();
