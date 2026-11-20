@@ -24,7 +24,7 @@ internal static class InboxView
 			number++;
 			var unread = Field(message, "NewsItemHasBeenRead") != "True";
 			var title = Ui.Safe(Field(message, "NewsTitleString"));
-			var preview = Field(message, "NewsFirstBubbleSpeechString");
+			var preview = GameWords.Of(Field(message, "NewsFirstBubbleSpeechString"));
 			var subject = (unread ? $"[bold]{title}[/]" : title)
 			              + (preview.Length > 0 ? $"\n[dim]{Ui.Safe(Ui.Fit(preview.Replace('\n', ' '), 90))}[/]" : "");
 

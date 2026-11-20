@@ -13,7 +13,9 @@ internal static partial class Program
 		var page = await OpenMessage(title,
 			t => t.Path == "newsitem.NewsBodyString" && (t.Text != previous || t.Text == opening || previous.Length == 0),
 			seconds: 3);
-		return page.FirstOrDefault(t => t.Path == "newsitem.NewsBodyString").Text is { Length: > 0 } body ? body : opening;
+		// The plugin puts a body the game's table knows whole into English; a line-by-line lookup
+		// misses it, since it splits at the commas inside (seen on the club vision message).
+		return GameWords.Of(page.FirstOrDefault(t => t.Path == "newsitem.NewsBodyString").Text is { Length: > 0 } body ? body : opening);
 	}
 
 	/// <summary>
