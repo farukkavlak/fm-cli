@@ -256,9 +256,15 @@ internal static partial class Program
 		const string shown = "MatchVenue,TeamOpponent.Name,Competition.Name";
 		var ours = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
 		var read = await PullEach(rows.Select(r => (r.Row, $"KickoffTime,HomeScore,AwayScore,HomeTeamWon,AwayTeamWon,ResultType,HomeTeam.UniqueId,AwayTeam.UniqueId,{shown}")).ToList(), shown: shown);
-		return rows.Zip(read).Select(x => new TeamFixture(x.First.Date, Field(x.Second, "KickoffTime"), Field(x.Second, "MatchVenue"),
-			Field(x.Second, "TeamOpponent.Name"), Field(x.Second, "Competition.Name"), x.First.Played,
-			x.First.Played ? $"{Field(x.Second, "HomeScore")} - {Field(x.Second, "AwayScore")}" + ResultMark(x.Second) : "", Field(x.Second, "ResultType"), Venue(ours, Field(x.Second, "HomeTeam.UniqueId"), Field(x.Second, "AwayTeam.UniqueId")))).ToList();
+		return rows.Zip(read).Select(x =>
+		{
+			// Ours first, as the calendar and `fixtures --all` write it: the side is told by the teams' ids.
+			var side = Venue(ours, Field(x.Second, "HomeTeam.UniqueId"), Field(x.Second, "AwayTeam.UniqueId"));
+			var (home, away) = (Field(x.Second, "HomeScore"), Field(x.Second, "AwayScore"));
+			return new TeamFixture(x.First.Date, Field(x.Second, "KickoffTime"), Field(x.Second, "MatchVenue"),
+				Field(x.Second, "TeamOpponent.Name"), Field(x.Second, "Competition.Name"), x.First.Played,
+				x.First.Played ? (side == "A" ? $"{away} - {home}" : $"{home} - {away}") + ResultMark(x.Second) : "", Field(x.Second, "ResultType"), side);
+		}).ToList();
 	}
 
 	/// <summary>
