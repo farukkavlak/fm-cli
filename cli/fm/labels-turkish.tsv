@@ -2908,7 +2908,7 @@ register        competition squad list: who is on it, home-grown quotas, rules; 
 numbers         squad numbers: who wears which, who asked for which, free numbers	numbers         forma numaraları: kim hangisini giyiyor, kim hangisini istedi, boş numaralar
 numbers <player> <no>   give a number (while the game takes them: the start of the season or a new signing);  --send: save	numbers <oyuncu> <no>   numara ver (oyun aldığı sürece: sezon başı ya da yeni transfer);  --send: kaydet
 --auto        let the assistant hand them out and send	--auto        yardımcı dağıtsın ve göndersin
-setpieces new [<no> …]      set up the set piece routines (six questions; asks in the terminal what is not given)	setpieces new [<no> …]      duran top düzenlerini kur (altı soru; verilmeyeni terminalde sorar)
+setpieces new [<no> …]      set up the set piece routines (six questions; at a terminal asks what is not given, in a script stops at it)	setpieces new [<no> …]      duran top düzenlerini kur (altı soru; verilmeyeni terminalde sorar, betikte orada durur)
 setpieces <kind>            a routine: delivery, target, the players' duties (corner, freekick, wide, deep, throw)	setpieces <tür>            düzen: orta, hedef, oyuncuların görevleri (corner, freekick, wide, deep, throw)
 setpieces <kind> delivery <in|out> | aim <option> | <place> <duty> [<otherwise>]   change the routine	setpieces <tür> delivery <in|out> | aim <seçenek> | <yer> <görev> [<yoksa>]   düzeni değiştir
 tactic          the team's tactic: style, mentality, fluidity, eleven positions and roles	tactic          takımın taktiği: stil, mentalite, akışkanlık, on bir mevki ve rol
@@ -3006,3 +3006,7 @@ The match's tactics did not open.	Maçın taktik ekranı açılmadı.
 The change was chosen, but the panel's Confirm stayed off.	Değişiklik seçildi ama ekranın onay düğmesi kapalı kaldı.
 Substitution made at the stop: {0} off. To play on: match	Duraklamada oyuncu değişikliği yapıldı: {0} çıktı. Devam için: match
 The change was confirmed, but the tactics panel is still open.	Değişiklik onaylandı ama taktik ekranı hâlâ açık.
+Question:	Soru:
+\nThe wizard is open at this question (● is the game's suggestion). To answer: setpieces new <no> [<no> …]	\nSihirbaz bu soruda açık (● oyunun önerisi). Cevaplamak için: setpieces new <no> [<no> …]
+Set pieces come after a tactic, and the team has none. To create one: tactic new	Duran toplar taktikten sonra kurulur ve takımın taktiği yok. Oluşturmak için: tactic new
+Question	Soru

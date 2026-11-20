@@ -198,7 +198,7 @@ internal static partial class Program
 			  numbers         squad numbers: who wears which, who asked for which, free numbers
 			    numbers <player> <no>   give a number (while the game takes them: the start of the season or a new signing);  --send: save
 			    --auto        let the assistant hand them out and send
-			  setpieces new [<no> …]      set up the set piece routines (six questions; asks in the terminal what is not given)
+			  setpieces new [<no> …]      set up the set piece routines (six questions; at a terminal asks what is not given, in a script stops at it)
 			  setpieces <kind>            a routine: delivery, target, the players' duties (corner, freekick, wide, deep, throw)
 			  setpieces <kind> delivery <in|out> | aim <option> | <place> <duty> [<otherwise>]   change the routine
 			  tactic          the team's tactic: style, mentality, fluidity, eleven positions and roles

@@ -83,6 +83,8 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"'{words[0]}' is not a set piece type.\n{RoutineUsage}"));
 			return 64;
 		}
+		// The hints name the kind in the word the user typed ("corner" or "korner"), not the list's first.
+		kind = kind with { Words = [Fold(words[0]), .. kind.Words] };
 		words.RemoveAt(0);
 
 		var opened = inMatch ? await MatchSetPieces() : await OpenPage(Screen.SetPieces);

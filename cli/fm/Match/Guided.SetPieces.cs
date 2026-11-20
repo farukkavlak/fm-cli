@@ -60,6 +60,12 @@ internal static partial class Program
 
 		if (await Sending(nextEvent) == null)
 		{
+			// The set pieces page holds its routines for a tactic: with none it offers only the way to the tactic screen.
+			if (await Planner() == null)
+			{
+				Console.Error.WriteLine(L("Set pieces come after a tactic, and the team has none. To create one: tactic new"));
+				return 1;
+			}
 			Console.Error.WriteLine(L("The set piece wizard could not be started: the set pieces page offers it only while no routines are set up. To change a routine: setpieces <type>"));
 			return 1;
 		}
@@ -87,23 +93,31 @@ internal static partial class Program
 				pick = asked;
 			}
 
-			// At a terminal an unanswered question is asked, starting on the game's choice;
-			// with no one to ask, the game's choice stands.
+			// With no one to ask, an unanswered question is shown and the wizard left open at it: no choice is made
+			// for the user. The next `setpieces new <no> …` answers from this question on.
+			if (step >= picks.Count && !Ui.Interactive && !dry)
+			{
+				Console.WriteLine(L("Question:"));
+				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {(choices[n] == current ? "●" : "○")} {n + 1}  {GameWords.Of(choices[n])}");
+				Console.WriteLine(L("\nThe wizard is open at this question (● is the game's suggestion). To answer: setpieces new <no> [<no> …]"));
+				return 0;
+			}
+
+			// At a terminal an unanswered question is asked, starting on the game's choice.
 			if (step >= picks.Count && Ui.Interactive && !dry)
 			{
-				if (Ui.Ask(L($"Question {step + 1}"), choices, choices.IndexOf(current ?? ""), cancel: L("Leave the wizard here")) is not { } chosen)
+				if (Ui.Ask(L("Question"), choices.Select(GameWords.Of).ToList(), choices.IndexOf(current ?? ""), cancel: L("Leave the wizard here")) is not { } chosen)
 				{
 					Console.WriteLine(L("The wizard was left open at this question. To go on: setpieces new"));
 					return 0;
 				}
 				pick = choices[chosen];
-				Console.WriteLine($"{step + 1}. {pick}");
+				Console.WriteLine($"✓ {GameWords.Of(pick ?? "")}");
 			}
+			else if (dry)
+				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {(choices[n] == pick ? "●" : "○")} {n + 1}  {GameWords.Of(choices[n])}");
 			else
-			{
-				Console.WriteLine($"{step + 1}.");
-				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {(choices[n] == pick ? "●" : "○")} {n + 1}  {choices[n]}");
-			}
+				Console.WriteLine($"✓ {GameWords.Of(pick ?? "")}");
 
 			if (dry)
 			{
