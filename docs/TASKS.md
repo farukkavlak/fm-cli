@@ -26,7 +26,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T60 Board meeting and requests; job offers while employed; being sacked
   - Job offer while employed: TR 1/1 (20 Nov, Samsunspor: invite → interview → offer → refused); no scenario kept. Left: EN
   - Being sacked: TR 1/1 (20 Nov, Antalyaspor, Jan 2036; scenario `sacked`), then interview and new job (scenario `new-job`)
-    - EN from `sacked`: unemployed status, jobs, apply / interest (and their repeats), interview; offer → contract → new club from `job-offer`. Left: the sacking itself in EN
+    - EN from `sacked`: unemployed status, jobs, apply / interest (and their repeats), interview; offer → contract → new club from `job-offer`. Sacking itself in EN 1/1 (scenario `before-sack`, 21 Jan → 28 Jan 2036): forward stops on it, unemployed status, jobs
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
   - [ ] A player asking for a new contract: not met yet
 - [ ] T63 Match: substitution screen, shouts, set pieces edited in a match
