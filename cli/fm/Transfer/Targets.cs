@@ -39,6 +39,10 @@ internal static partial class Program
 		var typed = string.Join(" ", words);
 		// The game's own abbreviation first ("KL" in a Turkish game), then the code, then a Turkish name.
 		var slot = PositionTyped(typed) ?? PositionTurkish.GetValueOrDefault(Fold(typed), typed);
+		// As the game writes it beside a player ("OS (M)"): its words are learned from the squad.
+		if (!PositionNames.ContainsKey(new string(slot.Where(char.IsLetter).ToArray())) && typed.Contains('(')
+		    && await PositionsFromShown(typed) is [var single])
+			slot = single;
 		if (!PositionNames.ContainsKey(new string(slot.Where(char.IsLetter).ToArray())))
 		{
 			Console.Error.WriteLine(L($"There is no position called '{typed}'. Positions: {string.Join(" ", DepthRows.SelectMany(r => r).Select(PositionShown))}  (or: {string.Join(", ", PositionTurkish.Keys)})"));
