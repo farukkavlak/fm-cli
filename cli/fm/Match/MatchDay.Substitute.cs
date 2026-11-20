@@ -339,6 +339,8 @@ internal static partial class Program
 		static JsonElement? Sending(JsonElement buttons, string ev) => buttons.EnumerateArray()
 			.Where(b => Field(b, "Visible") == "True" && Field(b, "Events").Contains(ev, StringComparison.Ordinal))
 			.Cast<JsonElement?>().FirstOrDefault();
+		// Positions are named in the game's words ("OOSM", not "AMC") once its abbreviations are loaded.
+		await EngineTexts.Positions(Fm);
 		const string open = "MatchOpenTactics", confirm = "MatchCloseTacticalPanel:Confirm", cancel = "MatchCloseTacticalPanel:Cancel";
 		var buttons = await Fm.GetJson("buttons", ("json", "1"));
 		var opened = false;

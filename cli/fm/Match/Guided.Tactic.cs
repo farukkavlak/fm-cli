@@ -160,6 +160,8 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int> TacticPlayer(List<string> words, bool dry)
 	{
+		// Reached from sub as well as from tactic: positions are named in the game's words either way.
+		await EngineTexts.Positions(Fm);
 		if (await Planner() is not { } tactic)
 		{
 			Console.Error.WriteLine(L("The team has no tactic. To create one: tactic new"));
