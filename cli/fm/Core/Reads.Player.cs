@@ -68,13 +68,15 @@ internal static partial class Program
 		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Card.ShirtNumber(Field(player, "SquadNumber"))), Suffixed(Field(player, "Age"), L(" years old")),
 			GameWords.Of(Field(player, "Nation")), GameWords.Of(Field(player, "PositionCombinedStringLong"))));
 		Console.WriteLine(Line(" · ", Prefixed(L("Value "), Field(player, "Value")), Prefixed(L("Wage "), Field(player, "Wage")),
-			Prefixed(L("Contract "), Field(player, "ContractEnds")), GameWords.Of(Field(player, "PlayingTime"))));
+			Prefixed(L("Contract "), GameWords.Of(Field(player, "ContractEnds"))), GameWords.Of(Field(player, "PlayingTime"))));
 		// A game word stuck to its label with one space is not told apart from it on the way out: put in the game's words here.
 		Console.WriteLine(Line(" · ", Prefixed(L("Condition "), GameWords.Of(Field(player, "ConditionString"))), Prefixed(L("Personality "), GameWords.Of(Field(player, "Personality"))),
 			Prefixed(L("Right foot "), GameWords.Of(Field(player, "RightFootednessString"))), Prefixed(L("Left foot "), GameWords.Of(Field(player, "LeftFootednessString"))),
 			Suffixed(Field(player, "Height"), " cm"), Field(player, "InternationalCapsAndGoalsString")));
 
-		if (ability.Count > 0) Console.WriteLine(L($"Ability (last four months): {string.Join(" → ", ability.Select(v => GameNumbers.Of(v, "0.#")))} /200"));
+		// The game keeps one reading a month for most, but dozens for some young players (a 21-year-old's came to 52):
+		// the latest four are shown, the JSON keeps them all.
+		if (ability.Count > 0) Console.WriteLine(L($"Ability (latest readings): {string.Join(" → ", ability.TakeLast(4).Select(v => GameNumbers.Of(v, "0.#")))} /200"));
 		if (potential > 0) Console.WriteLine(L($"Potential (as the club sees it): {potential}/200"));
 		var injury = Field(player, "InjuryDescription");
 		if (injury.Length > 0) Console.WriteLine(L($"Injury: {injury}"));

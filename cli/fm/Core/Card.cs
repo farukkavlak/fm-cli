@@ -21,7 +21,7 @@ internal static class Card
 			$"[dim]{Ui.Safe(GameWords.Of(F(player, "PositionCombinedStringLong")))}[/]",
 			"",
 			Pair(L("Value"), F(player, "Value")) + Pair(L("Wage"), F(player, "Wage")),
-			Pair(L("Contract"), F(player, "ContractEnds")) + Pair(L("Role"), GameWords.Of(F(player, "PlayingTime"))),
+			Pair(L("Contract"), GameWords.Of(F(player, "ContractEnds"))) + Pair(L("Role"), GameWords.Of(F(player, "PlayingTime"))),
 			Pair(L("Condition"), F(player, "ConditionString")) + Pair(L("Personality"), GameWords.Of(F(player, "Personality"))),
 			Pair(L("Foot"), Feet(player)) + Pair(L("Height"), Suffixed(F(player, "Height"), " cm")),
 			Pair(L("International"), F(player, "InternationalCapsAndGoalsString"))
@@ -32,9 +32,11 @@ internal static class Card
 
 		if (ability is { Count: > 0 })
 		{
-			var change = ability[^1] - ability[0];
+			// The latest four readings: most players have one a month, some young ones dozens.
+			var latest = ability.TakeLast(4).ToList();
+			var change = latest[^1] - latest[0];
 			var colour = change > 0.5 ? "green" : change < -0.5 ? "red" : "white";
-			who.Add(L($"[dim]Ability[/] [{colour}]{string.Join(" → ", ability.Select(v => GameNumbers.Of(v, "0.#")))}[/][dim]/200, last four months[/]"));
+			who.Add(L($"[dim]Ability[/] [{colour}]{string.Join(" → ", latest.Select(v => GameNumbers.Of(v, "0.#")))}[/][dim]/200, latest readings[/]"));
 		}
 		if (potential > 0) who.Add(L($"[dim]Potential[/] [yellow]{potential}[/][dim]/200, as the club sees it[/]"));
 		var injury = F(player, "InjuryDescription");

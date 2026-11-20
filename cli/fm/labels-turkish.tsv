@@ -686,7 +686,7 @@ No player called '{0}' in the squad or in search.	'{0}' adında bir oyuncu kadro
 The player page did not open for {0}.	{0} için oyuncu sayfası açılmadı.
 Another {0}'s page opened, not the one in the squad.	Kadrodaki değil, başka bir {0} sayfası açıldı.
 usage: player <name or part of a name> [--actions] [--career] [--matches] [--report]	kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches] [--report]
-Ability (last four months): {0} /200	Yetenek (son dört ay): {0} /200
+Ability (latest readings): {0} /200	Yetenek (son ölçümler): {0} /200
 Potential (as the club sees it): {0}/200	Potansiyel (kulübün gözünden): {0}/200
 Injury: {0}	Sakatlık: {0}
 Traits: {0}	Alışkanlıklar: {0}
@@ -1347,7 +1347,7 @@ Youth {0}: {1} ({2}) {3}	Altyapı {0}: {1} ({2}) {3}
 Role	Rol
 Condition	Kondisyon
 {0} apps	{0} maç
-[dim]Ability[/] [{0}]{1}[/][dim]/200, last four months[/]	[dim]Yetenek[/] [{0}]{1}[/][dim]/200, son dört ay[/]
+[dim]Ability[/] [{0}]{1}[/][dim]/200, latest readings[/]	[dim]Yetenek[/] [{0}]{1}[/][dim]/200, son ölçümler[/]
 [dim]Potential[/] [yellow]{0}[/][dim]/200, as the club sees it[/]	[dim]Potansiyel[/] [yellow]{0}[/][dim]/200, kulübün gözünden[/]
 [red]Injury:[/] {0}	[red]Sakatlık:[/] {0}
 [dim]Traits:[/] {0}	[dim]Alışkanlıklar:[/] {0}
