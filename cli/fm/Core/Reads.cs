@@ -258,6 +258,33 @@ internal static partial class Program
 	/// so a part of one of ours is completed before searching. The page is opened the way a
 	/// user opens it, so its actions are on screen too.
 	/// </summary>
+	/// <summary>
+	/// The players of the club's youth sides, by the club's own references to them (YouthTeam, HighestLevelYouthTeam):
+	/// each is set at a node of ours and its list read there, once every row has a name.
+	/// </summary>
+	private static async Task<List<JsonElement>> YouthPlayers()
+	{
+		var found = new List<JsonElement>();
+		foreach (var (team, i) in new[] { "Human.Club.YouthTeam", "Human.Club.HighestLevelYouthTeam" }.Select((t, i) => (t, i)))
+		{
+			try
+			{
+				if (Field(await Fm.Pull(team, "UniqueId"), "UniqueId").Length == 0) continue;
+				await Fm.Get("pathset", ("to", $"fmcli.youth{i}"), ("from", team));
+				List<JsonElement> rows = [];
+				await Until(async () =>
+				{
+					var read = await Fm.GetJson("pull", ("path", $"fmcli.youth{i}.Players"), ("props", "Name,UniqueId"), ("list", "1"));
+					rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().ToList() : [];
+					return rows.Count > 0 && rows.All(r => Field(r, "Name").Length > 0 && Field(r, "UniqueId").Length > 0);
+				}, seconds: 4, every: 0.25);
+				found.AddRange(rows.Where(r => Field(r, "Name").Length > 0 && found.All(f => Field(f, "UniqueId") != Field(r, "UniqueId"))));
+			}
+			catch (FmError) { }
+		}
+		return found;
+	}
+
 	private static async Task<JsonElement?> OpenPlayer(string wanted)
 	{
 		// "Charlie Jones #12345": the game's own id picks one of several with the same name, as the list of
@@ -277,6 +304,8 @@ internal static partial class Program
 			return all.Count > 0 && all.All(p => Field(p, "Name").Length > 0);
 		}, seconds: 15, every: 0.25);
 		var records = all.Where(p => Field(p, "Name").Length > 0).ToList();
+		// Ours in the youth sides too: "Yunus" is ours when the under-19s have him, and search alone found two others.
+		records.AddRange((await YouthPlayers()).Where(y => records.All(r => Field(r, "UniqueId") != Field(y, "UniqueId"))));
 		var squad = records.Select(p => Field(p, "Name")).Distinct().ToList();
 		var own = squad.Where(n => Fold(n).Contains(folded, StringComparison.Ordinal)).ToList();
 
