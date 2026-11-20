@@ -187,7 +187,19 @@ internal static partial class Program
 		// A substitute's place has no position, so it goes by who is in it now: "tactic player Tosto
 		// Nabian" took an injured man off the bench, which the game will not start a match with.
 		var at = SlotOf(masks, words[0], L("Position"), quiet: true) ?? -1;
-		var benched = at >= 0 ? -1 : Matching(benchNames, n => n, words[0]) is [var one] ? benchNames.IndexOf(one) : -1;
+		// The bench shows short names ("Engel"); each is also known by the full name of the man in it, by his index.
+		var benched = -1;
+		if (at < 0)
+		{
+			benched = Matching(benchNames, n => n, words[0]) is [var one] ? benchNames.IndexOf(one) : -1;
+			if (benched < 0 && squad.Count > 0)
+			{
+				var fullNames = (await Fm.Pull("Human.Team.Players", "Name,Index", list: true)).EnumerateArray()
+					.GroupBy(p => Field(p, "Index")).ToDictionary(g => g.Key, g => Field(g.First(), "Name"));
+				var benchFull = squad.Select(e => fullNames.GetValueOrDefault(Field(e, "PlayerIndex")) ?? "").ToList();
+				if (Matching(benchFull.Where(n => n.Length > 0).ToList(), n => n, words[0]) is [var whole]) benched = benchFull.IndexOf(whole);
+			}
+		}
 		if (at < 0 && benched < 0)
 		{
 			SlotOf(masks, words[0], L("Position"));
