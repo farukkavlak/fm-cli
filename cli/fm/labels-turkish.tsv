@@ -682,7 +682,7 @@ WHO	KİM
 {0} is in the squad, but could be opened neither in search nor in the squad table.	{0} kadroda ama ne aramada ne kadro tablosunda açılabildi.
 No player called '{0}' in the squad or in search.	'{0}' adında bir oyuncu kadroda da aramada da yok.
 '{0}' did not come up exactly in search; the closest:	'{0}' aramada tam olarak çıkmadı; en yakınlar:
-'{0}' matches {1} players in search; type a bit more of the name:	'{0}' aramada {1} oyuncuya uyuyor; adı biraz daha yaz:
+'{0}' matches {1} players in search; type a bit more of the name, or add the id:	'{0}' aramada {1} oyuncuya uyuyor; adı biraz daha yaz ya da kimliği ekle:
 The player page did not open for {0}.	{0} için oyuncu sayfası açılmadı.
 Another {0}'s page opened, not the one in the squad.	Kadrodaki değil, başka bir {0} sayfası açıldı.
 usage: player <name or part of a name> [--actions] [--career] [--matches] [--report]	kullanım: player <isim ya da ismin bir parçası> [--actions] [--career] [--matches] [--report]
@@ -2998,3 +2998,6 @@ The match's tweaks could not be read.	Maçın taktik ayarları okunamadı.
   Opposition instruction: {0}	  Rakip talimatı: {0}
 Coming off	Çıkan
 The set piece wizard could not be started: the set pieces page offers it only while no routines are set up. To change a routine: setpieces <type>	Duran top sihirbazı başlatılamadı: duran top sayfası onu yalnızca hiç rutin kurulmamışken sunar. Bir rutini değiştirmek için: setpieces <tür>
+No player called '{0}' has the id {1}.	'{0}' adlı oyuncuların hiçbirinin kimliği {1} değil.
+'{0}' is the name of {1} players:	'{0}' adında {1} oyuncu var:
+One of them by its id: player "{0} #{1}"	Birini kimliğiyle açmak için: player "{0} #{1}"

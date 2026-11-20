@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace FmCli;
 
@@ -259,6 +260,11 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<JsonElement?> OpenPlayer(string wanted)
 	{
+		// "Charlie Jones #12345": the game's own id picks one of several with the same name, as the list of
+		// them prints it; nothing else (club, age, order) tells them apart in every save.
+		var idMark = Regex.Match(wanted, @"\s*#(\d+)\s*$");
+		var wantedId = idMark.Success ? idMark.Groups[1].Value : "";
+		if (idMark.Success) wanted = wanted[..idMark.Index];
 		var folded = Fold(wanted);
 		// Just after a load the squad can read as no one, or as ids without names (24 Jun 2032): the player was then
 		// looked for in search alone, which found nobody, or someone else of a like name. A club always has a
@@ -277,7 +283,8 @@ internal static partial class Program
 		// A page already open is his when it shows the record asked for: a player of ours is known
 		// by his id, as someone elsewhere can have his name ("Ederson").
 		var card = await Fm.GetJson("player");
-		if (card.TryGetProperty("Player", out var open) && Fold(Field(open, "Name")).Contains(folded, StringComparison.Ordinal))
+		if (card.TryGetProperty("Player", out var open) && Fold(Field(open, "Name")).Contains(folded, StringComparison.Ordinal)
+		    && (wantedId.Length == 0 || (await RecordIds([Field(open, "Path")]))[0] == wantedId))
 		{
 			var ours = records.Where(p => Fold(Field(p, "Name")) == Fold(Field(open, "Name"))).Select(p => Field(p, "UniqueId")).ToList();
 			if (own.Count == 0 || ours.Contains((await RecordIds([Field(open, "Path")]))[0])) return await Named(card);
@@ -360,6 +367,29 @@ internal static partial class Program
 			var starting = close.Where(r => (" " + Fold(Field(r, "Name"))).Contains(" " + folded, StringComparison.Ordinal)).ToList();
 			if (exact.Count == 1) close = exact;
 			else if (starting.Count > 0) close = starting;
+			List<string> closeIds = [];
+			if (close.Count > 1)
+			{
+				closeIds = await RecordIds([.. close.Select(r => Field(r, "Path"))]);
+				if (wantedId.Length > 0)
+				{
+					var byId = close.Where((_, i) => closeIds[i] == wantedId).ToList();
+					if (byId.Count == 0)
+					{
+						Console.Error.WriteLine(L($"No player called '{wanted}' has the id {wantedId}."));
+						wantedId = "";
+					}
+					else close = byId;
+				}
+				// The same name more than once: typing more of it cannot tell them apart.
+				else if (Ui.Interactive && close.Select(r => Fold(Field(r, "Name"))).Distinct().Count() == 1)
+				{
+					var whom = await Who(close);
+					if (Ui.Ask(L($"'{wanted}' is the name of {close.Count} players:"), [.. close.Select((r, i) => $"{Field(r, "Name")}  ({whom[i]})")], cancel: L("None")) is not { } picked)
+						return null;
+					close = [close[picked]];
+				}
+			}
 			// One name only a typo away from what was typed is someone else as often as a typo: "Yunus Eker", ours,
 			// came up as another club's Yunus Emre Konak while the squad had not been read yet (T141). It is
 			// offered, not opened: asked in a terminal, said otherwise.
@@ -387,14 +417,20 @@ internal static partial class Program
 					? L($"No player called '{wanted}' in the squad or in search.")
 					: close.Count == 0
 						? L($"'{wanted}' did not come up exactly in search; the closest:")
-						: L($"'{wanted}' matches {close.Count} players in search; type a bit more of the name:"));
+						: L($"'{wanted}' matches {close.Count} players in search; type a bit more of the name, or add the id:"));
 				var hits = close.Count == 0 ? found : close;
 				var who = await Who(hits);
-				for (var i = 0; i < hits.Count; i++) Console.Error.WriteLine($"  {Field(hits[i], "Name")}  ({who[i]})");
+				// Each with the game's id, which is what picks one when names are the same.
+				var hitIds = close.Count > 1 && closeIds.Count == close.Count ? closeIds : [];
+				for (var i = 0; i < hits.Count; i++)
+					Console.Error.WriteLine($"  {Field(hits[i], "Name")}{(i < hitIds.Count && hitIds[i].Length > 0 ? $" #{hitIds[i]}" : "")}  ({who[i]})");
+				if (hitIds.Count > 0) Console.Error.WriteLine(L($"One of them by its id: player \"{Field(hits[0], "Name")} #{hitIds[0]}\""));
 				return null;
 			}
 			full = Field(close[0], "Name");
 			result = Field(close[0], "Path");
+			// One of several with this name: his page is believed only once it shows his record, as for one of ours.
+			if (closeIds.Count > 0) id = (await RecordIds([result]))[0];
 		}
 
 		// Each result has a button of its own; the plugin finds the one fed from this result's
