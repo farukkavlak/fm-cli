@@ -43,7 +43,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 
-- [ ] T78 Two full seasons through the CLI, Turkish game
+- [x] T78 Two full seasons through the CLI, Turkish game
+  - 2034/35 and 2035/36 (sacked in Jan, new club, stayed up); season-end vision, team meeting and preseason date through the tool; scenario `season-end`
 - [ ] T79 Two full seasons through MCP, English game
 - [ ] T80 A third language: one month through the CLI, sweep passes
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
