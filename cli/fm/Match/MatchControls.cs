@@ -531,12 +531,18 @@ internal static partial class Program
 		var list = $"{scope}.NextOppositionInstructions.OppositionPredictedLineupInstructions";
 		List<JsonElement> rows = [];
 		// A list bound just now has its values on the second reading.
+		// The match tactic can hold no prediction of their eleven yet ("… is not a list"): then there is nothing to
+		// compare, and the card is still applied (it failed whole before, 3 Dec 2034, TR).
+		var noList = false;
 		await Until(async () =>
 		{
-			var read = await Fm.GetJson("pull", ("path", list), ("props", string.Join(",", OppositionFields)), ("list", "1"), ("gen", scope));
+			JsonElement read;
+			try { read = await Fm.GetJson("pull", ("path", list), ("props", string.Join(",", OppositionFields)), ("list", "1"), ("gen", scope)); }
+			catch (FmError) { noList = true; return true; }
 			rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().ToList() : [];
 			return rows.Count > 0 && rows.All(r => Field(r, OppositionFields[0]).Length > 0);
 		}, seconds: 3, every: 0.2);
+		if (noList) return found;
 		foreach (var row in rows)
 		{
 			var who = await Fm.GetJson("pull", ("path", $"{Field(row, "Row")}.Player"), ("props", "UniqueId,Name"), ("gen", scope));
@@ -639,6 +645,9 @@ internal static partial class Program
 
 	internal static async Task<bool> ApplyStaffSuggestion(StaffAdvice advice, bool quiet = false)
 	{
+		// A suggestion for one of theirs ("… için rakip talimatı ekle: Sürekli sıkı markaj yap") sets that man's opposition
+		// instruction in the match tactic: read before and after by his UniqueId, as an in-match card is (T171).
+		var oppositionBefore = await FindMatchTactic() && matchTactic != null ? await OppositionNow() : [];
 		var said = await Fm.Get("press", ("ptr", advice.Pointer));
 		if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said) == 0;
 		if (!await Until(async () => await StaffSuggestion() == null, seconds: 5, every: 0.25))
@@ -646,7 +655,14 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"{advice.Change} — the button was pressed, but the suggestion is still there."));
 			return false;
 		}
-		if (!quiet) Console.WriteLine(L($"Applied: {advice.Change}"));
+		var changed = new List<(string Id, string Name, string Field, string From, string To)>();
+		if (oppositionBefore.Count > 0)
+			await Until(async () => (changed = OppositionChanges(oppositionBefore, await OppositionNow())).Count > 0, seconds: 5, every: 0.5);
+		if (!quiet)
+		{
+			Console.WriteLine(L($"Applied: {advice.Change}"));
+			foreach (var (_, name, field, _, _) in changed) Console.WriteLine(L($"  Opposition instruction: {name} · {OppositionFieldWord(field)}"));
+		}
 		return true;
 	}
 
