@@ -18,6 +18,7 @@ internal static class Talk
 	{
 		var says = new SortedDictionary<int, string>();
 		var moods = new Dictionary<string, int>();
+		var levels = new Dictionary<string, string>();
 		var answers = new List<Dictionary<string, string>>();
 		var seen = new HashSet<string>();
 
@@ -34,6 +35,9 @@ internal static class Talk
 				case "InteractionBodyLanguageString":
 					var mood = Text.Of(node.Value);
 					if (mood.Length > 0) moods[mood] = moods.TryGetValue(mood, out var count) ? count + 1 : 1;
+					// The mood's own number beside its words: what it means is told by that, in every language.
+					if (mood.Length > 0 && node.Parent != null && Report.Fields(node.Parent).TryGetValue("InteractionBodyLanguageLevel", out var level))
+						levels[mood] = level;
 					break;
 
 				case "Action":
@@ -59,6 +63,7 @@ internal static class Talk
 
 		return "{\"Says\": [" + string.Join(", ", says.Values.Select(Quote)) + "], "
 		       + "\"Mood\": " + Report.Json(counts) + ", "
+		       + "\"MoodLevel\": " + Report.Json(levels) + ", "
 		       + "\"Answers\": [" + string.Join(", ", answers.Select(Report.Json)) + "]}\n";
 	}
 

@@ -261,15 +261,16 @@ internal static partial class Program
 		return change == 0 ? "" : $" ({(change > 0 ? "+" : "")}{change})";
 	}
 
-	/// <summary>A reaction in the colour of its mood, its move marked.</summary>
-	private static string MoodRich(string reaction, int now)
+	/// <summary>
+	/// A reaction in the colour of its mood, its move marked. The colour is the game's own level for the mood
+	/// (InteractionBodyLanguageLevel: 1 negative, 5 neutral or expressionless, 8 very positive; measured 21 Feb 2036),
+	/// never its words. A mood without a level is left uncoloured.
+	/// </summary>
+	private static string MoodRich(string reaction, int now, string level)
 	{
-		var lower = reaction.ToLowerInvariant();
-		var colour = lower.Contains("angry") || lower.Contains("annoyed") || lower.Contains("disappoint") || lower.Contains("unhappy") || lower.Contains("negative") || lower.Contains("frustrat")
-			? "red"
-			: lower.Contains("neutral") || lower.Contains("expressionless") || lower.Contains("content") ? "grey" : "green";
+		var colour = int.TryParse(level, out var l) ? l < 5 ? "red" : l == 5 ? "grey" : "green" : "default";
 		var moved = Moved(reaction, now);
-		return $"[{colour}]{now} {Ui.Safe(reaction)}[/]{(moved.Length > 0 ? $"[bold]{moved}[/]" : "")}";
+		return $"[{colour}]{now} {Ui.Safe(GameWords.Of(reaction))}[/]{(moved.Length > 0 ? $"[bold]{moved}[/]" : "")}";
 	}
 
 	/// <summary>
@@ -477,10 +478,11 @@ internal static partial class Program
 			}
 
 			// How the room took the last line: each reaction with how many it moved by.
+			var levels = talk.TryGetProperty("MoodLevel", out var lv) ? lv.EnumerateObject().ToDictionary(m => m.Name, m => m.Value.GetString() ?? "") : [];
 			var counts = talk.GetProperty("Mood").EnumerateObject()
 				.ToDictionary(m => m.Name, m => int.TryParse(m.Value.GetString(), out var n) ? n : 0);
 			var mood = counts.OrderByDescending(m => m.Value)
-				.Select(m => Ui.Rich ? MoodRich(m.Key, m.Value) : $"{m.Value} {GameWords.Of(m.Key)}{Moved(m.Key, m.Value)}")
+				.Select(m => Ui.Rich ? MoodRich(m.Key, m.Value, levels.TryGetValue(m.Key, out var level) ? level : "") : $"{m.Value} {GameWords.Of(m.Key)}{Moved(m.Key, m.Value)}")
 				.ToList();
 			if (mood.Count > 0)
 			{
