@@ -28,8 +28,8 @@ internal static partial class Program
 		}
 
 		// The wizard's steps, by the events their buttons send: Start on its first card, then Next
-		// (the last one under another label, Confirm). FM27 offers the wizard only when the game asks
-		// for it (the set-piece message of the first season, Respond 14).
+		// (the last one under another label, Confirm). The game opens it with its set-piece message
+		// (Respond 14), and the set pieces page offers it while no routines are set up.
 		const string startEvent = "EventFmxSetPieceCreatorStart", nextEvent = "EventFmxSetPieceCreatorNextStep";
 		var picks = words.Skip(1).ToList();
 		var dry = args.Contains("--dry");
@@ -37,6 +37,15 @@ internal static partial class Program
 			(await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 			.Where(b => Field(b, "Events").Contains(ev, StringComparison.Ordinal) && Field(b, "Enabled") == "True" && Field(b, "Visible") == "True")
 			.Cast<JsonElement?>().FirstOrDefault();
+
+		// Not asked by a message, the wizard starts from the set pieces page: while no routines are set up
+		// it carries the same Start button (19 Nov, a new club in Belgium).
+		if (await Sending(startEvent) == null && await Sending(nextEvent) == null)
+		{
+			var opened = await OpenPage(Screen.SetPieces);
+			if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+			await Until(async () => await Sending(startEvent) != null, seconds: 5);
+		}
 
 		if (await Sending(startEvent) is { } begin)
 		{
@@ -51,7 +60,7 @@ internal static partial class Program
 
 		if (await Sending(nextEvent) == null)
 		{
-			Console.Error.WriteLine(L("The set piece wizard is not open: the game offers it only when it asks (its set-piece message). To change a routine: setpieces <type>"));
+			Console.Error.WriteLine(L("The set piece wizard could not be started: the set pieces page offers it only while no routines are set up. To change a routine: setpieces <type>"));
 			return 1;
 		}
 

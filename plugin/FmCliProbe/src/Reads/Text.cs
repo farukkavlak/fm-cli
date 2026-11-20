@@ -238,6 +238,9 @@ internal static class Localisation
 		// English once (by number) pass through here again on their way out, and the shown-to-English
 		// map would turn them into another text ("A" for away is a Turkish word for "For").
 		if (map == null || englishTexts.Contains(shown)) return shown;
+		// A text without a letter (a day of the month, a score, an amount) is not a word: in a German game
+		// "6" is the text some English "F" is translated to, and the calendar's sixth day came out "F".
+		if (!System.Linq.Enumerable.Any(shown, char.IsLetter)) return shown;
 		if (map.TryGetValue(shown, out var english)) return Saw(english, shown);
 		// A text with a note after it ("Remove from Shortlist (Default)") is two of the table's
 		// texts put together; each part is put into English on its own.
