@@ -13,9 +13,12 @@ if [ ! -d "$BESIDE/BepInEx/core" ]; then
 fi
 rm -rf "$STAGE"; mkdir -p "$STAGE/game/BepInEx"
 # BepInEx and what starts it. Its generated files (interop, cache) belong to one game version: the first start makes them.
-for d in core config patchers plugins unity-libs; do
+for d in core patchers unity-libs; do
 	[ -e "$BESIDE/BepInEx/$d" ] && cp -R "$BESIDE/BepInEx/$d" "$STAGE/game/BepInEx/"
 done
+# Only BepInEx's own settings: other mods' settings and plugins on this machine stay out.
+mkdir -p "$STAGE/game/BepInEx/config"
+cp "$BESIDE/BepInEx/config/BepInEx.cfg" "$STAGE/game/BepInEx/config/"
 cp -R "$BESIDE/dotnet_arm64" "$BESIDE/libdoorstop.dylib" "$STAGE/game/"
 cp tools/fm27-bep/run_bepinex_arm64.sh "$STAGE/game/"
 
