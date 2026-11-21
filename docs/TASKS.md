@@ -23,8 +23,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - Sign: the main thread in `-[NSAlert runModal]`. Its only known trigger went with T92's fix
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique
   - 19 Nov: goalkeeper up front and a striker in goal, a day on: still "no advice" (the game's own panel says so too)
-- [ ] T60 Board meeting and requests; job offers while employed; being sacked
-  - Job offer while employed: TR 1/1 (20 Nov, Samsunspor: invite → interview → offer → refused); no scenario kept. Left: EN
+- [x] T60 Board meeting and requests; job offers while employed; being sacked
+  - Job offer while employed: TR 1/1 (20 Nov, Samsunspor: invite → interview → offer → refused); EN 1/1 (Başakşehir: apply, repeat refused, interview, offer, own board's keep-you meeting → budget raised, offer refused; scenarios `employed-interview`, `employed-offer`)
   - Being sacked: TR 1/1 (20 Nov, Antalyaspor, Jan 2036; scenario `sacked`), then interview and new job (scenario `new-job`)
     - EN from `sacked`: unemployed status, jobs, apply / interest (and their repeats), interview; offer → contract → new club from `job-offer`. Sacking itself in EN 1/1 (scenario `before-sack`, 21 Jan → 28 Jan 2036): forward stops on it, unemployed status, jobs
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
