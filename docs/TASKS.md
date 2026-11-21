@@ -56,7 +56,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] MCP hints in CLI words: `fm_targets` takes grade/listed/loan_listed/attributes, `fm_register` hint split into commands (both seen through MCP)
   - [x] `fm_status` "squad --fitness" now `fm_squad view="fitness"` (seen with two injured)
   - [x] `fm_contract` counter-offer hint now `fm_contract wage=<amount> · fm_contract terms=...` (seen in the manager's renewal)
-  - [ ] `docs/MANUAL.md` contract-answer image: refreshed (the agent accepted at once); a counter-offer shot with the new hint still to take
+  - [x] `docs/MANUAL.md` contract-answer image: the agent's counter with the new bargaining hint
   - [ ] Manager's own renewal card: `Job: — (Must be Manager)` and "The agent wants" for the board's counter
   - [x] `fm_targets` wage budget says it is weekly
   - [ ] Training camp squad: answered Auto Select on 7 Jul, the message was back on 14 Jul (the game asking again, or the answer not kept?)
