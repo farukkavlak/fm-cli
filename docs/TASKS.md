@@ -14,7 +14,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 ## 7b. FM 27.1.0 (Steam update, 22 Nov)
 
-- [ ] T172 Plugin builds against 27.1: `MatchUIState.m_matchPeriod` gone (Reads/Tweaks.cs:56), `Bindings` lookup takes a `Key` (Bridge/FmApi.cs:363); then a sweep in EN and TR, then release v0.9.2 (`tools/release.sh 0.9.2`, the new-install fixes are in main)
+- [x] T172 Plugin on 27.1: match period from `m_matchStatePeriod` only; planner style from `TacticalStyleDropdown.DisplayValue` (was an id + options); span route dropped. Identity check against the 27.0 catalog: only that path changed. Sweep 63/63 TR and EN, style set/read 3/3 both, instant match EN, live match TR to full time; released v0.9.2
 
 ## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
 
