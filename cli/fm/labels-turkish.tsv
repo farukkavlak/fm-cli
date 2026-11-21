@@ -3016,3 +3016,4 @@ The full report comes once the game moves on: next, then report	Tam rapor oyun i
 The board wants: {0}	Yönetimin istediği: {0}
 The set piece wizard opened; the message closes when the routines are set up. To answer its questions: setpieces new	Duran top sihirbazı açıldı; düzen kurulunca mesaj kapanır. Sorularını cevaplamak için: setpieces new
 A conversation is still going on; answers to other messages do not reach the game until it is over. To finish it: talk	Bir konuşma sürüyor; o bitmeden başka mesajlara verilen cevaplar oyuna ulaşmaz. Bitirmek için: talk
+A bid of ours was accepted: its message waits for what to do next (contract talks, hand over, walk away).	Teklifimiz kabul edildi: mesajı sıradaki adımı bekliyor (sözleşme görüşmesi, devretme, vazgeçme).

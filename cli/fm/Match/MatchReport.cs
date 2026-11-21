@@ -19,6 +19,15 @@ internal static class MatchReport
 		(L("Fouls"), "Fouls"),
 	];
 
+	/// <summary>
+	/// Whether the last fixture is the match the caller watched. A score picked up after the post-match talk can
+	/// be bare ("0 - 1", no sides): then the goals alone are compared.
+	/// </summary>
+	internal static bool IsExpected(string expected, string home, string homeScore, string awayScore, string away) =>
+		expected.Any(char.IsLetter)
+			? $"{home} {homeScore}-{awayScore} {away}" == expected
+			: new string(expected.Where(char.IsDigit).ToArray()) == homeScore + awayScore;
+
 	public static async Task<int> Show(Bridge fm, bool json, string? expected = null)
 	{
 		const string at = "Human.Team.LastFixture";
@@ -40,11 +49,7 @@ internal static class MatchReport
 			away = F(await fm.Pull(at + ".AwayTeam", "Name"), "Name");
 			star = F(await fm.Pull(at + ".PlayerOfTheMatch", "Name"), "Name");
 			competition = F(await fm.Pull(at + ".Competition", "Name"), "Name");
-			// A score picked up after the post-match talk can be bare ("0 - 1", no sides): then the goals alone are compared.
-			var bare = expected != null && !expected.Any(char.IsLetter);
-			if (expected == null
-			    || (bare ? new string(expected.Where(char.IsDigit).ToArray()) == F(fixture, "HomeScore") + F(fixture, "AwayScore")
-			             : $"{home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}" == expected)) { matched = true; break; }
+			if (expected == null || IsExpected(expected, home, F(fixture, "HomeScore"), F(fixture, "AwayScore"), away)) { matched = true; break; }
 		}
 		if (F(fixture, "HasResult") != "True")
 		{

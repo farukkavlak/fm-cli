@@ -161,10 +161,7 @@ internal static partial class Program
 			TeamFixture? listed = null;
 			try { listed = (await TeamFixtures())?.Where(f => f.Played && f.Result != "").MaxBy(f => f.Date, StringComparer.Ordinal); }
 			catch (FmError) { }
-			static string Digits(string s) => new(s.Where(char.IsDigit).ToArray());
-			var before = beforeKey.Split('|', 2) is [_, var b] ? b : "";
-			var isOld = listed == null || (before.Contains(listed.Opponent, StringComparison.Ordinal) && Digits(before).Contains(Digits(listed.Result.Split(' ', 4) is [var h, "-", var a, ..] ? h + a : listed.Result), StringComparison.Ordinal));
-			if (isOld)
+			if (listed == null || ListedIsPrevious(beforeKey, listed.Opponent, listed.Result))
 			{
 				Console.Error.WriteLine(L("Match report is not ready yet; the game's last fixture has not changed."));
 				return 0;
@@ -195,6 +192,24 @@ internal static partial class Program
 
 		if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
 		return 0;
+	}
+
+	/// <summary>
+	/// Whether the newest played fixture of the list is still the match before (its opponent named in the last
+	/// fixture read before the match, and the same goals), so that it is not printed as the match just played.
+	/// <paramref name="beforeKey"/> is "date|Home 1-2 Away"; <paramref name="result"/> is the list's "1 - 2" with
+	/// any mark after it.
+	/// </summary>
+	internal static bool ListedIsPrevious(string beforeKey, string opponent, string result)
+	{
+		var before = beforeKey.Split('|', 2) is [_, var b] ? b : "";
+		if (before.Length == 0 || opponent.Length == 0) return false;
+		// The score is the "goals-goals" between the two names ("Schalke 04 1-2 12 Bingöl Spor" has digits in both).
+		if (System.Text.RegularExpressions.Regex.Match(before, @"\s(\d+)-(\d+)\s") is not { Success: true } score) return false;
+		// The list writes our goals first, the last fixture the home side's: an away match reads the other way round.
+		if (result.Split(' ', 4) is not [var us, "-", var them, ..]) return false;
+		var (home, away) = (score.Groups[1].Value, score.Groups[2].Value);
+		return before.Contains(opponent, StringComparison.Ordinal) && ((home, away) == (us, them) || (home, away) == (them, us));
 	}
 
 	/// <summary>

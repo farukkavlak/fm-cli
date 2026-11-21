@@ -428,8 +428,18 @@ internal static partial class Program
 			case "NeedAction":
 				// A transfer offer blocks the clock until it is accepted or rejected; stalling it
 				// leaves the game waiting (measured, 23 Oct).
+				// The game's number for it (3) stands for a bid of ours being accepted as well ("<club> accept bids for
+				// <player>", 26 July 2038); the incoming offer is told by the offer list itself: one for a player of ours
+				// that can still be accepted.
 				if (Field(state, "Respond") == "3")
-					output.WriteLine(L("Transfer offer waiting: offers   ·   reject: offers <#> reject --yes   (stall does not close this step)"));
+				{
+					List<WaitingOffer> waiting = [];
+					try { waiting = await WaitingOffers(); }
+					catch (FmError) { }
+					output.WriteLine(waiting.Any(o => o.Incoming && o.CanAccept)
+						? L("Transfer offer waiting: offers   ·   reject: offers <#> reject --yes   (stall does not close this step)")
+						: L("A bid of ours was accepted: its message waits for what to do next (contract talks, hand over, walk away)."));
+				}
 				// The set piece wizard the game opens once: nothing goes on until it is done. Its number (14)
 				// is the game's for an introduction too (a new club's briefings, 29 Haz 2027), so the wizard is
 				// told by its own buttons' events; a briefing is a message, said below. A finished wizard
