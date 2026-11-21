@@ -288,7 +288,7 @@ internal static partial class Program
 		return found;
 	}
 
-	private static async Task<JsonElement?> OpenPlayer(string wanted)
+	private static async Task<JsonElement?> OpenPlayer(string wanted, string command = "player")
 	{
 		// "Charlie Jones #12345": the game's own id picks one of several with the same name, as the list of
 		// them prints it; nothing else (club, age, order) tells them apart in every save.
@@ -456,7 +456,7 @@ internal static partial class Program
 				var hitIds = close.Count > 1 && closeIds.Count == close.Count ? closeIds : [];
 				for (var i = 0; i < hits.Count; i++)
 					Console.Error.WriteLine($"  {Field(hits[i], "Name")}{(i < hitIds.Count && hitIds[i].Length > 0 ? $" #{hitIds[i]}" : "")}  ({who[i]})");
-				if (hitIds.Count > 0) Console.Error.WriteLine(L($"One of them by its id: player \"{Field(hits[0], "Name")} #{hitIds[0]}\""));
+				if (hitIds.Count > 0) Console.Error.WriteLine(L($"One of them by its id: {command} \"{Field(hits[0], "Name")} #{hitIds[0]}\""));
 				return null;
 			}
 			full = Field(close[0], "Name");

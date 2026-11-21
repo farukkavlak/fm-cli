@@ -40,7 +40,11 @@ internal static class MatchReport
 			away = F(await fm.Pull(at + ".AwayTeam", "Name"), "Name");
 			star = F(await fm.Pull(at + ".PlayerOfTheMatch", "Name"), "Name");
 			competition = F(await fm.Pull(at + ".Competition", "Name"), "Name");
-			if (expected == null || $"{home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}" == expected) { matched = true; break; }
+			// A score picked up after the post-match talk can be bare ("0 - 1", no sides): then the goals alone are compared.
+			var bare = expected != null && !expected.Any(char.IsLetter);
+			if (expected == null
+			    || (bare ? new string(expected.Where(char.IsDigit).ToArray()) == F(fixture, "HomeScore") + F(fixture, "AwayScore")
+			             : $"{home} {F(fixture, "HomeScore")}-{F(fixture, "AwayScore")} {away}" == expected)) { matched = true; break; }
 		}
 		if (F(fixture, "HasResult") != "True")
 		{

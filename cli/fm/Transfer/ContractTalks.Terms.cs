@@ -219,7 +219,12 @@ internal static partial class Program
 			.Select(p => $"{OfferScreen.Say(p.r.Label)}: {(p.was == null ? "" : p.was.Shown + " → ")}{p.r.Shown}")
 			.Concat(ours?.Rows.Where(r => theirs?.Row(r) == null).Select(r => L($"{OfferScreen.Say(r.Label)}: removed")) ?? [])
 			.ToList();
-		if (changed.Count > 0) Tell(L($"The agent wants: {string.Join(" · ", changed)}"));
+		// The manager's own contract is put back by the board, not an agent: told by the card's person being the manager.
+		if (changed.Count > 0)
+		{
+			var own = theirs != null && theirs.Player.Length > 0 && theirs.Player == Field(await Fm.Pull("Human", "Name"), "Name");
+			Tell(own ? L($"The board wants: {string.Join(" · ", changed)}") : L($"The agent wants: {string.Join(" · ", changed)}"));
+		}
 
 		if (await TalksStep(ConfirmTerms) != null)
 		{

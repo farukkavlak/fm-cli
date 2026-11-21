@@ -56,7 +56,7 @@ internal static partial class Program
 				shown.Draw();
 				var answers = await TalkOptions();
 				if (answers.Count > 0) Console.WriteLine(L($"\nThe options on screen: {string.Join(" · ", answers.Select(a => a.Label))}  (talk <no>)"));
-				Console.WriteLine(L("To reject or accept an incoming offer: reply <#> Reject | Accept to the offer's message"));
+				Console.WriteLine(L("To answer an incoming offer: offers <#> accept --yes · offers <#> reject --yes · offers <#> stall"));
 				return 0;
 			}
 			Console.Error.WriteLine(L("usage: offer <player> [fee, e.g. 7.5M | 750K] [--term \"Term=value\"]… [--loan] [--dry] [--yes]"));
@@ -102,7 +102,7 @@ internal static partial class Program
 		if (resumed) name = open!.Player;
 		else
 		{
-			if (await OpenPlayer(wanted) is not { } card) return 1;
+			if (await OpenPlayer(wanted, "offer") is not { } card) return 1;
 			var player = card.GetProperty("Player");
 			name = Field(player, "Name");
 

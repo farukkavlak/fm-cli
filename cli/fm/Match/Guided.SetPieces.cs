@@ -99,7 +99,7 @@ internal static partial class Program
 			{
 				Console.WriteLine(L("Question:"));
 				for (var n = 0; n < choices.Count; n++) Console.WriteLine($"  {(choices[n] == current ? "●" : "○")} {n + 1}  {GameWords.Of(choices[n])}");
-				Console.WriteLine(L("\nThe wizard is open at this question (● is the game's suggestion). To answer: setpieces new <no> [<no> …]"));
+				Console.WriteLine(L("\nThe wizard is open at this question (● is the game's suggestion). To answer: setpieces new <no>"));
 				return 0;
 			}
 

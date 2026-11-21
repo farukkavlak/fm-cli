@@ -155,7 +155,25 @@ internal static partial class Program
 		}, seconds: 20, every: 0.5);
 		if (afterKey.Length == 0 || afterKey == beforeKey)
 		{
-			Console.Error.WriteLine(L("Match report is not ready yet; the game's last fixture has not changed."));
+			// The game can hold the result back from its last fixture until the next Continue, while the
+			// fixture list already has it (21 March 2038: AZ 2-0 there, the last fixture still the match before).
+			// The newest played fixture is this match unless it is the one before, told by its opponent and score.
+			TeamFixture? listed = null;
+			try { listed = (await TeamFixtures())?.Where(f => f.Played && f.Result != "").MaxBy(f => f.Date, StringComparer.Ordinal); }
+			catch (FmError) { }
+			static string Digits(string s) => new(s.Where(char.IsDigit).ToArray());
+			var before = beforeKey.Split('|', 2) is [_, var b] ? b : "";
+			var isOld = listed == null || (before.Contains(listed.Opponent, StringComparison.Ordinal) && Digits(before).Contains(Digits(listed.Result.Split(' ', 4) is [var h, "-", var a, ..] ? h + a : listed.Result), StringComparison.Ordinal));
+			if (isOld)
+			{
+				Console.Error.WriteLine(L("Match report is not ready yet; the game's last fixture has not changed."));
+				return 0;
+			}
+			Console.WriteLine(L("The match was simulated."));
+			Console.WriteLine();
+			Console.WriteLine(L($"{listed!.Opponent} match {listed.Result}"));
+			Console.WriteLine(L("The full report comes once the game moves on: next, then report"));
+			if (!Passable(Field(state, "State"))) await Explain(state, Console.Out);
 			return 0;
 		}
 

@@ -64,6 +64,12 @@ internal static partial class Program
 				Console.Error.WriteLine(L("The contract screen did not open."));
 				return 1;
 			}
+			// A player who is retiring is offered a job at the club for after he stops playing, not a new player
+			// contract (Troncoso, 28 May 2037: Job Scout from his retirement). Told by the game's retiring flag (20).
+			const int RetiringFlag = 20;
+			// The card names nobody then (its header is bare), so the player is the one asked for.
+			if ((await SquadFlags()).Where(kv => Fold(kv.Key).Contains(Fold(wanted), StringComparison.Ordinal)).ToList() is [var only] && only.Value.Any(f => f.Id == RetiringFlag))
+				Console.WriteLine(L($"{only.Key} is retiring: these talks are for a job at the club once he stops playing, not a player contract. To leave them: contract --cancel"));
 		}
 		else if (wanted.Length > 0 && !Fold(screen.Player).Contains(Fold(wanted), StringComparison.Ordinal))
 		{

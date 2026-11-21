@@ -158,7 +158,7 @@ internal sealed partial class OfferScreen
 				// The stage's own terms have no section: the heading above already names them.
 				if (ContractSection(group.Key, title) is var heading && heading != title) Console.WriteLine($"{heading}:");
 				foreach (var row in group)
-					Console.WriteLine($"  {Say(row.Label)}: {SayValue(row.Shown)}{(row.Detail.Length > 0 ? $" ({SayDetail(row.Detail)})" : "")}"
+					Console.WriteLine($"  {Say(row.Label)}: {(row.Shown == "—" && row.Detail.Length > 0 ? SayDetail(row.Detail) : SayValue(row.Shown) + (row.Detail.Length > 0 ? $" ({SayDetail(row.Detail)})" : ""))}"
 						+ (row.Lock is { Value: not "Negotiable" and not "" } l ? $"  [{SayLock(l.Value)}]" : "")
 						+ (row.Warning ? L("  [breaks a rule]") : ""));
 			}

@@ -1048,7 +1048,7 @@ Other	Diğer
 \nTo teach: training "{0}" --trait "<trait>"  ·  to drop one: --trait-remove "<trait>"	\nÖğretmek için: training "{0}" --trait "<alışkanlık>"  ·  bırakmak: --trait-remove "<alışkanlık>"
 '{0}' matches {1} traits:	'{0}' {1} alışkanlığa uyuyor:
 \nThe options on screen: {0}  (talk <no>)	\nEkrandaki seçenekler: {0}  (talk <no>)
-To reject or accept an incoming offer: reply <#> Reject | Accept to the offer's message	Gelen teklifi reddetmek ya da kabul etmek: teklifin mesajına reply <#> Reject | Accept
+To answer an incoming offer: offers <#> accept --yes · offers <#> reject --yes · offers <#> stall	Gelen teklife cevap: offers <#> accept --yes · offers <#> reject --yes · offers <#> stall
 usage: offer <player> [fee, e.g. 7.5M | 750K] [--term "Term=value"]… [--loan] [--dry] [--yes]	kullanım: offer <oyuncu> [bonservis, ör. 7.5M | 750K] [--term "Şart=değer"]… [--loan] [--dry] [--yes]
 No offer can be made for {0} (the game's actions have no 'Make An Offer'; an offer may already be in, or they may be our player).	{0} için teklif yapılamıyor (oyunun aksiyonlarında 'Make An Offer' yok; zaten teklif verilmiş ya da bizim oyuncumuz olabilir).
 No offer can be made for {0}. The game says: {1}. {2}	{0} için teklif yapılamıyor. Oyun diyor ki: {1}. {2}
@@ -3001,13 +3001,17 @@ Coming off	Çıkan
 The set piece wizard could not be started: the set pieces page offers it only while no routines are set up. To change a routine: setpieces <type>	Duran top sihirbazı başlatılamadı: duran top sayfası onu yalnızca hiç rutin kurulmamışken sunar. Bir rutini değiştirmek için: setpieces <tür>
 No player called '{0}' has the id {1}.	'{0}' adlı oyuncuların hiçbirinin kimliği {1} değil.
 '{0}' is the name of {1} players:	'{0}' adında {1} oyuncu var:
-One of them by its id: player "{0} #{1}"	Birini kimliğiyle açmak için: player "{0} #{1}"
+One of them by its id: {0} "{1} #{2}"	Birini kimliğiyle seçmek için: {0} "{1} #{2}"
 The match's tactics did not open.	Maçın taktik ekranı açılmadı.
 '{0}' is not in the eleven. On the pitch: {1}	'{0}' ilk on birde değil. Sahada: {1}
 The change was chosen, but the panel's Confirm stayed off.	Değişiklik seçildi ama ekranın onay düğmesi kapalı kaldı.
 Substitution made at the stop: {0} off. To play on: match	Duraklamada oyuncu değişikliği yapıldı: {0} çıktı. Devam için: match
 The change was confirmed, but the tactics panel is still open.	Değişiklik onaylandı ama taktik ekranı hâlâ açık.
 Question:	Soru:
-\nThe wizard is open at this question (● is the game's suggestion). To answer: setpieces new <no> [<no> …]	\nSihirbaz bu soruda açık (● oyunun önerisi). Cevaplamak için: setpieces new <no> [<no> …]
+\nThe wizard is open at this question (● is the game's suggestion). To answer: setpieces new <no>	\nSihirbaz bu soruda açık (● oyunun önerisi). Cevaplamak için: setpieces new <no>
 Set pieces come after a tactic, and the team has none. To create one: tactic new	Duran toplar taktikten sonra kurulur ve takımın taktiği yok. Oluşturmak için: tactic new
 Question	Soru
+The full report comes once the game moves on: next, then report	Tam rapor oyun ilerleyince gelir: next, sonra report
+{0} is retiring: these talks are for a job at the club once he stops playing, not a player contract. To leave them: contract --cancel	{0} emekli oluyor: bu görüşme oyuncu sözleşmesi değil, oynamayı bırakınca kulüpte bir iş için. Çıkmak için: contract --cancel
+The board wants: {0}	Yönetimin istediği: {0}
+The set piece wizard opened; the message closes when the routines are set up. To answer its questions: setpieces new	Duran top sihirbazı açıldı; düzen kurulunca mesaj kapanır. Sorularını cevaplamak için: setpieces new

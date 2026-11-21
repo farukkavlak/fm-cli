@@ -109,7 +109,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int?> OpenRenewal(string wanted)
 	{
-		if (await OpenPlayer(wanted) is not { } card) return 1;
+		if (await OpenPlayer(wanted, "contract") is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
 
 		if (await RunPlayerAction(OfferContractAction) is not { } chose) return 1;

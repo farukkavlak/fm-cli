@@ -313,6 +313,13 @@ internal static partial class Program
 			|| (talking = (await TalkOptions()).Any(l => !talkBefore.Contains(l.Label)))
 			|| !StillAnswerable(await Fm.GetJson("inbox"), id), seconds: 20);
 
+		// The message can close a moment before the conversation it opens is drawn (the board's meeting about
+		// the manager's future, a job interview: "Attend" closed it and the talk came after). While the game is
+		// held by something, the talk is looked for a little longer; free to continue, nothing opened.
+		if (settled && !talking && !tour && dialog.GetArrayLength() == 0
+		    && Field(await Fm.GetJson("state"), "State") != "CanContinue")
+			talking = await Until(async () => (await TalkOptions()).Any(l => !talkBefore.Contains(l.Label)), seconds: 3, every: 0.2);
+
 		// The game often asks "are you sure" for the answer just chosen (the suggested team,
 		// a release, a bid). The answer is the intent; its confirmation is the primary button,
 		// which is the same slot in every language.
@@ -367,6 +374,10 @@ internal static partial class Program
 			Console.WriteLine(L("The squad numbers screen opened; the message closes when the numbers are sent. To see them: numbers   (to leave it to the assistant: numbers --auto)"));
 		else if (!settled && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Visible") == "True" && Field(b, "Events").Contains("EventFmxDrawAllTeams", StringComparison.Ordinal)))
 			Console.WriteLine(L("The cup draw is open; the message closes when it is done. To run it: draw"));
+		// A new club's set pieces introduction opens the game's set piece wizard and waits for routines (25 Dec 2037).
+		else if (!settled && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().Any(b => Field(b, "Visible") == "True"
+		             && (Field(b, "Events").Contains("EventFmxSetPieceCreatorStart", StringComparison.Ordinal) || Field(b, "Events").Contains("EventFmxSetPieceCreatorNextStep", StringComparison.Ordinal))))
+			Console.WriteLine(L("The set piece wizard opened; the message closes when the routines are set up. To answer its questions: setpieces new"));
 		else if (!settled) Console.WriteLine(L("But the game still shows the message as awaiting an answer."));
 		return 0;
 

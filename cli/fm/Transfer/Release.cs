@@ -62,7 +62,7 @@ internal static partial class Program
 
 		// Not in the menu: asked already (his answer is on the contract page), or an older game's
 		// contract page carries the ask as a line of the manager's.
-		if (await OpenPlayer(wanted) is not { } card) return 1;
+		if (await OpenPlayer(wanted, "release") is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
 		if (await OpenContractSection(name) is { } failed) return failed;
 
