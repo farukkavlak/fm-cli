@@ -224,6 +224,19 @@ export ARCHPREFERENCE="arm64"
 # handler and exits cleanly (looks like a crash, but no crash report). Setting
 # the app id explicitly makes SteamAPI_Init succeed deterministically.
 STEAM_APPID="$(cat "$BASEDIR/steam_appid.txt" 2>/dev/null | tr -dc '0-9')"
+# Without that file, Steam's own manifest for the game's folder names it:
+# steamapps/appmanifest_<id>.acf whose "installdir" is the folder under common/.
+if [ -z "$STEAM_APPID" ]; then
+    game_dir="$(dirname "$real_executable_name")"
+    installdir="$(basename "$game_dir")"
+    for manifest in "$(dirname "$(dirname "$game_dir")")"/appmanifest_*.acf; do
+        [ -f "$manifest" ] || continue
+        if [ "$(awk -F'"' '$2 == "installdir" { print $4; exit }' "$manifest")" = "$installdir" ]; then
+            STEAM_APPID="$(awk -F'"' '$2 == "appid" { print $4; exit }' "$manifest" | tr -dc '0-9')"
+            [ -n "$STEAM_APPID" ] && break
+        fi
+    done
+fi
 if [ -n "$STEAM_APPID" ]; then
     export SteamAppId="$STEAM_APPID"
     export SteamGameId="$STEAM_APPID"

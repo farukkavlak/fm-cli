@@ -29,7 +29,7 @@ Ready to continue: next
 ## Install
 
 Needs a Mac with Apple Silicon and Football Manager 27 from Steam. Open the game once by hand, start a career and save it:
-`fm start` loads the last save; it does not make a new career.
+`fm start` loads the last save; it does not make a new career. Steam has to be open and signed in for `fm start`.
 
 Then one of:
 

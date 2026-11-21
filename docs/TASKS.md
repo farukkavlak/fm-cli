@@ -20,6 +20,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - Opposition instruction card: read back by the man's UniqueId (his Pressing 0 → 2), live TR 1/3. Left: 2 more, and EN
   - A card that takes a team instruction off: not met yet
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
+  - Seen once 22 Nov (TR, a second Steam copy beside ours): `status` said so, `fm stop --no-save` ended it; EN still to see
   - Sign: the main thread in `-[NSAlert runModal]`. Its only known trigger went with T92's fix
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique
   - 19 Nov: goalkeeper up front and a striker in goal, a day on: still "no advice" (the game's own panel says so too)
@@ -83,7 +84,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - 21 Nov: package installed into an empty home from a zip marked as downloaded: fm was refused (quarantine) until install.sh cleared the mark; now it does, and the README says `zsh install.sh`, PATH, a career saved first, MCP setup
   - [x] Release: repository public; v0.9.0 with the zip and `nl-mpnet-l-q` (21 Nov: the zip downloaded without login, installed into an empty home, model downloaded)
   - [x] One-line install (`curl … | zsh`) and Homebrew (`brew tap` + `brew trust` + `brew install`, then `fm doctor --install`): both from GitHub into an empty home, 21 Nov (v0.9.1)
-  - [ ] A real second Mac (or this user cleaned): download, install, first `fm start`
+  - [x] This user cleaned (dev folders renamed aside): `curl … | zsh`, first `fm start`, `fm status` (22 Nov). Found and fixed: no `steam_appid.txt` in the package (the launcher now reads the id from Steam's app manifest), Steam closed (now said up front), `fm` aborting when the game broke off a reply, "game updated" said on a first start
+  - [ ] A real second Mac: download, install, first `fm start`
 - [ ] T84 A new career (another country and league), one month, sweep
 
 ## 12. Final check (the last box)

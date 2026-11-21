@@ -78,6 +78,12 @@ internal sealed class Bridge
 			// thread, so a busy frame looks exactly like a timeout.
 			throw new FmBusy();
 		}
+		catch (IOException)
+		{
+			// The answer broke off halfway (HttpIOException is not an HttpRequestException): the game
+			// went down or stalled mid-reply, as at a fatal error while a save loaded (22 Nov 2026).
+			throw new FmBusy();
+		}
 	}
 
 	// Whether the running plugin takes batches; an older one answers "unknown route" once and is

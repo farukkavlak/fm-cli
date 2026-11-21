@@ -68,6 +68,14 @@ internal static class Launcher
 			return false;
 		}
 
+		// A Steam copy started without Steam logs on to nothing, asks Steam to start it, and quits; Steam
+		// later opens a second copy of its own beside ours (22 Nov 2026). Steam is asked for first.
+		if (IsSteamCopy && !SteamRunning())
+		{
+			Console.Error.WriteLine(L("Steam is not running. Open Steam and sign in, then: fm start"));
+			return false;
+		}
+
 		// Display settings a game of ours left behind (it died without `fm stop`, or the machine went
 		// down with it) are the player's again before anything else.
 		await PutBackDisplay();
@@ -79,6 +87,7 @@ internal static class Launcher
 
 		var log = Path.Combine(Path.GetTempPath(), "fm-cli-launch.log");
 		var spawned = DateTime.UtcNow;
+		var firstStart = FirstStart;
 		var launch = Spawn(script, log, debug);
 		Console.WriteLine(L($"Starting FM…{(debug ? L($"  (log: {log})") : "")}"));
 
@@ -86,7 +95,9 @@ internal static class Launcher
 		// goes no further, so it is seen through and the game started again.
 		if (GameUpdated(out var generated))
 		{
-			Console.WriteLine(L("The game was updated; preparing for the new version, this takes a minute or two…"));
+			Console.WriteLine(firstStart
+				? L("First start: BepInEx reads the game once, this takes a minute or two…")
+				: L("The game was updated; preparing for the new version, this takes a minute or two…"));
 			// The sign is BepInEx writing its copy during this launch; a copy older than the launch
 			// is not one (a marker left behind would be taken as done at once).
 			var ready = await WaitFor(() => Task.FromResult(launch.HasExited || File.GetLastWriteTimeUtc(generated) > spawned), TimeSpan.FromMinutes(6));
@@ -257,7 +268,27 @@ internal static class Launcher
 		return true;
 	}
 
-	private static string UpdatedFile => Path.Combine(GameDirectory, "fm.app", "Contents/Frameworks/GameAssembly.dylib");
+	/// <summary>BepInEx has never read this game: no copy of its code yet.</summary>
+	private static bool FirstStart => !Directory.Exists(Path.Combine(Path.GetDirectoryName(AppBundle)!, "game", "BepInEx", "interop"))
+		|| !Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(AppBundle)!, "game", "BepInEx", "interop"), "*.dll").Any();
+
+	/// <summary>The game is Steam's copy: it sits in a Steam library (steamapps/common/…), FM_HOME or not.</summary>
+	private static bool IsSteamCopy => Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(GameDirectory)) ?? "") == "steamapps";
+
+	/// <summary>Steam's client is up: its process, by the executable's name.</summary>
+	private static bool SteamRunning()
+	{
+		try
+		{
+			using var pgrep = Process.Start(new ProcessStartInfo("/usr/bin/pgrep", ["-x", "steam_osx"]) { UseShellExecute = false, RedirectStandardOutput = true });
+			if (pgrep == null) return true;
+			pgrep.WaitForExit(5000);
+			return pgrep.ExitCode == 0;
+		}
+		catch (Exception) { return true; }
+	}
+
+	private static string UpdatedFile =>Path.Combine(GameDirectory, "fm.app", "Contents/Frameworks/GameAssembly.dylib");
 
 	/// <summary>The game's code is newer than BepInEx's copy of it: the launcher's own test, on its own marker.</summary>
 	private static bool GameUpdated(out string generated)

@@ -66,7 +66,7 @@ cat > "$STAGE/README.txt" <<'TXT'
 fm-cli (macOS, Apple Silicon)
 1) Install Football Manager 27 from Steam.
 2) Unpack this folder and run: zsh install.sh
-3) Check with fm doctor --install; start with fm start.
+3) Check with fm doctor --install; with Steam open, start with fm start.
 BepInEx 6 IL2CPP arm64 and its plugin are in this package (license: NOTICE.txt).
 TXT
 (cd dist && rm -f fm-cli-osx-arm64.zip && zip -qr fm-cli-osx-arm64.zip fm-cli-osx-arm64)
