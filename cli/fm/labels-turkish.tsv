@@ -201,7 +201,7 @@ There is no confirm button.	Onay düğmesi yok.
 Fee proposed. To go on: talk	Bedel önerildi. Devam için: talk
 Propose a fee (in the box now: {0})	Bir bedel öner (kutuda şu an: {0})
   options: {0}	  seçenekler: {0}
-To change it: talk fee <value>   ·   to send it: talk confirm	Değiştirmek için: talk bedel <değer>   ·   göndermek için: talk onayla
+To change it: talk "fee <value>"   ·   to send it: talk confirm	Değiştirmek için: talk "bedel <değer>"   ·   göndermek için: talk onayla
 Which fee?	Hangi bedel?
 What do you say?	Ne diyorsun?
 The conversation stayed open. To go on: talk	Konuşma açık kaldı. Devam için: talk
@@ -3015,3 +3015,4 @@ The full report comes once the game moves on: next, then report	Tam rapor oyun i
 {0} is retiring: these talks are for a job at the club once he stops playing, not a player contract. To leave them: contract --cancel	{0} emekli oluyor: bu görüşme oyuncu sözleşmesi değil, oynamayı bırakınca kulüpte bir iş için. Çıkmak için: contract --cancel
 The board wants: {0}	Yönetimin istediği: {0}
 The set piece wizard opened; the message closes when the routines are set up. To answer its questions: setpieces new	Duran top sihirbazı açıldı; düzen kurulunca mesaj kapanır. Sorularını cevaplamak için: setpieces new
+A conversation is still going on; answers to other messages do not reach the game until it is over. To finish it: talk	Bir konuşma sürüyor; o bitmeden başka mesajlara verilen cevaplar oyuna ulaşmaz. Bitirmek için: talk

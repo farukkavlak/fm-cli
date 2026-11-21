@@ -104,6 +104,15 @@ internal static partial class Program
 		// screen beside the next message, where they read as that message's own question (Kortazar's
 		// message offering what was being said to Konaté, 27 October 2026). They are the conversation's.
 		var talkBefore = open ? [] : (await TalkOptions()).Select(l => l.Label).ToHashSet();
+		// An answer pressed while another conversation is going on does not reach the game (3 June 2038: four
+		// "asks to discuss future" answered one after another while the first one's agent talk was open; all four
+		// stayed waiting). Said, and nothing pressed, until that conversation is over.
+		if (words.Count > 1 && !open && talkBefore.Count > 0
+		    && (await Fm.GetJson("talk")).TryGetProperty("Says", out var going) && going.GetArrayLength() > 0)
+		{
+			Console.Error.WriteLine(L("A conversation is still going on; answers to other messages do not reach the game until it is over. To finish it: talk"));
+			return 1;
+		}
 		var previous = open || await Selected() == id ? null : Set((await Answers()).Select(a => Field(a, "Label")));
 
 		// The same for the body: the message before this one can keep its paragraph a moment after

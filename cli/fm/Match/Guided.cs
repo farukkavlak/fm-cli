@@ -200,7 +200,7 @@ internal static partial class Program
 			Console.WriteLine("  " + GameWords.Of(last).Replace("\n", "\n  ") + "\n");
 		Console.WriteLine(L($"Propose a fee (in the box now: {now})"));
 		Console.WriteLine(L($"  options: {string.Join(" · ", fees)}"));
-		Console.WriteLine(L("To change it: talk fee <value>   ·   to send it: talk confirm"));
+		Console.WriteLine(L("To change it: talk \"fee <value>\"   ·   to send it: talk confirm"));
 		return 0;
 	}
 
