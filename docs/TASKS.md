@@ -63,6 +63,10 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [ ] `fm_offer` on a shared name lists the ids but its hint names `fm_player name="... #id"`, not `fm_offer`
   - [ ] `fm_reply` "Attend Meeting" on the board's future meeting opens a talk but does not say so (other answers print "A conversation opened ... fm_talk")
   - [ ] `fm_match` when the board sacks the manager straight after the match: "Match report is not ready yet; the game's last fixture has not changed" instead of the score and the sacking (19 Dec 2037, scenario `t79-ultimatum`)
+  - [ ] More MCP hints in CLI words: `fm_setpieces_new` "setpieces new <no>", `fm_offers` view "reply <#> Reject | Accept" and its on-screen options as "fm_talk say=<no>"
+  - [ ] "Attend Interview" (job interview) opens a talk without saying so, like "Attend Meeting"
+  - [ ] New club's Set Pieces Introduction: Begin/Continue left it waiting ("still awaiting") until set pieces were created with `fm_setpieces_new`; the tool could say that is what it waits for
+  - 2037/38: renewals of 6 through `fm_contract` (4 straight, 2 via agent), 7 signings, registration add after the window, sacked 19 Dec (ultimatum 6 pts in 5 not met), job applications, Sparta Rotterdam interview + contract, all intro tours, tactic wizard, set piece wizard; scenario `t79-sacked`
   - [x] `fm_targets` wage budget says it is weekly
   - [x] Training camp squad: the game sends a second message on the camp's first day; the first stays answered (seen twice, 2036 and 2037)
 - [ ] T80 A third language: one month through the CLI, sweep passes
