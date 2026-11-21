@@ -51,6 +51,10 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [ ] `fm_next` while the game is busy: now waits for it (to see live)
   - [ ] `fm_table` on the Messages screen also said "a cup has no table": now stops at the first reason (to see live)
   - [ ] `fm_inbox` had no `all`; the hint said `inbox --all` through MCP (to see live)
+  - [ ] MCP hints still in CLI words: `fm_targets` "--grade B · --listed · --attr", `fm_status` "squad --fitness", `fm_register` "register add=<player>"
+  - [ ] `fm_contract` counter-offer hint reads `wage="/" --term`
+  - [ ] `fm_targets` wage budget "€54,322 free" has no period (the game's weekly; contracts say p/a)
+  - [ ] Training camp squad: answered Auto Select on 7 Jul, the message was back on 14 Jul (the game asking again, or the answer not kept?)
 - [ ] T80 A third language: one month through the CLI, sweep passes
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
 - [ ] T82 Epic Games Store (macOS and Windows): install, one month, stop
