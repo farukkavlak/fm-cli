@@ -48,6 +48,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T79 Two full seasons through MCP, English game
   - 2035/36 from 20 Mar (Antalyaspor, stayed up); season-end messages, team meeting, vision through MCP; scenario `t79-s1-end`
   - 2036/37: summer window (4 signings), registration, numbers, captain, camp, bonuses; manager renewal through `fm_board_request` + `fm_contract` (Feb 2037, to 2040); scenario `t79-mgr-renewed`
+  - 2036/37 done (14th, stayed up); player renewal through the agent (`fm_contract agent=true` + talk); season-end camp/date ("1 2"), team meeting, vision; scenario `t79-s2-end`
   - [x] `fm_reply` on a list answer ("1 2"): MCP passed it as one word; now `answer="1 2"` or `option`
   - [ ] `fm_next` while the game is busy: now waits for it (to see live)
   - [x] `fm_table` on the Messages screen also said "a cup has no table": now only the screen's reason (MCP and CLI)
