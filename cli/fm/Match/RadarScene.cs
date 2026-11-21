@@ -40,6 +40,9 @@ internal static partial class Program
 
 	private static (double X, double Y)? sceneFocus;
 
+	/// <summary>Forgets where the camera looked, so the next frame looks straight at the ball.</summary>
+	internal static void ResetSceneCamera() => sceneFocus = null;
+
 	/// <summary>Where the camera looks: toward the ball, a third of the way each frame unless it jumped.</summary>
 	private static (double X, double Y) Follow(double x, double y)
 	{

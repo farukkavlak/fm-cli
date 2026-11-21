@@ -62,7 +62,11 @@ public class RadarStylesTests
 		// The ball in the middle puts the raycast eye at (42.5, 50); this man stands 3 m in front of it.
 		var frame = Frame();
 		var close = frame with { Men = [.. frame.Men, new(30, 44.1 / 105, 47.5 / 68, "ff00ff", false, 0, "f8f8f8")] };
+		// The camera eases toward the ball from where it last looked (another test, another frame): each picture starts afresh.
+		Program.RadarView(frame with { BallX = 0.4 }, Sides, "raycast", true, 120, 40);
+		Program.ResetSceneCamera();
 		var without = Program.RadarView(frame, Sides, "raycast", true, 120, 40);
+		Program.ResetSceneCamera();
 		var with = Program.RadarView(close, Sides, "raycast", true, 120, 40);
 		Assert.Equal(without, with);
 	}
