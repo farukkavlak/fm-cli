@@ -72,6 +72,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] `propose`/`actions` on a one-word name of ours pushed out of the game's search by famous people (Fábio): taken from our squad, menu from the squad page (seen; Veerman and an unknown name still right)
   - [x] `fm_reply` while another conversation is open: the answer did not reach the game yet it said "Answered … A conversation opened" (4 of 5 stayed waiting, 3 Jun 2038); now refused with a word to finish the talk first (seen: refused, then answered once the talk was over)
   - [x] (seen fixed 23 Jun 2038: `fm_talk say="fee <value>"`, used with "fee 5M" then confirm) talk fee window hint `talk fee <value>` → quoted so MCP reads `fm_talk say="fee <value>"`
+  - [ ] `next` stop on our own bid accepted ("<club> accept bids for <player>") says "Transfer offer waiting … reject: fm_offers …", the incoming-offer hint
   - [x] Training camp squad: the game sends a second message on the camp's first day; the first stays answered (seen twice, 2036 and 2037)
 - [ ] T80 A third language: one month through the CLI, sweep passes
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
