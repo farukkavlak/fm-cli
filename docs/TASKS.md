@@ -61,6 +61,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [ ] Manager's own renewal card: `Job: — (Must be Manager)` and "The agent wants" for the board's counter
   - [ ] `fm_contract name=<retiring player>` opens a staff job card for after his retirement (Job: Scout, start "Retirement From Playing") without saying it is not a player contract
   - [ ] `fm_offer` on a shared name lists the ids but its hint names `fm_player name="... #id"`, not `fm_offer`
+  - [ ] `fm_reply` "Attend Meeting" on the board's future meeting opens a talk but does not say so (other answers print "A conversation opened ... fm_talk")
   - [x] `fm_targets` wage budget says it is weekly
   - [x] Training camp squad: the game sends a second message on the camp's first day; the first stays answered (seen twice, 2036 and 2037)
 - [ ] T80 A third language: one month through the CLI, sweep passes
