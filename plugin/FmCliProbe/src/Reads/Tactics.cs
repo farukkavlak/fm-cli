@@ -100,6 +100,10 @@ internal static class Tactics
 
 		if (header.TryGetValue("TacticalStyle", out var styleId) && styles.TryGetValue(styleId, out var styleName))
 			header["Style"] = styleName;
+		// 27.1 binds the style as a reference to the planner's dropdown value instead: the same value
+		// its list's choices carry (not the shown, translated text).
+		else if (headerPath != null && Bound($"{headerPath}.TacticalStyleDropdown.DisplayValue") is { Length: > 0 } chosen)
+			header["Style"] = chosen;
 
 		return "{\"Tactic\": " + Report.Json(header) + ", \"Slots\": [\n  "
 		       + string.Join(",\n  ", slots.Values.Select(Report.Json)) + "\n], \"Squad\": [\n  "

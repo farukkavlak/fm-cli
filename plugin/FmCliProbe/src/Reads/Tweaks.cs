@@ -45,7 +45,7 @@ internal static class Tweaks
 	/// The match's period as the match screen's own component keeps it (SI.Match.MatchPeriod): there
 	/// on a talk screen too, where the scoreboard's bound fields are not. Empty without a match.
 	/// </summary>
-	internal static (string State, string Match) Period()
+	internal static string Period()
 	{
 		try
 		{
@@ -53,11 +53,12 @@ internal static class Tweaks
 			{
 				var state = component?.m_matchUIState;
 				if (state == null) continue;
-				return (state.m_matchStatePeriod.Value.ToString(), state.m_matchPeriod.Value.ToString());
+				// 27.1 keeps only the state's period (m_matchPeriod is gone).
+				return state.m_matchStatePeriod.Value.ToString();
 			}
 		}
-		catch (Exception e) { return ($"<{e.GetType().Name}: {e.Message}>", ""); }
-		return ("", "");
+		catch (Exception e) { return $"<{e.GetType().Name}: {e.Message}>"; }
+		return "";
 	}
 
 	/// <summary>Every node holding a match tactic, with the object it holds: a check that they are one.</summary>
@@ -79,7 +80,7 @@ internal static class Tweaks
 	public static string Handle(NameValueCollection q)
 	{
 		if (q["where"] == "1") return Where();
-		if (q["period"] == "1") { var (state, match) = Period(); return $"{state}\t{match}\n"; }
+		if (q["period"] == "1") return Period() + "\n";
 		if (q["individual"] == "1") return Individual();
 		if (!string.IsNullOrEmpty(q["rows"])) return PlayerRows(q["rows"]);
 		if (!string.IsNullOrEmpty(q["toggle"]) && !string.IsNullOrEmpty(q["player"])) return TogglePlayer(q["toggle"], q["player"], q["off"] == "1", q["dry"] == "1");
@@ -134,7 +135,7 @@ internal static class Tweaks
 
 		var tactic = Tactic();
 		if (tactic == null) return "error: no match tactic in the tree";
-		var (period, _) = Period();
+		var period = Period();
 		return $"{{\"Period\": {Quote(period)}, \"Team\": [{string.Join(", ", rows)}], \"Active\": {Active(tactic, generation)}, \"Pending\": {Pending(tactic)}}}\n";
 	}
 

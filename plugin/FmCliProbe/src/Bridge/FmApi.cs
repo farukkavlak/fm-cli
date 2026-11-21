@@ -42,7 +42,6 @@ internal static partial class FmApi
 		"rawexists" => RawExists(q["path"]),
 		"keys" => Keys(Int(q["depth"], 4)),
 		"schema" => Schema.Catalog(q["filter"]),
-		"spanexists" => SpanExists(q["path"]),
 		"send" => Send.Event(q),
 		"dyn" => Dynamic(q["path"]),
 		"panels" => Panels.Catalog(q["filter"]),
@@ -337,36 +336,6 @@ internal static partial class FmApi
 		return hits;
 	}
 
-
-	/// <summary>
-	/// Does the by-ref span overload survive interop where the by-value one did not?
-	///
-	/// Passing a span by value flattened it to empty, which is what made every
-	/// string-addressed call unusable. By-ref passes a pointer to the span struct instead, so it
-	/// may well arrive intact. A garbage path is tested alongside a real one, because an
-	/// always-true answer is exactly the false positive that misled us before.
-	/// </summary>
-	private static unsafe string SpanExists(string path)
-	{
-		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
-		var b = Game.Bindings;
-		if (b == null) return "error: bindings unavailable";
-
-		var sb = new StringBuilder();
-		foreach (var candidate in new[] { path, "ZzNotAPathZz.NopeNope" })
-		{
-			try
-			{
-				fixed (char* pinned = candidate)
-				{
-					var span = new Il2CppSystem.ReadOnlySpan<char>((void*)pinned, candidate.Length);
-					sb.AppendLine($"'{candidate}': exists={b.Exists(ref span)}");
-				}
-			}
-			catch (Exception ex) { sb.AppendLine($"'{candidate}': {ex.GetType().Name}: {ex.Message}"); }
-		}
-		return sb.ToString();
-	}
 
 	private static string RawExists(string path)
 	{

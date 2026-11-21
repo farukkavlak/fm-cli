@@ -49,7 +49,7 @@ internal static partial class Program
 		if (Choose(choices, wanted, what) is not { } pick) return 1;
 		if (pick == current)
 		{
-			Console.WriteLine(L($"{what} is already {pick}."));
+			Console.WriteLine(L($"{what} is already {GameWords.Of(pick)}."));
 			return 0;
 		}
 		if (dry)
@@ -168,7 +168,7 @@ internal static partial class Program
 		if (Choose(roles, words[1], L("Role")) is not { } pick) return 1;
 		if (pick == current)
 		{
-			Console.WriteLine(L($"{spot} ({phase}) is already {pick}."));
+			Console.WriteLine(L($"{spot} ({phase}) is already {GameWords.Of(pick)}."));
 			return 0;
 		}
 		if (dry)
