@@ -192,6 +192,17 @@ internal static partial class Mcp
 	private static string[] Opt(JsonElement arguments, string name) =>
 		Str(arguments, name) is { Length: > 0 } value ? [value] : [];
 
+	/// <summary>
+	/// A reply's answer. An option of a list answer is listed as "1 2" (answer 1, its option 2), so
+	/// answer="1 2" is taken as the two numbers it names.
+	/// </summary>
+	private static string[] ReplyAnswer(JsonElement arguments) =>
+		Str(arguments, "answer") is { Length: > 0 } value
+			? System.Text.RegularExpressions.Regex.Match(value.Trim(), @"^(\d+)\s+(\d+)$") is { Success: true } m && Str(arguments, "option").Length == 0
+				? [m.Groups[1].Value, m.Groups[2].Value]
+				: [value]
+			: [];
+
 	private static string[] Flag(JsonElement arguments, string name, string flag) =>
 		arguments.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True ? [flag] : [];
 
