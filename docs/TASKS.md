@@ -61,11 +61,12 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [ ] (fixed, to see live) Manager's own renewal card: `Job: — (Must be Manager)` and "The agent wants" for the board's counter
   - [ ] (fixed, to see live) `fm_contract name=<retiring player>` opens a staff job card for after his retirement (Job: Scout, start "Retirement From Playing") without saying it is not a player contract
   - [ ] (fixed, to see live) `fm_offer` on a shared name lists the ids but its hint names `fm_player name="... #id"`, not `fm_offer`
-  - [ ] (fixed, to see live) `fm_reply` "Attend Meeting" on the board's future meeting opens a talk but does not say so (other answers print "A conversation opened ... fm_talk")
+  - [x] (seen fixed 1 Jun 2038) `fm_reply` "Attend Meeting" on the board's future meeting opens a talk but does not say so (other answers print "A conversation opened ... fm_talk")
   - [ ] (play path seen fixed 16 May 2038: report after the full-time talk; instant fallback still to see) `fm_match mode=instant` sometimes says "Match report is not ready yet; the game's last fixture has not changed" though the match was played (fixtures shows the score); 2 of ~100 instant matches (19 Dec 2037 sacking day, 21 Mar 2038 AZ) and once after `mode=play` (9 May 2038: "the game's last fixture is still Sparta Rotterdam 0-1 FC Volendam" — the match just played): the "last fixture before" is read after the result has already landed, so the wait for a change never ends
   - [ ] (fixed, to see live) More MCP hints in CLI words: `fm_setpieces_new` "setpieces new <no>", `fm_offers` view "reply <#> Reject | Accept" and its on-screen options as "fm_talk say=<no>"
   - [ ] (fixed, to see live) "Attend Interview" (job interview) opens a talk without saying so, like "Attend Meeting"
   - [ ] (fixed, to see live) New club's Set Pieces Introduction: Begin/Continue left it waiting ("still awaiting") until set pieces were created with `fm_setpieces_new`; the tool could say that is what it waits for
+  - 2037/38 done: Sparta 16th, play-off lost on penalties, relegated; board kept the manager; scenario `t79-s3-end`
   - 2037/38: renewals of 6 through `fm_contract` (4 straight, 2 via agent), 7 signings, registration add after the window, sacked 19 Dec (ultimatum 6 pts in 5 not met), job applications, Sparta Rotterdam interview + contract, all intro tours, tactic wizard, set piece wizard; scenario `t79-sacked`
   - [x] `fm_targets` wage budget says it is weekly
   - [x] Training camp squad: the game sends a second message on the camp's first day; the first stays answered (seen twice, 2036 and 2037)
