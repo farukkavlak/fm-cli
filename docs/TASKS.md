@@ -33,6 +33,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - Left: a shootout in a TR match (its board's score)
 - [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet
   - 19 Nov: evasive answers at a post-match conference (TR): the journalist moved on, no pressing
+  - 21 Nov (EN, MCP): signing unveiling, a neutral answer was pressed ("The public will want to hear a proper answer") with the same five lines; shown and answered fine. TR still to see
 - [ ] T154 TransferRoom `responses` and `activity --loan` tables: need real responses to our adverts
 
 ## 10. Quality
