@@ -43,6 +43,7 @@ Then one of:
 
   ```bash
   brew tap farukkavlak/fm-cli https://github.com/farukkavlak/fm-cli
+  brew trust --formula farukkavlak/fm-cli/fm-cli   # Homebrew asks this for a formula outside its own
   brew install fm-cli
   fm doctor --install   # puts BepInEx and the plugin beside the game; again after each brew upgrade, game closed
   ```

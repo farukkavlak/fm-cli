@@ -51,5 +51,5 @@ printf "publish v%s on GitHub (zip) now? [y/N] " "$VERSION"
 read -r answer
 [ "$answer" = y ] || { echo "not published"; exit 0; }
 gh release create "v$VERSION" "$ZIP" --target main --title "fm-cli $VERSION (macOS, Apple Silicon)" --latest \
-	--notes "Install: \`curl -fsSL https://raw.githubusercontent.com/farukkavlak/fm-cli/main/install.sh | zsh\` or \`brew tap farukkavlak/fm-cli https://github.com/farukkavlak/fm-cli && brew install fm-cli\`. See the README."
+	--notes "Install: \`curl -fsSL https://raw.githubusercontent.com/farukkavlak/fm-cli/main/install.sh | zsh\`, Homebrew or this zip: see the README."
 echo "commit and push Formula/fm-cli.rb so brew sees this release"
