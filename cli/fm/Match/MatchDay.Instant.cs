@@ -18,12 +18,14 @@ internal static partial class Program
 		{
 			try
 			{
-				var fixture = await Fm.Pull("Human.Team.LastFixture", "HasResult,HomeScore,AwayScore,Date");
+				// Its day ("yyyy-MM-dd") is what tells one match from the next: the same two sides can meet twice with
+				// the same score (a cup tie's two legs).
+				var fixture = await Fm.Pull("Human.Team.LastFixture", "HasResult,HomeScore,AwayScore,FixtureDate");
 				if (Field(fixture, "HasResult") != "True") return ("", "");
 				var home = Field(await Fm.Pull("Human.Team.LastFixture.HomeTeam", "Name"), "Name");
 				var away = Field(await Fm.Pull("Human.Team.LastFixture.AwayTeam", "Name"), "Name");
 				var score = $"{home} {Field(fixture, "HomeScore")}-{Field(fixture, "AwayScore")} {away}";
-				return ($"{Field(fixture, "Date")}|{score}", score);
+				return ($"{Field(fixture, "FixtureDate")}|{score}", score);
 			}
 			catch (FmError) { return ("", ""); }
 		}
@@ -157,11 +159,11 @@ internal static partial class Program
 		{
 			// The game can hold the result back from its last fixture until the next Continue, while the
 			// fixture list already has it (21 March 2038: AZ 2-0 there, the last fixture still the match before).
-			// The newest played fixture is this match unless it is the one before, told by its opponent and score.
+			// The newest played fixture is this match unless it is the one before, told by its day.
 			TeamFixture? listed = null;
 			try { listed = (await TeamFixtures())?.Where(f => f.Played && f.Result != "").MaxBy(f => f.Date, StringComparer.Ordinal); }
 			catch (FmError) { }
-			if (listed == null || ListedIsPrevious(beforeKey, listed.Opponent, listed.Result))
+			if (listed == null || ListedIsPrevious(beforeKey, listed.Date))
 			{
 				Console.Error.WriteLine(L("Match report is not ready yet; the game's last fixture has not changed."));
 				return 0;
@@ -195,22 +197,12 @@ internal static partial class Program
 	}
 
 	/// <summary>
-	/// Whether the newest played fixture of the list is still the match before (its opponent named in the last
-	/// fixture read before the match, and the same goals), so that it is not printed as the match just played.
-	/// <paramref name="beforeKey"/> is "date|Home 1-2 Away"; <paramref name="result"/> is the list's "1 - 2" with
-	/// any mark after it.
+	/// Whether the newest played fixture of the list is still the match before: the day of the last fixture read
+	/// before the match. A team plays once a day. <paramref name="beforeKey"/> is "yyyy-MM-dd|Home 1-2 Away";
+	/// <paramref name="listedDay"/> the list's own "yyyy-MM-dd". Not the previous one when either day is unknown.
 	/// </summary>
-	internal static bool ListedIsPrevious(string beforeKey, string opponent, string result)
-	{
-		var before = beforeKey.Split('|', 2) is [_, var b] ? b : "";
-		if (before.Length == 0 || opponent.Length == 0) return false;
-		// The score is the "goals-goals" between the two names ("Schalke 04 1-2 12 Bingöl Spor" has digits in both).
-		if (System.Text.RegularExpressions.Regex.Match(before, @"\s(\d+)-(\d+)\s") is not { Success: true } score) return false;
-		// The list writes our goals first, the last fixture the home side's: an away match reads the other way round.
-		if (result.Split(' ', 4) is not [var us, "-", var them, ..]) return false;
-		var (home, away) = (score.Groups[1].Value, score.Groups[2].Value);
-		return before.Contains(opponent, StringComparison.Ordinal) && ((home, away) == (us, them) || (home, away) == (them, us));
-	}
+	internal static bool ListedIsPrevious(string beforeKey, string listedDay) =>
+		beforeKey.Split('|', 2) is [var day, _] && day.Length > 0 && day == listedDay;
 
 	/// <summary>
 	/// The match today of another of the club's teams, home side first, and its two sides' ids, told by the

@@ -140,9 +140,9 @@ page	fdc4ca40b0312734b9a99317f9d351d0	cli/fm/Core/Screens.cs:49	1
 event	AdviceOptionsSelection	cli/fm/Match/TacticAdvice.cs:43	1
 event	CancelPreferenceChanges	cli/fm/Core/Settings.Preferences.cs:22	1
 event	ClosePanel	cli/fm/Club/Budget.cs:222 cli/fm/Core/Crawl.cs:123 cli/fm/Core/Holiday.cs:80	8
-event	ContinueGame	cli/fm/Core/Clock.cs:325	1
+event	ContinueGame	cli/fm/Core/Clock.cs:337	1
 event	DeleteSelectedGame	cli/fm/Core/Saves.cs:51 cli/fm/Core/Saves.cs:250	2
-event	EVentFmxSelectCurrentSeasonExpectationLevel	cli/fm/Program/Program.Reply.cs:384	1
+event	EVentFmxSelectCurrentSeasonExpectationLevel	cli/fm/Program/Program.Reply.cs:410	1
 event	EventFmxActionSuggestion	cli/fm/Club/StaffAdvice.cs:28	1
 event	EventFmxAddClubVisionObjective	cli/fm/Club/Vision.Plan.cs:23	1
 event	EventFmxAddPenaltyTakersToArea	cli/fm/Squad/Penalties.cs:165 cli/fm/Squad/Penalties.cs:215	2
@@ -161,7 +161,7 @@ event	EventFmxConfirmTerms	cli/fm/Club/Vision.cs:35 cli/fm/Club/Vision.cs:141 cl
 event	EventFmxConfirmedCreateNewTactic	cli/fm/Match/Guided.TacticNew.cs:429	1
 event	EventFmxCreateShortlist	cli/fm/Transfer/Shortlist.cs:148	1
 event	EventFmxDeclareInterestInJob	cli/fm/Club/Jobs.cs:21	1
-event	EventFmxDrawAllTeams	cli/fm/Match/CupDraw.cs:12 cli/fm/Program/Program.Reply.cs:362	2
+event	EventFmxDrawAllTeams	cli/fm/Match/CupDraw.cs:12 cli/fm/Program/Program.Reply.cs:384	2
 event	EventFmxFilterRestoreFilter	cli/fm/Club/StaffSearch.Catalog.cs:82	1
 event	EventFmxFilterSetIncludeOwnStaff	cli/fm/Club/StaffSearch.cs:154	1
 event	EventFmxFilterSetScoutedOnly	cli/fm/Core/Reads.Squad.cs:353	1
@@ -197,11 +197,11 @@ event	EventFmxRevert	cli/fm/Club/Responsibilities.Delegate.cs:231 cli/fm/Club/Vi
 event	EventFmxRevertChanges	cli/fm/Squad/Register.cs:39 cli/fm/Squad/Registration.cs:99 cli/fm/Squad/Registration.cs:142	3
 event	EventFmxSelectPosition	cli/fm/Transfer/ScoutFocus.cs:94 cli/fm/Transfer/TransferRoom.cs:458	2
 event	EventFmxSetPieceCaptainCandidatesRemove	cli/fm/Squad/StandIns.cs:136	1
-event	EventFmxSetPieceCreator	cli/fm/Core/Clock.cs:425	1
-event	EventFmxSetPieceCreatorNextStep	cli/fm/Match/Guided.SetPieces.cs:33	1
-event	EventFmxSetPieceCreatorStart	cli/fm/Match/Guided.SetPieces.cs:33	1
-event	EventFmxSetPieceInstrChanged	cli/fm/Squad/SetPieceRoutine.cs:238	1
-event	EventFmxSetPieceSecondaryInstrChanged	cli/fm/Squad/SetPieceRoutine.cs:271	1
+event	EventFmxSetPieceCreator	cli/fm/Core/Clock.cs:448	1
+event	EventFmxSetPieceCreatorNextStep	cli/fm/Match/Guided.SetPieces.cs:33 cli/fm/Program/Program.Reply.cs:388	2
+event	EventFmxSetPieceCreatorStart	cli/fm/Match/Guided.SetPieces.cs:33 cli/fm/Program/Program.Reply.cs:388	2
+event	EventFmxSetPieceInstrChanged	cli/fm/Squad/SetPieceRoutine.cs:240	1
+event	EventFmxSetPieceSecondaryInstrChanged	cli/fm/Squad/SetPieceRoutine.cs:273	1
 event	EventFmxSetTacticSlot	cli/fm/Match/Guided.TacticSettings.cs:474	1
 event	EventFmxSetVenueToHome	cli/fm/Match/Friendly.cs:157	1
 event	EventFmxSuggestTerms	cli/fm/Club/Vision.cs:147	1
@@ -226,38 +226,39 @@ event	MatchCloseTacticalPanel:Confirm	cli/fm/Squad/SetPieceRoutine.cs:60	1
 event	MatchOpenTactics	cli/fm/Squad/SetPieceRoutine.cs:33 cli/fm/Squad/SetPieceRoutine.cs:41	2
 event	MatchSkipReplay	cli/fm/Match/MatchControls.cs:1006 cli/fm/Match/MatchControls.cs:1014	2
 event	MatchTogglePlayPause	cli/fm/Match/MatchControls.cs:1019 cli/fm/Match/MatchDay.cs:277	2
-event	ObjectLink	cli/fm/Core/Actions.cs:145	1
+event	ObjectLink	cli/fm/Core/Actions.cs:165	1
 event	OpenNewsActionPanel	cli/fm/Club/StaffAdvice.cs:195 cli/fm/Transfer/TransferRoom.cs:235	2
 event	OpenPanel	cli/fm/Core/Reads.cs:108 cli/fm/Match/Guided.Tactic.cs:326 cli/fm/Match/MatchDay.Instant.cs:42	8
 event	OpenSubtabEvent	cli/fm/Program/Program.Inbox.cs:22 cli/fm/Program/Program.Inbox.cs:329	2
 event	PanelHistoryClose	cli/fm/Core/Crawl.cs:112 cli/fm/Core/Crawl.cs:123 cli/fm/Core/Saves.Files.cs:167	7
 event	PenaltyCandidatesMove	cli/fm/Squad/Penalties.cs:51	1
 event	PersonAddPlayersToShortlist	cli/fm/Squad/PlayerActions.cs:362	1
-event	PersonApproachToSign	cli/fm/Core/Actions.cs:580 cli/fm/Core/Actions.cs:591 cli/fm/Core/Actions.cs:634	4
+event	PersonApproachToSign	cli/fm/Core/Actions.cs:600 cli/fm/Core/Actions.cs:611 cli/fm/Core/Actions.cs:654	4
+event	PersonAskAgentAboutClientContractRenewal	cli/fm/Transfer/Release.cs:36	1
 event	PersonAssignScoutToPlayersClub	cli/fm/Squad/PlayerActions.cs:109 cli/fm/Squad/PlayerActions.cs:177	2
 event	PersonDeclareInterestInPlayer	cli/fm/Squad/PlayerActions.cs:420	1
 event	PersonEnquireAboutPlayer	cli/fm/Squad/PlayerActions.cs:404	1
-event	PersonKeepRetiredPersonData	cli/fm/Core/Actions.cs:424	1
+event	PersonKeepRetiredPersonData	cli/fm/Core/Actions.cs:444	1
 event	PersonMakeOfferForPlayer	cli/fm/Transfer/Transfers.cs:35	1
-event	PersonMakePlayersAvailableForReserves	cli/fm/Core/Actions.cs:442	1
-event	PersonMutualTerminationContract	cli/fm/Core/Actions.cs:628 cli/fm/Transfer/Release.cs:130	2
+event	PersonMakePlayersAvailableForReserves	cli/fm/Core/Actions.cs:462	1
+event	PersonMutualTerminationContract	cli/fm/Core/Actions.cs:648 cli/fm/Transfer/Release.cs:147	2
 event	PersonOfferContract	cli/fm/Transfer/ContractTalks.cs:31	1
 event	PersonOfferToClubs	cli/fm/Transfer/Propose.cs:30	1
 event	PersonOfferTrialToPlayer	cli/fm/Squad/PlayerActions.cs:413	1
-event	PersonReleaseClubFreeTransfer	cli/fm/Core/Actions.cs:584 cli/fm/Core/Actions.cs:628 cli/fm/Transfer/Release.cs:130	3
+event	PersonReleaseClubFreeTransfer	cli/fm/Core/Actions.cs:604 cli/fm/Core/Actions.cs:648 cli/fm/Transfer/Release.cs:147	3
 event	PersonRemovePlayersFromShortlist	cli/fm/Squad/PlayerActions.cs:321 cli/fm/Squad/PlayerActions.cs:347	2
 event	PersonRequestTrainingReport	cli/fm/Squad/TrainingReport.cs:30	1
 event	PersonStopScoutPlayersClub	cli/fm/Squad/PlayerActions.cs:145	1
 event	PersonTrainingNewPreferredMove	cli/fm/Squad/TraitTraining.cs:73 cli/fm/Squad/TraitTraining.cs:149 cli/fm/Squad/TraitTraining.cs:178	3
-event	PersonWithdrawContractOffer	cli/fm/Core/Actions.cs:586	1
+event	PersonWithdrawContractOffer	cli/fm/Core/Actions.cs:606	1
 event	PreferencesConfirmChanges	cli/fm/Core/Settings.Scale.cs:128 cli/fm/Core/Settings.cs:172	2
 event	RecruitmentFocusEditConfirmationDialog	cli/fm/Transfer/ScoutFocus.Form.cs:262 cli/fm/Transfer/ScoutFocus.cs:266	2
 event	RoleOption	cli/fm/Match/Guided.TacticSettings.cs:111	1
 event	RunNewsAction	cli/fm/Match/News.cs:54	1
 event	SaveAddon	cli/fm/Squad/TacticFiles.cs:108 cli/fm/Squad/TacticFiles.cs:124	2
 event	SetDatastoreValue	cli/fm/Squad/SetPieceRoutine.cs:42 cli/fm/Transfer/Planner.cs:71	2
-event	SetPieceRoutineDeliverySelect	cli/fm/Squad/SetPieceRoutine.cs:260	1
-event	SetPieceStrategyConfirmed	cli/fm/Squad/SetPieceRoutine.cs:247 cli/fm/Squad/SetPieceRoutine.cs:262	2
+event	SetPieceRoutineDeliverySelect	cli/fm/Squad/SetPieceRoutine.cs:262	1
+event	SetPieceStrategyConfirmed	cli/fm/Squad/SetPieceRoutine.cs:249 cli/fm/Squad/SetPieceRoutine.cs:264	2
 event	SetPieceTakerMove	cli/fm/Squad/Takers.cs:219 cli/fm/Squad/Takers.cs:241	2
 event	SpeakToAction	cli/fm/Core/Acknowledge.cs:24 cli/fm/Core/Acknowledge.cs:56 cli/fm/Core/Acknowledge.cs:97	10
 event	TableRemoveElement	cli/fm/Squad/StandIns.cs:101	1
@@ -285,13 +286,13 @@ element	NameButton	cli/fm/Squad/Numbers.cs:278	1
 element	NavTabDropdown	plugin/FmCliProbe/src/Reads/Pages.cs:60 plugin/FmCliProbe/src/Reads/Pages.cs:101 plugin/FmCliProbe/src/Reads/Pages.cs:237	5
 element	NewsItemButton	cli/fm/Program/Program.Inbox.cs:264	1
 element	OpenCardButton	cli/fm/Transfer/Planner.cs:68	1
-element	Option	cli/fm/Match/Guided.SetPieces.cs:142	1
-element	SIButton	cli/fm/Core/Actions.cs:494 cli/fm/Core/Crawl.cs:134 cli/fm/Core/Reads.cs:90	7
-element	SIDropdown	cli/fm/Match/Guided.TacticSettings.cs:111 cli/fm/Match/Guided.cs:236 cli/fm/Program/Program.Reply.cs:168	4
+element	Option	cli/fm/Match/Guided.SetPieces.cs:156	1
+element	SIButton	cli/fm/Core/Actions.cs:514 cli/fm/Core/Crawl.cs:134 cli/fm/Core/Reads.cs:90	7
+element	SIDropdown	cli/fm/Match/Guided.TacticSettings.cs:111 cli/fm/Match/Guided.cs:240 cli/fm/Program/Program.Reply.cs:177	4
 element	SearchBox	cli/fm/Core/Reads.cs:137	1
 element	SearchButton	plugin/FmCliProbe/src/Reads/Report.cs:395	1
 element	StaffResponsibilitiesRadioGroup	cli/fm/Club/Responsibilities.cs:152	1
-element	StandardButton	cli/fm/Match/Guided.cs:231 cli/fm/Match/Guided.cs:326 cli/fm/Program/Program.Reply.cs:457	5
+element	StandardButton	cli/fm/Match/Guided.cs:235 cli/fm/Match/Guided.cs:330 cli/fm/Program/Program.Reply.cs:483	5
 element	Tactic	cli/fm/Squad/TeamInstructions.Team.cs:27	1
 element	TaskMessagesTutorial	cli/fm/Program/Program.Inbox.cs:43 cli/fm/Program/Program.Inbox.cs:92	2
 element	ViewAltDropdown	cli/fm/Club/StaffSearch.cs:22	1
@@ -306,7 +307,7 @@ element	button-primary-leading-icon-label	cli/fm/Transfer/ScoutFocus.Form.cs:261
 element	buttons-controls-pc-default	plugin/FmCliProbe/src/Reads/Offer.cs:234	1
 element	club-table	cli/fm/Transfer/Planner.cs:108	1
 element	combobox	cli/fm/Transfer/Transfers.cs:372 cli/fm/Transfer/Transfers.cs:426	2
-element	continue-button	cli/fm/Core/Clock.cs:325 cli/fm/Match/Guided.cs:318 cli/fm/Match/MatchDay.cs:615	4
+element	continue-button	cli/fm/Core/Clock.cs:337 cli/fm/Match/Guided.cs:322 cli/fm/Match/MatchDay.cs:615	4
 element	create-shortlist-button	cli/fm/Transfer/Shortlist.cs:141	1
 element	dashboard-hud-search-button	cli/fm/Core/Reads.cs:108	1
 element	description	cli/fm/Club/Youth.cs:165	1
@@ -316,7 +317,7 @@ element	layout-tile-interaction-button	cli/fm/Match/Guided.TacticNew.cs:207 plug
 element	loan-offer-button	cli/fm/Transfer/Propose.cs:53	1
 element	loans-tab-button	cli/fm/Transfer/TransferRoom.cs:101	1
 element	navigation-tab-default-default	cli/fm/Club/ReadPage.cs:96 cli/fm/Core/Settings.Preferences.cs:88 cli/fm/Core/Settings.Preferences.cs:90	3
-element	next	cli/fm/Core/Clock.cs:121 cli/fm/Core/Clock.cs:145 cli/fm/Core/Clock.cs:243	19
+element	next	cli/fm/Core/Clock.cs:133 cli/fm/Core/Clock.cs:157 cli/fm/Core/Clock.cs:255	19
 element	overview	cli/fm/Match/Guided.Tactic.cs:424	1
 element	selectedDate	cli/fm/Match/Friendly.cs:54	1
 element	shout-button	cli/fm/Match/Guided.TacticNew.cs:103	1
@@ -327,7 +328,7 @@ element	transfers-list-radio-group	cli/fm/Transfer/Offers.cs:268	1
 element	transfers-tab-button	cli/fm/Transfer/TransferRoom.cs:101	1
 element	transfers-table	cli/fm/Transfer/TransferRoom.cs:190	1
 element	tweaks-button	cli/fm/Match/Tweaks.cs:184 cli/fm/Match/Tweaks.cs:194	2
-panel	PortalScreen	cli/fm/Core/Clock.Status.cs:134 cli/fm/Core/Clock.cs:444 cli/fm/Core/Clock.cs:471	14
+panel	PortalScreen	cli/fm/Core/Clock.Status.cs:134 cli/fm/Core/Clock.cs:467 cli/fm/Core/Clock.cs:494	14
 field	m_bindingKey	plugin/FmCliProbe/src/Controls/Form.cs:189 plugin/FmCliProbe/src/Controls/Form.cs:299 plugin/FmCliProbe/src/Controls/TextBoxes.cs:62	4
 field	m_boundElements	plugin/FmCliProbe/src/Controls/RowControls.cs:191 plugin/FmCliProbe/src/Controls/TableRows.cs:329	2
 field	m_choices	plugin/FmCliProbe/src/Controls/Buttons.Controls.cs:311 plugin/FmCliProbe/src/Controls/Buttons.MenuOptions.cs:109 plugin/FmCliProbe/src/Controls/Buttons.cs:164	28
@@ -362,14 +363,14 @@ field	m_validationKey	plugin/FmCliProbe/src/Controls/TextBoxes.cs:232	1
 field	m_valueKey	plugin/FmCliProbe/src/Controls/Form.cs:190 plugin/FmCliProbe/src/Controls/Form.cs:315 plugin/FmCliProbe/src/Controls/Form.cs:316	4
 path	AdditionalFocus.IndividualTrainingTypeRow.DisplayValue	cli/fm/Squad/IndividualTraining.cs:19	1
 path	AwayTeam.Team.Division.Name	cli/fm/Match/Stages.Ties.cs:32	1
-path	AwayTeam.UniqueId	cli/fm/Core/Clock.Fixtures.cs:34 cli/fm/Core/Reads.League.cs:262 cli/fm/Core/Reads.League.cs:307	4
+path	AwayTeam.UniqueId	cli/fm/Core/Clock.Fixtures.cs:34 cli/fm/Core/Reads.League.cs:269 cli/fm/Core/Reads.League.cs:314	4
 path	BuyingClub.Name	cli/fm/Transfer/Offers.cs:217	1
 path	Club.Division.Name	cli/fm/Transfer/Scouting.cs:118	1
 path	Club.DomesticDivision.Name	cli/fm/Transfer/TransferRoom.cs:162 cli/fm/Transfer/TransferRoom.cs:183	2
 path	Club.Name	cli/fm/Transfer/Scouting.cs:118 cli/fm/Transfer/Shortlist.cs:88 cli/fm/Transfer/Shortlist.cs:94	7
 path	Club.VisionObjectiveYearString	cli/fm/Club/Vision.Plan.cs:24	1
 path	ClubVisionMeetingObjectiveIdentifier.DisplayValue	cli/fm/Club/Vision.Plan.cs:97 cli/fm/Club/Vision.Plan.cs:98	2
-path	Competition.Name	cli/fm/Core/Reads.League.cs:265 cli/fm/Core/Reads.League.cs:372 cli/fm/Match/Calendar.cs:131	3
+path	Competition.Name	cli/fm/Core/Reads.League.cs:272 cli/fm/Core/Reads.League.cs:379 cli/fm/Match/Calendar.cs:131	3
 path	Competition.ShortName	cli/fm/Match/Calendar.cs:131 cli/fm/Match/Calendar.cs:132	2
 path	ContextStatValue1.DisplayValue	cli/fm/Match/League.cs:147	1
 path	ContextStatValue2.DisplayValue	cli/fm/Match/League.cs:148	1
@@ -389,7 +390,7 @@ path	FullContract.EndDateDescription	cli/fm/Club/Staff.cs:50 cli/fm/Club/Staff.c
 path	FullContract.Wage.DisplayValue	cli/fm/Club/Staff.cs:50 cli/fm/Club/Staff.cs:55	2
 path	FullContract.Wage.SortValue	cli/fm/Squad/Query.cs:35	1
 path	HomeTeam.Team.Division.Name	cli/fm/Match/Stages.Ties.cs:26	1
-path	HomeTeam.UniqueId	cli/fm/Core/Clock.Fixtures.cs:34 cli/fm/Core/Reads.League.cs:262 cli/fm/Core/Reads.League.cs:307	4
+path	HomeTeam.UniqueId	cli/fm/Core/Clock.Fixtures.cs:34 cli/fm/Core/Reads.League.cs:269 cli/fm/Core/Reads.League.cs:314	4
 path	Human.Club	cli/fm/Club/Board.cs:113 cli/fm/Club/BoardRequests.cs:32 cli/fm/Club/Budget.cs:130	16
 path	Human.Club.AllYouthCandidates	cli/fm/Club/Youth.cs:41	1
 path	Human.Club.DevelopmentPlayersFirstTeamCandidates.DevelopmentPlayersFirstTeamCandidatePlayers	cli/fm/Club/Youth.cs:183	1
@@ -417,22 +418,22 @@ path	Human.Team	cli/fm/Club/Board.cs:113 cli/fm/Club/ManagerStats.cs:83 cli/fm/C
 path	Human.Team.Captain	cli/fm/Squad/Captains.cs:17	1
 path	Human.Team.Club	cli/fm/Club/ClubCards.cs:143 cli/fm/Club/Finances.cs:71 cli/fm/Match/MatchDay.Team.cs:24	3
 path	Human.Team.Club.CorporateFacilityRating	cli/fm/Club/Club.cs:23 cli/fm/Club/ClubCards.cs:146	2
-path	Human.Team.Club.Teams	cli/fm/Match/MatchDay.Instant.cs:192 cli/fm/Program/Program.Squad.cs:107	2
+path	Human.Team.Club.Teams	cli/fm/Match/MatchDay.Instant.cs:225 cli/fm/Program/Program.Squad.cs:107	2
 path	Human.Team.Club.TrainingFacilityRating	cli/fm/Club/Club.cs:21 cli/fm/Club/ClubCards.cs:144	2
 path	Human.Team.Club.YouthFacilityRating	cli/fm/Club/Club.cs:22 cli/fm/Club/ClubCards.cs:145	2
 path	Human.Team.Club.YouthStadium	cli/fm/Club/ClubCards.cs:154	1
 path	Human.Team.CurrentComps	cli/fm/Club/Board.cs:107	1
-path	Human.Team.Division	cli/fm/Core/Reads.League.cs:16 cli/fm/Core/Reads.League.cs:193 cli/fm/Match/League.cs:297	3
+path	Human.Team.Division	cli/fm/Core/Reads.League.cs:16 cli/fm/Core/Reads.League.cs:200 cli/fm/Match/League.cs:297	3
 path	Human.Team.Division.TransferWindowData	cli/fm/Core/Clock.Fixtures.cs:15	1
-path	Human.Team.LastFixture	cli/fm/Match/MatchDay.Instant.cs:21 cli/fm/Match/MatchReport.cs:24	2
+path	Human.Team.LastFixture	cli/fm/Match/MatchDay.Instant.cs:21 cli/fm/Match/MatchReport.cs:33	2
 path	Human.Team.LastFixture.AwayTeam	cli/fm/Match/MatchDay.Instant.cs:24	1
 path	Human.Team.LastFixture.HomeTeam	cli/fm/Match/MatchDay.Instant.cs:23	1
 path	Human.Team.MentoringGroups	cli/fm/Squad/Mentoring.cs:73	1
 path	Human.Team.NextFixture	cli/fm/Core/Clock.Fixtures.cs:33 cli/fm/Core/Clock.Fixtures.cs:53 cli/fm/Core/Clock.Fixtures.cs:151	5
-path	Human.Team.NextFixture.Competition	cli/fm/Core/Clock.Fixtures.cs:57 cli/fm/Core/Clock.Fixtures.cs:160 cli/fm/Core/Reads.League.cs:53	4
+path	Human.Team.NextFixture.Competition	cli/fm/Core/Clock.Fixtures.cs:57 cli/fm/Core/Clock.Fixtures.cs:160 cli/fm/Core/Reads.League.cs:60	4
 path	Human.Team.NextFixture.TeamOpponent	cli/fm/Core/Clock.Fixtures.cs:56 cli/fm/Match/Opponent.cs:57	2
 path	Human.Team.NextMatchOpponent	cli/fm/Match/MatchDay.Team.cs:47	1
-path	Human.Team.Players	cli/fm/Club/Internationals.cs:22 cli/fm/Core/Clock.Fixtures.cs:140 cli/fm/Core/Commands.cs:132	35
+path	Human.Team.Players	cli/fm/Club/Internationals.cs:22 cli/fm/Core/Actions.cs:57 cli/fm/Core/Clock.Fixtures.cs:140	36
 path	Human.Team.RecentFormValuesAllComps	cli/fm/Core/Clock.Fixtures.cs:84	1
 path	Human.Team.ScoutPriorities.SpecificallyScoutedPlayersCount	cli/fm/Squad/PlayerActions.cs:223	1
 path	Human.Team.Stadium	cli/fm/Club/ClubCards.cs:136	1
@@ -457,11 +458,11 @@ path	Minutes.PropertyValue	cli/fm/Program/Program.Squad.cs:242 cli/fm/Program/Pr
 path	Nation.Name	cli/fm/Club/Career.cs:41 cli/fm/Club/Internationals.cs:32 cli/fm/Club/Youth.cs:51	4
 path	Nation.ThreeLetterName	cli/fm/Club/Staff.cs:48 cli/fm/Club/Staff.cs:54 cli/fm/Transfer/Scouting.cs:117	5
 path	NewsPersonSender.Name	cli/fm/Program/Program.Inbox.cs:181	1
-path	NextFixture.AwayTeam.Name	cli/fm/Match/MatchDay.Instant.cs:195	1
-path	NextFixture.AwayTeam.UniqueId	cli/fm/Match/MatchDay.Instant.cs:196	1
-path	NextFixture.FixtureDateDistanceInDays	cli/fm/Match/MatchDay.Instant.cs:194	1
-path	NextFixture.HomeTeam.Name	cli/fm/Match/MatchDay.Instant.cs:195	1
-path	NextFixture.HomeTeam.UniqueId	cli/fm/Match/MatchDay.Instant.cs:196	1
+path	NextFixture.AwayTeam.Name	cli/fm/Match/MatchDay.Instant.cs:228	1
+path	NextFixture.AwayTeam.UniqueId	cli/fm/Match/MatchDay.Instant.cs:229	1
+path	NextFixture.FixtureDateDistanceInDays	cli/fm/Match/MatchDay.Instant.cs:227	1
+path	NextFixture.HomeTeam.Name	cli/fm/Match/MatchDay.Instant.cs:228	1
+path	NextFixture.HomeTeam.UniqueId	cli/fm/Match/MatchDay.Instant.cs:229	1
 path	OOPTraining.IndividualOOPTrainingRoleRow.DisplayValue	cli/fm/Squad/IndividualTraining.cs:18	1
 path	Person.Age	cli/fm/Transfer/TransferRoom.cs:333 cli/fm/Transfer/TransferRoom.cs:550	2
 path	Person.Club.Name	cli/fm/Transfer/TransferRoom.cs:333 cli/fm/Transfer/TransferRoom.cs:550	2
@@ -551,13 +552,13 @@ path	Team.LeagueTableName	cli/fm/Match/Stages.Lists.cs:171	1
 path	Team.Name	cli/fm/Club/Career.cs:40 cli/fm/Club/Jobs.cs:102 cli/fm/Club/Jobs.cs:109	10
 path	Team.Nation.ThreeLetterName	cli/fm/Club/Jobs.cs:113	1
 path	Team.UniqueId	cli/fm/Club/Jobs.cs:233 cli/fm/Club/Jobs.cs:242 cli/fm/Match/Stages.Lists.cs:171	3
-path	TeamOpponent.Name	cli/fm/Core/Reads.League.cs:265 cli/fm/Core/Reads.League.cs:372	2
+path	TeamOpponent.Name	cli/fm/Core/Reads.League.cs:272 cli/fm/Core/Reads.League.cs:379	2
 path	TrainingPosition.NewPositionAndRoleRow.DisplayValue	cli/fm/Squad/IndividualTraining.cs:17	1
 path	TransferValueRange.TransferValueRangeString	cli/fm/Transfer/Planner.cs:121 cli/fm/Transfer/Planner.cs:127 cli/fm/Transfer/Scouting.cs:111	5
 path	TrialClub.UniqueId	cli/fm/Club/Youth.cs:53	1
 path	WatchedMatchesInfo.WatchedMatchesSummary	cli/fm/Transfer/ScoutReport.cs:65	1
 path	YellowCards.PropertyValue	cli/fm/Program/Program.Squad.cs:269	1
-path	action.ActionTitle	cli/fm/Program/Program.Reply.cs:154	1
+path	action.ActionTitle	cli/fm/Program/Program.Reply.cs:163	1
 path	advert.OOPRoleValue	cli/fm/Transfer/TransferRoom.cs:342 cli/fm/Transfer/TransferRoom.cs:466 cli/fm/Transfer/TransferRoom.cs:468	3
 path	binding.Player.Name	cli/fm/Squad/StandIns.cs:152	1
 path	binding.Player.UniqueId	cli/fm/Squad/StandIns.cs:151 cli/fm/Squad/StandIns.cs:152	2
@@ -571,7 +572,7 @@ path	budget.BudgetAdjustmentEditedOtherValue	cli/fm/Club/Budget.cs:191	1
 path	budget.BudgetAdjustmentEditedTransferValue	cli/fm/Club/Budget.cs:185 cli/fm/Club/Budget.cs:191	2
 path	clubvision.ClubVisionMeetingObjectiveIdentifier.DisplayValue	cli/fm/Club/Vision.cs:28	1
 path	clubvision.VisionObjectiveName	cli/fm/Club/Club.cs:128	1
-path	collectivewinbonus.BonusLeagueString	cli/fm/Program/Program.Reply.cs:407	1
+path	collectivewinbonus.BonusLeagueString	cli/fm/Program/Program.Reply.cs:433	1
 path	const.False	cli/fm/Match/Prep.cs:150 cli/fm/Squad/TeamInstructions.Player.cs:200	2
 path	const.True	cli/fm/Squad/TeamInstructions.Player.cs:152 cli/fm/Squad/TeamInstructions.Player.cs:200 cli/fm/Squad/TeamInstructions.Team.cs:20	3
 path	content.Description	cli/fm/Match/MatchControls.cs:643 cli/fm/Match/MatchControls.cs:934	2
@@ -588,12 +589,12 @@ path	game.GameProcessing	plugin/FmCliProbe/src/Bridge/State.cs:27	1
 path	game.GameSaving	plugin/FmCliProbe/src/Bridge/State.cs:28	1
 path	game.GameWaiting	plugin/FmCliProbe/src/Bridge/State.cs:29	1
 path	game.IsDuringMatch	plugin/FmCliProbe/src/Bridge/State.cs:31	1
-path	newsitem.NewsBodyString	cli/fm/Program/Program.Messages.Inbox.cs:14 cli/fm/Program/Program.Messages.Inbox.cs:16 cli/fm/Program/Program.Reply.cs:118	4
-path	newsitem.NewsTitleString	cli/fm/Core/Clock.cs:237 cli/fm/Match/News.cs:70 cli/fm/Program/Program.Messages.Inbox.cs:36	5
+path	newsitem.NewsBodyString	cli/fm/Program/Program.Messages.Inbox.cs:14 cli/fm/Program/Program.Messages.Inbox.cs:18 cli/fm/Program/Program.Reply.cs:127	4
+path	newsitem.NewsTitleString	cli/fm/Core/Clock.cs:249 cli/fm/Match/News.cs:70 cli/fm/Program/Program.Messages.Inbox.cs:38	5
 path	prevmeetingfixture.ResultLinkableNoSpaces	cli/fm/Match/Opponent.cs:119	1
-path	routine.SetPieceTaker.Name	cli/fm/Squad/SetPieceRoutine.cs:244	1
-path	row.ClubSeasonExpectationsCompetition.Name	cli/fm/Program/Program.Reply.cs:380	1
-path	row.ClubSeasonExpectationsPotentialExpectationsIsOptionSelected	cli/fm/Program/Program.Reply.cs:379	1
+path	routine.SetPieceTaker.Name	cli/fm/Squad/SetPieceRoutine.cs:246	1
+path	row.ClubSeasonExpectationsCompetition.Name	cli/fm/Program/Program.Reply.cs:406	1
+path	row.ClubSeasonExpectationsPotentialExpectationsIsOptionSelected	cli/fm/Program/Program.Reply.cs:405	1
 path	row.Text	cli/fm/Match/Opponent.cs:116	1
 path	setpiece.PenaltyAllowTwoGoalsScorers	cli/fm/Squad/Penalties.cs:17	1
 path	setpiece.PenaltyChangeAlreadyTaken	cli/fm/Squad/Penalties.cs:18	1
@@ -607,7 +608,7 @@ path	settings.TextScaling	cli/fm/Core/Settings.Scale.cs:14	1
 path	squadreg.ExtraSquadRules	cli/fm/Squad/Registration.cs:176	1
 path	tactic.TacticalStyleDropdown	cli/fm/Match/Guided.Tactic.cs:34	1
 path	team.MentoringGroups	cli/fm/Squad/Mentoring.cs:273	1
-property	AbilityProgressHistory	cli/fm/Core/Reads.League.cs:158 cli/fm/Core/Reads.Player.cs:40	2
+property	AbilityProgressHistory	cli/fm/Core/Reads.League.cs:165 cli/fm/Core/Reads.Player.cs:40	2
 property	ActionID	cli/fm/Core/Acknowledge.cs:59 cli/fm/Core/Acknowledge.cs:60 cli/fm/Squad/Mentoring.cs:92	3
 property	ActionResponseValue	cli/fm/Transfer/Transfers.cs:281 cli/fm/Transfer/Transfers.cs:284 cli/fm/Transfer/Transfers.cs:285	3
 property	ActionSubTitle	plugin/FmCliProbe/src/Reads/Talk.cs:53	1
@@ -619,8 +620,8 @@ property	ActiveNationsCount	cli/fm/Core/Saves.cs:134	1
 property	ActualPlayingTime	cli/fm/Core/Reads.Squad.cs:167	1
 property	AddOnIsInvalidType	cli/fm/Transfer/OfferScreen.cs:238	1
 property	AgeRange	cli/fm/Transfer/TransferRoom.cs:167 cli/fm/Transfer/TransferRoom.cs:184	2
-property	AgentPlayerDemandsStringDataString	cli/fm/Transfer/Release.cs:106 cli/fm/Transfer/Release.cs:109	2
-property	AgentPlayerDemandsStrings	cli/fm/Transfer/Release.cs:105	1
+property	AgentPlayerDemandsStringDataString	cli/fm/Match/Guided.cs:485 cli/fm/Match/Guided.cs:488 cli/fm/Transfer/Release.cs:123	4
+property	AgentPlayerDemandsStrings	cli/fm/Match/Guided.cs:484 cli/fm/Transfer/Release.cs:122	2
 property	AggregateAwayScore	cli/fm/Match/Stages.Ties.cs:34	1
 property	AggregateHomeScore	cli/fm/Match/Stages.Ties.cs:33	1
 property	AgreedPlayingTime	cli/fm/Core/Reads.Squad.cs:155 cli/fm/Core/Reads.Squad.cs:167 cli/fm/Program/Program.Squad.cs:58	7
@@ -635,10 +636,10 @@ property	AutosaveModeAndIntervalString	cli/fm/Core/Saves.cs:133	1
 property	AverageFamiliarity	plugin/FmCliProbe/src/Reads/Tactics.cs:58	1
 property	AverageOrExpectedAttendance	cli/fm/Club/ClubCards.cs:77	1
 property	AverageRating	cli/fm/Club/Career.cs:42 cli/fm/Core/Reads.Squad.cs:86 cli/fm/Match/Matches.cs:67	3
-property	AwayLeaguePosition	cli/fm/Core/Reads.League.cs:373	1
+property	AwayLeaguePosition	cli/fm/Core/Reads.League.cs:380	1
 property	AwayResultTypeRaw	cli/fm/Match/Stages.Ties.cs:30	1
-property	AwayScore	cli/fm/Core/Clock.Status.cs:104 cli/fm/Core/Reads.League.cs:263 cli/fm/Core/Reads.League.cs:311	15
-property	AwayTeamWon	cli/fm/Core/Reads.League.cs:328 cli/fm/Match/MatchReport.cs:25 cli/fm/Match/MatchReport.cs:69	3
+property	AwayScore	cli/fm/Core/Clock.Status.cs:104 cli/fm/Core/Reads.League.cs:270 cli/fm/Core/Reads.League.cs:318	15
+property	AwayTeamWon	cli/fm/Core/Reads.League.cs:335 cli/fm/Match/MatchReport.cs:34 cli/fm/Match/MatchReport.cs:78	3
 property	BestPositionMask	cli/fm/Match/MatchDay.Substitute.cs:58	1
 property	BestRole	cli/fm/Transfer/Scouting.cs:117	1
 property	BestRoleForPosition	cli/fm/Transfer/ScoutReport.cs:65	1
@@ -650,14 +651,14 @@ property	BoardTacticsString	cli/fm/Club/Board.cs:14	1
 property	BoardTransferConfidenceOverallSummaryText	cli/fm/Club/Board.cs:14	1
 property	BoardVisionString	cli/fm/Club/Board.cs:14 cli/fm/Club/Club.cs:47	2
 property	CanAcceptOffer	cli/fm/Transfer/Offers.cs:221	1
-property	CanContinue	cli/fm/Core/Clock.Status.cs:134 cli/fm/Core/Clock.cs:68 cli/fm/Core/Clock.cs:142	7
+property	CanContinue	cli/fm/Core/Clock.Status.cs:134 cli/fm/Core/Clock.cs:80 cli/fm/Core/Clock.cs:154	8
 property	CanEdit	cli/fm/Squad/Intensity.cs:19 cli/fm/Squad/Intensity.cs:165	2
 property	CanGoOnHoliday	cli/fm/Core/Holiday.cs:31	1
 property	CanGoOnHolidayErrorMessage	cli/fm/Core/Holiday.cs:25 cli/fm/Core/Holiday.cs:33	2
 property	CanHumanChange	cli/fm/Club/Responsibilities.cs:116	1
 property	CanHumanTakeControl	cli/fm/Club/Responsibilities.cs:121	1
 property	CanRejectCancelWithdrawOffer	cli/fm/Transfer/Offers.cs:223	1
-property	CanRespond	cli/fm/Core/Clock.cs:472 cli/fm/Core/Clock.cs:476 cli/fm/Match/MatchDay.Instant.cs:214	11
+property	CanRespond	cli/fm/Core/Clock.cs:495 cli/fm/Core/Clock.cs:499 cli/fm/Match/MatchDay.Instant.cs:247	11
 property	CanRevert	cli/fm/Club/Responsibilities.Delegate.cs:223 cli/fm/Club/Responsibilities.Delegate.cs:232 cli/fm/Club/Responsibilities.Delegate.cs:246	3
 property	CanSave	cli/fm/Core/Clock.Status.cs:21 plugin/FmCliProbe/src/Bridge/State.cs:30	2
 property	CanStallOffer	cli/fm/Transfer/Offers.cs:222	1
@@ -711,12 +712,12 @@ property	EndDate	cli/fm/Transfer/Contracts.cs:120	1
 property	EndDateDescription	cli/fm/Transfer/Contracts.cs:50 cli/fm/Transfer/Contracts.cs:119 cli/fm/Transfer/OfferScreen.cs:228	4
 property	EstimatedPlayerCount	cli/fm/Core/Saves.cs:134	1
 property	EstimatedWageDemandsString	cli/fm/Transfer/TransferRoom.cs:551	1
-property	EventType	cli/fm/Match/MatchReport.cs:148 cli/fm/Squad/Schedule.cs:167	2
-property	ExpectedGoals	cli/fm/Match/MatchDay.cs:156 cli/fm/Match/MatchReport.cs:17 cli/fm/Match/MatchReport.cs:168	4
+property	EventType	cli/fm/Match/MatchReport.cs:157 cli/fm/Squad/Schedule.cs:167	2
+property	ExpectedGoals	cli/fm/Match/MatchDay.cs:156 cli/fm/Match/MatchReport.cs:17 cli/fm/Match/MatchReport.cs:177	4
 property	ExpectedGoalsAgainst	cli/fm/Match/Matches.cs:59	1
 property	FierceRivalCount	cli/fm/Club/ClubCards.cs:81	1
 property	FitnessCategory	cli/fm/Club/Coaches.cs:23	1
-property	FixtureDate	cli/fm/Core/Reads.League.cs:246 cli/fm/Core/Reads.League.cs:307 cli/fm/Core/Reads.League.cs:348	5
+property	FixtureDate	cli/fm/Core/Reads.League.cs:253 cli/fm/Core/Reads.League.cs:314 cli/fm/Core/Reads.League.cs:355	5
 property	FixtureDateDistanceInDays	cli/fm/Core/Clock.Fixtures.cs:60 cli/fm/Core/Clock.Fixtures.cs:152 cli/fm/Match/Opponent.cs:78	4
 property	FocusStatusString	cli/fm/Transfer/Scouting.cs:166	1
 property	FormationAnalysis	cli/fm/Club/ReadPage.Catalog.cs:60	1
@@ -726,7 +727,7 @@ property	GameTimeSinceLastSave	cli/fm/Core/Saves.cs:127	1
 property	GamesPlayed	cli/fm/Match/Matches.cs:36 cli/fm/Match/Matches.cs:66	2
 property	GoOnHoliday	cli/fm/Core/Holiday.cs:46	1
 property	GoalkeepingCategory	cli/fm/Club/Coaches.cs:22	1
-property	GoalscorersString	cli/fm/Match/MatchReport.cs:25 cli/fm/Match/MatchReport.cs:80	2
+property	GoalscorersString	cli/fm/Match/MatchReport.cs:34 cli/fm/Match/MatchReport.cs:89	2
 property	GraphPointX	cli/fm/Club/Finances.cs:58	1
 property	GraphPointY	cli/fm/Club/Finances.cs:58	1
 property	GraphType	cli/fm/Match/Opponent.cs:37 cli/fm/Match/Opponent.cs:43 cli/fm/Match/Opponent.cs:44	3
@@ -735,7 +736,7 @@ property	HappinessNegatives	cli/fm/Squad/Happiness.cs:179	1
 property	HappinessNegativesCount	cli/fm/Squad/Happiness.cs:149	1
 property	HappinessPositives	cli/fm/Squad/Happiness.cs:178	1
 property	HappinessPositivesCount	cli/fm/Squad/Happiness.cs:148	1
-property	HasResult	cli/fm/Core/Reads.League.cs:246 cli/fm/Core/Reads.League.cs:309 cli/fm/Core/Reads.League.cs:367	7
+property	HasResult	cli/fm/Core/Reads.League.cs:253 cli/fm/Core/Reads.League.cs:316 cli/fm/Core/Reads.League.cs:374	7
 property	HasScoutedInfo	cli/fm/Transfer/ScoutReport.cs:41	1
 property	HavePendingTouchlineShout	cli/fm/Match/Guided.TacticNew.cs:92 cli/fm/Match/Guided.TacticNew.cs:151	2
 property	HeadlineSubTitle	cli/fm/Match/News.cs:131	1
@@ -743,14 +744,14 @@ property	HierarchyInfluenceCategory	cli/fm/Squad/Dynamics.cs:103 cli/fm/Squad/Dy
 property	HierarchyInfluenceCategoryString	cli/fm/Core/Reads.Squad.cs:172 cli/fm/Program/Program.Squad.cs:196 cli/fm/Squad/Dynamics.cs:105	5
 property	HierarchyOverallHappinessLevel	cli/fm/Squad/Happiness.cs:145 cli/fm/Squad/Happiness.cs:146	2
 property	HolidaysRemaining	cli/fm/Squad/Intensity.cs:19 cli/fm/Squad/Intensity.cs:165	2
-property	HomeLeaguePosition	cli/fm/Core/Reads.League.cs:373	1
+property	HomeLeaguePosition	cli/fm/Core/Reads.League.cs:380	1
 property	HomeResultTypeRaw	cli/fm/Match/Stages.Ties.cs:21 cli/fm/Match/Stages.Ties.cs:29	2
-property	HomeScore	cli/fm/Core/Clock.Status.cs:104 cli/fm/Core/Reads.League.cs:263 cli/fm/Core/Reads.League.cs:311	16
-property	HomeTeamWon	cli/fm/Core/Reads.League.cs:328 cli/fm/Match/MatchReport.cs:25 cli/fm/Match/MatchReport.cs:69	3
+property	HomeScore	cli/fm/Core/Clock.Status.cs:104 cli/fm/Core/Reads.League.cs:270 cli/fm/Core/Reads.League.cs:318	16
+property	HomeTeamWon	cli/fm/Core/Reads.League.cs:335 cli/fm/Match/MatchReport.cs:34 cli/fm/Match/MatchReport.cs:78	3
 property	HumanAdvertsResponsesTabString	cli/fm/Transfer/TransferRoom.cs:330	1
 property	HumanAdvertsTabString	cli/fm/Transfer/TransferRoom.cs:322 cli/fm/Transfer/TransferRoom.cs:353 cli/fm/Transfer/TransferRoom.cs:505	3
 property	HumanAdvertsTotalCount	cli/fm/Transfer/TransferRoom.cs:354 cli/fm/Transfer/TransferRoom.cs:372 cli/fm/Transfer/TransferRoom.cs:377	6
-property	HumanPortalLastSelectedMessage	cli/fm/Program/Program.Reply.cs:473	1
+property	HumanPortalLastSelectedMessage	cli/fm/Program/Program.Reply.cs:499	1
 property	IPPosition	cli/fm/Core/Pitch.cs:29 cli/fm/Core/Pitch.cs:56 cli/fm/Match/DugoutPlayerCard.cs:37	19
 property	IPRole	cli/fm/Match/Guided.TacticSettings.cs:147 cli/fm/Match/Guided.TacticSettings.cs:190 cli/fm/Match/Guided.TacticSettings.cs:430	4
 property	IneligibilityReason	cli/fm/Core/StatusFlags.cs:65	1
@@ -778,7 +779,7 @@ property	IsActive	cli/fm/Core/Reads.Player.cs:186	1
 property	IsAwayFromContractClub	cli/fm/Squad/Health.cs:33	1
 property	IsCreatingTactic	cli/fm/Match/Guided.TacticNew.cs:399	1
 property	IsDisabled	plugin/FmCliProbe/src/Reads/Talk.cs:55	1
-property	IsExitButton	cli/fm/Match/Guided.cs:134 cli/fm/Match/Guided.cs:137 cli/fm/Match/Guided.cs:331	7
+property	IsExitButton	cli/fm/Match/Guided.cs:134 cli/fm/Match/Guided.cs:137 cli/fm/Match/Guided.cs:335	7
 property	IsFocusComplete	cli/fm/Transfer/Scouting.cs:163	1
 property	IsFriendly	cli/fm/Core/Clock.Fixtures.cs:160	1
 property	IsFutureMatch	cli/fm/Core/Clock.Fixtures.cs:54 cli/fm/Core/Clock.Fixtures.cs:152 cli/fm/Match/Prep.cs:202	3
@@ -800,17 +801,17 @@ property	IsVisible	cli/fm/Squad/IndividualTraining.cs:151 cli/fm/Squad/Individua
 property	JobString	cli/fm/Club/Staff.cs:29 cli/fm/Club/Staff.cs:45 cli/fm/Club/Staff.cs:49	11
 property	JudgingPlayerAbility	cli/fm/Transfer/ScoutFocus.Team.cs:41	1
 property	JudgingPlayerPotential	cli/fm/Transfer/ScoutFocus.Team.cs:41	1
-property	KeepHistoryAfterRetirement	cli/fm/Core/Actions.cs:427	1
-property	KickoffTime	cli/fm/Core/Clock.Fixtures.cs:66 cli/fm/Core/Reads.League.cs:264 cli/fm/Core/Reads.League.cs:372	7
+property	KeepHistoryAfterRetirement	cli/fm/Core/Actions.cs:447	1
+property	KickoffTime	cli/fm/Core/Clock.Fixtures.cs:66 cli/fm/Core/Reads.League.cs:271 cli/fm/Core/Reads.League.cs:379	7
 property	LastSeason	cli/fm/Club/Finances.cs:186	1
-property	LatestScores	cli/fm/Core/Clock.cs:265	1
+property	LatestScores	cli/fm/Core/Clock.cs:277	1
 property	LeagueFateEnum	cli/fm/Match/Stages.Lists.cs:175	1
-property	LeagueGamesDrawn	cli/fm/Core/Reads.League.cs:121 cli/fm/Match/Stages.Lists.cs:172 cli/fm/Match/Standings.cs:43	3
-property	LeagueGamesLost	cli/fm/Core/Reads.League.cs:121 cli/fm/Match/Stages.Lists.cs:173 cli/fm/Match/Standings.cs:43	3
-property	LeagueGamesPlayed	cli/fm/Core/Reads.League.cs:70 cli/fm/Core/Reads.League.cs:77 cli/fm/Core/Reads.League.cs:120	7
-property	LeagueGamesWon	cli/fm/Core/Reads.League.cs:70 cli/fm/Core/Reads.League.cs:114 cli/fm/Core/Reads.League.cs:120	7
-property	LeagueGoalDifference	cli/fm/Core/Reads.League.cs:121 cli/fm/Match/Stages.Lists.cs:173 cli/fm/Match/Standings.cs:33	3
-property	LeaguePoints	cli/fm/Core/Reads.League.cs:70 cli/fm/Core/Reads.League.cs:121 cli/fm/Core/Reads.League.cs:123	8
+property	LeagueGamesDrawn	cli/fm/Core/Reads.League.cs:128 cli/fm/Match/Stages.Lists.cs:172 cli/fm/Match/Standings.cs:43	3
+property	LeagueGamesLost	cli/fm/Core/Reads.League.cs:128 cli/fm/Match/Stages.Lists.cs:173 cli/fm/Match/Standings.cs:43	3
+property	LeagueGamesPlayed	cli/fm/Core/Reads.League.cs:77 cli/fm/Core/Reads.League.cs:84 cli/fm/Core/Reads.League.cs:127	7
+property	LeagueGamesWon	cli/fm/Core/Reads.League.cs:77 cli/fm/Core/Reads.League.cs:121 cli/fm/Core/Reads.League.cs:127	7
+property	LeagueGoalDifference	cli/fm/Core/Reads.League.cs:128 cli/fm/Match/Stages.Lists.cs:173 cli/fm/Match/Standings.cs:33	3
+property	LeaguePoints	cli/fm/Core/Reads.League.cs:77 cli/fm/Core/Reads.League.cs:128 cli/fm/Core/Reads.League.cs:130	8
 property	LeaguePosition	cli/fm/Match/Calendar.cs:133	1
 property	LeftFootednessString	cli/fm/Core/Card.cs:161 cli/fm/Core/Reads.Player.cs:74 cli/fm/Squad/Compare.cs:56	4
 property	LongString	cli/fm/Club/Club.cs:40 cli/fm/Match/League.cs:81 cli/fm/Match/League.cs:82	3
@@ -831,7 +832,7 @@ property	MatchRating	cli/fm/Match/MatchDay.Substitute.cs:285	1
 property	MatchStatePeriod	plugin/FmCliProbe/src/Bridge/State.cs:113	1
 property	MatchTicketPrice	cli/fm/Club/Finances.cs:88	1
 property	MatchTime	cli/fm/Core/Clock.Status.cs:117 cli/fm/Match/MatchDay.Team.cs:254 cli/fm/Match/MatchDay.Team.cs:255	11
-property	MatchVenue	cli/fm/Core/Reads.League.cs:264	1
+property	MatchVenue	cli/fm/Core/Reads.League.cs:271	1
 property	MatchVenueShort	cli/fm/Match/Calendar.cs:126 plugin/FmCliProbe/src/Reads/Text.cs:77	2
 property	MaxInductionStepIndex	plugin/FmCliProbe/src/Reads/Report.cs:524	1
 property	MaxPitchDimensions	cli/fm/Club/ClubCards.cs:167	1
@@ -846,14 +847,14 @@ property	NearMissPlayerPoolCount	cli/fm/Transfer/Scouting.cs:165	1
 property	NegotiableOptionListValue	cli/fm/Transfer/OfferScreen.Labels.cs:55	1
 property	NewgenAppearanceDescription	cli/fm/Core/Reads.Squad.cs:85	1
 property	NewsBodyString	cli/fm/Match/News.cs:73 cli/fm/Match/News.cs:134	2
-property	NewsFirstBubbleSpeechString	cli/fm/Core/InboxView.cs:27 cli/fm/Program/Program.Reply.cs:177 cli/fm/Program/Program.Reply.cs:233	3
-property	NewsHasResponded	cli/fm/Match/MatchDay.Instant.cs:214 cli/fm/Program/Program.Inbox.cs:59 cli/fm/Program/Program.Messages.Inbox.cs:132	5
+property	NewsFirstBubbleSpeechString	cli/fm/Core/InboxView.cs:27 cli/fm/Program/Program.Reply.cs:186 cli/fm/Program/Program.Reply.cs:248	3
+property	NewsHasResponded	cli/fm/Match/MatchDay.Instant.cs:247 cli/fm/Program/Program.Inbox.cs:59 cli/fm/Program/Program.Messages.Inbox.cs:134	5
 property	NewsItemAgeString	cli/fm/Match/News.cs:133	1
-property	NewsItemHasBeenRead	cli/fm/Core/Clock.cs:278 cli/fm/Core/InboxView.cs:25 cli/fm/Program/Program.Inbox.cs:59	6
+property	NewsItemHasBeenRead	cli/fm/Core/Clock.cs:290 cli/fm/Core/InboxView.cs:25 cli/fm/Program/Program.Inbox.cs:59	6
 property	NewsItemId	cli/fm/Club/Jobs.cs:252 cli/fm/Program/Program.Inbox.cs:59 cli/fm/Program/Program.Inbox.cs:71	6
-property	NewsItemIsPriority	cli/fm/Core/Clock.cs:472 cli/fm/Core/Clock.cs:476 cli/fm/Program/Program.Inbox.cs:59	5
-property	NewsItemTimeSent	cli/fm/Core/Clock.cs:510 cli/fm/Program/Program.Inbox.cs:59 cli/fm/Program/Program.Inbox.cs:471	3
-property	NewsTitleString	cli/fm/Club/Jobs.cs:252 cli/fm/Core/Clock.cs:183 cli/fm/Core/Clock.cs:201	30
+property	NewsItemIsPriority	cli/fm/Core/Clock.cs:495 cli/fm/Core/Clock.cs:499 cli/fm/Program/Program.Inbox.cs:59	5
+property	NewsItemTimeSent	cli/fm/Core/Clock.cs:533 cli/fm/Program/Program.Inbox.cs:59 cli/fm/Program/Program.Inbox.cs:471	3
+property	NewsTitleString	cli/fm/Club/Jobs.cs:252 cli/fm/Core/Clock.cs:195 cli/fm/Core/Clock.cs:213	30
 property	NextOppositionThreatLevelAssessment	cli/fm/Match/Opponent.cs:135 cli/fm/Match/Opponent.cs:150	2
 property	OOPPosition	cli/fm/Core/Pitch.cs:29 cli/fm/Core/Pitch.cs:56 cli/fm/Match/Guided.Tactic.cs:102	3
 property	OOPPositionString	cli/fm/Transfer/TransferRoom.cs:165	1
@@ -876,7 +877,7 @@ property	PanelID	plugin/FmCliProbe/src/Reads/Pages.cs:115 plugin/FmCliProbe/src/
 property	PanelTitle	plugin/FmCliProbe/src/Controls/Buttons.cs:634	1
 property	PenaltyShootoutAwayScore	plugin/FmCliProbe/src/Bridge/State.cs:123	1
 property	PenaltyShootoutHomeScore	plugin/FmCliProbe/src/Bridge/State.cs:122	1
-property	PerceivedPotentialAbility	cli/fm/Club/Youth.cs:52 cli/fm/Core/Reads.League.cs:158 cli/fm/Core/Reads.Player.cs:38	5
+property	PerceivedPotentialAbility	cli/fm/Club/Youth.cs:52 cli/fm/Core/Reads.League.cs:165 cli/fm/Core/Reads.Player.cs:38	5
 property	PerformanceSummary	cli/fm/Match/Opponent.cs:44	1
 property	PersonListCountString	cli/fm/Core/Reads.Squad.cs:401	1
 property	PitchActivitiesTotalCount	cli/fm/Transfer/TransferRoom.cs:240 cli/fm/Transfer/TransferRoom.cs:292 cli/fm/Transfer/TransferRoom.cs:297	3
@@ -892,7 +893,7 @@ property	PlayerInstructionGroupID	cli/fm/Squad/TeamInstructions.Player.cs:200	1
 property	PlayerInstructionGroupIsLocked	cli/fm/Squad/TeamInstructions.Player.cs:229	1
 property	PlayerInstructionGroupOptionsInt	cli/fm/Squad/TeamInstructions.Player.cs:264	1
 property	PlayerOfTheMatchAwards	cli/fm/Club/Career.cs:42	1
-property	PlayerOfTheMatchRating	cli/fm/Match/MatchReport.cs:25 cli/fm/Match/MatchReport.cs:81	2
+property	PlayerOfTheMatchRating	cli/fm/Match/MatchReport.cs:34 cli/fm/Match/MatchReport.cs:90	2
 property	PlayerPosition	plugin/FmCliProbe/src/Reads/Tweaks.cs:278	1
 property	PlayerPotentialAbility	cli/fm/Transfer/ScoutFocus.cs:149	1
 property	PlayerTeamSelectionIndex	plugin/FmCliProbe/src/Reads/Tactics.cs:166	1
@@ -911,7 +912,7 @@ property	ProConsLongString	cli/fm/Club/Youth.cs:206 cli/fm/Transfer/ScoutReport.
 property	PropertyValue	cli/fm/Club/Finances.cs:53 cli/fm/Club/Finances.cs:170 cli/fm/Club/Finances.cs:196	22
 property	ProsList	cli/fm/Transfer/ScoutReport.cs:50	1
 property	RealTimeSinceLastSave	cli/fm/Core/Saves.cs:132	1
-property	RecentFormValues	cli/fm/Core/Reads.League.cs:127 cli/fm/Match/Opponent.cs:76 cli/fm/Match/Stages.Lists.cs:167	11
+property	RecentFormValues	cli/fm/Core/Reads.League.cs:134 cli/fm/Match/Opponent.cs:76 cli/fm/Match/Stages.Lists.cs:167	11
 property	RecommendedPlayerPool	cli/fm/Transfer/Scouting.cs:75 cli/fm/Transfer/Scouting.cs:76 cli/fm/Transfer/Scouting.cs:77	4
 property	RecommendedPlayerPoolCount	cli/fm/Transfer/Scouting.cs:165	1
 property	RecruitmentFocusesListType	cli/fm/Transfer/ScoutFocus.Form.cs:406 cli/fm/Transfer/ScoutFocus.Form.cs:410	2
@@ -927,7 +928,7 @@ property	ResponsibilityName	cli/fm/Club/Responsibilities.cs:105 cli/fm/Club/Resp
 property	ResponsibilityTabID	cli/fm/Club/Responsibilities.cs:117	1
 property	RestDaysRemaining	cli/fm/Squad/Intensity.cs:19 cli/fm/Squad/Intensity.cs:164	2
 property	ResultLinkableNoSpaces	plugin/FmCliProbe/src/Reads/Report.cs:478	1
-property	ResultType	cli/fm/Core/Reads.League.cs:303 cli/fm/Core/Reads.League.cs:313 cli/fm/Core/Reads.League.cs:316	7
+property	ResultType	cli/fm/Core/Reads.League.cs:310 cli/fm/Core/Reads.League.cs:320 cli/fm/Core/Reads.League.cs:323	7
 property	RightFootednessString	cli/fm/Core/Card.cs:160 cli/fm/Core/Reads.Player.cs:74 cli/fm/Squad/Compare.cs:56	4
 property	RoleString	cli/fm/Transfer/TransferRoom.cs:164 cli/fm/Transfer/TransferRoom.cs:184	2
 property	RowData	plugin/FmCliProbe/src/Controls/Buttons.cs:311 plugin/FmCliProbe/src/Controls/Buttons.cs:358 plugin/FmCliProbe/src/Controls/Buttons.cs:407	14
@@ -960,11 +961,11 @@ property	SessionIndex	cli/fm/Squad/Schedule.cs:111 cli/fm/Squad/Schedule.cs:167 
 property	SessionName	cli/fm/Squad/Schedule.cs:168	1
 property	SessionType	cli/fm/Squad/Schedule.cs:112 cli/fm/Squad/Schedule.cs:168 cli/fm/Squad/TrainingSchedule.Week.cs:211	3
 property	SetPieceAnalysis	cli/fm/Club/ReadPage.Catalog.cs:62	1
-property	SetPieceCategoryType	cli/fm/Squad/SetPieceRoutine.cs:255 cli/fm/Squad/SetPieceRoutine.cs:280	2
-property	SetPieceDeliveryType	cli/fm/Squad/SetPieceRoutine.cs:267	1
+property	SetPieceCategoryType	cli/fm/Squad/SetPieceRoutine.cs:257 cli/fm/Squad/SetPieceRoutine.cs:282	2
+property	SetPieceDeliveryType	cli/fm/Squad/SetPieceRoutine.cs:269	1
 property	SetPieceSide	cli/fm/Squad/Takers.cs:249 cli/fm/Squad/Takers.cs:253	2
-property	SetPieceStrategy	cli/fm/Squad/SetPieceRoutine.cs:269	1
-property	SetPieceType	cli/fm/Squad/SetPieceRoutine.cs:253	1
+property	SetPieceStrategy	cli/fm/Squad/SetPieceRoutine.cs:271	1
+property	SetPieceType	cli/fm/Squad/SetPieceRoutine.cs:255	1
 property	SetPieces	cli/fm/Squad/SetPieceRoutine.cs:35 cli/fm/Squad/SetPieceRoutine.cs:45	2
 property	SetPiecesCategory	cli/fm/Club/Coaches.cs:24	1
 property	ShirtName	plugin/FmCliProbe/src/Reads/Tactics.cs:51	1
@@ -975,7 +976,7 @@ property	ShotsOnTarget	cli/fm/Match/MatchDay.cs:155 cli/fm/Match/MatchReport.cs:
 property	ShowTeamDivisions	cli/fm/Match/Stages.Ties.cs:22	1
 property	SocialGroupString	cli/fm/Core/Reads.Squad.cs:172 cli/fm/Program/Program.Squad.cs:197	2
 property	SocialMediaFollowers	cli/fm/Club/ClubCards.cs:77	1
-property	SpeakTo	plugin/FmCliProbe/src/Reads/Report.cs:520	1
+property	SpeakTo	cli/fm/Match/Guided.cs:484 plugin/FmCliProbe/src/Reads/Report.cs:520	2
 property	SponsorshipValuePerSeason	cli/fm/Club/Finances.cs:170	1
 property	SquadNumber	cli/fm/Core/Reads.Player.cs:68 cli/fm/Core/Reads.Squad.cs:165 cli/fm/Squad/Query.cs:27	4
 property	SquadNumberBlankIfInvalid	cli/fm/Core/Reads.Squad.cs:86 plugin/FmCliProbe/src/Reads/Report.cs:53	2
@@ -1004,7 +1005,7 @@ property	SupporterMatchString	cli/fm/Club/Board.cs:20	1
 property	SupporterTacticsString	cli/fm/Club/Board.cs:20	1
 property	SupporterTransferConfidenceOverallSummaryText	cli/fm/Club/Board.cs:21	1
 property	SupporterVisionString	cli/fm/Club/Board.cs:21	1
-property	TablePosition	cli/fm/Core/Reads.League.cs:120 cli/fm/Core/Reads.League.cs:123 cli/fm/Match/Stages.Lists.cs:162	10
+property	TablePosition	cli/fm/Core/Reads.League.cs:127 cli/fm/Core/Reads.League.cs:130 cli/fm/Match/Stages.Lists.cs:162	10
 property	TacticCount	cli/fm/Match/Guided.TacticNew.cs:251 cli/fm/Match/Guided.TacticNew.cs:281 cli/fm/Match/Guided.TacticSettings.cs:475	12
 property	TacticCreatorCurrentStage	cli/fm/Match/Guided.TacticNew.cs:400	1
 property	TacticalFamiliarity	cli/fm/Match/Guided.Tactic.cs:88 plugin/FmCliProbe/src/Reads/Tactics.cs:57	2
@@ -1014,14 +1015,14 @@ property	TacticsRoleName	plugin/FmCliProbe/src/Controls/Buttons.cs:634	1
 property	TddOfferedPlayerStatusShortString	cli/fm/Transfer/TransferRoom.cs:551	1
 property	TeamAnalytics	cli/fm/Club/ReadPage.Catalog.cs:58	1
 property	TeamInstructionOptionsList	cli/fm/Squad/TeamInstructions.Team.cs:93 cli/fm/Squad/TeamInstructions.Team.cs:103	2
-property	TeamNews	cli/fm/Core/Clock.cs:542	1
+property	TeamNews	cli/fm/Core/Clock.cs:565	1
 property	TeamSelectionIndex	cli/fm/Match/Guided.Tactic.cs:201 cli/fm/Match/Guided.Tactic.cs:312 cli/fm/Match/Guided.Tactic.cs:365	9
-property	TeamTalk	cli/fm/Core/Clock.cs:543 cli/fm/Match/MatchDay.cs:22 cli/fm/Match/MatchDay.cs:479	3
+property	TeamTalk	cli/fm/Core/Clock.cs:566 cli/fm/Match/MatchDay.cs:22 cli/fm/Match/MatchDay.cs:479	3
 property	TeamsBoardExpectationsInCompString	cli/fm/Club/Board.cs:118	1
 property	ThisMonth	cli/fm/Club/Finances.cs:183	1
 property	ThisSeason	cli/fm/Club/Finances.cs:52 cli/fm/Club/Finances.cs:185	2
 property	ThreeLetterName	cli/fm/Core/Reads.Squad.cs:171 cli/fm/Core/Reads.cs:63 cli/fm/Program/Program.Squad.cs:32	5
-property	TimeString	cli/fm/Match/MatchReport.cs:152	1
+property	TimeString	cli/fm/Match/MatchReport.cs:161	1
 property	TotalBasicWage	cli/fm/Club/Finances.cs:41	1
 property	TotalCareerLeagueAppearances	cli/fm/Core/Card.cs:28 cli/fm/Core/Reads.cs:498 plugin/FmCliProbe/src/Reads/PlayerCard.cs:20	3
 property	TotalCareerLeagueGoals	plugin/FmCliProbe/src/Reads/PlayerCard.cs:20	1
@@ -1085,22 +1086,22 @@ enum	InPossession	cli/fm/Squad/TeamInstructions.Player.cs:152 cli/fm/Squad/TeamI
 enum	KickOff	cli/fm/Match/Tweaks.cs:71	1
 enum	LeaveMatch	cli/fm/Match/MatchDay.Team.cs:186 cli/fm/Match/MatchDay.cs:30	2
 enum	MORALE	cli/fm/Program/Program.Squad.cs:215	1
-enum	ModalDialog	cli/fm/Core/Actions.cs:453 plugin/FmCliProbe/src/Reads/Texts.cs:156	2
+enum	ModalDialog	cli/fm/Core/Actions.cs:473 plugin/FmCliProbe/src/Reads/Texts.cs:156	2
 enum	NationalTeam	cli/fm/Club/ReadOf.cs:12 plugin/FmCliProbe/src/Reads/Report.cs:297	2
 enum	NeedAction	cli/fm/Core/Clock.Status.cs:134 cli/fm/Core/Clock.Status.cs:172 cli/fm/Core/Clock.Status.cs:176	9
-enum	NewsAggregator	cli/fm/Core/Clock.cs:265	1
-enum	NextUnreadMessage	cli/fm/Core/Clock.cs:96 cli/fm/Core/Clock.cs:133 cli/fm/Core/Clock.cs:279	4
-enum	OnHoliday	cli/fm/Core/Clock.cs:547	1
+enum	NewsAggregator	cli/fm/Core/Clock.cs:277	1
+enum	NextUnreadMessage	cli/fm/Core/Clock.cs:108 cli/fm/Core/Clock.cs:145 cli/fm/Core/Clock.cs:291	4
+enum	OnHoliday	cli/fm/Core/Clock.cs:570	1
 enum	POSITION	cli/fm/Club/Youth.cs:60 cli/fm/Club/Youth.cs:143 cli/fm/Club/Youth.cs:236	18
 enum	PostMatchReaction	cli/fm/Match/MatchDay.Team.cs:186 cli/fm/Match/MatchDay.cs:29 cli/fm/Match/MatchDay.cs:785	3
-enum	PressConference	cli/fm/Core/Clock.Status.cs:172 cli/fm/Core/Clock.cs:521 cli/fm/Program/Program.Reply.cs:345	3
+enum	PressConference	cli/fm/Core/Clock.Status.cs:172 cli/fm/Core/Clock.cs:544 cli/fm/Program/Program.Reply.cs:367	3
 enum	RIGHT	cli/fm/Squad/Takers.cs:136	1
 enum	SaveGameAs	cli/fm/Core/Saves.cs:168	1
 enum	ScrollEnd	cli/fm/Squad/Registration.cs:267	1
 enum	SecondHalf	cli/fm/Match/MatchDay.Team.cs:232 cli/fm/Match/MatchDay.cs:25 cli/fm/Match/MatchDay.cs:201	6
 enum	StepOntoThePitch	cli/fm/Match/MatchDay.cs:23	1
-enum	SubmitTeam	cli/fm/Core/Clock.Status.cs:160 cli/fm/Core/Clock.cs:57 cli/fm/Core/Clock.cs:530	9
-enum	TunnelInterview	cli/fm/Core/Clock.cs:544	1
+enum	SubmitTeam	cli/fm/Core/Clock.Status.cs:160 cli/fm/Core/Clock.cs:69 cli/fm/Core/Clock.cs:553	9
+enum	TunnelInterview	cli/fm/Core/Clock.cs:567	1
 enum	WarmUp	cli/fm/Match/MatchDay.cs:24	1
 text	Additional Promises	cli/fm/Transfer/OfferScreen.Labels.cs:201	1
 text	Aerial Reach	cli/fm/Club/StaffSearch.Catalog.cs:41	1
@@ -1197,7 +1198,7 @@ text	Recruitment Feedback	cli/fm/Club/ReadPage.Catalog.cs:66	1
 text	Recruitment Objectives	cli/fm/Club/ReadPage.Catalog.cs:65	1
 text	Red Cards	cli/fm/Match/League.cs:21	1
 text	Remove & Exclude	cli/fm/Transfer/OfferScreen.Labels.cs:18 cli/fm/Transfer/OfferScreen.Labels.cs:211 cli/fm/Transfer/OfferScreen.cs:98	3
-text	Response Required	cli/fm/Core/Clock.cs:485 cli/fm/Core/Clock.cs:556	2
+text	Response Required	cli/fm/Core/Clock.cs:508 cli/fm/Core/Clock.cs:579	2
 text	Right side	cli/fm/Nl/Assistant.cs:221	1
 text	Risk Assessment	cli/fm/Club/ReadPage.Catalog.cs:52	1
 text	Round of 16	cli/fm/Nl/Rules.cs:108	1

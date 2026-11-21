@@ -124,8 +124,9 @@ usage: compare <player> <player>   (quote a name of several words or put vs betw
 Both names came out as {0}.	İki ad da {0}'e çıktı.
 \n{0} is ahead in {1} attributes, {2} in {3}.	\n{0} {1} özellikte, {2} {3} özellikte önde.
 There is no open contract negotiation.\n	Açık bir sözleşme görüşmesi yok.\n
-  To renew one of our players, or go back to talks left for another page: contract <player>\n	  Kendi oyuncumuzla yenilemek ya da başka sayfaya geçince bırakılan görüşmeye dönmek için: contract <oyuncu>\n
-  In a transfer: once the offer is accepted, reply "<player> offer accepted" → Enter Contract Negotiations	  Transferde: teklif kabul edilince reply "<oyuncu> offer accepted" → Enter Contract Negotiations
+  To renew one of our players, or go back to talks of ours left for another page: contract <player>\n	  Kendi oyuncumuzla yenilemek ya da başka sayfaya geçince bırakılan kendi görüşmemize dönmek için: contract <oyuncu>\n
+  In a transfer the talks open, and open again, from their message: reply "<message>" and its answer for the talks	  Transferde görüşme mesajından açılır, yeniden de oradan açılır: reply "<mesaj>" ve görüşme cevabı
+  Waiting for an answer: reply "{0}"	  Cevap bekleyen: reply "{0}"
 The contract screen did not open.	Sözleşme ekranı açılmadı.
 There is an open negotiation with {0}. Finish or leave it first (open it with contract, 'Cancel negotiation').	Açık görüşme {0} ile. Önce onu bitir ya da bırak (contract ile aç, 'Görüşmeyi iptal et').
 Negotiation cancelled.	Görüşme iptal edildi.

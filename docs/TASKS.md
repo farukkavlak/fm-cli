@@ -63,7 +63,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] (seen fixed: Troncoso "is retiring: these talks are for a job…"; Ömürcan's talks without it) `fm_contract name=<retiring player>` opens a staff job card for after his retirement (Job: Scout, start "Retirement From Playing") without saying it is not a player contract
   - [x] (seen fixed 2 Jun 2038: `fm_offer name="Noah Kalonji #…"`) `fm_offer` on a shared name lists the ids but its hint names `fm_player name="... #id"`, not `fm_offer`
   - [x] (seen fixed 1 Jun 2038) `fm_reply` "Attend Meeting" on the board's future meeting opens a talk but does not say so (other answers print "A conversation opened ... fm_talk")
-  - [ ] (play path seen fixed 16 May 2038: report after the full-time talk; instant fallback still to see) `fm_match mode=instant` sometimes says "Match report is not ready yet; the game's last fixture has not changed" though the match was played (fixtures shows the score); 2 of ~100 instant matches (19 Dec 2037 sacking day, 21 Mar 2038 AZ) and once after `mode=play` (9 May 2038: "the game's last fixture is still Sparta Rotterdam 0-1 FC Volendam" — the match just played): the "last fixture before" is read after the result has already landed, so the wait for a change never ends
+  - [ ] (play path seen fixed 16 May 2038: report after the full-time talk; instant fallback still to see, now told by the fixture's day, unit-tested; normal path seen 3/3 21 Nov, EN 1 TR 2) `fm_match mode=instant` sometimes says "Match report is not ready yet; the game's last fixture has not changed" though the match was played (fixtures shows the score); 2 of ~100 instant matches (19 Dec 2037 sacking day, 21 Mar 2038 AZ) and once after `mode=play` (9 May 2038: "the game's last fixture is still Sparta Rotterdam 0-1 FC Volendam" — the match just played): the "last fixture before" is read after the result has already landed, so the wait for a change never ends
   - [x] (seen fixed: offers 7 Jun 2038, set pieces `fm_setpieces_new answers=<no>` 25 Dec 2037 replay) More MCP hints in CLI words: `fm_setpieces_new` "setpieces new <no>", `fm_offers` view "reply <#> Reject | Accept" and its on-screen options as "fm_talk say=<no>"
   - [x] (seen fixed 20 Dec 2037 replay) "Attend Interview" (job interview) opens a talk without saying so, like "Attend Meeting"
   - [x] (seen fixed 25 Dec 2037 replay: "The set piece wizard opened … fm_setpieces_new") New club's Set Pieces Introduction: Begin/Continue left it waiting ("still awaiting") until set pieces were created with `fm_setpieces_new`; the tool could say that is what it waits for
@@ -74,6 +74,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] `fm_reply` while another conversation is open: the answer did not reach the game yet it said "Answered … A conversation opened" (4 of 5 stayed waiting, 3 Jun 2038); now refused with a word to finish the talk first (seen: refused, then answered once the talk was over)
   - [x] (seen fixed 23 Jun 2038: `fm_talk say="fee <value>"`, used with "fee 5M" then confirm) talk fee window hint `talk fee <value>` → quoted so MCP reads `fm_talk say="fee <value>"`
   - [ ] (fixed, to see live) `next` stop on our own bid accepted ("<club> accept bids for <player>") says "Transfer offer waiting … reject: fm_offers …", the incoming-offer hint
+  - [x] (seen fixed 21 Nov, EN 3/3, TR 3/3) `contract` with transfer talks left for another page said `contract <player>`, which cannot reach another club's player; now it says the talks reopen from their message and names the one waiting
   - [x] Training camp squad: the game sends a second message on the camp's first day; the first stays answered (seen twice, 2036 and 2037)
 - [ ] T80 A third language: one month through the CLI, sweep passes
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
@@ -84,7 +85,9 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 ## 12. Final check (the last box)
 
 - [ ] T85 Audit `cli/fm` and the plugin: nothing held by text, order, position or a fixed wait
-  - Swept clean 19 Nov; run again once the acceptance tests are through
+  - Swept clean 19 Nov and 21 Nov (after T78, T79): no new text, order or fixed-wait dependency; run again after T80–T84
+  - 21 Nov: the instant result's "match before" check held by the fixture's day (`FixtureDate`), not the opponent's name; the old key read a `Date` the fixture does not have (empty, and a 1.5 s wait each read)
+  - Weakest still held: game words asked of the game's own table (registration flags, offer locks, `Response Required`); they work in every language, but lean on the game's English keys
 
 ## 13. Later (v2)
 

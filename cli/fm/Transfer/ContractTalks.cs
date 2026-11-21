@@ -53,8 +53,16 @@ internal static partial class Program
 			if (wanted.Length == 0)
 			{
 				Console.Error.WriteLine(L("There is no open contract negotiation.\n")
-					+ L("  To renew one of our players, or go back to talks left for another page: contract <player>\n")
-					+ L("  In a transfer: once the offer is accepted, reply \"<player> offer accepted\" → Enter Contract Negotiations"));
+					+ L("  To renew one of our players, or go back to talks of ours left for another page: contract <player>\n")
+					+ L("  In a transfer the talks open, and open again, from their message: reply \"<message>\" and its answer for the talks"));
+				// Talks for a player of another club are not reached by his name (he is not ours): the message that
+				// holds them still waits for an answer, and is named when it is the only one (26 Sep 2038).
+				JsonElement inbox = default;
+				try { inbox = await Bound("inbox", "PortalScreen"); }
+				catch (FmError) { }
+				if (inbox.ValueKind == JsonValueKind.Array && inbox.EnumerateArray().Where(Blocking).ToList() is [var waiting]
+				    && Field(waiting, "NewsTitleString") is { Length: > 0 } title && !title.Contains('"'))
+					Console.Error.WriteLine(L($"  Waiting for an answer: reply \"{title}\""));
 				return 1;
 			}
 			if (await NotNow() is { } refused) return refused;
