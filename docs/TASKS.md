@@ -82,7 +82,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T83 A clean machine, README only
   - 21 Nov: package installed into an empty home from a zip marked as downloaded: fm was refused (quarantine) until install.sh cleared the mark; now it does, and the README says `zsh install.sh`, PATH, a career saved first, MCP setup
   - [x] Release: repository public; v0.9.0 with the zip and `nl-mpnet-l-q` (21 Nov: the zip downloaded without login, installed into an empty home, model downloaded)
-  - [ ] A real second Mac (or user account): download, install, first `fm start`
+  - [x] One-line install (`curl … | zsh`) and Homebrew (`brew tap` + `brew trust` + `brew install`, then `fm doctor --install`): both from GitHub into an empty home, 21 Nov (v0.9.1)
+  - [ ] A real second Mac (or this user cleaned): download, install, first `fm start`
 - [ ] T84 A new career (another country and league), one month, sweep
 
 ## 12. Final check (the last box)
