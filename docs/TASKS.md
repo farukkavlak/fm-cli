@@ -49,11 +49,12 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - 2035/36 from 20 Mar (Antalyaspor, stayed up); season-end messages, team meeting, vision through MCP; scenario `t79-s1-end`
   - [x] `fm_reply` on a list answer ("1 2"): MCP passed it as one word; now `answer="1 2"` or `option`
   - [ ] `fm_next` while the game is busy: now waits for it (to see live)
-  - [ ] `fm_table` on the Messages screen also said "a cup has no table": now stops at the first reason (to see live)
+  - [x] `fm_table` on the Messages screen also said "a cup has no table": now only the screen's reason (MCP and CLI)
   - [ ] `fm_inbox` had no `all`; the hint said `inbox --all` through MCP (to see live)
-  - [ ] MCP hints still in CLI words: `fm_targets` "--grade B · --listed · --attr", `fm_status` "squad --fitness", `fm_register` "register add=<player>"
-  - [ ] `fm_contract` counter-offer hint reads `wage="/" --term`
-  - [ ] `fm_targets` wage budget "€54,322 free" has no period (the game's weekly; contracts say p/a)
+  - [x] MCP hints in CLI words: `fm_targets` takes grade/listed/loan_listed/attributes, `fm_register` hint split into commands (both seen through MCP)
+  - [ ] `fm_status` "squad --fitness": `fm_squad` view examples are learnt now; to see with an injured player
+  - [ ] `fm_contract` counter-offer hint reads `wage="/" --term`: now whole commands; to see at the next talks
+  - [x] `fm_targets` wage budget says it is weekly
   - [ ] Training camp squad: answered Auto Select on 7 Jul, the message was back on 14 Jul (the game asking again, or the answer not kept?)
 - [ ] T80 A third language: one month through the CLI, sweep passes
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop

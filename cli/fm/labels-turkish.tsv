@@ -722,7 +722,7 @@ No confirmation window came; the list may not have been sent. To look: dialog	On
 The squad registration screen did not open.	Kadro kayıt ekranı açılmadı.
 {0} cannot be changed ({1}).	{0} değiştirilemiyor ({1}).
 The rules are met. To send it: register --send	Kurallar tutuyor. Göndermek için: register --send
-To add / remove a player: register --in <player> / --out <player>;  the assistant's choice: --auto	Oyuncu eklemek / çıkarmak için: register --in <oyuncu> / --out <oyuncu>;  yardımcının seçimi: --auto
+To add a player: register --in <player> · to remove one: register --out <player> · the assistant's choice: register --auto	Oyuncu eklemek için: register --in <oyuncu> · çıkarmak için: register --out <oyuncu> · yardımcının seçimi: register --auto
 Leave, undoing the changes	Çık, değişiklikleri geri al
 Leave	Çık
 The changes were undone; the list was not sent.	Değişiklikler geri alındı; liste gönderilmedi.
@@ -987,9 +987,9 @@ There is no position called '{0}'. Positions: {1}  (or: {2})	'{0}' diye bir mevk
 The transfer budget could not be read ({0}); give the limit yourself: targets {1} --max-value <money>	Transfer bütçesi okunamadı ({0}); sınırı kendin ver: targets {1} --max-value <para>
 {0} — value {1} and under{2}	{0} — değeri {1} ve altı{2}
  (your transfer budget; to change it --max-value <money>)	 (transfer bütçen; değiştirmek için --max-value <para>)
-Wage budget: {0}	Maaş bütçesi: {0}
+Wage budget (weekly): {0}	Maaş bütçesi (haftalık): {0}
 Narrow it: --age 18-23 · --grade B · --listed · --loan-listed · --attr "pace>=14"   (the search stays open in the game: players --clear)	Daralt: --age 18-23 · --grade B · --listed · --loan-listed · --attr "pace>=14"   (arama oyunda açık kalır: players --clear)
-Budget: transfers {0} · wages {1}	Bütçe: transfer {0} · maaş {1}
+Budget: transfers {0} · wages (weekly) {1}	Bütçe: transfer {0} · haftalık maaş {1}
 \nNo thin positions in the squad: every position has at least two fit players.	\nKadroda ince mevki yok: her mevkide en az iki sağlam oyuncu var.
 \nThin positions in the squad (one fit player or none):	\nKadroda ince mevkiler (sağlam oyuncu bir ya da hiç):
 \nOther positions: {0}	\nÖbür mevkiler: {0}
@@ -1395,9 +1395,9 @@ Contract signed; the negotiation is closed.	Sözleşme imzalandı; görüşme ka
 The agent wants: {0}	Menajerin istediği: {0}
 The agent accepts these terms.	Menajer bu şartları kabul ediyor.
 The agent accepts these promises. To confirm them and go on to the terms: contract --next	Menajer bu vaatleri kabul ediyor. Onaylayıp şartlara geçmek için: contract --next
-To accept these and go on to the terms: contract --next · to keep bargaining: --term	Bunları kabul edip şartlara geçmek için: contract --next · pazarlığa devam: --term
+To accept these and go on to the terms: contract --next · to keep bargaining: contract --term "<promise>=<value>"	Bunları kabul edip şartlara geçmek için: contract --next · pazarlığa devam: contract --term "<söz>=<değer>"
 The agent accepts these terms. To sign: contract --sign --yes	Menajer bu şartları kabul ediyor. İmzalamak için: contract --sign --yes
-To accept these and sign: contract --sign --yes · to keep bargaining: --wage / --term	Bunları kabul edip imzalamak için: contract --sign --yes · pazarlığa devam: --wage / --term
+To accept these and sign: contract --sign --yes · to keep bargaining: contract --wage <amount> · contract --term "<term>=<value>"	Bunları kabul edip imzalamak için: contract --sign --yes · pazarlığa devam: contract --wage <miktar> · contract --term "<şart>=<değer>"
 Next: {0}	Sırada: {0}
 Player	Oyuncu
 Expires	Bitiş

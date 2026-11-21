@@ -60,7 +60,7 @@ internal static partial class Program
 		if (!json)
 		{
 			Console.WriteLine(L($"{PositionShown(slot.ToUpperInvariant())} — value {(limited ? Option(args, "--max-value") : transfer)} and under{(limited ? "" : L(" (your transfer budget; to change it --max-value <money>)"))}"));
-			Console.WriteLine(L($"Wage budget: {wage}"));
+			Console.WriteLine(L($"Wage budget (weekly): {wage}"));
 		}
 		var found = await Players(json, ["players", "--position", slot, .. (limited ? [] : new[] { "--max-value", transfer }), .. passed]);
 		if (found == 0 && !json) Console.WriteLine(L("Narrow it: --age 18-23 · --grade B · --listed · --loan-listed · --attr \"pace>=14\"   (the search stays open in the game: players --clear)"));
@@ -101,7 +101,7 @@ internal static partial class Program
 			return 0;
 		}
 
-		Console.WriteLine(L($"Budget: transfers {transfer} · wages {wage}"));
+		Console.WriteLine(L($"Budget: transfers {transfer} · wages (weekly) {wage}"));
 		if (leaving.Count > 0) Console.WriteLine(L($"Leaving (their move is agreed; not counted): {string.Join(", ", leaving.Order())}"));
 		Console.WriteLine(thin.Count == 0 ? L("\nNo thin positions in the squad: every position has at least two fit players.") : L("\nThin positions in the squad (one fit player or none):"));
 		foreach (var (slot, fit, injured) in thin)

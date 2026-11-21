@@ -39,6 +39,9 @@ internal static partial class Mcp
 		string Type(JsonProperty prop) => prop.Value.TryGetProperty("type", out var t) ? t.GetString() ?? "string" : "string";
 		List<object> Choices(JsonProperty prop) => Type(prop) == "boolean" ? [true, false]
 			: prop.Value.TryGetProperty("enum", out var e) ? [.. e.EnumerateArray().Select(v => (object)v.GetString()!)] : [];
+		// A free value with named examples (fm_squad view=fitness): each example's own words are learnt as well.
+		List<object> Examples(JsonProperty prop) =>
+			prop.Value.TryGetProperty("examples", out var x) ? [.. x.EnumerateArray().Select(v => (object)v.GetString()!)] : [];
 		var values = props.Where(x => Choices(x).Count == 0).Select((x, i) => (x.Name, Value: Type(x) == "array" ? (object)new[] { Mark(i) } : Type(x) == "integer" ? 700 + i : Mark(i))).ToList();
 		string? ValueArg(string w) => values.FirstOrDefault(v => w == (v.Value is string[] a ? a[0] : v.Value.ToString())).Name;
 		string Say(object choice) => choice is bool b ? (b ? "true" : "false") : $"\"{choice}\"";
@@ -76,7 +79,7 @@ internal static partial class Mcp
 					r.Options.Add(([words[i - 1]], arg, null, true));
 			foreach (var prop in props.Where(x => !b.ContainsKey(x.Name)))
 			{
-				var tried = Choices(prop).Select(c => (Choice: c, Words: Words(new(b) { [prop.Name] = c }))).Where(x => x.Words != null && x.Words.Take(verb.Length).SequenceEqual(verb)).ToList();
+				var tried = Choices(prop).Concat(Examples(prop)).Select(c => (Choice: c, Words: Words(new(b) { [prop.Name] = c }))).Where(x => x.Words != null && x.Words.Take(verb.Length).SequenceEqual(verb)).ToList();
 				// what every choice of this argument types is the command's, not the choice's ("match --play")
 				var shared = tried.Count > 1 ? tried.Select(x => (IEnumerable<string>)x.Words!).Aggregate((x, y) => x.Intersect(y)).ToHashSet() : [];
 				// set against the other choices only from a plain start, and when every choice keeps the command words

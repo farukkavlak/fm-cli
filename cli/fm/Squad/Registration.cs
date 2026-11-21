@@ -69,7 +69,7 @@ internal static partial class Program
 
 		Console.WriteLine(rules.All(r => r.Meets)
 			? L("The rules are met. To send it: register --send")
-			: L("To add / remove a player: register --in <player> / --out <player>;  the assistant's choice: --auto"));
+			: L("To add a player: register --in <player> · to remove one: register --out <player> · the assistant's choice: register --auto"));
 		return 0;
 	}
 

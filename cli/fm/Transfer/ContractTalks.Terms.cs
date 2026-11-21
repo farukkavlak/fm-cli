@@ -230,8 +230,8 @@ internal static partial class Program
 				return Outcome.Accepted;
 			}
 			Tell(promises
-				? changed.Count == 0 ? L("The agent accepts these promises. To confirm them and go on to the terms: contract --next") : L("To accept these and go on to the terms: contract --next · to keep bargaining: --term")
-				: changed.Count == 0 ? L("The agent accepts these terms. To sign: contract --sign --yes") : L("To accept these and sign: contract --sign --yes · to keep bargaining: --wage / --term"));
+				? changed.Count == 0 ? L("The agent accepts these promises. To confirm them and go on to the terms: contract --next") : L("To accept these and go on to the terms: contract --next · to keep bargaining: contract --term \"<promise>=<value>\"")
+				: changed.Count == 0 ? L("The agent accepts these terms. To sign: contract --sign --yes") : L("To accept these and sign: contract --sign --yes · to keep bargaining: contract --wage <amount> · contract --term \"<term>=<value>\""));
 		}
 		else if (next.Count > 0)
 			Tell(L($"Next: {string.Join(" · ", next.Select(l => l.Label))}"));
