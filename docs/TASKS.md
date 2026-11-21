@@ -12,6 +12,10 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T53 Plugin on Windows x64 (untried)
 - [ ] T54 Save and user folders on Windows (untried)
 
+## 7b. FM 27.1.0 (Steam update, 22 Nov)
+
+- [ ] T172 Plugin builds against 27.1: `MatchUIState.m_matchPeriod` gone (Reads/Tweaks.cs:56), `Bindings` lookup takes a `Key` (Bridge/FmApi.cs:363); then a sweep in EN and TR, then release v0.9.2 (`tools/release.sh 0.9.2`, the new-install fixes are in main)
+
 ## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
 
 - [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live
@@ -20,7 +24,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - Opposition instruction card: read back by the man's UniqueId (his Pressing 0 → 2), live TR 1/3. Left: 2 more, and EN
   - A card that takes a team instruction off: not met yet
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
-  - Seen once 22 Nov (TR, a second Steam copy beside ours): `status` said so, `fm stop --no-save` ended it; EN still to see
+  - Seen once 22 Nov (TR; BepInEx's copy of the game was from before Steam's 27.1 update minutes earlier): `status` said so, `fm stop --no-save` ended it; EN still to see
   - Sign: the main thread in `-[NSAlert runModal]`. Its only known trigger went with T92's fix
 - [ ] T14 `tactic advice`: the game always says "no advice" (4 saves, both phases). Needs a moment with a critique
   - 19 Nov: goalkeeper up front and a striker in goal, a day on: still "no advice" (the game's own panel says so too)
