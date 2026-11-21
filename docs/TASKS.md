@@ -52,7 +52,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] `fm_table` on the Messages screen also said "a cup has no table": now only the screen's reason (MCP and CLI)
   - [ ] `fm_inbox` had no `all`; the hint said `inbox --all` through MCP (to see live)
   - [x] MCP hints in CLI words: `fm_targets` takes grade/listed/loan_listed/attributes, `fm_register` hint split into commands (both seen through MCP)
-  - [ ] `fm_status` "squad --fitness": `fm_squad` view examples are learnt now; to see with an injured player
+  - [x] `fm_status` "squad --fitness" now `fm_squad view="fitness"` (seen with two injured)
   - [ ] `fm_contract` counter-offer hint reads `wage="/" --term`: now whole commands; to see at the next talks
   - [x] `fm_targets` wage budget says it is weekly
   - [ ] Training camp squad: answered Auto Select on 7 Jul, the message was back on 14 Jul (the game asking again, or the answer not kept?)
