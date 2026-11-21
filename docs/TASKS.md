@@ -61,7 +61,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [ ] `fm_contract name=<retiring player>` opens a staff job card for after his retirement (Job: Scout, start "Retirement From Playing") without saying it is not a player contract
   - [ ] `fm_offer` on a shared name lists the ids but its hint names `fm_player name="... #id"`, not `fm_offer`
   - [x] `fm_targets` wage budget says it is weekly
-  - [ ] Training camp squad: answered Auto Select on 7 Jul, the message was back on 14 Jul (the game asking again, or the answer not kept?)
+  - [x] Training camp squad: the game sends a second message on the camp's first day; the first stays answered (seen twice, 2036 and 2037)
 - [ ] T80 A third language: one month through the CLI, sweep passes
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
 - [ ] T82 Epic Games Store (macOS and Windows): install, one month, stop
