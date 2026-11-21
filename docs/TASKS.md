@@ -59,6 +59,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] `docs/MANUAL.md` contract-answer image: the agent's counter with the new bargaining hint
   - [ ] Manager's own renewal card: `Job: — (Must be Manager)` and "The agent wants" for the board's counter
   - [ ] `fm_contract name=<retiring player>` opens a staff job card for after his retirement (Job: Scout, start "Retirement From Playing") without saying it is not a player contract
+  - [ ] `fm_offer` on a shared name lists the ids but its hint names `fm_player name="... #id"`, not `fm_offer`
   - [x] `fm_targets` wage budget says it is weekly
   - [ ] Training camp squad: answered Auto Select on 7 Jul, the message was back on 14 Jul (the game asking again, or the answer not kept?)
 - [ ] T80 A third language: one month through the CLI, sweep passes
