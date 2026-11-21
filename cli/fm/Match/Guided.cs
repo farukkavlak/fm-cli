@@ -480,6 +480,12 @@ internal static partial class Program
 				await GameWords.Ask(Fm, said);
 				Console.WriteLine("  " + GameWords.Of(said).Replace("\n", "\n  "));
 			}
+			// An agent laying out his client's demands shows them beside his words, in the talk's own panel.
+			var demands = (await Fm.GetJson("pullbound", ("name", "AgentPlayerDemandsStrings"), ("under", "SpeakTo"),
+				("props", "AgentPlayerDemandsStringDataString"), ("gen", $"td{Environment.TickCount64}")));
+			if (demands.ValueKind == JsonValueKind.Array)
+				foreach (var row in demands.EnumerateArray())
+					if (Field(row, "AgentPlayerDemandsStringDataString") is { Length: > 0 } demand) Console.WriteLine($"    · {demand}");
 
 			// How the room took the last line: each reaction with how many it moved by.
 			var levels = talk.TryGetProperty("MoodLevel", out var lv) ? lv.EnumerateObject().ToDictionary(m => m.Name, m => m.Value.GetString() ?? "") : [];
