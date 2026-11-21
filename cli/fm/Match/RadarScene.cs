@@ -65,6 +65,10 @@ internal static partial class Program
 		return Cells.HalfBlocks(half.Shrink(2, 2).ToPixels());
 	}
 
+	/// <summary>A 3D style's picture before it is turned into terminal cells, whatever the terminal can show.</summary>
+	internal static Rgb[,] ScenePixels(RadarFrame frame, RadarSides sides, string style, int cols, int rows) =>
+		SceneCanvas(frame, Squads(frame, sides), style, cols, rows).ToPixels();
+
 	/// <summary>The scene for `cols`×`rows` cells, 12×24 canvas pixels a cell.</summary>
 	private static Canvas SceneCanvas(RadarFrame frame, List<Drawn> men, string style, int cols, int rows)
 	{

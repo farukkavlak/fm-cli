@@ -63,12 +63,13 @@ public class RadarStylesTests
 		var frame = Frame();
 		var close = frame with { Men = [.. frame.Men, new(30, 44.1 / 105, 47.5 / 68, "ff00ff", false, 0, "f8f8f8")] };
 		// The camera eases toward the ball from where it last looked (another test, another frame): each picture starts afresh.
-		Program.RadarView(frame with { BallX = 0.4 }, Sides, "raycast", true, 120, 40);
+		// The scene's own pixels are compared: a terminal without 24-bit colour (CI) shows braille in place of the 3D view.
+		Program.ScenePixels(frame with { BallX = 0.4 }, Sides, "raycast", 60, 20);
 		Program.ResetSceneCamera();
-		var without = Program.RadarView(frame, Sides, "raycast", true, 120, 40);
+		var without = Program.ScenePixels(frame, Sides, "raycast", 60, 20);
 		Program.ResetSceneCamera();
-		var with = Program.RadarView(close, Sides, "raycast", true, 120, 40);
-		Assert.Equal(without, with);
+		var with = Program.ScenePixels(close, Sides, "raycast", 60, 20);
+		Assert.True(without.Cast<Rgb>().SequenceEqual(with.Cast<Rgb>()), "the man by the camera was drawn");
 	}
 
 	[Fact]
