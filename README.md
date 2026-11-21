@@ -8,8 +8,9 @@ Play the real **Football Manager 27** from a terminal.
 
 ```
 $ fm status
-FM is open, save loaded. 12 August 2028 09:00
-Next match: League · home · Saturday 15:00 (7 days)
+FM is open, save loaded. 25 September 2038 Saturday 13:00
+Next match: FC Den Bosch · away · Keuken Kampioen Divisie · 1 October Friday 20:00 (in 6 days)
+Transfers: window closed
 Ready to continue: next
 ```
 
@@ -27,15 +28,27 @@ Ready to continue: next
 
 ## Install
 
-Ready package (`tools/package.sh` → `dist/fm-cli-osx-arm64.zip`):
+1. Install Football Manager 27 from Steam. Open it once by hand, start a career and save it.
+   `fm start` loads the last save; it does not make a new career.
+2. Download `fm-cli-osx-arm64.zip` from [Releases](https://github.com/farukkavlak/fm-cli/releases) and unpack it.
+3. In the unpacked folder:
 
-```bash
-./install.sh            # BepInEx, plugin and fm into ~/fm27_bep/game; fm into ~/.local/bin
-fm doctor --install     # language model (~290 MB) and an 8-step check
-```
+   ```bash
+   zsh install.sh   # BepInEx and the plugin into ~/fm27_bep/game, fm into ~/.local/bin, then fm doctor --install
+   ```
 
-Development: `tools/install.sh` (builds the plugin, publishes `fm`, runs the check).
-Game in another folder: `FM_HOME=/path/to/fm27`.
+   Start it with `zsh`, not `./install.sh`: macOS may refuse a downloaded script run directly. The script clears the download mark from its files, or macOS refuses `fm`.
+4. If `fm` is not found, add `~/.local/bin` to your PATH:
+
+   ```bash
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && exec zsh
+   ```
+
+`fm doctor --install` downloads the language model (~290 MB) and checks 8 steps. Before the first `fm start`, "Shadow bundle" is ✗: the first start builds it.
+The first start takes longer: BepInEx reads the game once.
+
+- Game in another folder: `FM_HOME=/path/to/Football Manager 27`.
+- From source (.NET SDK 10, BepInEx 6 IL2CPP arm64 unpacked in `~/fm27_bep/game`): `tools/install.sh`.
 
 ## First steps
 
@@ -45,11 +58,27 @@ fm status         # date, next match, what is waiting
 fm inbox          # messages, numbered; fm reply 3 to open one
 fm next           # continue; stops at anything that needs an answer
 fm match          # play match day (--instant for a quick result)
+fm save --yes     # save the game
+fm stop           # close the game (asks to save first: --save / --no-save)
 fm help           # every command
 ```
 
 During a match: `s` sub, `h` shout, `t` tactic, `v` view, `a` radar, `r` radar style, `+/-` speed, `:` any command.
 Scripts: `--json` on reads, `--dry` on writes, `--yes` where a command would ask.
+
+## MCP (AI clients)
+
+`fm mcp` serves the commands as MCP tools over stdio. Start the game with `fm start` first.
+
+```bash
+claude mcp add fm -- ~/.local/bin/fm mcp          # Claude Code
+```
+
+Other clients:
+
+```json
+{ "mcpServers": { "fm": { "command": "/Users/<you>/.local/bin/fm", "args": ["mcp"] } } }
+```
 
 ## Layout
 

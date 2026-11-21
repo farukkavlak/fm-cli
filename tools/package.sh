@@ -27,6 +27,8 @@ cat > "$STAGE/install.sh" <<'INSTALL'
 # Run from the unpacked folder: installs BepInEx, the plugin and fm for this Mac's FM27.
 set -eu
 cd "${0:A:h}"
+# A downloaded zip leaves every file quarantined: macOS then refuses the unsigned fm and BepInEx's libraries.
+xattr -dr com.apple.quarantine . 2>/dev/null || true
 GAME="${FM_HOME:-$HOME/Library/Application Support/Steam/steamapps/common/Football Manager 27}"
 BESIDE="$(dirname "${FM_APP:-$HOME/fm27_bep/fm.app}")/game"
 [ -d "$GAME" ] || { echo "Game not found: $GAME"; exit 1; }
@@ -48,7 +50,7 @@ NOTICE
 cat > "$STAGE/README.txt" <<'TXT'
 fm-cli (macOS, Apple Silicon)
 1) Install Football Manager 27 from Steam.
-2) Unpack this folder and run ./install.sh.
+2) Unpack this folder and run: zsh install.sh
 3) Check with fm doctor --install; start with fm start.
 BepInEx 6 IL2CPP arm64 and its plugin are in this package (license: NOTICE.txt).
 TXT
