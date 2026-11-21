@@ -15,6 +15,7 @@ internal static partial class Program
 	{
 		if (args.Contains("--install"))
 		{
+			if (!json && !await PlaceBundledBepInEx()) return 1;
 			if (!json) await EnsureNlModel();
 			return InstallDoctor(json);
 		}

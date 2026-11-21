@@ -389,7 +389,7 @@ internal static class Launcher
 	/// killable) is not counted: it is gone for every purpose but the process table, and once
 	/// counted, every later stop reported that the game had not closed.
 	/// </summary>
-	private static async Task<bool> Alive()
+	internal static async Task<bool> Alive()
 	{
 		using var pgrep = Process.Start(new ProcessStartInfo("/usr/bin/pgrep", ["-f", AppBundle]) { UseShellExecute = false, RedirectStandardOutput = true });
 		if (pgrep == null) return false;

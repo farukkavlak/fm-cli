@@ -56,6 +56,52 @@ internal static partial class Program
 		return missing == 0 ? 0 : 1;
 	}
 
+	/// <summary>
+	/// A package unpacked beside the fm binary (Homebrew keeps it in the formula's libexec, where it cannot
+	/// write into the home folder itself): BepInEx and the plugin it carries are put beside the shadow bundle,
+	/// and the plugin again when it changed (after an upgrade). Not while the game runs: it holds the plugin.
+	/// </summary>
+	private static async Task<bool> PlaceBundledBepInEx()
+	{
+		var exe = Environment.ProcessPath;
+		if (exe == null) return true;
+		if (File.ResolveLinkTarget(exe, returnFinalTarget: true) is { } target) exe = target.FullName;
+		var package = Path.GetDirectoryName(exe)!;
+		var bundledGame = Path.Combine(package, "game");
+		var bundledPlugin = Path.Combine(package, "FmCliProbe.dll");
+		if (!Directory.Exists(Path.Combine(bundledGame, "BepInEx/core")) || !File.Exists(bundledPlugin)) return true;
+
+		var beside = Path.Combine(Path.GetDirectoryName(Launcher.AppBundle)!, "game");
+		var plugin = Path.Combine(beside, "BepInEx/plugins/FmCliProbe/FmCliProbe.dll");
+		var needCore = !File.Exists(Path.Combine(beside, "BepInEx/core/BepInEx.Unity.IL2CPP.dll"));
+		var needPlugin = !File.Exists(plugin) || !File.ReadAllBytes(plugin).AsSpan().SequenceEqual(File.ReadAllBytes(bundledPlugin));
+		if (!needCore && !needPlugin) return true;
+		if (await Launcher.Alive())
+		{
+			Console.Error.WriteLine(L("The game is running: close it (fm stop) and run `fm doctor --install` again to put the new BepInEx and plugin in place."));
+			return false;
+		}
+		Console.WriteLine(L($"Putting BepInEx and the plugin in place: {beside}"));
+		if (needCore) CopyTree(bundledGame, beside);
+		Directory.CreateDirectory(Path.GetDirectoryName(plugin)!);
+		File.Copy(bundledPlugin, plugin, overwrite: true);
+		return true;
+	}
+
+	private static void CopyTree(string from, string to)
+	{
+		foreach (var dir in Directory.EnumerateDirectories(from, "*", SearchOption.AllDirectories))
+			Directory.CreateDirectory(Path.Combine(to, Path.GetRelativePath(from, dir)));
+		Directory.CreateDirectory(to);
+		foreach (var file in Directory.EnumerateFiles(from, "*", SearchOption.AllDirectories))
+		{
+			var dest = Path.Combine(to, Path.GetRelativePath(from, file));
+			File.Copy(file, dest, overwrite: true);
+			// Copying drops the executable bit; the launcher script and dotnet's host need it.
+			File.SetUnixFileMode(dest, File.GetUnixFileMode(file));
+		}
+	}
+
 	private static bool OnPath(string home)
 	{
 		var local = Path.Combine(home, ".local/bin/fm");

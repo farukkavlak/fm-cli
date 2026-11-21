@@ -28,21 +28,30 @@ Ready to continue: next
 
 ## Install
 
-1. Install Football Manager 27 from Steam. Open it once by hand, start a career and save it.
-   `fm start` loads the last save; it does not make a new career.
-2. Download `fm-cli-osx-arm64.zip` from [Releases](https://github.com/farukkavlak/fm-cli/releases) and unpack it.
-3. In the unpacked folder:
+Needs a Mac with Apple Silicon and Football Manager 27 from Steam. Open the game once by hand, start a career and save it:
+`fm start` loads the last save; it does not make a new career.
 
-   ```bash
-   zsh install.sh   # BepInEx and the plugin into ~/fm27_bep/game, fm into ~/.local/bin, then fm doctor --install
-   ```
+Then one of:
 
-   Start it with `zsh`, not `./install.sh`: macOS may refuse a downloaded script run directly. The script clears the download mark from its files, or macOS refuses `fm`.
-4. If `fm` is not found, add `~/.local/bin` to your PATH:
+- **One line** (nothing else needed):
 
-   ```bash
-   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && exec zsh
-   ```
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/farukkavlak/fm-cli/main/install.sh | zsh
+  ```
+
+- **Homebrew:**
+
+  ```bash
+  brew tap farukkavlak/fm-cli https://github.com/farukkavlak/fm-cli
+  brew install fm-cli
+  fm doctor --install   # puts BepInEx and the plugin beside the game; again after each brew upgrade, game closed
+  ```
+
+- **By hand:** download `fm-cli-osx-arm64.zip` from [Releases](https://github.com/farukkavlak/fm-cli/releases), unpack it and run
+  `zsh install.sh` in the folder (not `./install.sh`: macOS may refuse a downloaded script run directly).
+
+`zsh` comes with every macOS, whatever shell you use. The one line and the zip put `fm` in `~/.local/bin`;
+if that is not on your PATH, the install prints the line for your shell (zsh, bash or fish).
 
 `fm doctor --install` downloads the language model (~290 MB) and checks 8 steps. Before the first `fm start`, "Shadow bundle" is ✗: the first start builds it.
 The first start takes longer: BepInEx reads the game once.

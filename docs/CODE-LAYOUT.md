@@ -22,7 +22,8 @@ Every user-facing word: `L($"…")` plus its line in `labels-turkish.tsv`.
 
 ## Tools (`tools/`)
 
-- Install and publish: `install.sh`, `package.sh`, `publish.sh`, `ci.sh`.
+- Install and publish: `install.sh` (from source), `package.sh`, `publish.sh`, `release.sh` (release + `Formula/fm-cli.rb`), `nl-release.sh`, `ci.sh`.
+- Root `install.sh`: the one-line install from the latest release (`curl … | zsh`).
 - Tests: `fm-round.py` (live lists in `tests/live/`), `sweep.sh`, `mcp-check.py`, `smoke.sh`.
 - Game data: `sigdump/` (types), `metadump`, `identity-check.py`.
 - Sentences: `nl-*.py`, `nl-release.sh`. Radar and panel looks: `radar-*.py`, `live-*.py`, `catalog/`.

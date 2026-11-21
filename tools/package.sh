@@ -42,7 +42,19 @@ mkdir -p "$BESIDE/BepInEx/plugins/FmCliProbe"
 cp FmCliProbe.dll "$BESIDE/BepInEx/plugins/FmCliProbe/"
 cp fm "$HOME/.local/bin/fm"; chmod +x "$HOME/.local/bin/fm"
 echo "checking the install…"
-"$HOME/.local/bin/fm" doctor --install
+"$HOME/.local/bin/fm" doctor --install || true
+case ":$PATH:" in
+	*":$HOME/.local/bin:"*) ;;
+	*)
+		echo
+		echo "fm is in ~/.local/bin, which is not on your PATH. Add it once, for your shell:"
+		case "${SHELL##*/}" in
+			bash) echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bash_profile && exec bash" ;;
+			fish) echo "  fish_add_path ~/.local/bin" ;;
+			*) echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.zshrc && exec zsh" ;;
+		esac
+		;;
+esac
 INSTALL
 chmod +x "$STAGE/install.sh"
 cat > "$STAGE/NOTICE.txt" <<'NOTICE'
