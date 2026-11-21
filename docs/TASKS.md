@@ -81,7 +81,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T82 Epic Games Store (macOS and Windows): install, one month, stop
 - [ ] T83 A clean machine, README only
   - 21 Nov: package installed into an empty home from a zip marked as downloaded: fm was refused (quarantine) until install.sh cleared the mark; now it does, and the README says `zsh install.sh`, PATH, a career saved first, MCP setup
-  - [ ] Release: repository public, `gh release` with `dist/fm-cli-osx-arm64.zip` (tools/package.sh), `tools/nl-release.sh` for the language model (now 404)
+  - [x] Release: repository public; v0.9.0 with the zip and `nl-mpnet-l-q` (21 Nov: the zip downloaded without login, installed into an empty home, model downloaded)
   - [ ] A real second Mac (or user account): download, install, first `fm start`
 - [ ] T84 A new career (another country and league), one month, sweep
 
