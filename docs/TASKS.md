@@ -47,13 +47,16 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - 2034/35 and 2035/36 (sacked in Jan, new club, stayed up); season-end vision, team meeting and preseason date through the tool; scenario `season-end`
 - [ ] T79 Two full seasons through MCP, English game
   - 2035/36 from 20 Mar (Antalyaspor, stayed up); season-end messages, team meeting, vision through MCP; scenario `t79-s1-end`
+  - 2036/37: summer window (4 signings), registration, numbers, captain, camp, bonuses; manager renewal through `fm_board_request` + `fm_contract` (Feb 2037, to 2040); scenario `t79-mgr-renewed`
   - [x] `fm_reply` on a list answer ("1 2"): MCP passed it as one word; now `answer="1 2"` or `option`
   - [ ] `fm_next` while the game is busy: now waits for it (to see live)
   - [x] `fm_table` on the Messages screen also said "a cup has no table": now only the screen's reason (MCP and CLI)
-  - [ ] `fm_inbox` had no `all`; the hint said `inbox --all` through MCP (to see live)
+  - [x] `fm_inbox` takes `all`; its hint reads `fm_inbox all=true`
   - [x] MCP hints in CLI words: `fm_targets` takes grade/listed/loan_listed/attributes, `fm_register` hint split into commands (both seen through MCP)
   - [x] `fm_status` "squad --fitness" now `fm_squad view="fitness"` (seen with two injured)
-  - [ ] `fm_contract` counter-offer hint reads `wage="/" --term`: now whole commands; to see at the next talks
+  - [x] `fm_contract` counter-offer hint now `fm_contract wage=<amount> · fm_contract terms=...` (seen in the manager's renewal)
+  - [ ] `docs/MANUAL.md` contract-answer image still shows the old hint: refresh at the next player talks
+  - [ ] Manager's own renewal card: `Job: — (Must be Manager)` and "The agent wants" for the board's counter
   - [x] `fm_targets` wage budget says it is weekly
   - [ ] Training camp squad: answered Auto Select on 7 Jul, the message was back on 14 Jul (the game asking again, or the answer not kept?)
 - [ ] T80 A third language: one month through the CLI, sweep passes
