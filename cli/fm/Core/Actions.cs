@@ -48,6 +48,22 @@ internal static partial class Program
 		// our Dorgéles Néné as a word, and doing the thing to the wrong one is worse than asking.
 		if (exact.Count > 0) found = worded.Count > exact.Count ? worded : exact;
 		else if (worded.Count == 1) found = worded;
+		// The game's search ranks by fame: a one-word name of our own (Sparta's Fábio, 2 June 2038) can be pushed
+		// out by famous people of the name. One of our players is then taken from our own squad's records.
+		if (found.Count == 0 && kind is null or "Player")
+		{
+			try
+			{
+				var squad = await Fm.Pull("Human.Team.Players", "Name", list: true);
+				if (squad.ValueKind == JsonValueKind.Array)
+					found = squad.EnumerateArray()
+						.Where(p => Field(p, "Row").Length > 0 && (Fold(Field(p, "Name")) == Fold(wanted)
+						            || Fold(wanted).Split(' ').All(w => Fold(Field(p, "Name")).Split(' ', '-').Contains(w))))
+						.Select(p => JsonDocument.Parse(JsonSerializer.Serialize(new { Name = Field(p, "Name"), Path = Field(p, "Row"), Kind = "Player", Shown = "" })).RootElement.Clone())
+						.ToList();
+			}
+			catch (FmError) { }
+		}
 		if (found.Count == 0)
 		{
 			Console.Error.WriteLine(kind == "Staff" ? L($"No staff member called '{wanted}'. To search: staff find") : L($"'{wanted}' not found."));
@@ -122,6 +138,10 @@ internal static partial class Program
 		{
 			var ptr = await MenuOf(id);
 			if (ptr == null && !(await Arriving("searchopen", [("path", path)])).StartsWith("error", StringComparison.Ordinal))
+				await Until(async () => (ptr = await MenuOf(id)) != null, seconds: 10, every: 0.5);
+			// One of our own players taken from the squad's records has no search row to open: the squad page
+			// draws his row with the menu bound to his record.
+			if (ptr == null && !(await OpenPage(Screen.Squad)).StartsWith("error", StringComparison.Ordinal))
 				await Until(async () => (ptr = await MenuOf(id)) != null, seconds: 10, every: 0.5);
 			if (ptr != null) opened = await Fm.Get("actions", ("open", "1"), ("ptr", ptr));
 		}
