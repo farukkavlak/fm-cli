@@ -32,6 +32,9 @@ internal static partial class Program
 	/// <summary>The line that asks the agent about renewing his client's contract (InteropEventIDs.PersonAskAgentAboutClientContractRenewal).</summary>
 	private const string AskAgentAction = "1882353528";
 
+	/// <summary>The same ask in FM27's player actions menu ("Discuss New Contract With Agent").</summary>
+	private const string AskAgentMenuAction = "PersonAskAgentAboutClientContractRenewal";
+
 	/// <summary>
 	/// Asking his agent whether he would renew: the conversation is the game's
 	/// own, carried on with `talk` — how keen we are, then the agent's answer.
@@ -45,6 +48,20 @@ internal static partial class Program
 			Console.Error.WriteLine(L("usage: contract <player> --agent"));
 			return 64;
 		}
+		// FM27: his actions menu holds the ask, known by its action; the menu is raised from his record.
+		if (await PersonMenu(wanted) is not { } menu) return 1;
+		if (menu.Entries.Where(e => Field(e, "Action") == AskAgentMenuAction && !IsFolder(e) && IsEnabled(e)).Cast<JsonElement?>().FirstOrDefault() is { } entry)
+		{
+			var talkBefore = await TalkButtons();
+			var sent = await ChooseEntry(entry, menu.Entries);
+			if (sent.StartsWith("error", StringComparison.Ordinal)) return Report(sent);
+			await Until(async () => await TalkButtons() is { Length: > 0 } now && now != talkBefore, seconds: 10, every: 0.25);
+			return await TalkTo(false, ["talk"]);
+		}
+		await Fm.Get("actions", ("close", "1"));
+
+		// Not in the menu: asked already (his answer is on the contract page), or an older game's
+		// contract page carries the ask as a line of the manager's.
 		if (await OpenPlayer(wanted) is not { } card) return 1;
 		var name = Field(card.GetProperty("Player"), "Name");
 		if (await OpenContractSection(name) is { } failed) return failed;
