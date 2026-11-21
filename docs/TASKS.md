@@ -58,8 +58,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] `fm_status` "squad --fitness" now `fm_squad view="fitness"` (seen with two injured)
   - [x] `fm_contract` counter-offer hint now `fm_contract wage=<amount> · fm_contract terms=...` (seen in the manager's renewal)
   - [x] `docs/MANUAL.md` contract-answer image: the agent's counter with the new bargaining hint
-  - [ ] (fixed, to see live) Manager's own renewal card: `Job: — (Must be Manager)` and "The agent wants" for the board's counter
-  - [ ] (fixed, to see live) `fm_contract name=<retiring player>` opens a staff job card for after his retirement (Job: Scout, start "Retirement From Playing") without saying it is not a player contract
+  - [x] (seen fixed 14 Feb 2037 replay: "Job: Must be Manager", "The board wants"; a player's counter still "The agent wants") Manager's own renewal card: `Job: — (Must be Manager)` and "The agent wants" for the board's counter
+  - [x] (seen fixed: Troncoso "is retiring: these talks are for a job…"; Ömürcan's talks without it) `fm_contract name=<retiring player>` opens a staff job card for after his retirement (Job: Scout, start "Retirement From Playing") without saying it is not a player contract
   - [x] (seen fixed 2 Jun 2038: `fm_offer name="Noah Kalonji #…"`) `fm_offer` on a shared name lists the ids but its hint names `fm_player name="... #id"`, not `fm_offer`
   - [x] (seen fixed 1 Jun 2038) `fm_reply` "Attend Meeting" on the board's future meeting opens a talk but does not say so (other answers print "A conversation opened ... fm_talk")
   - [ ] (play path seen fixed 16 May 2038: report after the full-time talk; instant fallback still to see) `fm_match mode=instant` sometimes says "Match report is not ready yet; the game's last fixture has not changed" though the match was played (fixtures shows the score); 2 of ~100 instant matches (19 Dec 2037 sacking day, 21 Mar 2038 AZ) and once after `mode=play` (9 May 2038: "the game's last fixture is still Sparta Rotterdam 0-1 FC Volendam" — the match just played): the "last fixture before" is read after the result has already landed, so the wait for a change never ends
