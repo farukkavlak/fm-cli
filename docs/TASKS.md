@@ -48,10 +48,9 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T79 Two full seasons through MCP, English game
   - 2035/36 from 20 Mar (Antalyaspor, stayed up); season-end messages, team meeting, vision through MCP; scenario `t79-s1-end`
   - [x] `fm_reply` on a list answer ("1 2"): MCP passed it as one word; now `answer="1 2"` or `option`
-  - [ ] `fm_next` while the game is busy says so and stops instead of waiting for it
-  - [ ] `fm_table` on the Messages screen also says "a cup has no table"
-  - [ ] `fm_inbox` hint says `inbox --all` (CLI words) through MCP
-  - [ ] `fm_vision` and `fm_manager` print raw JSON through MCP
+  - [ ] `fm_next` while the game is busy: now waits for it (to see live)
+  - [ ] `fm_table` on the Messages screen also said "a cup has no table": now stops at the first reason (to see live)
+  - [ ] `fm_inbox` had no `all`; the hint said `inbox --all` through MCP (to see live)
 - [ ] T80 A third language: one month through the CLI, sweep passes
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
 - [ ] T82 Epic Games Store (macOS and Windows): install, one month, stop

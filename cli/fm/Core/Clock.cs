@@ -52,6 +52,18 @@ internal static partial class Program
 		{
 			var state = await Fm.GetJson("state");
 
+			// The game busy with something of its own (an autosave, processing that went on after the last
+			// press): its Continue does nothing until it is done, so the step waits for that, not a set time.
+			if (Busy(state))
+			{
+				var free = await Until(async () => !Busy(state = await Fm.GetJson("state")), seconds: 180, every: 0.25);
+				if (!free)
+				{
+					Console.Error.WriteLine(L("The game has been processing for three minutes; I stopped waiting. For the state: status"));
+					return 75;
+				}
+			}
+
 			// Match day has its own line of stops and its own Continue buttons, and reading the
 			// inbox from inside the match would mean opening the portal over it.
 			if (Field(state, "DuringMatch") == "True" || Field(state, "State") is "Tactics" or "SubmitTeam")
@@ -373,11 +385,12 @@ internal static partial class Program
 		}, seconds: 180, every: 0.1);
 		Ui.Progress(null);
 		return finished ? now : null;
-
-		static bool Busy(JsonElement state) =>
-			Field(state, "Processing") == "True" || Field(state, "Saving") == "True"
-			|| Field(state, "State") is "Processing" or "Saving" or "Waiting";
 	}
+
+	/// <summary>The game at work of its own: processing, saving, or waiting on either.</summary>
+	private static bool Busy(JsonElement state) =>
+		Field(state, "Processing") == "True" || Field(state, "Saving") == "True"
+		|| Field(state, "State") is "Processing" or "Saving" or "Waiting";
 
 	/// <summary>
 	/// No club to manage: the manager has a name but `Human.Team` gives none (after the sack,

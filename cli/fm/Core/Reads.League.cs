@@ -42,6 +42,13 @@ internal static partial class Program
 		}
 		catch (Exception e) when (e is FmError or System.Text.Json.JsonException or IOException) { }
 
+		// No page opens on this screen (Stages has said why): the portal's tile is not there either.
+		if ((await Fm.GetJson("pages")).GetArrayLength() == 0)
+		{
+			if (json) Console.Error.WriteLine(await PagesClosed());
+			return 1;
+		}
+
 		// The portal's tile holds the table of the competition the next match is in — the
 		// league most weeks, Europe before a European night — so it is only taken when that is
 		// the one asked for, told by the competition's own id.
