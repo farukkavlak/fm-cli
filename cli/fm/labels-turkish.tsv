@@ -2588,6 +2588,7 @@ Contract talks opened; the message closes when they are over. The terms: contrac
 This message holds no choice of its own.	Bu mesajda ayrıca seçilecek bir şey yok.
 There is no choice number {0}. Choices:	{0} numaralı seçim yok. Seçimler:
 The game did not take the choice: {0} → {1}	Oyun seçimi almadı: {0} → {1}
+Already chosen: {0} → {1}	Zaten seçili: {0} → {1}
 Chosen: {0} → {1}	Seçildi: {0} → {1}
 \nIn the message, to choose before answering (reply <message> --pick <number>):	\nMesajın içinde, cevaplamadan önce seçilecek (reply <mesaj> --pick <numara>):
     … {0} more rows (the table lays out only those in view)	    … {0} satır daha (tablo yalnızca görünenleri çiziyor)

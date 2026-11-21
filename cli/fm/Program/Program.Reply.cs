@@ -200,6 +200,12 @@ internal static partial class Program
 				return 1;
 			}
 			var picked = choices[nth - 1];
+			// The game greys out the option already chosen too; that is no refusal.
+			if (picked.Selected)
+			{
+				Console.WriteLine(L($"Already chosen: {picked.Competition} → {picked.Label}"));
+				return 0;
+			}
 			// Greyed out by the game (a higher bonus the transfer budget cannot pay): it would do nothing.
 			if (Field(picked.Button, "Enabled") != "True")
 			{
