@@ -46,7 +46,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 - [x] T78 Two full seasons through the CLI, Turkish game
   - 2034/35 and 2035/36 (sacked in Jan, new club, stayed up); season-end vision, team meeting and preseason date through the tool; scenario `season-end`
-- [ ] T79 Two full seasons through MCP, English game
+- [x] T79 Two full seasons through MCP, English game
+  - Still to see live (fixed, unit-tested where it can be): the two `(fixed, to see live)` lines below
   - 2035/36 from 20 Mar (Antalyaspor, stayed up); season-end messages, team meeting, vision through MCP; scenario `t79-s1-end`
   - 2036/37: summer window (4 signings), registration, numbers, captain, camp, bonuses; manager renewal through `fm_board_request` + `fm_contract` (Feb 2037, to 2040); scenario `t79-mgr-renewed`
   - 2036/37 done (14th, stayed up); player renewal through the agent (`fm_contract agent=true` + talk); season-end camp/date ("1 2"), team meeting, vision; scenario `t79-s2-end`
