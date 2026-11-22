@@ -12,13 +12,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T53 Plugin on Windows x64 (untried)
 - [ ] T54 Save and user folders on Windows (untried)
 
-## 8. Moments still to meet (catch them when they come: `fm crawl out.json --here`)
-
-- [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live
-  - Not met in 12 hunt matches (19 Nov), starting attacking or very defensive. A debug event sent to the dugout made no card
-- [ ] T61 Contract renewals: a player asking, an unhappy player's demand
-  - [ ] A player asking for a new contract: not met yet
-
 ## 10. Quality
 
 - [ ] T173 First start under a fresh macOS user: which permission prompts (Accessibility, Screen Recording) window hiding and `/shot` raise, and whether the tool says so. The clean install (T83, 22 Nov) ran on a machine that had granted them already
@@ -37,6 +30,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 ## 13. Later (v2)
 
 - [ ] `tactic advice` with a real critique (T14): the game said "no advice" in every save tried
+- [ ] `dugout` mentality card ("Set team mentality") seen live and read back (T160); not met in 15+ matches
+- [ ] A player asking for a new contract himself (T61); not met yet
 - [ ] A penalty shootout seen in a TR match (its board's score); not caught so far
 - [ ] T21 Opposition scouting priorities (`ScoutTeam`: `actions <next opponent> "Get Team Report›…"` asks for it; the priorities screen not found)
 - [ ] Pages only under a "More" menu
