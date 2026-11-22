@@ -89,7 +89,7 @@ internal static partial class Program
 		["friendly"] = ["--date", "--away", "--rules", "--yes"],
 		["numbers"] = ["--auto", "--send"],
 		["happiness"] = ["--why"],
-		["scout"] = ["player", "who", "new", "edit", "remove", "restart", "areas", "staff", "--position", "--role", "--area", "--age", "--ability", "--potential", "--name", "--priority", "--yes", "--by", "--analysts", "--for", "--cancel", "--near", "--progress", "--matched"],
+		["scout"] = ["player", "teams", "top", "cancel", "who", "new", "edit", "remove", "restart", "areas", "staff", "--position", "--role", "--area", "--age", "--ability", "--potential", "--name", "--priority", "--yes", "--by", "--analysts", "--for", "--cancel", "--near", "--progress", "--matched"],
 		["shortlist"] = ["add", "remove", "--for"],
 		["interest"] = ["--top", "--transfer", "--loan", "--yes"],
 		["trial"] = ["--for", "--yes"],

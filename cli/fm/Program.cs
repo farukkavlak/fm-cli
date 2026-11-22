@@ -212,6 +212,7 @@ internal static partial class Program
 				"responsibilities" => await Responsibilities(json, args),
 				"world" => await World(json),
 				"scout" => args.Length > 1 && args[1] is "player" or "oyuncu" ? await ScoutPlayer(args)
+					: args.Length > 1 && args[1] is "teams" or "takimlar" ? await ScoutTeams(json, args)
 					: args.Length > 1 && args[1] is "who" or "kim" ? await ScoutList(json, args)
 					: args.Length > 1 && args[1] is "staff" or "ekip" ? await ScoutStaff(json)
 					: args.Length > 1 && args[1] is "new" or "yeni" or "edit" or "duzenle" ? await ScoutNew(args)

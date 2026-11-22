@@ -33,7 +33,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] `dugout` mentality card ("Set team mentality") seen live and read back (T160); not met in 15+ matches
 - [ ] A player asking for a new contract himself (T61); not met yet
 - [ ] A penalty shootout seen in a TR match (its board's score); not caught so far
-- [ ] T21 Opposition scouting priorities (`ScoutTeam`: `actions <next opponent> "Get Team Report›…"` asks for it; the priorities screen not found)
 - [ ] Change a youth team's schedule (`schedule set/style/copy --team`); reading it works (`schedule --team`, 22 Nov)
 - [ ] `fm watch`: report when a player or value changes
 - [ ] A web dashboard (the plugin already speaks HTTP)

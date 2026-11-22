@@ -64,6 +64,23 @@ internal static partial class Program
 			}
 			catch (FmError) { }
 		}
+		// A team that is not a club of its own (Jong Ajax, a B team: the search knows only its club, Ajax) is
+		// found when it is the next opponent: its card on the squad overview carries its menu, known by the
+		// team's own UniqueId from the fixture.
+		string? opponentId = null;
+		if (found.Count == 0 && records)
+		{
+			try
+			{
+				var opponent = await Fm.Pull("Human.Team.NextFixture.TeamOpponent", "Name,UniqueId");
+				if (Field(opponent, "UniqueId") is { Length: > 0 } teamId && Fold(Field(opponent, "Name")) == Fold(wanted))
+				{
+					opponentId = teamId;
+					found = [JsonDocument.Parse(JsonSerializer.Serialize(new { Name = Field(opponent, "Name"), Path = "", Kind = "Club", Shown = "" })).RootElement.Clone()];
+				}
+			}
+			catch (FmError) { }
+		}
 		if (found.Count == 0)
 		{
 			Console.Error.WriteLine(kind == "Staff" ? L($"No staff member called '{wanted}'. To search: staff find") : L($"'{wanted}' not found."));
@@ -105,7 +122,7 @@ internal static partial class Program
 		await Fm.Get("actions", ("close", "1"));
 		var path = Field(found[0], "Path");
 		LastPersonPath = path;
-		var opened = await Fm.Get("actions", ("open", "1"), ("path", path));
+		var opened = path.Length == 0 ? "error: no record path" : await Fm.Get("actions", ("open", "1"), ("path", path));
 		// A club's search row is a plain link too, and its page carries no menu of its own: the game draws a
 		// club's menu only where that club is shown with one (the next opponent's card on Squad › Overview,
 		// a club table's row). That menu is the one bound to the record with the club's UniqueId; no other is guessed at.
@@ -113,10 +130,20 @@ internal static partial class Program
 		if (record && opened.StartsWith("error", StringComparison.Ordinal))
 		{
 			// Its id is read while the search still holds the row; the window then goes, as it covers the page.
-			var club = (await IdsOf([path]))[0];
-			await CloseSearch();
+			var club = opponentId == null ? (await IdsOf([path]))[0] : "";
+			if (opponentId == null) await CloseSearch();
 			string? shown = null;
-			if (club.Length > 0)
+			if (opponentId != null)
+			{
+				// The next opponent's card on the squad overview: its menu is bound under the card's own
+				// data node (BindingRemapper_NextOpponent…), to the club behind the team, so it is taken by that node.
+				async Task<string?> Card() => (await Fm.GetJson("actions", ("menus", "1"))).EnumerateArray()
+					.Where(m => Field(m, "At").Contains("NextOpponent", StringComparison.Ordinal)).Select(m => Field(m, "Ptr")).FirstOrDefault();
+				shown = await Card();
+				if (shown == null && !(await OpenPage(Screen.SquadOverview)).StartsWith("error", StringComparison.Ordinal))
+					await Until(async () => (shown = await Card()) != null, seconds: 5, every: 0.5);
+			}
+			else if (club.Length > 0)
 			{
 				shown = await MenuOf(club);
 				// Not on screen: the page whose card draws the next opponent's menu.

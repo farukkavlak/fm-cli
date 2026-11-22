@@ -54,6 +54,7 @@ internal static partial class Program
 			  scout staff     the scouting team: judging ability / potential, how many areas and nations they know, their focuses
 			  scout player <name> [--by <scout>] --for <length>   send a scout to a player ("1 week", "2 months", "3 matches", "extensive"); scout who <name>: who can be assigned
 			  scout player <name> --cancel [--dry]   call the assignment off (Scout Priorities); --dry only says whether there is one
+			  scout teams [top|cancel <#|team>]   the team reports being prepared; put one first or call it off (ask for one: actions "<next opponent>")
 			  league [competition]  leaders: top-scoring team, top scorer / assists, highest rating (default: the league)
 			  league [competition] --stat <name> [--teams] [--top <n> | --all]   the full ranking: goals, assists, xG, form…;  league --stats: every stat
 			  fixtures        the next matches;  --all: the whole season's fixtures

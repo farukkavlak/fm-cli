@@ -162,6 +162,7 @@ fm setpieces new             # set-piece routines
 fm takers                    # set-piece takers
 fm penalties                 # penalty order and rules
 fm scout                     # scouting focuses; scout <#|name>: the players one found
+fm scout teams               # team reports being prepared; top / cancel <#|team>
 fm youth [candidates]        # academy and prospects; the year's intake
 ```
 

@@ -193,3 +193,10 @@
 {"en": "show interest in this player", "call": "fm_approach", "args": {"move": "interest"}, "ask": "player", "split": "held"}
 {"tr": "şu oyuncuyla ne yapabilirim", "call": "fm_actions", "ask": "person", "split": "dev"}
 {"en": "what options do i have on that player", "call": "fm_actions", "ask": "person", "split": "dev"}
+{"tr": "takım raporları ne durumda", "call": "fm_scout_teams", "args": {}, "split": "final"}
+{"tr": "gözlemciler hangi takımları izliyor", "call": "fm_scout_teams", "args": {}, "split": "dev"}
+{"tr": "Ajax raporunu öne al", "call": "fm_scout_teams", "args": {"action": "top", "team": "Ajax"}, "split": "dev"}
+{"tr": "PSV takım raporunu iptal et", "call": "fm_scout_teams", "args": {"action": "cancel", "team": "PSV"}, "split": "held"}
+{"en": "which team reports are the scouts working on", "call": "fm_scout_teams", "args": {}, "split": "dev"}
+{"en": "put the Feyenoord report first", "call": "fm_scout_teams", "args": {"action": "top", "team": "Feyenoord"}, "split": "dev"}
+{"en": "cancel the team report on Utrecht", "call": "fm_scout_teams", "args": {"action": "cancel", "team": "Utrecht"}, "split": "final"}

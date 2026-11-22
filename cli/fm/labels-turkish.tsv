@@ -3027,3 +3027,15 @@ First start: BepInEx reads the game once, this takes a minute or two…	İlk aç
 The game lists loan and transfer responses together.	Oyun kiralık ve transfer yanıtlarını birlikte listeliyor.
 {0} moves to {1} (the two swapped places).	{0}, {1} mevkisine geçti (ikisi yer değiştirdi).
 schedule --team <team>   another of the club's teams (the B team, the U19s): its schedule	schedule --team <takım>   kulübün diğer takımlarından birinin (B takımı, U19) programı
+No team reports are being prepared. To ask for one: actions "<next opponent>" (Get Team Report)	Hazırlanan takım raporu yok. İstemek için: actions "<sıradaki rakip>" (Takım Raporu Al)
+error: the team report list could not be read	error: takım raporu listesi okunamadı
+\nPut one first: scout teams top <#|team>   ·   call one off: scout teams cancel <#|team>	\nÖne almak: scout teams top <#|takım>   ·   iptal: scout teams cancel <#|takım>
+usage: scout teams [top|cancel <#|team>]	kullanım: scout teams [top|cancel <#|takım>]
+usage: scout teams {0} <#|team>	kullanım: scout teams {0} <#|takım>
+{0} is first already.	{0} zaten ilk sırada.
+error: {0}'s row could not be selected on the Team Report Priorities page	error: {0} satırı Takım Raporu Öncelikleri sayfasında seçilemedi
+{0}: the game took the cancel but the report is still on the list.	{0}: oyun iptali aldı ama rapor hâlâ listede.
+{0}: team report called off.	{0}: takım raporu iptal edildi.
+{0}: the game took the request but the report is not first.	{0}: oyun isteği aldı ama rapor ilk sırada değil.
+{0}: now the first team report.	{0}: artık ilk sıradaki takım raporu.
+scout teams [top|cancel <#|team>]   the team reports being prepared; put one first or call it off (ask for one: actions "<next opponent>")	scout teams [top|cancel <#|takım>]   hazırlanan takım raporları; birini öne al ya da iptal et (istemek için: actions "<sıradaki rakip>")
