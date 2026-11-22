@@ -141,6 +141,16 @@ internal static partial class Program
 	{
 		var ok = dialog.GetProperty("Buttons").EnumerateArray().Cast<JsonElement?>().FirstOrDefault();
 		if (ok != null) await Fm.Get("click", ("ptr", Field(ok.Value, "Pointer")));
+		// The screen under the notice is read once the notice has gone: until then its buttons count as hidden.
+		await Until(async () => (await Fm.GetJson("dialog")).GetArrayLength() == 0, seconds: 5, every: 0.2);
+
+		// The same one-answer notice says the team has no set piece routines (a new club, 12 Aug 2035): no pick
+		// mends that. It is known by the wizard's Start, which the set pieces tab carries only while none is set up.
+		if (await SetPiecesUnset())
+		{
+			Console.Error.WriteLine(L($"{problem} The team has no set piece routines, and the game will not start the match without them. To set them up: setpieces new   ·   then: match"));
+			return 1;
+		}
 
 		if (!Ui.Interactive)
 		{
@@ -154,6 +164,21 @@ internal static partial class Program
 			return 0;
 		}
 		return await TacticPick(dry: false, youth: choice == 1) != 0 ? 1 : null;
+	}
+
+	/// <summary>True when the set pieces page offers the wizard's Start: no routine is set up yet.</summary>
+	private static async Task<bool> SetPiecesUnset()
+	{
+		try
+		{
+			async Task<bool> Offered() => (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Any(b => Field(b, "Events").Contains("EventFmxSetPieceCreatorStart", StringComparison.Ordinal) && Field(b, "Visible") == "True");
+			// The match-day tactics screen carries the set pieces tab itself, and no page opens from it.
+			if (await Offered()) return true;
+			if ((await OpenPage(Screen.SetPieces)).StartsWith("error", StringComparison.Ordinal)) return false;
+			return await Until(Offered, seconds: 3);
+		}
+		catch (FmError) { return false; }
 	}
 
 	private static string LastWhistle = "";

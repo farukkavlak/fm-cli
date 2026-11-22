@@ -240,6 +240,13 @@ internal static partial class Program
 			Console.WriteLine(L($"{label} is already {name}."));
 			return 0;
 		}
+		// A substitute's place given someone already in the match squad: the game swaps the two, so the one
+		// named first stays in the squad (or moves into the eleven). Known by PlayerIndex, not by name.
+		if (at < 0 && (squad.Any(e => Field(e, "PlayerIndex") == player) || slots.Any(s => Field(s, "PlayerIndex") == player)))
+		{
+			Console.Error.WriteLine(L($"{name} is already in the match squad; the game would only swap the two. Name someone outside the squad, or empty the place: tactic player {current} --clear"));
+			return 1;
+		}
 
 		var query = new List<(string, string)> { ("slot", slot), ("player", player) };
 		if (dry) query.Add(("dry", "1"));
@@ -272,7 +279,7 @@ internal static partial class Program
 				bool Hurt(string shown) => shown.Length > 0 && injured.Any(n => n.EndsWith(shown, StringComparison.Ordinal));
 				var stillOnBench = after.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "PlayerIndex") == Field(place, "PlayerIndex"));
 				if (Hurt(name)) Console.WriteLine(L($"Note: {name} is injured; the game may still let them play, at the risk of making it worse."));
-				if (Hurt(current) && stillOnBench) Console.WriteLine(L($"Note: {current} is injured and now on the bench. To take them out of the squad: tactic player {current} <player>"));
+				if (Hurt(current) && stillOnBench) Console.WriteLine(L($"Note: {current} is injured and now on the bench. To take them out of the squad: tactic player {current} <player>, or tactic player {current} --clear"));
 			}
 			catch (FmError) { }
 		if (took && at >= 0) await ShowChange([(at, false), (at, true)]);

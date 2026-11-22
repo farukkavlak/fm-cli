@@ -244,7 +244,7 @@ The matchday squad is empty; first: tactic pick	Maç kadrosu boş; önce: tactic
 empty	boş
 {0} was chosen, but {1} still shows {2}.	{0} seçildi ama {1} hâlâ {2} gösteriyor.
 Note: {0} is injured; the game may still let them play, at the risk of making it worse.	Dikkat: {0} sakat; oyun yine de oynatabilir, sakatlık ağırlaşabilir.
-Note: {0} is injured and now on the bench. To take them out of the squad: tactic player {1} <player>	Dikkat: {0} sakat ve şimdi yedeklerde; oyun sakatı yedekte de kabul etmiyor. Kadrodan çıkarmak için: tactic player {1} <oyuncu>
+Note: {0} is injured and now on the bench. To take them out of the squad: tactic player {1} <player>, or tactic player {1} --clear	Dikkat: {0} sakat ve şimdi yedeklerde; oyun sakatı yedekte de kabul etmiyor. Kadrodan çıkarmak için: tactic player {1} <oyuncu> ya da tactic player {1} --clear
 The {0} list was not found on the tactics screen.	{0} listesi taktik ekranında bulunamadı.
 {0} {1} was chosen, but the tactic still shows {2}.	{0} {1} seçildi ama taktik hâlâ {2} gösteriyor.
 usage: tactic role <position> [<role>] [--oop]   positions: {0}	kullanım: tactic role <mevki> [<rol>] [--oop]   mevkiler: {0}
@@ -3022,3 +3022,5 @@ The game is running: close it (fm stop) and run `fm doctor --install` again to p
 Putting BepInEx and the plugin in place: {0}	BepInEx ve eklenti yerine konuyor: {0}
 Steam is not running. Open Steam and sign in, then: fm start	Steam açık değil. Steam'i açıp giriş yap, sonra: fm start
 First start: BepInEx reads the game once, this takes a minute or two…	İlk açılış: BepInEx oyunu bir kez okuyor, bir iki dakika sürer…
+{0} is already in the match squad; the game would only swap the two. Name someone outside the squad, or empty the place: tactic player {1} --clear	{0} zaten maç kadrosunda; oyun yalnızca ikisinin yerini değiştirir. Kadro dışından birini yaz ya da yeri boşalt: tactic player {1} --clear
+{0} The team has no set piece routines, and the game will not start the match without them. To set them up: setpieces new   ·   then: match	{0} Takımın duran top düzenleri kurulmamış; oyun maçı bunlar olmadan başlatmıyor. Kurmak için: setpieces new   ·   sonra: match

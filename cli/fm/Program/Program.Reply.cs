@@ -332,6 +332,11 @@ internal static partial class Program
 		// The game often asks "are you sure" for the answer just chosen (the suggested team,
 		// a release, a bid). The answer is the intent; its confirmation is the primary button,
 		// which is the same slot in every language.
+		// A window is seen a moment before its buttons are drawn (a delegated press conference, 22 Nov: no title,
+		// no buttons): it is read again once it has them.
+		if (dialog.GetArrayLength() > 0 && dialog[0].GetProperty("Buttons").GetArrayLength() == 0)
+			await Until(async () => (dialog = await Fm.GetJson("dialog")).GetArrayLength() == 0
+			                        || dialog[0].GetProperty("Buttons").GetArrayLength() > 0, seconds: 5, every: 0.2);
 		if (dialog.GetArrayLength() > 0)
 		{
 			var title2 = DialogWords(dialog[0], "Title");
