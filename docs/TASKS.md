@@ -22,6 +22,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] Contract card: a clause with two values (international caps wage rise: caps and wage) breaking a rule is shown red by the game's row colour only; the tool does not mark that row (no identity found yet), though it says a term breaks a rule
 - [ ] Contract card: `--term "Annual Wage Rise=0"` answers with an empty list of choices
 - [ ] `tactic advice` names a position by the game's own short form in its critique ("MCR" / "OSMSğ") while `tactic` and `tactic role` take "MR (centre)" / "OM (sağ)": find the critique's position field and show it as `tactic` does (T14 seen 22 Nov: TR 3/3, EN, gone once the role was changed, back when changed back)
+  - 22 Nov: the critique is one finished text (EvaluationCritiques is a list of strings) and its short form ("OSMSğ") is in neither the engine's position codes nor the translation file: no identity yet
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 
