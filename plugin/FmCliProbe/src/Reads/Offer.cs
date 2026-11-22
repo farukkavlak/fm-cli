@@ -173,6 +173,63 @@ internal static class Offer
 	}
 
 	/// <summary>One term: its name, what it is set to, and the control that changes it.</summary>
+	/// <summary>
+	/// A contract term's state from its data (BaseComponentData.State), found from the row by the data node a
+	/// BindingRemapper hands it on the row or above it, by the list's own record for an added clause's row, or by
+	/// a remapper below it (a core term's component). Null when none is bound.
+	/// </summary>
+	private static string ComponentState(VisualElement frame)
+	{
+		var b = Game.Bindings;
+		if (b == null) return null;
+		string Read(VisualElement e)
+		{
+			foreach (var node in Texts.RemappedNodes(e) ?? new List<string>())
+				foreach (var tail in new[] { ".BaseComponentData.State", ".component.BaseComponentData.State" })
+				{
+					try
+					{
+						var key = PathKey.Of(node + tail);
+						if (b.Exists(ref key) && b.Get(ref key) is { IsNull: false } value) return value.AsString();
+					}
+					catch { }
+				}
+			return null;
+		}
+		var up = frame;
+		for (var i = 0; i < 6 && up != null; i++, up = up.parent)
+			if (Read(up) is { } found) return found;
+		// An added clause is an item of its list: its record is the list's own for that row, also when the row draws
+		// no control bound to it (a clause the game holds fixed).
+		try
+		{
+			foreach (var (row, table, index) in TableRows.Laid())
+			{
+				var inside = false;
+				for (var e = frame; e != null && !inside; e = e.parent) inside = e.Pointer == row.Pointer;
+				if (!inside) continue;
+				if (table.GetItemFromView(index)?.TryCast<SI.Core.TypedValue>() is not { IsNull: false } item) break;
+				var at = $"fmcli.termstate.{table.Pointer.ToInt64():x}.{index}";
+				if (RawPath.Set(at, item) != null) break;
+				var key = PathKey.Of(at + ".BaseComponentData.State");
+				if (!b.Exists(ref key)) RawPath.Bind(at + ".BaseComponentData.State");
+				if (b.Exists(ref key) && b.Get(ref key) is { IsNull: false } value) return value.AsString();
+				break;
+			}
+		}
+		catch { }
+		var queue = new Queue<VisualElement>();
+		queue.Enqueue(frame);
+		var seen = 0;
+		while (queue.Count > 0 && seen++ < 200)
+		{
+			var e = queue.Dequeue();
+			if (e != frame && Read(e) is { } found) return found;
+			try { for (var i = 0; i < e.hierarchy.childCount; i++) queue.Enqueue(e.hierarchy.ElementAt(i)); } catch { }
+		}
+		return null;
+	}
+
 	private static string Row(VisualElement frame, string section, bool exchange = false, string key = "")
 	{
 		if (!Shown(frame)) return null;
@@ -267,6 +324,10 @@ internal static class Offer
 			}
 			catch { }
 		}
+
+		// The term's own state in the talks (BaseComponentData.State, 1: it breaks a rule): what colours the row,
+		// also where no warning icon is drawn (a clause of two values, the international caps' wage rise).
+		if (!warning && ComponentState(frame) == "1") warning = true;
 
 		var sb = new StringBuilder("{");
 		sb.Append($"\"Section\": \"{Report.Escape(section)}\", \"Label\": \"{Report.Escape(label)}\", ");
