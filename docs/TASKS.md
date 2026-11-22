@@ -34,8 +34,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] A player asking for a new contract himself (T61); not met yet
 - [ ] A penalty shootout seen in a TR match (its board's score); not caught so far
 - [ ] T21 Opposition scouting priorities (`ScoutTeam`: `actions <next opponent> "Get Team Report›…"` asks for it; the priorities screen not found)
-- [ ] Swap two starters; a player from outside the squad
-- [ ] Youth training
+- [ ] Youth team training schedule: `responsibilities take` hands it over, but `schedule` only drives the first team; the youth team's own schedule page is still to find
 - [ ] `fm watch`: report when a player or value changes
 - [ ] A web dashboard (the plugin already speaks HTTP)
 - [ ] AI v2: see `AI.md`

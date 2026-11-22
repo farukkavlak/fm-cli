@@ -138,7 +138,7 @@ fm tactic pick               # let the game pick the eleven
 fm tactic pick --youth       # youth players too, when the first team is short
 fm tactic advice             # the assistant's evaluation of the tactic; also: xi, opposition
 fm tactic role <position> [<role>] [--oop]
-fm tactic player <position> <player>    # anyone in the squad; the one there goes to the bench
+fm tactic player <position> <player>    # anyone; a starter named swaps places with the one there
 fm tactic player <substitute> <player>  # swap a substitute (an injured one) for another
 fm tactic player <position> --clear     # leave the position empty
 fm tactic instructions ["<instruction>" [<value>]]

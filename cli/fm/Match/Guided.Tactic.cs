@@ -270,6 +270,13 @@ internal static partial class Program
 				: after.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "Index") == slot && Field(e, "PlayerIndex") == player);
 		}, seconds: 8);
 		Console.WriteLine(took ? $"{label}: {(current.Length > 0 ? current : L("empty"))} → {name}" : L($"{name} was chosen, but {label} still shows {current}."));
+		// A starter named for another starter's place: the game swaps the two. Where the one taken off went is
+		// read back by his own PlayerIndex, so the line above is not read as him leaving the side.
+		if (took && at >= 0 && Field(place, "PlayerIndex") is { Length: > 0 } moved and not "-1"
+		    && after.TryGetProperty("Slots", out var nowSlots)
+		    && nowSlots.EnumerateArray().FirstOrDefault(s => Field(s, "PlayerIndex") == moved) is { ValueKind: JsonValueKind.Object } there
+		    && Field(there, "IPPosition") != masks[at])
+			Console.WriteLine(L($"{current} moves to {SpotShown(Field(there, "IPPosition"))} (the two swapped places)."));
 		// The one taken off goes to the newcomer's place on the bench when the newcomer came from it.
 		if (took)
 			try
