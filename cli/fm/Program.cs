@@ -233,7 +233,7 @@ internal static partial class Program
 				"jobs" => await Jobs(json, args[1..]),
 				"prep" => await Prep(json, args),
 				"schedule" => args.Length > 1 && args[1] is "copy" or "paste" or "clear" ? await ScheduleWeek(args[1], args)
-					: args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json),
+					: args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json, Option(args, "--team")),
 				"settings" => await SettingsCommand(args),
 				"dugout" => await Dugout(json, args),
 				"advice" => await Advice(json, args),

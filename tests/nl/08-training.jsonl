@@ -131,3 +131,7 @@
 {"tr": "haftayı temizle", "call": "fm_schedule_week", "args": {"do": "clear"}, "split": "held"}
 {"en": "copy the week", "call": "fm_schedule_week", "args": {"do": "copy"}, "split": "final"}
 {"en": "clear the week", "call": "fm_schedule_week", "args": {"do": "clear"}, "split": "held"}
+{"tr": "U19'un antrenman programı", "call": "fm_schedule", "args": {"team": "U19"}, "split": "held"}
+{"tr": "b takımının antrenman programını göster", "call": "fm_schedule", "args": {"team": "B"}, "split": "dev"}
+{"en": "show the U19 training schedule", "call": "fm_schedule", "args": {"team": "U19"}, "split": "final"}
+{"en": "reserve team training schedule", "call": "fm_schedule", "args": {"team": "reserve"}, "split": "final"}

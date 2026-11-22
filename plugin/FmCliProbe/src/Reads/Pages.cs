@@ -130,12 +130,12 @@ internal static class Pages
 
 		// Only a question, never an opening: is this page the one its subtab bar stands on?
 		if (q["check"] == "1")
-			return string.IsNullOrEmpty(guid) ? "error: ?check=1 needs ?guid=" : Subpage(guid, false, true);
+			return string.IsNullOrEmpty(guid) ? "error: ?check=1 needs ?guid=" : Subpage(guid, false, true, team: q["object"]);
 
 		// Only from the bar on screen, though a tab menu lists the page too: the youth team's
 		// Individual Training is the first team's under the Training tab (FM27).
 		if (q["bar"] == "1")
-			return string.IsNullOrEmpty(guid) ? "error: ?bar=1 needs ?guid=" : Subpage(guid, q["dry"] == "1", barOnly: true);
+			return string.IsNullOrEmpty(guid) ? "error: ?bar=1 needs ?guid=" : Subpage(guid, q["dry"] == "1", barOnly: true, team: q["object"]);
 
 		Page page;
 		if (!string.IsNullOrEmpty(guid))
@@ -227,7 +227,8 @@ internal static class Pages
 	/// With <paramref name="check"/> nothing is chosen: it only says whether the page is the one the bar
 	/// has chosen ("shown" / "not shown").
 	/// </summary>
-	private static string Subpage(string guid, bool dry, bool check = false, bool barOnly = false)
+	/// <param name="team">?object=: only a row for that team (each youth team's tab menu lists its own Training).</param>
+	private static string Subpage(string guid, bool dry, bool check = false, bool barOnly = false, string team = null)
 	{
 		var queue = Game.UiEvents;
 		if (queue == null) return "error: UIEventQueue unavailable";
@@ -247,6 +248,7 @@ internal static class Pages
 				{
 					var row = Read(choices[i]);
 					if (!string.Equals(row?.Guid, guid, StringComparison.OrdinalIgnoreCase)) continue;
+					if (!string.IsNullOrEmpty(team) && row.ObjectId != team) continue;
 					if (check)
 					{
 						var on = dropdown.SelectedIndex;
@@ -316,7 +318,11 @@ internal static class Pages
 				var count = choices?.Count ?? 0;
 				for (var i = 0; i < count; i++)
 				{
-					if (!string.Equals(Read(choices[i])?.Guid, page.Guid, StringComparison.OrdinalIgnoreCase)) continue;
+					// One panel stands for several teams (First Team, the B team, the U19s each open the squad
+					// page): the row is told by the team it opens too, not only by the page.
+					var row = Read(choices[i]);
+					if (!string.Equals(row?.Guid, page.Guid, StringComparison.OrdinalIgnoreCase)) continue;
+					if (!string.IsNullOrEmpty(page.ObjectId) && !string.IsNullOrEmpty(row.ObjectId) && row.ObjectId != page.ObjectId) continue;
 					var events = dropdown.LeftClickEvents;
 					if (i == 0 && events != null && events.Count > 0 && queue != null)
 					{

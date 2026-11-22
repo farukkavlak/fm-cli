@@ -77,7 +77,7 @@ internal static partial class Program
 		["fixtures"] = ["--all"],
 		["calendar"] = ["--u19"],
 		["holiday"] = ["week", "month", "match", "hafta", "ay", "mac"],
-		["schedule"] = ["set", "style"],
+		["schedule"] = ["set", "style", "--team"],
 		["penalties"] = ["move", "add", "remove"],
 		["takers"] = ["korner", "frikik", "kanat", "derin", "tac"],
 		["setpieces"] = ["new", "korner", "frikik", "kanat", "derin", "tac"],

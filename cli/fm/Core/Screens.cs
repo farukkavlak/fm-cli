@@ -39,6 +39,8 @@ internal static class Screen
 	/// <summary>Squad › Overview: its next-opponent card carries that club's right-click menu.</summary>
 	public const string SquadOverview = "17dc969bb3a64ee478862f101adb1a48";
 	public const string Training = "ceb0e5333c8c69c448f04279129fdb38";
+	/// <summary>A team's training calendar, on that team's own tab menu (the youth teams' schedule).</summary>
+	public const string TeamTraining = "9925aa51dd9e78f438d92dc65b26d9cc";
 	// Training's own subtabs, opened from its bar.
 	public const string IndividualTraining = "41012275212b88b46957d71fc17c5876";
 	public const string Mentoring = "d4f349f49047bdb47a53216fa71298f3";

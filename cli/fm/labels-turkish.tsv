@@ -3026,3 +3026,4 @@ First start: BepInEx reads the game once, this takes a minute or two…	İlk aç
 {0} The team has no set piece routines, and the game will not start the match without them. To set them up: setpieces new   ·   then: match	{0} Takımın duran top düzenleri kurulmamış; oyun maçı bunlar olmadan başlatmıyor. Kurmak için: setpieces new   ·   sonra: match
 The game lists loan and transfer responses together.	Oyun kiralık ve transfer yanıtlarını birlikte listeliyor.
 {0} moves to {1} (the two swapped places).	{0}, {1} mevkisine geçti (ikisi yer değiştirdi).
+schedule --team <team>   another of the club's teams (the B team, the U19s): its schedule	schedule --team <takım>   kulübün diğer takımlarından birinin (B takımı, U19) programı

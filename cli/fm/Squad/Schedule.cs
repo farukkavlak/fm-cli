@@ -20,16 +20,32 @@ internal static partial class Program
 	// SessionType values the game gives a session that is no training.
 	private const string RestSession = "300", TravelSession = "402";
 
-	private static async Task<int> Schedule(bool json)
+	private static async Task<int> Schedule(bool json, string? team = null)
 	{
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage(Screen.Training);
+		// Another of the club's teams (the B team, the U19s): known by its UniqueID from the club's own list, its
+		// calendar opened on that team's tab menu. The first team (TeamType 0) keeps the Training page.
+		var youth = false;
+		if (team != null)
+		{
+			var teams = (await Fm.Pull("Human.Club.Teams", "Name,UniqueID,TeamType", list: true)).EnumerateArray()
+				.Where(t => Field(t, "Name").Length > 0 && Field(t, "UniqueID").Length > 0).Select(t => t.Clone()).ToList();
+			if (Choose(teams.Select(t => Field(t, "Name")).ToList(), team, L("Team")) is not { } chosen) return 1;
+			var pick = teams.First(t => Field(t, "Name") == chosen);
+			youth = Field(pick, "TeamType") != "0";
+			if (youth)
+			{
+				var onTab = await OpenSubpage(Screen.Squad, Screen.TeamTraining, () => Task.FromResult(true), Field(pick, "UniqueID"), bar: true);
+				if (onTab.StartsWith("error", StringComparison.Ordinal)) return Report(onTab);
+			}
+		}
+		var opened = youth ? "" : await OpenPage(Screen.Training);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 
 		// The page opened is the Training tab's Overview itself (its GUID): nothing is chosen by its words.
 		var state = await Fm.GetJson("state");
 		var today = DateTime.TryParseExact(Field(state, "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
-		var days = await SessionDays(today);
+		var days = await SessionDays(today, youth);
 		if (days is not { Count: > 0 })
 		{
 			Console.Error.WriteLine(L("The training schedule could not be read."));
@@ -94,7 +110,9 @@ internal static partial class Program
 	/// drawn over a few frames). A day's place with no button is its match, known by the team's fixture
 	/// on that day (its venue letter). Null when the page has no such buttons.
 	/// </summary>
-	private static async Task<List<TrainingDay>?> SessionDays(DateTime today)
+	/// <param name="otherTeam">Another of the club's teams: its matches are not the first team's fixtures, so a day
+	/// without sessions is only marked as a match.</param>
+	private static async Task<List<TrainingDay>?> SessionDays(DateTime today, bool otherTeam = false)
 	{
 		List<(DateTime Day, int Index, string Type, string Name)> read = [];
 		var previous = "";
@@ -118,13 +136,13 @@ internal static partial class Program
 			previous = now;
 			return settled;
 		}, seconds: 10, every: 0.5);
-		if (!seen) return await CalendarDays();
+		if (!seen) return otherTeam ? null : await CalendarDays();
 
 		var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
 		var week = read.Where(x => x.Day >= monday && x.Day < monday.AddDays(14)).ToList();
 		if (week.Count == 0) return [];
 		var places = week.Max(x => x.Index) + 1;
-		var fixtures = await TeamFixtures() ?? [];
+		var fixtures = otherTeam ? [] : await TeamFixtures() ?? [];
 		return week.GroupBy(x => x.Day).Select(g =>
 		{
 			var date = g.Key.ToString("yyyy-MM-dd");

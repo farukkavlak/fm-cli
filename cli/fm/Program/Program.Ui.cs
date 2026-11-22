@@ -170,10 +170,12 @@ internal static partial class Program
 			// The parent's own intro may have come up over it since.
 			await Fm.Get("closeintro");
 			// "shown"/"not shown" once the bar is there, an error while the parent is still coming up.
-			await Until(async () => !(await OnBar(screen)).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.25);
+			await Until(async () => !(await OnBar(screen, team)).StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.25);
 			// With bar, the row is chosen on the parent's bar though a tab menu lists the page too (that
 			// one is the first team's: the youth team's Individual Training, FM27).
-			await Until(async () => !(answer = await (bar ? Fm.Get("open", ("guid", screen), ("bar", "1")) : Fm.Get("open", ("guid", screen))))
+			// Another team's page: only its own tab menu's row (each youth team's menu lists the same page).
+			await Until(async () => !(answer = await (bar && team != null ? Fm.Get("open", ("guid", screen), ("bar", "1"), ("object", team))
+					: bar ? Fm.Get("open", ("guid", screen), ("bar", "1")) : Fm.Get("open", ("guid", screen))))
 				.StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.5);
 			// Now and then the parent comes up without the bar ever answering for the page (Stages from
 			// the squad page, 2 in 16): it is opened again rather than given up on.
@@ -195,7 +197,7 @@ internal static partial class Program
 			var standing = false;
 			if (await Until(async () =>
 			{
-				var bar = await OnBar(screen);
+				var bar = await OnBar(screen, team);
 				var on = (bar.StartsWith("shown", StringComparison.Ordinal) || bar.StartsWith("error", StringComparison.Ordinal) && answer.StartsWith("opened", StringComparison.Ordinal))
 				         && await shown();
 				var settled = on && standing;
@@ -210,16 +212,33 @@ internal static partial class Program
 	/// The row the subtab bar on screen stands on: "shown" when it is the given page, "not shown"
 	/// otherwise, and an error while the page whose bar lists it is not up yet. Nothing is chosen.
 	/// </summary>
-	private static Task<string> OnBar(string screen) => Fm.Get("open", ("guid", screen), ("check", "1"));
+	/// <param name="team">Another team's page: its own tab menu's row is the one asked about.</param>
+	private static Task<string> OnBar(string screen, string? team = null) => team == null
+		? Fm.Get("open", ("guid", screen), ("check", "1"))
+		: Fm.Get("open", ("guid", screen), ("check", "1"), ("object", team));
 
 	/// <summary>A page as the game's own menus name it, in the game's language: what someone types after `fm open`.</summary>
 	private static async Task<string> OpenNamed(string page, string? tab = null)
 	{
 		// The plugin knows the pages by their English names; one typed as the game shows it is put back.
 		static bool Is(string english, string typed) => Fold(english) == Fold(typed) || Fold(GameWords.Of(english)) == Fold(typed);
-		if ((await Fm.GetJson("pages")).EnumerateArray().FirstOrDefault(p => Is(Field(p, "Page"), page) && (tab == null || Is(Field(p, "Tab"), tab))) is { ValueKind: JsonValueKind.Object } known)
+		var known = (await Fm.GetJson("pages")).EnumerateArray().FirstOrDefault(p => Is(Field(p, "Page"), page) && (tab == null || Is(Field(p, "Tab"), tab)));
+		if (known.ValueKind == JsonValueKind.Object)
 			(page, tab) = (Field(known, "Page"), tab == null ? null : Field(known, "Tab"));
-		return await OpenWith(tab == null ? [("page", page)] : [("page", page), ("tab", tab)]);
+		(string, string)[] query = tab == null ? [("page", page)] : [("page", page), ("tab", tab)];
+		var answer = await OpenWith(query);
+		// A row with a submenu (a youth team under Squad) is on a bar the first press only brings up: the bar is
+		// waited on by the game's own answer for that row (its page and team), then the row pressed again.
+		if (answer.Contains("no subtab bar", StringComparison.Ordinal) && known.ValueKind == JsonValueKind.Object && Field(known, "Guid") is { Length: > 0 } guid)
+		{
+			var team = Field(known, "Object");
+			await Until(async () => !(await (team.Length > 0
+					? Fm.Get("open", ("guid", guid), ("bar", "1"), ("dry", "1"), ("object", team))
+					: Fm.Get("open", ("guid", guid), ("bar", "1"), ("dry", "1"))))
+				.StartsWith("error", StringComparison.Ordinal), seconds: 8, every: 0.25);
+			answer = await OpenWith(query);
+		}
+		return answer;
 	}
 
 	/// <summary>
