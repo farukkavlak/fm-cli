@@ -90,7 +90,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] One-line install (`curl … | zsh`) and Homebrew (`brew tap` + `brew trust` + `brew install`, then `fm doctor --install`): both from GitHub into an empty home, 21 Nov (v0.9.1)
   - [x] This user cleaned (dev folders renamed aside): `curl … | zsh`, first `fm start`, `fm status` (22 Nov). Found and fixed: no `steam_appid.txt` in the package (the launcher now reads the id from Steam's app manifest), Steam closed (now said up front), `fm` aborting when the game broke off a reply, "game updated" said on a first start
   - [ ] A real second Mac: download, install, first `fm start`
-- [ ] T84 A new career (another country and league), one month, sweep
+- [x] T84 A new career (another country and league), one month, sweep
   - 22 Nov: OH Leuven 8 Aug → 15 Sep 2035 (TR), 9 league matches (2 live), offers, loans in and out, registration, talks, press; sweep TR 63/63, EN 63/63 (takers and league pass now)
   - [x] `tactic player <substitute> <someone in the squad>`: the game swaps the two, the tool said the first was out; now refused with `--clear` named (EN 4/4, TR 3/3, outsider still taken)
   - [x] No set piece routines: a watched match is refused with the game's own notice, the tool said `tactic pick`; now known by the wizard's Start on the match-day screen and says `setpieces new` (EN 3/3, TR 3/3; ten men still say `tactic pick`; an instant match plays without routines)
