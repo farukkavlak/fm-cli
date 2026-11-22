@@ -81,7 +81,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [ ] (fixed, to see live) `next` stop on our own bid accepted ("<club> accept bids for <player>") says "Transfer offer waiting … reject: fm_offers …", the incoming-offer hint
   - [x] (seen fixed 21 Nov, EN 3/3, TR 3/3) `contract` with transfer talks left for another page said `contract <player>`, which cannot reach another club's player; now it says the talks reopen from their message and names the one waiting
   - [x] Training camp squad: the game sends a second message on the camp's first day; the first stays answered (seen twice, 2036 and 2037)
-- [ ] T80 A third language: one month through the CLI, sweep passes
+- [x] T80 A third language: one month through the CLI, sweep passes
+  - 22 Nov (FM 27.1, German): OH Leuven to 23 Sep 2035, 5 matches (1 live), offers, sales confirmed, registration, injury, talk; calendar right now; sweep 63/63, nothing empty against English
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
 - [ ] T82 Epic Games Store (macOS and Windows): install, one month, stop
 - [ ] T83 A clean machine, README only
