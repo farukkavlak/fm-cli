@@ -97,21 +97,24 @@ internal static partial class Program
 			if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 		}
 
-		// Read once two readings agree and the page has drawn something: first it has to change, unless it
+		// Read once two readings agree, the page has drawn something and its tables have laid out their rows: first it has to change, unless it
 		// was this page all along, which the bound only lets pass.
 		string Key(List<JsonElement> from) => string.Join("\n", from.Select(t => Field(t, "Text")));
 		await Until(async () => Key(await ShownTexts()) != Key(before), seconds: 3, every: 0.25);
 		List<JsonElement> texts = [];
 		var last = "";
-		var settled = await Until(async () =>
+		var steady = false;
+		await Until(async () =>
 		{
 			texts = await ShownTexts();
 			var now = Key(texts);
-			var same = texts.Count > 0 && now == last;
+			steady = texts.Count > 0 && now == last;
 			last = now;
-			return same;
+			// A text in a table whose row is not laid out yet (-2) would come out as loose words: wait for its row.
+			// A table that never lays out is read as it stands once the bound is up.
+			return steady && !texts.Any(t => RowOf(t) == -2);
 		}, seconds: 10, every: 0.5);
-		if (!settled || texts.Count == 0)
+		if (!steady || texts.Count == 0)
 		{
 			Console.Error.WriteLine(L($"The page {L(page.Name)} could not be read."));
 			return 1;

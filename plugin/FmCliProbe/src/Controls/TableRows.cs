@@ -317,6 +317,21 @@ internal static class TableRows
 	/// itself keeps which item each laid-out row element is for, by its place in view (measured on
 	/// the squad table: Archie Brown's row 9, his source place 5).
 	/// </summary>
+	/// <summary>Every table on a panel, laid out or not, by its element's pointer.</summary>
+	internal static HashSet<System.IntPtr> Lists()
+	{
+		var found = new HashSet<System.IntPtr>();
+		foreach (var e in Buttons.Elements())
+		{
+			try
+			{
+				if (e.TryCast<StreamedListView>() is { panel: not null } table) found.Add(table.Pointer);
+			}
+			catch { }
+		}
+		return found;
+	}
+
 	internal static IEnumerable<(UnityEngine.UIElements.VisualElement Row, StreamedListView Table, int Index)> Laid()
 	{
 		var found = new List<(UnityEngine.UIElements.VisualElement, StreamedListView, int)>();

@@ -73,7 +73,7 @@ internal static class Texts
 	/// <summary>
 	/// Every text a person can see, in the tree's order, each with its data path, the row it stands in and the
 	/// names above it: for a page read as it stands, whichever panel it was opened in. Row is the table row's
-	/// place, -1 outside a table. Occluded pages keep their style, so the caller tells them by ?under= (an element
+	/// place, -1 outside a table, -2 in a table whose row is not laid out yet. Occluded pages keep their style, so the caller tells them by ?under= (an element
 	/// name some ancestor must have) or the names returned.
 	/// </summary>
 	public static string OnScreen(NameValueCollection q)
@@ -88,6 +88,9 @@ internal static class Texts
 		if (q["top"] == "1" && topBody == null) return "[]\n";
 		var rows = new Dictionary<VisualElement, (int Index, long Table)>();
 		foreach (var (row, table, index) in TableRows.Laid()) rows[row] = (index, table.Pointer.ToInt64());
+		// Every table on a panel, laid out or not: a text inside one whose row is not laid out yet is Row -2,
+		// so a reader can wait for the table instead of taking its cells as loose text.
+		var lists = TableRows.Lists();
 		var texts = new List<string>();
 		foreach (var element in Buttons.Elements())
 		{
@@ -109,6 +112,7 @@ internal static class Texts
 					if (remap) remapped ??= RemappedAt(e);
 					if (topBody != null && e.Pointer == topBody.Pointer) inside = true;
 					if (at < 0 && rows.TryGetValue(e, out var place)) (at, table) = place;
+					if (at == -1 && lists.Contains(e.Pointer)) at = -2;
 					if (!inside && e.name == under) inside = true;
 					if (chain && !string.IsNullOrEmpty(e.name)) names.Add(e.name);
 				}

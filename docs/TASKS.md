@@ -39,9 +39,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 ## 10. Quality
 
 - [ ] T173 First start under a fresh macOS user: which permission prompts (Accessibility, Screen Recording) window hiding and `/shot` raise, and whether the tool says so. The clean install (T83, 22 Nov) ran on a machine that had granted them already
-- [ ] T167 Game froze once for 6+ minutes: main thread inside the .NET JIT, compiling plugin code; not reproduced
-- [ ] T168 `read club-history` gave its table as loose lines in 1 of 10 sweeps; not reproduced
-- [ ] T169 Each resolution change takes the game longer to recover (about 3 minutes by the 16th)
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 
