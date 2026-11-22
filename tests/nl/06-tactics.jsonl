@@ -217,3 +217,11 @@
 {"en": "tactic advice", "call": "fm_tactic_advice", "split": "held"}
 {"en": "evaluate my tactic", "call": "fm_tactic_advice", "split": "final"}
 {"tr": "taktik önerisi rakip", "call": "fm_tactic_advice", "args": {"what": "opposition"}, "split": "dev"}
+{"tr": "kişisel rolleri göster", "call": "fm_tactic_personal", "args": {}, "split": "dev"}
+{"tr": "kisisellestirilmis roller", "call": "fm_tactic_personal", "args": {}, "split": "held"}
+{"tr": "forvetin rolünü kişiselleştir", "call": "fm_tactic_personal", "args": {"position": "ST", "on": true}, "split": "dev"}
+{"tr": "sol bekin kişisel rolünü kapat", "call": "fm_tactic_personal", "args": {"position": "DL", "on": false}, "split": "dev"}
+{"tr": "rinaldinin rolü kendine özel olsun", "call": "fm_tactic_personal", "args": {"position": "rinaldi", "on": true}, "split": "dev"}
+{"en": "show the personalised roles", "call": "fm_tactic_personal", "args": {}, "split": "held"}
+{"en": "personalise the striker's role", "call": "fm_tactic_personal", "args": {"position": "ST", "on": true}, "split": "dev"}
+{"en": "turn off the personalised role for the left back", "call": "fm_tactic_personal", "args": {"position": "DL", "on": false}, "split": "dev"}

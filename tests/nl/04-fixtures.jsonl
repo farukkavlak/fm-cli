@@ -123,3 +123,12 @@
 {"tr": "kupa kurasını çek", "call": "fm_draw", "split": "dev"}
 {"en": "run the draw", "call": "fm_draw", "split": "final"}
 {"en": "do the cup draw", "call": "fm_draw", "split": "dev"}
+{"tr": "hazırlık maçı ayarla", "call": "fm_friendly", "args": {}, "split": "dev"}
+{"tr": "hazirlik maci ayarlayalim", "call": "fm_friendly", "args": {}, "split": "dev"}
+{"tr": "Ajax ile özel maç yap", "call": "fm_friendly", "args": {"club": "Ajax"}, "split": "held"}
+{"tr": "deplasmanda bir hazırlık maçı ayarla", "call": "fm_friendly", "args": {"away": true}, "split": "dev"}
+{"tr": "kimlerle hazırlık maçı oynayabiliriz", "call": "fm_friendly", "args": {}, "split": "dev"}
+{"en": "arrange a friendly", "call": "fm_friendly", "args": {}, "split": "dev"}
+{"en": "set up a friendly against Celtic", "call": "fm_friendly", "args": {"club": "Celtic"}, "split": "dev"}
+{"en": "book an away friendly", "call": "fm_friendly", "args": {"away": true}, "split": "dev"}
+{"en": "who can we play a friendly with", "call": "fm_friendly", "args": {}, "split": "final"}

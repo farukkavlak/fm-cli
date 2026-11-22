@@ -29,7 +29,8 @@ CONFIRM = {"yes", "confirm"}
 def load_tools():
 	src = TOOLS_CS.read_text()
 	tools = {}
-	for m in re.finditer(r'new\("(fm_\w+)", "(?:[^"\\]|\\.)*",\s*(None|"""(.*?)""")', src, re.S):
+	# new("fm_x", <kind>, "description", <schema or None>, …); the kind (Reads, Plays(), Weighty("answer")…) is optional.
+	for m in re.finditer(r'new\("(fm_\w+)",\s*(?:\w+(?:\([^)]*\))?,\s*)?"(?:[^"\\]|\\.)*",\s*(None|"""(.*?)""")', src, re.S):
 		name, _, schema = m.groups()
 		tools[name] = json.loads(schema) if schema else {"properties": {}}
 	return tools

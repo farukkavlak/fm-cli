@@ -190,12 +190,12 @@
 {"tr": "istifa et", "call": "fm_resign", "split": "held"}
 {"tr": "istifa ediyorum", "call": "fm_resign", "split": "held"}
 {"tr": "bıraktım bu işi", "call": "fm_resign", "split": "held"}
-{"tr": "sezon sonunda istifa edeceğim", "call": "fm_resign", "args": {"end_of_season": true}, "split": "dev"}
-{"tr": "sezon bitince ayrılıyorum", "call": "fm_resign", "args": {"end_of_season": true}, "split": "dev"}
+{"tr": "sezon sonunda istifa edeceğim", "call": "fm_resign", "args": {}, "split": "dev"}
+{"tr": "sezon bitince ayrılıyorum", "call": "fm_resign", "args": {}, "split": "dev"}
 {"tr": "istfa", "call": "fm_resign", "split": "dev"}
 {"en": "resign", "call": "fm_resign", "split": "dev"}
 {"en": "i quit this job", "call": "fm_resign", "split": "dev"}
-{"en": "resign at the end of the season", "call": "fm_resign", "args": {"end_of_season": true}, "split": "held"}
+{"en": "resign at the end of the season", "call": "fm_resign", "args": {}, "split": "held"}
 {"tr": "fizyoyu kov", "call": "fm_staff_fire", "ask": "name", "split": "dev"}
 {"en": "fire the physio", "call": "fm_staff_fire", "ask": "name", "split": "dev"}
 {"tr": "bir gözlemci işe al", "call": "fm_staff_hire", "ask": "name", "split": "held"}
@@ -217,3 +217,12 @@
 {"en": "competition rules", "call": "fm_read", "args": {"page": "comp-rules"}, "split": "dev"}
 {"tr": "gol analizi", "call": "fm_read", "args": {"page": "goal-analysis"}, "split": "held"}
 {"en": "transfer history", "call": "fm_read", "args": {"page": "transfer-history"}, "split": "held"}
+{"tr": "yardımcılar ne öneriyor", "call": "fm_advice", "args": {}, "split": "dev"}
+{"tr": "ekibin tavsiyeleri neler", "call": "fm_advice", "args": {}, "split": "held"}
+{"tr": "staff onerileri", "call": "fm_advice", "args": {}, "split": "dev"}
+{"tr": "yardımcının 2. önerisini uygula", "call": "fm_advice", "args": {"number": 2, "action": "apply"}, "split": "held"}
+{"tr": "tavsiyelerin hepsini görüldü yap", "call": "fm_advice", "args": {"all_seen": true}, "split": "dev"}
+{"en": "what is my staff advising", "call": "fm_advice", "args": {}, "split": "dev"}
+{"en": "show the staff advice", "call": "fm_advice", "args": {}, "split": "dev"}
+{"en": "apply advice 3", "call": "fm_advice", "args": {"number": 3, "action": "apply"}, "split": "held"}
+{"en": "mark all the advice as seen", "call": "fm_advice", "args": {"all_seen": true}, "split": "dev"}

@@ -78,3 +78,5 @@
 {"en": "change a setting", "call": "fm_settings", "ask": "name", "split": "dev"}
 {"tr": "kutuya Kale yaz", "call": "fm_type", "args": {"text": "Kale"}, "split": "dev"}
 {"en": "type \"Big Man\" in the box", "call": "fm_type", "args": {"text": "Big Man"}, "split": "dev"}
+{"tr": "kutuya Efsane yaz", "call": "fm_type", "args": {"text": "Efsane"}, "split": "dev"}
+{"en": "type Legend in the box", "call": "fm_type", "args": {"text": "Legend"}, "split": "dev"}
