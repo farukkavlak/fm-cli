@@ -17,7 +17,22 @@ internal static partial class Program
 		var beside = Path.Combine(Path.GetDirectoryName(bundle)!, "game");
 		var saves = Directory.Exists(GameFolders.Saves) ? GameFolders.Saves : Path.Combine(home, $"Library/Application Support/Sports Interactive/{Launcher.AppName}/games");
 
-		var checks = new List<(string Name, bool Ok, string Detail, string Fix)>
+		// Windows: BepInEx and its doorstop sit in the game's own folder; there is no shadow bundle or launcher script.
+		var windows = OperatingSystem.IsWindows();
+		if (windows) beside = game;
+		var checks = windows ? new List<(string Name, bool Ok, string Detail, string Fix)>
+		{
+			(L("Game"), Launcher.WinExecutable(game) != null, game, L($"Install {Launcher.AppName} from Steam; set FM_HOME if it is elsewhere.")),
+			(L("BepInEx core"), File.Exists(Path.Combine(game, "BepInEx", "core", "BepInEx.Unity.IL2CPP.dll")),
+				Path.Combine(game, "BepInEx"), L("`fm doctor --install` puts the BepInEx the package carries in the game's folder.")),
+			(L("BepInEx doorstop"), File.Exists(Path.Combine(game, "winhttp.dll")), Path.Combine(game, "winhttp.dll"),
+				L("`fm doctor --install` puts it beside the game's executable.")),
+			(L("Plugin"), File.Exists(Path.Combine(game, "BepInEx", "plugins", "FmCliProbe", "FmCliProbe.dll")),
+				Path.Combine(game, "BepInEx", "plugins", "FmCliProbe", "FmCliProbe.dll"), L("`fm doctor --install` puts it in place.")),
+			(L("fm command"), OnPath(home), Environment.ProcessPath ?? "fm", L("Add the folder fm is in to PATH.")),
+			(L("Save folder"), Directory.Exists(GameFolders.Saves), GameFolders.Saves, L("Open the game once and make a save; the folder appears by itself.")),
+			(L("Language model"), NlModelInstalled, ModelDir, L("`fm doctor --install` downloads it (for sentences in place of commands).")),
+		} : new List<(string Name, bool Ok, string Detail, string Fix)>
 		{
 			(L("Game"), Directory.Exists(game) && File.Exists(Path.Combine(game, $"fm.app/Contents/MacOS/{Launcher.AppName}")),
 				game, L($"Install {Launcher.AppName} from Steam; set FM_HOME if it is elsewhere.")),
@@ -71,7 +86,8 @@ internal static partial class Program
 		var bundledPlugin = Path.Combine(package, "FmCliProbe.dll");
 		if (!Directory.Exists(Path.Combine(bundledGame, "BepInEx/core")) || !File.Exists(bundledPlugin)) return true;
 
-		var beside = Path.Combine(Path.GetDirectoryName(Launcher.AppBundle)!, "game");
+		// Windows: into the game's own folder, where its doorstop loads BepInEx.
+		var beside = OperatingSystem.IsWindows() ? Launcher.GameDirectory : Path.Combine(Path.GetDirectoryName(Launcher.AppBundle)!, "game");
 		var plugin = Path.Combine(beside, "BepInEx/plugins/FmCliProbe/FmCliProbe.dll");
 		var needCore = !File.Exists(Path.Combine(beside, "BepInEx/core/BepInEx.Unity.IL2CPP.dll"));
 		var needPlugin = !File.Exists(plugin) || !File.ReadAllBytes(plugin).AsSpan().SequenceEqual(File.ReadAllBytes(bundledPlugin));
@@ -98,12 +114,16 @@ internal static partial class Program
 			var dest = Path.Combine(to, Path.GetRelativePath(from, file));
 			File.Copy(file, dest, overwrite: true);
 			// Copying drops the executable bit; the launcher script and dotnet's host need it.
-			File.SetUnixFileMode(dest, File.GetUnixFileMode(file));
+			if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(dest, File.GetUnixFileMode(file));
 		}
 	}
 
 	private static bool OnPath(string home)
 	{
+		// Windows: any folder on PATH holding fm.exe.
+		if (OperatingSystem.IsWindows())
+			return (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+				.Any(d => File.Exists(Path.Combine(d.Trim(), "fm.exe")));
 		var local = Path.Combine(home, ".local/bin/fm");
 		return File.Exists(local) || File.Exists("/usr/local/bin/fm") || File.Exists("/opt/homebrew/bin/fm");
 	}

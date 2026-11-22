@@ -6,11 +6,14 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 ## 7. Platform (macOS only today)
 
-- [ ] T49 `fm start` / `stop` on Windows (today: shell script, app bundle, PlistBuddy)
-- [ ] T50 Window hiding on Windows (today: osascript)
-- [ ] T52 Publishing for other targets (today: `osx-arm64` only)
-- [ ] T53 Plugin on Windows x64 (untried)
-- [ ] T54 Save and user folders on Windows (untried)
+- [ ] T49 `fm start` / `stop` on Windows
+  - 22 Nov, written ahead (cli/fm/Core/Launcher.Windows.cs): game found in the Steam libraries (registry + libraryfolders.vdf), exe by Unity's layout, SteamAppId from the app manifest, BepInEx's doorstop in the game folder; stop/alive by process. Untested
+- [ ] T50 Window hiding on Windows
+  - 22 Nov, written ahead: the plugin's WindowHider makes the process's windows layered, alpha 0, click-through and off the taskbar; the second-copy notice is a message box. Untested
+- [ ] T52 Publishing for other targets
+  - 22 Nov: `tools/package-windows.sh` builds fm.exe (win-x64), the plugin and BepInEx be.755 win-x64 into a zip with `install.ps1`; built here, not yet installed on Windows
+- [ ] T53 Plugin on Windows x64 (untried; its main-thread check now has a Windows way: the thread Load runs on)
+- [ ] T54 Save and user folders on Windows (the game says where; AppData/LocalLow before it has; `fm doctor` has Windows checks)
 
 ## 10. Quality
 

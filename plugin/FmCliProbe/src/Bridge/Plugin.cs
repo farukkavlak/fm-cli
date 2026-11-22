@@ -41,8 +41,19 @@ public class Plugin : BasePlugin
 	[System.Runtime.InteropServices.DllImport("libSystem.dylib")]
 	private static extern int pthread_main_np();
 
+	[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+	private static extern uint GetCurrentThreadId();
+
+	/// <summary>Windows has no "is this the main thread": the thread Load runs on is (BepInEx's chainloader runs there).</summary>
+	private static uint _mainThread;
+
 	internal static bool OnMainThread()
 	{
+		if (System.OperatingSystem.IsWindows())
+		{
+			try { return _mainThread == 0 || GetCurrentThreadId() == _mainThread; }
+			catch { return true; }
+		}
 		try { return pthread_main_np() == 1; }
 		catch { return true; }
 	}
@@ -55,6 +66,8 @@ public class Plugin : BasePlugin
 	public override void Load()
 	{
 		Log = base.Log;
+		if (System.OperatingSystem.IsWindows())
+			try { _mainThread = GetCurrentThreadId(); } catch { }
 		var stage = int.TryParse(System.Environment.GetEnvironmentVariable("FMCLI_LOAD_STAGE"), out var st) ? st : 99;
 		if (stage <= 0) { Log.LogInfo("[fm-cli] stage 0"); return; }
 

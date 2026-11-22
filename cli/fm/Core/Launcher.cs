@@ -20,7 +20,7 @@ namespace FmCli;
 ///
 /// The game goes on drawing while transparent, so data keeps flowing.
 /// </summary>
-internal static class Launcher
+internal static partial class Launcher
 {
 	internal const string AppName = "Football Manager 27";
 
@@ -35,6 +35,7 @@ internal static class Launcher
 
 	internal static string GameDirectory =>
 		Environment.GetEnvironmentVariable("FM_HOME")
+		?? (OperatingSystem.IsWindows() ? WinGameDirectory() : null)
 		?? Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
 			"Library/Application Support/Steam/steamapps/common", AppName);
@@ -49,6 +50,7 @@ internal static class Launcher
 			await GameFolders.Learn(fm);
 			return !load || await LoadSave(fm);
 		}
+		if (OperatingSystem.IsWindows()) return await WinStart(fm, debug, load);
 
 		// FM27: BepInEx and its launcher live beside the shadow bundle (~/fm27_bep/game), not in
 		// Steam's folder; the launcher is told the Steam app and where the shadow is.
@@ -173,6 +175,7 @@ internal static class Launcher
 	/// </summary>
 	public static async Task PutBackDisplay()
 	{
+		if (OperatingSystem.IsWindows()) return;
 		if (!File.Exists(DisplayBackup) || await Alive()) return;
 		RestoreDisplay(forget: true);
 	}
@@ -205,6 +208,7 @@ internal static class Launcher
 	/// </summary>
 	private static void RestoreDisplay(bool forget)
 	{
+		if (OperatingSystem.IsWindows()) return;
 		var domain = PrefsDomain;
 		if (domain.Length == 0 || !File.Exists(DisplayBackup)) return;
 		var kept = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string?>>(File.ReadAllText(DisplayBackup)) ?? [];
@@ -278,6 +282,7 @@ internal static class Launcher
 	/// <summary>Steam's client is up: its process, by the executable's name.</summary>
 	private static bool SteamRunning()
 	{
+		if (OperatingSystem.IsWindows()) return WinSteamRunning();
 		try
 		{
 			using var pgrep = Process.Start(new ProcessStartInfo("/usr/bin/pgrep", ["-x", "steam_osx"]) { UseShellExecute = false, RedirectStandardOutput = true });
@@ -422,6 +427,7 @@ internal static class Launcher
 	/// </summary>
 	internal static async Task<bool> Alive()
 	{
+		if (OperatingSystem.IsWindows()) return WinGames().Count > 0;
 		using var pgrep = Process.Start(new ProcessStartInfo("/usr/bin/pgrep", ["-f", AppBundle]) { UseShellExecute = false, RedirectStandardOutput = true });
 		if (pgrep == null) return false;
 		var pids = (await pgrep.StandardOutput.ReadToEndAsync()).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -445,6 +451,8 @@ internal static class Launcher
 	/// </summary>
 	public static async Task<bool> FatalErrorUp()
 	{
+		// Windows: not known yet how the game's own fatal-error window is told apart (T158 is macOS's).
+		if (OperatingSystem.IsWindows()) return false;
 		foreach (var pid in await LivePids())
 		{
 			try
@@ -478,6 +486,7 @@ internal static class Launcher
 
 	private static async Task<List<string>> LivePids()
 	{
+		if (OperatingSystem.IsWindows()) return WinGames().Select(p => p.Id.ToString()).ToList();
 		using var pgrep = Process.Start(new ProcessStartInfo("/usr/bin/pgrep", ["-f", AppBundle]) { UseShellExecute = false, RedirectStandardOutput = true });
 		if (pgrep == null) return [];
 		var pids = (await pgrep.StandardOutput.ReadToEndAsync()).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
@@ -487,6 +496,11 @@ internal static class Launcher
 
 	private static async Task Pkill(string[] flags)
 	{
+		if (OperatingSystem.IsWindows())
+		{
+			WinKill(force: flags.Contains("-9"));
+			return;
+		}
 		using var kill = Process.Start(new ProcessStartInfo("/usr/bin/pkill", [.. flags, "-f", AppBundle]) { UseShellExecute = false });
 		if (kill != null) await kill.WaitForExitAsync();
 	}
@@ -497,6 +511,7 @@ internal static class Launcher
 	/// </summary>
 	private static async Task<bool> OpenByHand()
 	{
+		if (OperatingSystem.IsWindows()) return WinGames().Count > 0;
 		var executable = Plist("Print :CFBundleExecutable", Path.Combine(AppBundle, "Contents/Info.plist"));
 		if (executable.Length == 0) return false;
 		using var ps = Process.Start(new ProcessStartInfo("/bin/ps", ["-axo", "stat=,comm="]) { UseShellExecute = false, RedirectStandardOutput = true });

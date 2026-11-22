@@ -54,8 +54,18 @@ internal static class SecondCopyGuard
 		}) { IsBackground = true, Name = "fm-cli second copy guard" }.Start();
 	}
 
+	[System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+	private static extern int MessageBoxW(IntPtr owner, string text, string caption, uint type);
+
 	private static void Notify(string text)
 	{
+		if (OperatingSystem.IsWindows())
+		{
+			// A box of its own on a thread of its own: the game's threads never wait on the player.
+			new Thread(() => { try { MessageBoxW(IntPtr.Zero, text, "fm", 0x40 /* MB_ICONINFORMATION */ | 0x40000 /* MB_TOPMOST */); } catch (Exception) { } })
+				{ IsBackground = true, Name = "fm-cli notice" }.Start();
+			return;
+		}
 		try
 		{
 			var quoted = text.Replace("\\", "\\\\").Replace("\"", "\\\"");

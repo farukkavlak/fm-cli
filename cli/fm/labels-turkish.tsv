@@ -3039,3 +3039,11 @@ error: {0}'s row could not be selected on the Team Report Priorities page	error:
 {0}: the game took the request but the report is not first.	{0}: oyun isteği aldı ama rapor ilk sırada değil.
 {0}: now the first team report.	{0}: artık ilk sıradaki takım raporu.
 scout teams [top|cancel <#|team>]   the team reports being prepared; put one first or call it off (ask for one: actions "<next opponent>")	scout teams [top|cancel <#|takım>]   hazırlanan takım raporları; birini öne al ya da iptal et (istemek için: actions "<sıradaki rakip>")
+The game was not found in {0}. If it is elsewhere, point to it with FM_HOME.	Oyun {0} içinde bulunamadı. Başka yerdeyse FM_HOME ile göster.
+BepInEx is not installed in {0}. To install it: fm doctor --install	BepInEx {0} içinde kurulu değil. Kurmak için: fm doctor --install
+The game could not be started: {0}	Oyun başlatılamadı: {0}
+`fm doctor --install` puts the BepInEx the package carries in the game's folder.	`fm doctor --install` paketteki BepInEx'i oyunun klasörüne koyar.
+BepInEx doorstop	BepInEx doorstop
+`fm doctor --install` puts it beside the game's executable.	`fm doctor --install` onu oyunun çalıştırılabilir dosyasının yanına koyar.
+`fm doctor --install` puts it in place.	`fm doctor --install` onu yerine koyar.
+Add the folder fm is in to PATH.	fm'in bulunduğu klasörü PATH'e ekle.

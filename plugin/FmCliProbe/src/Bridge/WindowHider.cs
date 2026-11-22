@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace FmCliProbe;
 
 /// <summary>
-/// Keeps the game's window out of sight from inside the game (macOS): every window the
+/// Keeps the game's window out of sight from inside the game (macOS; Windows below): every window the
 /// application has is made fully transparent and lets clicks pass through. It stays on screen
 /// for the window server, so the game goes on drawing and the bridge goes on answering, but
 /// nothing of it is seen. Done from here because hiding from outside (System Events, AX) does
@@ -28,7 +28,35 @@ internal static class WindowHider
 	[DllImport(ObjC, EntryPoint = "objc_msgSend")] private static extern void SendBool(IntPtr target, IntPtr selector, bool value);
 
 	internal static readonly bool Wanted =
-		Environment.GetEnvironmentVariable("FMCLI_HIDDEN") == "1" && RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+		Environment.GetEnvironmentVariable("FMCLI_HIDDEN") == "1"
+		&& (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+
+	// Windows: the process's own top-level windows made layered, fully transparent, click-through and kept off the
+	// taskbar. The game goes on drawing into a layered window, so the bridge keeps answering.
+	private delegate bool EnumWindowsProc(IntPtr window, IntPtr data);
+	[DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr data);
+	[DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
+	[DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern IntPtr GetWindowLongPtr(IntPtr window, int index);
+	[DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern IntPtr SetWindowLongPtr(IntPtr window, int index, IntPtr value);
+	[DllImport("user32.dll")] private static extern bool SetLayeredWindowAttributes(IntPtr window, uint key, byte alpha, uint flags);
+	private const int GwlExStyle = -20;
+	private const long WsExLayered = 0x80000, WsExTransparent = 0x20, WsExToolWindow = 0x80, WsExAppWindow = 0x40000;
+	private const uint LwaAlpha = 0x2;
+	private static readonly uint Self = (uint)System.Diagnostics.Process.GetCurrentProcess().Id;
+	private static readonly EnumWindowsProc Each = HideOne;
+
+	private static bool HideOne(IntPtr window, IntPtr data)
+	{
+		GetWindowThreadProcessId(window, out var process);
+		if (process != Self) return true;
+		var style = (long)GetWindowLongPtr(window, GwlExStyle);
+		const long wanted = WsExLayered | WsExTransparent | WsExToolWindow;
+		if ((style & wanted) == wanted && (style & WsExAppWindow) == 0) return true;
+		SetWindowLongPtr(window, GwlExStyle, (IntPtr)((style | wanted) & ~WsExAppWindow));
+		SetLayeredWindowAttributes(window, 0, (byte)Math.Clamp((int)Math.Round(Alpha * 255), 0, 255), LwaAlpha);
+		Hidden++;
+		return true;
+	}
 
 	private static IntPtr _app, _sharedApplication, _windows, _count, _objectAtIndex, _alphaValue, _setAlphaValue,
 		_setIgnoresMouseEvents, _setHasShadow;
@@ -47,6 +75,16 @@ internal static class WindowHider
 	{
 		// AppKit windows are the main thread's only; BepInEx's tick also fires on the game's other threads.
 		if (!Wanted || _failed || Alpha < 0 || !Plugin.OnMainThread()) return;
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+		{
+			try { EnumWindows(Each, IntPtr.Zero); }
+			catch (Exception ex)
+			{
+				_failed = true;
+				Plugin.Log.LogWarning($"[fm-cli] could not hide the window: {ex.Message}");
+			}
+			return;
+		}
 		try
 		{
 			if (_app == IntPtr.Zero)
