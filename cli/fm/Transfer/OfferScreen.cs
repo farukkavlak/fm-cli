@@ -41,6 +41,9 @@ internal sealed partial class OfferScreen
 		/// <summary>Choices the game greys out: listed, but not taken.</summary>
 		public List<string> Disabled { get; init; } = [];
 
+		/// <summary>Whether the game lets the list be opened at all (a term it holds fixed for now is not).</summary>
+		public bool Enabled { get; init; } = true;
+
 		public List<string> Open => Choices.Where(c => !Disabled.Contains(c)).ToList();
 
 		/// <summary>What each choice stands for in the game ("nspc"), beside it; "" where it says nothing.</summary>
@@ -159,6 +162,7 @@ internal sealed partial class OfferScreen
 			new(F(e, "Pointer"), F(e, "Value"), e.TryGetProperty("Choices", out var c) ? c.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [])
 			{
 				Disabled = e.TryGetProperty("Disabled", out var d) ? d.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [],
+				Enabled = F(e, "Enabled") != "False",
 				Codes = e.TryGetProperty("Codes", out var k) ? k.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [],
 			};
 	}

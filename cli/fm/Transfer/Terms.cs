@@ -174,6 +174,9 @@ internal static partial class Program
 				failed = await OfferScreen.Type(Fm, row.Amount, amount, s => s.Row(row)?.Amount, route);
 			else if (row.Choice != null && await OfferScreen.SubChoice(Fm, row.Choice, value) is { } path)
 				failed = await OfferScreen.ChoosePath(Fm, row.Choice, path, s => s.Row(row)?.Choice, route);
+			else if (row.Choice is { Enabled: false })
+				// The game holds the term fixed for now (a wage rise that would pass the wage the board allows): its list does not open.
+				failed = L($"{OfferScreen.Say(row.Label)}: the game does not let this term be changed now") + (row.Detail.Length > 0 ? $" ({OfferScreen.SayDetail(row.Detail)})" : "");
 			else
 				failed = row.Choice != null ? L($"no '{value}'; options: {string.Join(", ", row.Choice.Choices)}") : L($"'{value}' is not an amount");
 			if (failed != null) return failed;

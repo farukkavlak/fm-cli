@@ -3047,3 +3047,4 @@ BepInEx doorstop	BepInEx doorstop
 `fm doctor --install` puts it beside the game's executable.	`fm doctor --install` onu oyunun çalıştırılabilir dosyasının yanına koyar.
 `fm doctor --install` puts it in place.	`fm doctor --install` onu yerine koyar.
 Add the folder fm is in to PATH.	fm'in bulunduğu klasörü PATH'e ekle.
+{0}: the game does not let this term be changed now	{0}: oyun bu şartın şimdi değiştirilmesine izin vermiyor

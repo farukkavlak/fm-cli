@@ -20,7 +20,8 @@ internal sealed partial class OfferScreen
 	};
 
 	/// <summary>A term's notes, each in the game's words.</summary>
-	public static string SayDetail(string detail) => string.Join(" · ", detail.Split(" · ").Select(Say));
+	// A note can come as the game's key and as the screen's own words: alike once said, it is said once.
+	public static string SayDetail(string detail) => string.Join(" · ", detail.Split(" · ").Select(Say).Distinct());
 
 	/// <summary>
 	/// A term's value in the game's words. The plugin gives it as the game's English; a value the game builds of two
