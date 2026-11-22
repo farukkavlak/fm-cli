@@ -153,7 +153,7 @@ fm training [<player>] [--focus ...] [--position ...] [--role ...] [--control pl
 fm training <player> --report [--coach <name>]
 fm training <player> --trait ["<trait>"]
 fm schedule                  # this week and next, three sessions a day
-fm schedule --team "<team>"  # the same for the B team or the U19s
+fm schedule --team "<team>"  # the same for the B team or the U19s; set takes --team too
 fm schedule copy | paste | clear [this|<weeks ahead>]   # the week card's own buttons
 fm intensity                 # per-player intensity
 fm coaches                   # coaching assignments

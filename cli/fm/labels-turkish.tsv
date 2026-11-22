@@ -3026,7 +3026,7 @@ First start: BepInEx reads the game once, this takes a minute or two…	İlk aç
 {0} The team has no set piece routines, and the game will not start the match without them. To set them up: setpieces new   ·   then: match	{0} Takımın duran top düzenleri kurulmamış; oyun maçı bunlar olmadan başlatmıyor. Kurmak için: setpieces new   ·   sonra: match
 The game lists loan and transfer responses together.	Oyun kiralık ve transfer yanıtlarını birlikte listeliyor.
 {0} moves to {1} (the two swapped places).	{0}, {1} mevkisine geçti (ikisi yer değiştirdi).
-schedule --team <team>   another of the club's teams (the B team, the U19s): its schedule	schedule --team <takım>   kulübün diğer takımlarından birinin (B takımı, U19) programı
+schedule --team <team>   another of the club's teams (the B team, the U19s): its schedule; set / style take --team too	schedule --team <takım>   kulübün diğer takımlarından birinin (B takımı, U19) programı; set / style da --team alır
 No team reports are being prepared. To ask for one: actions "<next opponent>" (Get Team Report)	Hazırlanan takım raporu yok. İstemek için: actions "<sıradaki rakip>" (Takım Raporu Al)
 error: the team report list could not be read	error: takım raporu listesi okunamadı
 \nPut one first: scout teams top <#|team>   ·   call one off: scout teams cancel <#|team>	\nÖne almak: scout teams top <#|takım>   ·   iptal: scout teams cancel <#|takım>
@@ -3048,3 +3048,5 @@ BepInEx doorstop	BepInEx doorstop
 `fm doctor --install` puts it in place.	`fm doctor --install` onu yerine koyar.
 Add the folder fm is in to PATH.	fm'in bulunduğu klasörü PATH'e ekle.
 {0}: the game does not let this term be changed now	{0}: oyun bu şartın şimdi değiştirilmesine izin vermiyor
+If this team's coach leads its general training, the game keeps his week: see responsibilities training, and take it with responsibilities take "<duty>".	Bu takımın genel antrenmanı antrenöründeyse oyun onun haftasını korur: responsibilities training ile bak, responsibilities take "<görev>" ile al.
+error: the club's first team could not be read	error: kulübün A takımı okunamadı

@@ -21,7 +21,7 @@ internal static partial class Program
 	/// <summary>Null when the page shows no session buttons.</summary>
 	private static async Task<int?> ChangeWeekInSelector(DateTime day, string wanted, bool json = false)
 	{
-		var opened = await OpenPage(Screen.Training);
+		var opened = await OpenTraining();
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		JsonElement? session = null;
 		await Until(async () => (session = await SessionButton(day, 0)) != null, seconds: 8, every: 0.5);

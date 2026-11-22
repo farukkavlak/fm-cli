@@ -11,8 +11,9 @@ internal static partial class Program
 {
 	private static async Task<int> ScheduleWeek(string what, string[] args)
 	{
+		if (await PickTrainingTeam(Option(args, "--team")) is { } failedTeam) return failedTeam;
 		if (await NotNow() is { } refused) return refused;
-		var opened = await OpenPage(Screen.Training);
+		var opened = await OpenTraining();
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		var sent = what switch { "copy" => "EventFmxCopyTrainingWeek", "paste" => "EventFmxPasteTrainingWeek", _ => "EventFmxResetTrainingWeek" };
 

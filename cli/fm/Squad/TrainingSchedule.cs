@@ -14,6 +14,7 @@ internal static partial class Program
 	private static async Task<int> ScheduleChange(string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
+		if (await PickTrainingTeam(Option(args, "--team")) is { } failedTeam) return failedTeam;
 		// After "set" / "style"; a day typed in quotes ("14 ekim") is its words all the same.
 		var words = Words(args).Skip(1).SelectMany(w => w.Split(' ', StringSplitOptions.RemoveEmptyEntries)).ToList();
 		var style = args[1] is "style" or "stil";
@@ -50,7 +51,7 @@ internal static partial class Program
 	/// </summary>
 	private static async Task<int?> ChangeSessionInWeek(DateTime day, int slot, string wanted)
 	{
-		var opened = await OpenPage(Screen.Training);
+		var opened = await OpenTraining();
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
 		JsonElement? button = null;
 		Task<JsonElement?> Find() => SessionButton(day, slot - 1);
@@ -105,6 +106,9 @@ internal static partial class Program
 			var landed = await Until(async () => await Find() is { ValueKind: JsonValueKind.Object } b && (now = Field(b, "Label")) is { Length: > 0 }
 				&& (Fold(now) == Fold(choices[at]) || Fold(GameWords.Of(now)) == Fold(shown[at])), seconds: 6, every: 0.5);
 			Console.WriteLine(landed ? L($"{DayName(day)} session {slot}: {shown[at]}.") : L($"Sent, but the calendar shows {GameWords.Of(now)} for {DayName(day)} session {slot}."));
+			// Another team's week is kept by its coach while he leads its general training: the edit is not taken.
+			if (!landed && trainingTeam != null)
+				Console.WriteLine(L("If this team's coach leads its general training, the game keeps his week: see responsibilities training, and take it with responsibilities take \"<duty>\"."));
 			return landed ? 0 : 1;
 		}
 		await Leave();

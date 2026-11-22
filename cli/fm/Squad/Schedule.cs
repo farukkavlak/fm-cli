@@ -20,27 +20,52 @@ internal static partial class Program
 	// SessionType values the game gives a session that is no training.
 	private const string RestSession = "300", TravelSession = "402";
 
+	/// <summary>Another of the club's teams whose training a schedule command works on (its UniqueID); null: the first team.</summary>
+	private static string? trainingTeam;
+
+	/// <summary>
+	/// The team a schedule command is about: another of the club's teams (the B team, the U19s) known by its UniqueID
+	/// from the club's own list, the name matched as typed; the manager's own team is no other team. Null when done,
+	/// else the exit code (the options said).
+	/// </summary>
+	private static async Task<int?> PickTrainingTeam(string? team)
+	{
+		trainingTeam = null;
+		if (team == null) return null;
+		var teams = (await Fm.Pull("Human.Club.Teams", "Name,UniqueID,TeamType", list: true)).EnumerateArray()
+			.Where(t => Field(t, "Name").Length > 0 && Field(t, "UniqueID").Length > 0).Select(t => t.Clone()).ToList();
+		if (Choose(teams.Select(t => Field(t, "Name")).ToList(), team, L("Team")) is not { } chosen) return 1;
+		var pick = teams.First(t => Field(t, "Name") == chosen);
+		// The first team is the manager's own (Human.Team), told by its UniqueID: a B team can share its TeamType (OHL U23: 0).
+		var own = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
+		if (own.Length == 0) return Report(L("error: the club's first team could not be read"));
+		if (Field(pick, "UniqueID") != own) trainingTeam = Field(pick, "UniqueID");
+		return null;
+	}
+
+	/// <summary>
+	/// The training calendar of the team picked: the Training page, or another team's own on its tab menu, shown as
+	/// its Training view (the calendar's tab by its element, CalendarToolTrainingGridCompositionSet; its General view
+	/// draws no session buttons).
+	/// </summary>
+	private static async Task<string> OpenTraining()
+	{
+		if (trainingTeam == null) return await OpenPage(Screen.Training);
+		var opened = await OpenSubpage(Screen.Squad, Screen.TeamTraining, () => Task.FromResult(true), trainingTeam, bar: true);
+		if (opened.StartsWith("error", StringComparison.Ordinal)) return opened;
+		var clicked = "";
+		await Until(async () => !(clicked = await Fm.Get("click", ("within", "CalendarToolTrainingGridCompositionSet"), ("name", "navigation-tab-default-default")))
+			.StartsWith("error", StringComparison.Ordinal), seconds: 6, every: 0.25);
+		return clicked.StartsWith("error", StringComparison.Ordinal) ? clicked : opened;
+	}
+
 	private static async Task<int> Schedule(bool json, string? team = null)
 	{
 		if (await NotNow() is { } refused) return refused;
-		// Another of the club's teams (the B team, the U19s): known by its UniqueID from the club's own list, its
-		// calendar opened on that team's tab menu. The first team (TeamType 0) keeps the Training page.
-		var youth = false;
-		if (team != null)
-		{
-			var teams = (await Fm.Pull("Human.Club.Teams", "Name,UniqueID,TeamType", list: true)).EnumerateArray()
-				.Where(t => Field(t, "Name").Length > 0 && Field(t, "UniqueID").Length > 0).Select(t => t.Clone()).ToList();
-			if (Choose(teams.Select(t => Field(t, "Name")).ToList(), team, L("Team")) is not { } chosen) return 1;
-			var pick = teams.First(t => Field(t, "Name") == chosen);
-			youth = Field(pick, "TeamType") != "0";
-			if (youth)
-			{
-				var onTab = await OpenSubpage(Screen.Squad, Screen.TeamTraining, () => Task.FromResult(true), Field(pick, "UniqueID"), bar: true);
-				if (onTab.StartsWith("error", StringComparison.Ordinal)) return Report(onTab);
-			}
-		}
-		var opened = youth ? "" : await OpenPage(Screen.Training);
+		if (await PickTrainingTeam(team) is { } failed) return failed;
+		var opened = await OpenTraining();
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return Report(opened);
+		var youth = trainingTeam != null;
 
 		// The page opened is the Training tab's Overview itself (its GUID): nothing is chosen by its words.
 		var state = await Fm.GetJson("state");
@@ -112,8 +137,9 @@ internal static partial class Program
 	/// </summary>
 	/// <param name="otherTeam">Another of the club's teams: its matches are not the first team's fixtures, so a day
 	/// without sessions is only marked as a match.</param>
-	private static async Task<List<TrainingDay>?> SessionDays(DateTime today, bool otherTeam = false)
+	private static async Task<List<TrainingDay>?> SessionDays(DateTime today, bool? otherTeam = null)
 	{
+		var other = otherTeam ?? trainingTeam != null;
 		List<(DateTime Day, int Index, string Type, string Name)> read = [];
 		var previous = "";
 		var seen = false;
@@ -136,13 +162,13 @@ internal static partial class Program
 			previous = now;
 			return settled;
 		}, seconds: 10, every: 0.5);
-		if (!seen) return otherTeam ? null : await CalendarDays();
+		if (!seen) return other ? null : await CalendarDays();
 
 		var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
 		var week = read.Where(x => x.Day >= monday && x.Day < monday.AddDays(14)).ToList();
 		if (week.Count == 0) return [];
 		var places = week.Max(x => x.Index) + 1;
-		var fixtures = otherTeam ? [] : await TeamFixtures() ?? [];
+		var fixtures = other ? [] : await TeamFixtures() ?? [];
 		return week.GroupBy(x => x.Day).Select(g =>
 		{
 			var date = g.Key.ToString("yyyy-MM-dd");
