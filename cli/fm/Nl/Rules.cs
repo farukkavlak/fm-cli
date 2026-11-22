@@ -335,6 +335,13 @@ internal static partial class Router
 					if (sets.Count > 0 && c.Args.ContainsKey("player")) c.Set("set", Arr(sets));
 				}
 			}),
+		// The staff's advice board; a single "tavsiye/öneri" stays with the dugout (the match assistant).
+		R("fm_advice", "tavsiyeler=5; tavsiyeleri=5; tavsiyelerin=5; ekibin tavsiye=6; ekip tavsiye=6; staff advice=6; staff recommendation=6; backroom=5; recommendations=5; advice list=6"),
+		// "hazırlık maçı" (a friendly) shares its words with "maç hazırlığı" (match prep): told apart by the whole phrase.
+		R("fm_friendly", "hazirlik maci=9; ozel mac=6; dostluk maci=6; friendly=6; friendlies=6", c =>
+			{
+				if (c.Has("deplasman", "away")) c.Set("away", true);
+			}),
 		R("fm_prep", "mac hazirligi=4; hazirlik odagi=4; topla oyunda odak=4; topsuz odak=4; duran top odagi=4; match prep=4; preparation focus=4", c =>
 			{
 				if (c.Has("topsuz", "out of possession", "without the ball")) c.Set("slot", "topsuz");
@@ -506,6 +513,15 @@ internal static partial class Router
 				else if (pos != null) c.Set("position", pos);
 				if (role is { } rr) c.Set("role", rr.Value);
 				if (c.Has("topsuz", "out of possession", "without the ball")) c.Set("without_ball", true);
+			}),
+		// "kişisel rol" would go to the role rule by its "rol"; the personalised-role tool is told by the whole phrase.
+		R("fm_tactic_personal", "kisisel rol=6; kisisel rolu=6; kisisel rolleri=6; kisisellestir=6; kisisellestirilmis=6; ozel rol=5; " +
+			"personalised role=6; personalized role=6; personalise=6; personalize=6; personalised roles=6", c =>
+			{
+				var pos = c.Positions().Select(p => p.Value).FirstOrDefault();
+				if (pos != null) c.Set("position", pos);
+				else if (c.Name() is string n) c.Set("position", n);
+				if (c.Args.ContainsKey("position")) c.Set("on", !c.Has("kapat", "kaldir", "off", "remove", "turn off"));
 			}),
 		R("fm_tactic_new", "yeni taktik=4; dizilisi degistir=4; formasyon degistir=4; #formation=2.5; hangi dizilisler=4; new tactic=4; change formation=4; back three=2", c =>
 			{

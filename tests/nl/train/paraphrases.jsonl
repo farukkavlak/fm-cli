@@ -788,3 +788,48 @@
 {"en": "type the nickname Lion into the box", "call": "fm_type", "args": {"text": "Lion"}}
 {"en": "put Iron Man in that box", "call": "fm_type", "args": {"text": "Iron Man"}}
 {"en": "type King in the empty box", "call": "fm_type", "args": {"text": "King"}}
+{"tr": "ekip ne tavsiye ediyor", "call": "fm_advice", "args": {}}
+{"tr": "staffın önerileri", "call": "fm_advice", "args": {}}
+{"tr": "antrenörler ne öneriyor kadro için", "call": "fm_advice", "args": {}}
+{"tr": "tavsiye listesi", "call": "fm_advice", "args": {}}
+{"tr": "teknik ekibin önerilerini göster", "call": "fm_advice", "args": {}}
+{"tr": "ekipten tavsiye var mı", "call": "fm_advice", "args": {}}
+{"tr": "yardimci antrenor tavsiyeleri", "call": "fm_advice", "args": {}}
+{"tr": "kulübün personeli ne öneriyor", "call": "fm_advice", "args": {}}
+{"tr": "transfer tavsiyesi var mı ekipten", "call": "fm_advice", "args": {}}
+{"tr": "kadro tavsiyelerini aç", "call": "fm_advice", "args": {}}
+{"tr": "tavsiyeleri oku", "call": "fm_advice", "args": {}}
+{"en": "staff recommendations", "call": "fm_advice", "args": {}}
+{"en": "what does the backroom staff suggest", "call": "fm_advice", "args": {}}
+{"en": "any staff advice", "call": "fm_advice", "args": {}}
+{"en": "show me the advice from my coaches", "call": "fm_advice", "args": {}}
+{"en": "list the staff suggestions", "call": "fm_advice", "args": {}}
+{"en": "advice from the assistant manager about the squad", "call": "fm_advice", "args": {}}
+{"en": "what are my staff recommending for transfers", "call": "fm_advice", "args": {}}
+{"en": "open the advice list", "call": "fm_advice", "args": {}}
+{"tr": "hazırlık maçı ayarlamak istiyorum", "call": "fm_friendly", "args": {}}
+{"tr": "bir hazırlık maçı organize et", "call": "fm_friendly", "args": {}}
+{"tr": "hazırlık maçı bul", "call": "fm_friendly", "args": {}}
+{"tr": "özel maç ayarla", "call": "fm_friendly", "args": {}}
+{"tr": "dostluk maçı yap", "call": "fm_friendly", "args": {}}
+{"tr": "hazırlık maçı yapalım devre arasında", "call": "fm_friendly", "args": {}}
+{"tr": "hazirlik maci organize et", "call": "fm_friendly", "args": {}}
+{"tr": "kampta hazırlık maçı oynayalım", "call": "fm_friendly", "args": {}}
+{"tr": "özel maç kimlerle yapabiliriz", "call": "fm_friendly", "args": {}}
+{"tr": "bir hazırlık maçı daha ekle", "call": "fm_friendly", "args": {}}
+{"en": "organise a friendly", "call": "fm_friendly", "args": {}}
+{"en": "set up a friendly match", "call": "fm_friendly", "args": {}}
+{"en": "schedule a pre-season friendly", "call": "fm_friendly", "args": {}}
+{"en": "arrange a friendly game", "call": "fm_friendly", "args": {}}
+{"en": "book a friendly", "call": "fm_friendly", "args": {}}
+{"en": "add another friendly", "call": "fm_friendly", "args": {}}
+{"en": "friendly match options", "call": "fm_friendly", "args": {}}
+{"tr": "rolü oyuncuya özel yap", "call": "fm_tactic_personal", "args": {}}
+{"tr": "kişisel rol", "call": "fm_tactic_personal", "args": {}}
+{"tr": "kisisel rolleri goster", "call": "fm_tactic_personal", "args": {}}
+{"tr": "oyuncuya özel rol ver", "call": "fm_tactic_personal", "args": {}}
+{"tr": "kişisel rolü kaldır", "call": "fm_tactic_personal", "args": {}}
+{"tr": "hangi oyuncunun rolü kişisel", "call": "fm_tactic_personal", "args": {}}
+{"en": "make the role personal for the striker", "call": "fm_tactic_personal", "args": {}}
+{"en": "turn on personalised role", "call": "fm_tactic_personal", "args": {}}
+{"en": "which players have personalised roles", "call": "fm_tactic_personal", "args": {}}
