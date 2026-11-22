@@ -3024,3 +3024,4 @@ Steam is not running. Open Steam and sign in, then: fm start	Steam açık değil
 First start: BepInEx reads the game once, this takes a minute or two…	İlk açılış: BepInEx oyunu bir kez okuyor, bir iki dakika sürer…
 {0} is already in the match squad; the game would only swap the two. Name someone outside the squad, or empty the place: tactic player {1} --clear	{0} zaten maç kadrosunda; oyun yalnızca ikisinin yerini değiştirir. Kadro dışından birini yaz ya da yeri boşalt: tactic player {1} --clear
 {0} The team has no set piece routines, and the game will not start the match without them. To set them up: setpieces new   ·   then: match	{0} Takımın duran top düzenleri kurulmamış; oyun maçı bunlar olmadan başlatmıyor. Kurmak için: setpieces new   ·   sonra: match
+The game lists loan and transfer responses together.	Oyun kiralık ve transfer yanıtlarını birlikte listeliyor.

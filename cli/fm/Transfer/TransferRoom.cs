@@ -98,8 +98,11 @@ internal static partial class Program
 			if (tab.ValueKind != JsonValueKind.Object) return "error: the view's tab is not on the page";
 			await Fm.Get("click", ("ptr", Field(tab, "Pointer")));
 		}
-		var kind = await RoomButton(b => Field(b, "Name") == (loan ? "loans-tab-button" : "transfers-tab-button"));
+		// 27.1's responses view has one table (responses-table) and no transfer/loan tabs.
+		var kind = await RoomButton(b => Field(b, "Name") == (loan ? "loans-tab-button" : "transfers-tab-button")
+		                                 || (Field(b, "Type") == "StreamedTable" && Field(b, "Name") == "responses-table" && Field(b, "Visible") == "True"));
 		if (kind.ValueKind != JsonValueKind.Object) return "error: the transfer and loan tabs are not on the page";
+		if (Field(kind, "Type") == "StreamedTable") return null;
 		await Fm.Get("click", ("ptr", Field(kind, "Pointer")));
 		return null;
 	}
@@ -121,6 +124,8 @@ internal static partial class Program
 			var seen = (await Fm.GetJson("rowtexts", ("has", has), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
 				.Where(r => Field(r, "Table") == pointer).ToList();
 			if (seen.Count == 0) return false;
+			// A list just switched to fills in over a few frames: its count is taken once two readings agree.
+			var before = count;
 			count = seen[0].GetProperty("Count").GetInt32();
 			var fresh = seen.Where(r => !rows.ContainsKey(r.GetProperty("Index").GetInt32())).ToList();
 			var data = await PullEach(fresh.Select(r => (Field(r, "Item"), props)).ToList());
@@ -129,7 +134,7 @@ internal static partial class Program
 				var index = row.GetProperty("Index").GetInt32();
 				rows[index] = new RoomRow(index, read);
 			}
-			return true;
+			return count == before;
 		}
 
 		await Until(Take, seconds: 3, every: 0.2);
@@ -328,9 +333,18 @@ internal static partial class Program
 	private static async Task<int> RoomResponses(bool json, bool loan)
 	{
 		if (await RoomView(RoomIn, RoomOut, "HumanAdvertsResponsesTabString", loan) is { } failed) return Report(failed);
-		var name = loan ? "responses-loans-table" : "responses-transfers-table";
-		var (_, rows) = await RoomRows(name, "binding.PositionCombinedString", "Person.Name,Person.PositionCombinedString,Person.Age,Person.Club.Name,IsDofRecommendation");
-		var players = rows.Select(r => new { Player = Field(r.Data, "Person.Name"), Position = GameWords.Of(Field(r.Data, "Person.PositionCombinedString")), Age = Field(r.Data, "Person.Age"), Club = Field(r.Data, "Person.Club.Name") }).ToList();
+		// 27.0 kept transfer and loan responses in two tables; 27.1 has one (responses-table) with a filter above it,
+		// and a response carries nothing that tells a loan from a transfer.
+		var split = loan ? "responses-loans-table" : "responses-transfers-table";
+		var one = await RoomButton(b => Field(b, "Type") == "StreamedTable" && Field(b, "Name") == "responses-table" && Field(b, "Visible") == "True", seconds: 2);
+		var name = one.ValueKind == JsonValueKind.Object ? "responses-table" : split;
+		if (name == "responses-table" && loan && !json) Console.WriteLine(L("The game lists loan and transfer responses together."));
+		// In the one table a row's item is the player himself (Name, Age… beside IsDofRecommendation) and its
+		// position is not a text of its own: rows are told by their value instead.
+		var who = name == "responses-table" ? "" : "Person.";
+		var (_, rows) = await RoomRows(name, who.Length == 0 ? "binding.TransferValueRangeString" : "binding.PositionCombinedString",
+			$"{who}Name,{who}PositionCombinedString,{who}Age,{who}Club.Name,IsDofRecommendation");
+		var players = rows.Select(r => new { Player = Field(r.Data, $"{who}Name"), Position = GameWords.Of(Field(r.Data, $"{who}PositionCombinedString")), Age = Field(r.Data, $"{who}Age"), Club = Field(r.Data, $"{who}Club.Name") }).ToList();
 		if (json) { Console.WriteLine(JsonOut.Of(players)); return 0; }
 		if (players.Count == 0) { Console.WriteLine(L("No response to your requirements yet.")); return 0; }
 		Table.Write([L("PLAYER"), L("POSITION"), L("AGE"), L("CLUB")], players.Select(p => new[] { p.Player, p.Position, p.Age, p.Club }).ToList());

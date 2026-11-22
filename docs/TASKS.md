@@ -23,13 +23,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - 19 Nov: goalkeeper up front and a striker in goal, a day on: still "no advice" (the game's own panel says so too)
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
   - [ ] A player asking for a new contract: not met yet
-- [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet
-  - 19 Nov: evasive answers at a post-match conference (TR): the journalist moved on, no pressing
-  - 21 Nov (EN, MCP): signing unveiling, a neutral answer was pressed ("The public will want to hear a proper answer") with the same five lines; shown and answered fine. TR still to see
-  - 22 Nov (TR): a post-match conference of 10 questions attended and answered neutral throughout ("no comment" too): shown and closed fine, no pressing
 - [ ] T79 leftovers, fixed but still to see live
   - [ ] (play path seen fixed 16 May 2038: report after the full-time talk; instant fallback still to see, now told by the fixture's day, unit-tested; normal path seen 3/3 21 Nov, EN 1 TR 2) `fm_match mode=instant` sometimes says "Match report is not ready yet; the game's last fixture has not changed" though the match was played (fixtures shows the score); 2 of ~100 instant matches (19 Dec 2037 sacking day, 21 Mar 2038 AZ) and once after `mode=play` (9 May 2038: "the game's last fixture is still Sparta Rotterdam 0-1 FC Volendam" — the match just played): the "last fixture before" is read after the result has already landed, so the wait for a change never ends
-- [ ] T154 TransferRoom `responses` and `activity --loan` tables: need real responses to our adverts
 
 ## 10. Quality
 
