@@ -21,6 +21,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] Contract card: a later season's playing-time promise row (future-playing-times-list) now read with its name (TR seen 22 Nov, Malec); EN still to see
 - [ ] Contract card: a clause with two values (international caps wage rise: caps and wage) breaking a rule is shown red by the game's row colour only; the tool does not mark that row (no identity found yet), though it says a term breaks a rule
 - [ ] Contract card: `--term "Annual Wage Rise=0"` answers with an empty list of choices
+- [ ] `tactic advice` names a position by the game's own short form in its critique ("MCR" / "OSMSğ") while `tactic` and `tactic role` take "MR (centre)" / "OM (sağ)": find the critique's position field and show it as `tactic` does (T14 seen 22 Nov: TR 3/3, EN, gone once the role was changed, back when changed back)
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 
@@ -35,7 +36,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 ## 13. Later (v2)
 
-- [ ] `tactic advice` with a real critique (T14): the game said "no advice" in every save tried
 - [ ] `dugout` mentality card ("Set team mentality") seen live and read back (T160); not met in 15+ matches
 - [ ] A penalty shootout seen in a TR match (its board's score); not caught so far
 - [ ] Change a youth team's schedule (`schedule set/style/copy --team`); reading it works (`schedule --team`, 22 Nov)
