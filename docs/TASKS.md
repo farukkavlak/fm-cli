@@ -35,6 +35,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] A penalty shootout seen in a TR match (its board's score); not caught so far
 - [ ] T21 Opposition scouting priorities (`ScoutTeam`: `actions <next opponent> "Get Team Report›…"` asks for it; the priorities screen not found)
 - [ ] Youth team training schedule: `responsibilities take` hands it over, but `schedule` only drives the first team; the youth team's own schedule page is still to find
+  - 22 Nov: a team is known by `Human.Club.Teams` (UniqueID, TeamType 0 first team / 3 B team / 11 U19); its schedule is the Training page `9925aa51…` on that team's own tab menu
+  - [ ] `fm open "<youth team>"` (Squad › Jong Sparta, Sparta Rotterdam 19YA) says opened but the first team's squad stays up; the youth team's tab must really open first
 - [ ] `fm watch`: report when a player or value changes
 - [ ] A web dashboard (the plugin already speaks HTTP)
 - [ ] AI v2: see `AI.md`
