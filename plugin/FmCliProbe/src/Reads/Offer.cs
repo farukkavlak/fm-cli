@@ -114,6 +114,12 @@ internal static class Offer
 				case "binding_expect" when contract && section.Length > 0 && Within(element, "add-on-list"):
 					if (Row(element, section) is { } promise) { rows.Add(promise); return; }
 					break;
+				// A playing-time promise for a later season (one row a season, its name the season's, a target
+				// beside it): items of future-playing-times-list, read as the stage's own terms (they were read as
+				// unnamed offer-wide choices and locks).
+				case "binding_expect" when contract && Within(element, "future-playing-times-list"):
+					if (Row(element, "", key: "future-playing-time") is { } later) { rows.Add(later); return; }
+					break;
 				// The text before the entire offer's lock is its name, shown only.
 				case "text" when contract:
 					try { lastText = Text.Plain(element.TryCast<TextElement>()?.text ?? ""); } catch { }
