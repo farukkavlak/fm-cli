@@ -552,15 +552,7 @@ internal static partial class Program
 				break;
 			case "Tactics" or "SubmitTeam":
 				output.WriteLine(L("Match day. To play: match"));
-				// The eleven and bench when the tactics screen tells; a clean side says nothing, even
-				// with others injured. Without the screen, the squad's injured are only named.
-				if (await HurtInSide() is { } hurt)
-				{
-					if (hurt.Count > 0)
-						output.WriteLine(L($"Note: injured but picked ({string.Join(", ", hurt)}). The game may still let them play, at the risk of making it worse; to leave one out: tactic player <position> <player>"));
-				}
-				else if (await InjuredSquad() is { Count: > 0 } injured)
-					output.WriteLine(L($"Injured: {string.Join(", ", injured)}. The game may still let them play, at the risk of making it worse; check: squad --fitness · change: tactic player <position> <player>"));
+				if (await InjuryNote() is { } note) output.WriteLine(note);
 				break;
 			case "TeamNews": output.WriteLine(L("The game is waiting for the pre-match team news.")); break;
 			case "TeamTalk": output.WriteLine(L("The game is waiting for a team talk.")); break;

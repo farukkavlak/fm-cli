@@ -19,7 +19,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 ![fm status](manual/img/start/status.png)
 
-- `status` names injured players when the match is today or tomorrow.
+- `status` names injured players when the match is today or tomorrow: the picked ones when the tactics screen is up, otherwise the squad's.
 - `next` stops for an unanswered message, a press conference, match day, or a question after a match.
 - With the game's "Read Messages" setting, `next` first opens the unread messages, oldest first, as the game does.
 - `inbox --read-all` marks every message read at once.

@@ -274,12 +274,13 @@ internal static partial class Program
 		if (took)
 			try
 			{
-				var injured = (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
-					.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).ToList();
-				bool Hurt(string shown) => shown.Length > 0 && injured.Any(n => n.EndsWith(shown, StringComparison.Ordinal));
-				var stillOnBench = after.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "PlayerIndex") == Field(place, "PlayerIndex"));
-				if (Hurt(name)) Console.WriteLine(L($"Note: {name} is injured; the game may still let them play, at the risk of making it worse."));
-				if (Hurt(current) && stillOnBench) Console.WriteLine(L($"Note: {current} is injured and now on the bench. To take them out of the squad: tactic player {current} <player>, or tactic player {current} --clear"));
+				// Known by the player's own index, which the squad's data and the selection share.
+				var injured = (await Fm.Pull("Human.Team.Players", "Name,Index,IsInjured", list: true)).EnumerateArray()
+					.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Index")).ToHashSet();
+				var gone = Field(place, "PlayerIndex");
+				var stillOnBench = after.TryGetProperty("Squad", out var bench) && bench.EnumerateArray().Any(e => Field(e, "PlayerIndex") == gone);
+				if (injured.Contains(player)) Console.WriteLine(L($"Note: {name} is injured; the game may still let them play, at the risk of making it worse."));
+				if (gone is { Length: > 0 } and not "-1" && injured.Contains(gone) && stillOnBench) Console.WriteLine(L($"Note: {current} is injured and now on the bench. To take them out of the squad: tactic player {current} <player>, or tactic player {current} --clear"));
 			}
 			catch (FmError) { }
 		if (took && at >= 0) await ShowChange([(at, false), (at, true)]);

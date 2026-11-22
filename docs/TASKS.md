@@ -84,7 +84,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [x] T80 A third language: one month through the CLI, sweep passes
   - 22 Nov (FM 27.1, German): OH Leuven to 23 Sep 2035, 5 matches (1 live), offers, sales confirmed, registration, injury, talk; calendar right now; sweep 63/63, nothing empty against English
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
-- [ ] T82 Epic Games Store (macOS and Windows): install, one month, stop
 - [ ] T83 A clean machine, README only
   - 21 Nov: package installed into an empty home from a zip marked as downloaded: fm was refused (quarantine) until install.sh cleared the mark; now it does, and the README says `zsh install.sh`, PATH, a career saved first, MCP setup
   - [x] Release: repository public; v0.9.0 with the zip and `nl-mpnet-l-q` (21 Nov: the zip downloaded without login, installed into an empty home, model downloaded)
@@ -96,12 +95,12 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
   - [x] `tactic player <substitute> <someone in the squad>`: the game swaps the two, the tool said the first was out; now refused with `--clear` named (EN 4/4, TR 3/3, outsider still taken)
   - [x] No set piece routines: a watched match is refused with the game's own notice, the tool said `tactic pick`; now known by the wizard's Start on the match-day screen and says `setpieces new` (EN 3/3, TR 3/3; ten men still say `tactic pick`; an instant match plays without routines)
   - [x] `reply` read the game's "are you sure" window before its buttons were drawn and left it open (EN, delegated press); now read again once it has buttons (EN seen confirmed)
-  - [ ] `status` names the injured as possibly playing a day before the match even when none is picked; who is picked needs the tactics page
+  - [x] `status` named the injured as possibly playing even when none was picked: with the tactics screen up it names only the picked (by the player's own index, as `tactic player`'s notes now do too); without it they are named as the squad's injured, pointing at `tactic` (TR 3/3, EN 3/3, none picked says nothing). The team's projected lineup is the assistant's guess, not the selection
 
 ## 12. Final check (the last box)
 
 - [ ] T85 Audit `cli/fm` and the plugin: nothing held by text, order, position or a fixed wait
-  - Swept clean 19, 21 and 22 Nov (after T78, T79, T80, T84, T172): no new text, order or fixed-wait dependency; run again after T81–T83
+  - Swept clean 19, 21 and 22 Nov (after T78, T79, T80, T84, T172): no new text, order or fixed-wait dependency; run again after T81 and T83
   - 21 Nov: the instant result's "match before" check held by the fixture's day (`FixtureDate`), not the opponent's name; the old key read a `Date` the fixture does not have (empty, and a 1.5 s wait each read)
   - Weakest still held: game words asked of the game's own table (registration flags, offer locks, `Response Required`); they work in every language, but lean on the game's English keys
 

@@ -116,8 +116,24 @@ internal static partial class Program
 			: "";
 
 	/// <summary>
-	/// The injured among the eleven and the bench, as the tactics screen of a match day has them
-	/// (by surname); null when the screen is not up, so no page is opened for it.
+	/// What to say about the injured before a match, or null for nothing. With the tactics screen up, only the
+	/// injured among the eleven and the bench are named; without it nobody can tell who is picked (the team's
+	/// own data has the assistant's projected side, not the selection), so the squad's injured are named as such.
+	/// </summary>
+	private static async Task<string?> InjuryNote()
+	{
+		if (await HurtInSide() is { } hurt)
+			return hurt.Count > 0
+				? L($"Note: injured but picked ({string.Join(", ", hurt)}). The game may still let them play, at the risk of making it worse; to leave one out: tactic player <position> <player>")
+				: null;
+		return await InjuredSquad() is { Count: > 0 } injured
+			? L($"Injured in the squad: {string.Join(", ", injured.Select(p => p.Name))}. Whether one is picked shows in: tactic   ·   to leave one out: tactic player <position> <player>")
+			: null;
+	}
+
+	/// <summary>
+	/// The injured among the eleven and the bench, as the tactics screen has them: known by the player's own
+	/// index, which the selection and the squad share. Null when the screen is not up, so no page is opened for it.
 	/// </summary>
 	private static async Task<List<string>?> HurtInSide()
 	{
@@ -125,20 +141,22 @@ internal static partial class Program
 		{
 			var tactic = await Fm.GetJson("tactic");
 			if (!tactic.TryGetProperty("Slots", out var slots)) return null;
-			var picked = slots.EnumerateArray().Select(s => Field(s, "Player")).Concat(Bench(tactic)).Where(n => n.Length > 0).ToList();
-			var injured = await InjuredSquad();
-			return picked.Where(n => injured.Any(full => full == n || full.EndsWith(" " + n, StringComparison.Ordinal))).ToList();
+			List<JsonElement> bench = tactic.TryGetProperty("Squad", out var squad) ? [.. squad.EnumerateArray()] : [];
+			var picked = slots.EnumerateArray().Concat(bench).Select(e => Field(e, "PlayerIndex"))
+				.Where(i => i.Length > 0 && i != "-1").ToHashSet();
+			return (await InjuredSquad()).Where(p => picked.Contains(p.Index)).Select(p => p.Name).ToList();
 		}
 		catch (FmError) { return null; }
 	}
 
-	/// <summary>The injured in the squad, from its data; no page opened.</summary>
-	private static async Task<List<string>> InjuredSquad()
+	/// <summary>The injured in the squad, by the player's own index and name, from its data; no page opened.</summary>
+	private static async Task<List<(string Index, string Name)>> InjuredSquad()
 	{
 		try
 		{
-			return (await Fm.Pull("Human.Team.Players", "Name,IsInjured", list: true)).EnumerateArray()
-				.Where(p => Field(p, "IsInjured") == "True").Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList();
+			return (await Fm.Pull("Human.Team.Players", "Name,Index,IsInjured", list: true)).EnumerateArray()
+				.Where(p => Field(p, "IsInjured") == "True" && Field(p, "Name").Length > 0)
+				.Select(p => (Field(p, "Index"), Field(p, "Name"))).ToList();
 		}
 		catch (FmError) { return []; }
 	}
