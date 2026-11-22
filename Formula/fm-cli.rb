@@ -2,9 +2,9 @@
 class FmCli < Formula
   desc "Play Football Manager 27 from the terminal and over MCP"
   homepage "https://github.com/farukkavlak/fm-cli"
-  url "https://github.com/farukkavlak/fm-cli/releases/download/v0.9.2/fm-cli-osx-arm64.zip"
-  version "0.9.2"
-  sha256 "c7739062259f1c847f95db9e22fba5fe133101d45b8bf61b4adf5fc1b26c6917"
+  url "https://github.com/farukkavlak/fm-cli/releases/download/v0.9.3/fm-cli-osx-arm64.zip"
+  version "0.9.3"
+  sha256 "eff57a95c6360d2787f335c01f3e72f36924c894bfbbf94b552410c92aabb045"
   license "MIT"
 
   depends_on arch: :arm64
