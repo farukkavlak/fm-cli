@@ -18,7 +18,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 ## 10. Quality
 
 - [ ] T173 First start under a fresh macOS user: which permission prompts (Accessibility, Screen Recording) window hiding and `/shot` raise, and whether the tool says so. The clean install (T83, 22 Nov) ran on a machine that had granted them already
-- [ ] Contract card: a later season's playing-time promise row (future-playing-times-list) now read with its name (TR seen 22 Nov, Malec); EN still to see
 - [ ] `tactic advice` names a position by the game's own short form in its critique ("MCR" / "OSMSğ") while `tactic` and `tactic role` take "MR (centre)" / "OM (sağ)": find the critique's position field and show it as `tactic` does (T14 seen 22 Nov: TR 3/3, EN, gone once the role was changed, back when changed back)
   - 22 Nov: the critique is one finished text (EvaluationCritiques is a list of strings) and its short form ("OSMSğ") is in neither the engine's position codes nor the translation file: no identity yet
   - 22 Nov, later: the slots carry only masks (TacticsPositionReference has no short name; a mask's shown text is its number); the engine file's codes hold MC as "OM" only and no "Sğ" for R; the UI table has neither "OSMSğ" nor "OOSM": the game builds the short form in its code
