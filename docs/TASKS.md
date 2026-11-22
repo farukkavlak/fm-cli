@@ -17,8 +17,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T160 `dugout` mentality card ("Set team mentality"): read back from the match tactic's `Mentality`; see one live
   - Not met in 12 hunt matches (19 Nov), starting attacking or very defensive. A debug event sent to the dugout made no card
 - [ ] T171 `dugout apply` cards read back by what they change
-  - Opposition instruction card: read back by the man's UniqueId (his Pressing 0 → 2), live TR 1/3. Left: 2 more, and EN
-  - A card that takes a team instruction off: not met yet
+  - Opposition instruction card: read back by the man's UniqueId (his Pressing 0 → 2), live TR 3/3 (22 Nov: tight marking on Axwijk, pressing on Mpudi). Left: EN
+  - A card that takes a team instruction off: TR 1/1 (22 Nov, 34': "Work Ball Into Box" in place of "Play Patiently"; the game asked, `dugout apply --yes` sent it, read back as applied, and the patience group then held the new one). Left: EN
 - [ ] T158 The game's own fatal-error window: the tool says so (exit 70) and `fm stop` ends it
   - Seen once 22 Nov (TR; BepInEx's copy of the game was from before Steam's 27.1 update minutes earlier): `status` said so, `fm stop --no-save` ended it; EN still to see
   - Sign: the main thread in `-[NSAlert runModal]`. Its only known trigger went with T92's fix
@@ -27,13 +27,12 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] T61 Contract renewals: a player asking, an unhappy player's demand
   - [ ] A player asking for a new contract: not met yet
 - [ ] T63 Match: substitution screen, shouts, set pieces edited in a match
-  - Left: a shootout in a TR match (its board's score)
+  - Left: a shootout in a TR match (its board's score). 22 Nov: a cup tie steered for a draw (goalkeeper off, very attacking) still ended 0-2
 - [ ] T98 `talk`: a journalist pressing with the same answers. Not met again yet
   - 19 Nov: evasive answers at a post-match conference (TR): the journalist moved on, no pressing
   - 21 Nov (EN, MCP): signing unveiling, a neutral answer was pressed ("The public will want to hear a proper answer") with the same five lines; shown and answered fine. TR still to see
 - [ ] T79 leftovers, fixed but still to see live
   - [ ] (play path seen fixed 16 May 2038: report after the full-time talk; instant fallback still to see, now told by the fixture's day, unit-tested; normal path seen 3/3 21 Nov, EN 1 TR 2) `fm_match mode=instant` sometimes says "Match report is not ready yet; the game's last fixture has not changed" though the match was played (fixtures shows the score); 2 of ~100 instant matches (19 Dec 2037 sacking day, 21 Mar 2038 AZ) and once after `mode=play` (9 May 2038: "the game's last fixture is still Sparta Rotterdam 0-1 FC Volendam" — the match just played): the "last fixture before" is read after the result has already landed, so the wait for a change never ends
-  - [ ] (fixed, to see live) `next` stop on our own bid accepted ("<club> accept bids for <player>") says "Transfer offer waiting … reject: fm_offers …", the incoming-offer hint
 - [ ] T154 TransferRoom `responses` and `activity --loan` tables: need real responses to our adverts
 
 ## 10. Quality
