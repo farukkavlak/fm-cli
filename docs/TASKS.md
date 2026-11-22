@@ -101,7 +101,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 ## 12. Final check (the last box)
 
 - [ ] T85 Audit `cli/fm` and the plugin: nothing held by text, order, position or a fixed wait
-  - Swept clean 19 Nov and 21 Nov (after T78, T79): no new text, order or fixed-wait dependency; run again after T80–T84
+  - Swept clean 19, 21 and 22 Nov (after T78, T79, T80, T84, T172): no new text, order or fixed-wait dependency; run again after T81–T83
   - 21 Nov: the instant result's "match before" check held by the fixture's day (`FixtureDate`), not the opponent's name; the old key read a `Date` the fixture does not have (empty, and a 1.5 s wait each read)
   - Weakest still held: game words asked of the game's own table (registration flags, offer locks, `Response Required`); they work in every language, but lean on the game's English keys
 
