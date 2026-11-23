@@ -11,7 +11,7 @@ internal static partial class Program
 	internal static readonly (string Name, string Turkish, string About, string[] Commands)[] HelpGroups =
 	[
 		("start", "baslat", "Start, save and move on",
-			["status", "start", "stop", "continue", "next", "holiday", "inbox", "reply", "talk", "dialog", "news", "doctor", "diff",
+			["status", "start", "stop", "continue", "next", "go", "holiday", "inbox", "reply", "talk", "dialog", "news", "doctor", "diff",
 			 "saves", "save", "load", "world", "tour", "help"]),
 		("squad", "kadro", "The squad and its players",
 			["squad", "player", "compare", "health", "depth", "happiness", "dynamics", "meeting", "captains", "numbers", "register",
@@ -33,7 +33,7 @@ internal static partial class Program
 			["pages", "open", "buttons", "press", "dropdowns", "select", "type", "actions", "crawl"]),
 	];
 
-	private static readonly string[] UsedMost = ["status", "next", "squad", "inbox", "match"];
+	private static readonly string[] UsedMost = ["status", "next", "go", "squad", "inbox", "match"];
 
 	private static (string Name, string Turkish, string About, string[] Commands)? HelpGroup(string word)
 	{

@@ -95,6 +95,7 @@ fm start          # open the game hidden, load the last save
 fm status         # date, next match, what is waiting
 fm inbox          # messages, numbered; fm reply 3 to open one
 fm next           # continue; stops at anything that needs an answer
+fm go             # on to match day, with what came in on the way
 fm match          # play match day (--instant for a quick result)
 fm save --yes     # save the game
 fm stop           # close the game (asks to save first: --save / --no-save)

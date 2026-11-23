@@ -12,6 +12,7 @@ fm start          # launch the game, load the last save, enter a session
 fm status         # date, next match, what is waiting
 fm next           # continue; stops at a real blocker
 fm next --until match    # on to match day (or the first thing that wants an answer)
+fm go             # the same in two letters (macgunu in Turkish)
 fm holiday week|month|match   # the assistant runs the club until then
 fm continue       # load the last save in the open game
 fm stop [--save|--no-save]    # close the game; asks about saving first

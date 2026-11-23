@@ -43,7 +43,6 @@ Output
 
 Playing
 
-- [ ] T190 One short command to go on to match day, with the news on the way (T174's lines)
 - [ ] T191 `prep` as one pre-match screen: opponent report, picked side, injuries, tactic familiarity
 - [ ] T192 A reminder in the prompt when no save has been made for N game days (says it, never saves)
 
