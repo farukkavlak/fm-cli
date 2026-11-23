@@ -100,7 +100,14 @@ internal static partial class Program
 			if (picked.StartsWith("error", StringComparison.Ordinal)) { await Leave(); return Report(picked); }
 			if (await Button("EventFmxCommitTrainingWeekFromCard") is not { } confirm) { await Leave(); return 1; }
 			await Fm.Get("press", ("ptr", Field(confirm, "Pointer")));
-			await Until(async () => await Button("EventFmxCommitTrainingWeekFromCard") == null, seconds: 6, every: 0.3);
+			async Task<string?> Asked() => (await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } open && open.GetArrayLength() > 0 ? DialogWords(open[0], "Title") : null;
+			await Until(async () => await Button("EventFmxCommitTrainingWeekFromCard") == null || await Asked() != null, seconds: 6, every: 0.3);
+			// A team whose coach leads its general training: the game asks whether the manager takes it over. That is his to answer.
+			if (await Asked() is { } question)
+			{
+				Console.Error.WriteLine(L($"The game asks: {question} — answer it with: dialog"));
+				return 1;
+			}
 			// Read back from the calendar: the same day and place now carries the session.
 			string now = "";
 			var landed = await Until(async () => await Find() is { ValueKind: JsonValueKind.Object } b && (now = Field(b, "Label")) is { Length: > 0 }

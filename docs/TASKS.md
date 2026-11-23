@@ -21,6 +21,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 - [ ] `tactic advice` names a position by the game's own short form in its critique ("MCR" / "OSMSğ") while `tactic` and `tactic role` take "MR (centre)" / "OM (sağ)": find the critique's position field and show it as `tactic` does (T14 seen 22 Nov: TR 3/3, EN, gone once the role was changed, back when changed back)
   - 22 Nov: the critique is one finished text (EvaluationCritiques is a list of strings) and its short form ("OSMSğ") is in neither the engine's position codes nor the translation file: no identity yet
   - 22 Nov, later: the slots carry only masks (TacticsPositionReference has no short name; a mask's shown text is its number); the engine file's codes hold MC as "OM" only and no "Sğ" for R; the UI table has neither "OSMSğ" nor "OOSM": the game builds the short form in its code
+  - 23 Nov: the bound critique row holds only the string; a player's own short forms (BestPositionShortString, PositionCombinedString) read "DOS, OS (M)", TacticsPositionName is empty outside a tactic context, the tactic's TeamSelectedPositionStringFromPlayer binds nothing; EN's "MCR" is the pitch tile's element name, TR's "OSMSğ" is in no field or table: still no identity
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 
@@ -37,7 +38,7 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 - [ ] `dugout` mentality card ("Set team mentality") seen live and read back (T160); not met in 15+ matches
 - [ ] A penalty shootout seen in a TR match (its board's score); not caught so far
-- [ ] Change a youth team's week style and copy/paste/clear (`schedule style/copy --team`); `schedule set --team` works (22 Nov: TR 4/4, EN 2/2, the first team untouched; refused with a word while the team's coach leads its training)
+- [ ] `schedule paste`: 27.1 lets only next week be changed and pastes within one team, so no second week to paste on was met (23 Nov); try where two weeks are open (a Monday, pre-season)
 - [ ] `fm watch`: report when a player or value changes
 - [ ] A web dashboard (the plugin already speaks HTTP)
 - [ ] AI v2: see `AI.md`

@@ -49,31 +49,45 @@ internal static partial class Program
 		var before = await Week();
 		await Fm.Get("press", ("ptr", Field(opener, "Pointer")));
 
-		// The card lays its weeks out one after another, each with its own three buttons: the place of the wanted
-		// week among the card's dates is the place of its buttons among those. What it did is read back below.
+		// Each week of the card is bound as its own node (…prefixNN) holding the week (its WeekStartDate) beside the
+		// row its buttons sit in: a button is the wanted week's when its node's week starts on that Monday.
+		// What it did is read back below.
 		JsonElement button = default;
+		string? weekNode = null;
 		await Until(async () =>
 		{
-			var all = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray().Where(b => Field(b, "Visible") == "True").ToList();
-			var mine = all.Where(b => Field(b, "Events").Contains(sent, StringComparison.Ordinal)).ToList();
+			var mine = (await Fm.GetJson("buttons", ("json", "1"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
+				.Where(b => Field(b, "Visible") == "True" && Field(b, "Events").Contains(sent, StringComparison.Ordinal)).ToList();
 			if (mine.Count == 0) return false;
-			// The card's weeks that can still be changed: their sessions are on, where its buttons are laid out.
-			var source = Field(mine[0], "Source");
-			var cut = source.LastIndexOf(".prefix", StringComparison.Ordinal);
-			var root = cut > 0 ? source[..cut] : source;
-			var days = await PullEach(all.Where(b => Field(b, "Events").Contains("EventFmxBeginTrainingWeekEditFromCard", StringComparison.Ordinal) && Field(b, "Sends").Length > 0 && Field(b, "Enabled") == "True" && Field(b, "Source").StartsWith(root, StringComparison.Ordinal))
-				.Select(b => (Field(b, "Sends"), "Date")).ToList());
-			var dates = days.Select(x => DateTime.TryParseExact(Field(x, "Date"), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var day) ? day : DateTime.MaxValue).Where(x => x != DateTime.MaxValue).ToList();
-			if (dates.Count == 0) return false;
-			var first = dates.Min();
-			var place = (monday - first.AddDays(-(((int)first.DayOfWeek + 6) % 7))).Days / 7;
-			button = place >= 0 && place < mine.Count ? mine[place] : default;
-			return true;
+			static string? WeekNode(string source)
+			{
+				var at = source.LastIndexOf(".prefix", StringComparison.Ordinal);
+				if (at < 0) return null;
+				var end = source.IndexOf('.', at + 1);
+				return end < 0 ? source : source[..end];
+			}
+			var nodes = mine.Select(b => WeekNode(Field(b, "Source"))).ToList();
+			var weeks = await PullEach(nodes.Where(n => n != null).Select(n => ($"{n}.week", "WeekStartDate")).ToList(), r => Field(r, "WeekStartDate").Length > 0);
+			var starts = new Queue<JsonElement>(weeks);
+			for (var i = 0; i < mine.Count; i++)
+			{
+				if (nodes[i] == null) continue;
+				if (Field(starts.Dequeue(), "WeekStartDate") == monday.ToString("yyyy-MM-dd")) { (button, weekNode) = (mine[i], nodes[i]); return true; }
+			}
+			return false;
 		}, seconds: 8, every: 0.25);
 		async Task Leave(string events)
 		{
 			if ((await Shown(events)) is { ValueKind: JsonValueKind.Object } leave) await Fm.Get("press", ("ptr", Field(leave, "Pointer")));
-			await Until(async () => (await Shown("EventFmxCommitTrainingWeekFromCard")).ValueKind != JsonValueKind.Object, seconds: 6, every: 0.25);
+			await Until(async () => (await Shown("EventFmxCommitTrainingWeekFromCard")).ValueKind != JsonValueKind.Object || await Asked() != null, seconds: 6, every: 0.25);
+		}
+		// A team whose coach leads its general training: the game asks whether the manager takes it over. That is his to answer.
+		async Task<string?> Asked() => (await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } open && open.GetArrayLength() > 0 ? DialogWords(open[0], "Title") : null;
+		async Task<bool> GameAsks()
+		{
+			if (await Asked() is not { } question) return false;
+			Console.Error.WriteLine(L($"The game asks: {question} — answer it with: dialog"));
+			return true;
 		}
 		if (button.ValueKind != JsonValueKind.Object)
 		{
@@ -92,14 +106,23 @@ internal static partial class Program
 			return 1;
 		}
 		await Fm.Get("press", ("ptr", Field(button, "Pointer")));
+		// The game's question comes as the button's event is handled: once the queue has run, it is up or it is not.
+		// Nothing is confirmed under it; the card stays open for the answer.
+		await Until(async () => (await Fm.Get("queue")).Split(' ')[0] == "0", seconds: 4, every: 0.1);
+		if (await GameAsks()) return 1;
 		if (what == "copy")
 		{
 			await Leave("EventFmxCommitTrainingWeekFromCard");
+			if (await GameAsks()) return 1;
 			Console.WriteLine(L("The week is copied. To put it on another: schedule paste <weeks ahead>"));
 			return 0;
 		}
 		await Leave("EventFmxCommitTrainingWeekFromCard");
-		var changed = await Until(async () => await Week() != before, seconds: 6, every: 0.5);
+		if (await GameAsks()) return 1;
+		// A cleared week is the game's plan again: its own week record stops offering a reset ("(Edited)" goes from
+		// its name), even where the sessions were the plan's already.
+		var changed = await Until(async () => await Week() != before
+			|| (what == "clear" && Field(await Fm.Pull($"{weekNode}.week", "CanResetTrainingSchedule"), "CanResetTrainingSchedule") == "False"), seconds: 6, every: 0.5);
 		Console.WriteLine(changed ? (what == "paste" ? L("The copied week is pasted.") : L("The week is cleared.")) : L("The game took it, but the sessions are as they were."));
 		return changed ? 0 : 1;
 	}

@@ -121,7 +121,7 @@ internal static partial class Program
 			                  --trait-remove "<t>" drop one · --trait-cancel · --yes: despite the assistant's objection
 			  prep            match preparation: the Match Preparation sessions up to the next match (change one: schedule set)
 			  schedule        the training schedule: this week and next, three sessions a day
-			  schedule --team <team>   another of the club's teams (the B team, the U19s): its schedule; set / style take --team too
+			  schedule --team <team>   another of the club's teams (the B team, the U19s): its schedule; set / style / copy / paste / clear take --team too
 			  schedule set <day> <1|2|3> [<session>]   change a session; with no session given choose it with the arrow keys
 			  schedule style <day> [<schedule>]        change that week's schedule (Tactical, Gegenpress…; --json: by number)
 			  schedule copy | paste | clear [this|<weeks ahead>]   the training week's own buttons (next week unless told)

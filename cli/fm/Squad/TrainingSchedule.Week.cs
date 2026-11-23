@@ -180,9 +180,16 @@ internal static partial class Program
 
 		// Read back: the card names the schedule, except a variant (the card says only the mix's name);
 		// then the week's sessions, by their kind, are what changed.
+		// A team whose coach leads its general training: the game asks whether the manager takes it over. That is his to answer.
+		async Task<string?> Asked() => (await Fm.GetJson("dialog")) is { ValueKind: JsonValueKind.Array } open && open.GetArrayLength() > 0 ? DialogWords(open[0], "Title") : null;
 		var now = current;
-		var landed = await Until(async () => (now = await Selector() is { } s ? Field(s, "Title") : now) == chosen.Name
+		var landed = await Until(async () => await Asked() != null || (now = await Selector() is { } s ? Field(s, "Title") : now) == chosen.Name
 			|| (now != current && await WeekSessions(day) != sessionsBefore), seconds: 6, every: 0.3);
+		if (await Asked() is { } question)
+		{
+			Console.Error.WriteLine(L($"The game asks: {question} — answer it with: dialog"));
+			return 1;
+		}
 		if (!landed && await WeekSessions(day) != sessionsBefore) landed = true;
 		if (!landed)
 		{
