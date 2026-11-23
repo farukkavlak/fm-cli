@@ -3070,3 +3070,13 @@ First time here, so in short:	İlk kez açıldığı için kısaca:
   Tab completes commands, options and our players' names; twice lists them.	  Tab komutu, seçeneği ve oyuncu adını tamamlar; iki kez basınca listeler.
   ? lists the commands; squad ? explains one.	  ? komutları listeler; squad ? birini açıklar.
   quit leaves the session; the game stays open.	  quit oturumdan çıkar; oyun açık kalır.
+Start, save and move on	Başlat, kaydet, ilerle
+The squad and its players	Kadro ve oyuncular
+Tactics, match day, competitions	Taktik, maç günü, turnuvalar
+Transfers, scouting and contracts	Transfer, gözlem, sözleşmeler
+Training	Antrenman
+The club, staff and board	Kulüp, personel, yönetim
+Settings, language and output	Ayarlar, dil, çıktı
+The game's screen, by hand	Oyunun ekranı, elle
+Used most: {0}	En çok kullanılan: {0}
+A group: help <group>   ·   a command: help <command> (or squad ?)   ·   everything: help --all	Bir grup: help <grup>   ·   bir komut: help <komut> (ya da squad ?)   ·   hepsi: help --all

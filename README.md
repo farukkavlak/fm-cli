@@ -98,7 +98,7 @@ fm next           # continue; stops at anything that needs an answer
 fm match          # play match day (--instant for a quick result)
 fm save --yes     # save the game
 fm stop           # close the game (asks to save first: --save / --no-save)
-fm help           # every command
+fm help           # the command groups; fm help squad: one group; fm help --all: every command
 ```
 
 During a match: `s` sub, `h` shout, `t` tactic, `v` view, `a` radar, `r` radar style, `+/-` speed, `:` any command.

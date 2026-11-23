@@ -49,11 +49,6 @@ Session (`fm›`)
 
 Help and finding things
 
-- [ ] T184 `help` in groups
-  - [ ] `help`: about 15 lines, one per group, and the five commands used most
-  - [ ] `help <group>`: start, squad, match, transfers, training, club, settings
-  - [ ] Every command in one group; a test fails when one is in none
-  - [ ] MANUAL and README follow the groups
 - [ ] T186 `todo`: what wants doing now, each line with its command
   - [ ] Waiting answers, offers, contract talks, injuries before a match, board concerns
   - [ ] Reads only what `status` and `doctor` read

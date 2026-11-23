@@ -300,7 +300,7 @@ internal static partial class Program
 				"start" => await Attach(args.Contains("--debug"), !args.Contains("--menu")),
 				"stop" => await Stop(args),
 				"lang" or "language" or "dil" => LanguageChoice(args),
-				"help" or "--help" or "-h" => args.Length > 1 && !args[1].StartsWith('-') ? HelpFor(args[1]) : Help(),
+				"help" or "--help" or "-h" => Help(args),
 				_ => Unknown(command),
 			};
 		}

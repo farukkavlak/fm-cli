@@ -24,6 +24,20 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - With the game's "Read Messages" setting, `next` first opens the unread messages, oldest first, as the game does.
 - `inbox --read-all` marks every message read at once.
 
+### Help
+
+- `help`: one line a group, the five commands used most. `help <group>`: that group's commands and options. `help <command>` or `<command> ?`: one command. `help --all`: everything (also what a pipe or script gets).
+- Groups, and where they are in this manual:
+  - `start`: start, save, move on, inbox (§1, §2, §10)
+  - `squad`: the squad and its players (§3, §4)
+  - `match`: tactics, match day, competitions (§5, §6, §7)
+  - `transfers`: transfers, scouting, contracts (§8)
+  - `training`: training (§5)
+  - `club`: the club, staff and board (§9)
+  - `settings`: settings, language, output (§10, §11)
+  - `tools`: the game's screen by hand (§12, §13)
+- Group words in Turkish work too: `kadro`, `mac`, `antrenman`, `kulup` …
+
 ### The session
 
 - `fm` alone (or `fm start`) opens the `fm›` prompt: commands without `fm`, until `quit` or ctrl-D.
