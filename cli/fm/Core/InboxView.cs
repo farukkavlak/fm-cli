@@ -12,41 +12,66 @@ internal static class InboxView
 	/// </summary>
 	public static void Draw(JsonElement inbox)
 	{
-		var table = new Spectre.Console.Table { Border = TableBorder.Rounded, BorderStyle = new Style(Color.Grey) }
-			.AddColumn(new TableColumn("[dim]#[/]").RightAligned())
-			.AddColumn(new TableColumn(""))
-			.AddColumn(new TableColumn(L("[dim]TIME[/]")))
-			.AddColumn(new TableColumn(L("[dim]FROM[/]")))
-			.AddColumn(new TableColumn(L("[dim]SUBJECT[/]")))
-			.AddColumn(new TableColumn(""));
-
 		var numbered = inbox.EnumerateArray().Select((m, i) => (Message: m, Number: i + 1)).ToList();
+		var rows = numbered.Select(x =>
+		{
+			var message = x.Message;
+			var unread = Field(message, "NewsItemHasBeenRead") != "True";
+			var title = Ui.Safe(Field(message, "NewsTitleString"));
+			var preview = GameWords.Of(Field(message, "NewsFirstBubbleSpeechString"));
+			var blocking = Program.Blocking(message);
+			var subject = (blocking ? $"[red bold]{title}[/]" : unread ? $"[bold]{title}[/]" : title)
+			              + (preview.Length > 0 ? $"\n[dim]{Ui.Safe(Ui.Fit(preview.Replace('\n', ' '), 90))}[/]" : "");
+			var state = blocking ? L("[red bold]awaiting an answer[/]")
+				: Program.Answerable(message) ? L("[yellow]can be answered[/]")
+				: "";
+			return (x.Number, Day: Field(message, "Date"), Blocking: blocking, Cells: new[]
+			{
+				$"[dim]{x.Number}[/]", unread ? "[deepskyblue1]●[/]" : "", Field(message, "NewsItemTimeSent"), Ui.Safe(Field(message, "Sender")), subject, state,
+			});
+		}).ToList();
+
+		// One set of widths for every day's rows, so the columns line up under the one heading.
+		static int Shown(string markup) => Markup.Remove(markup).Split('\n').Max(l => l.Length);
+		var widths = new int[6];
+		for (var c = 0; c < 6; c++)
+			widths[c] = rows.Select(r => Shown(r.Cells[c])).DefaultIfEmpty(0).Max();
+		string[] heads = ["#", "", L("TIME"), L("FROM"), L("SUBJECT"), ""];
+		for (var c = 0; c < 6; c++) widths[c] = Math.Max(widths[c], heads[c].Length);
+		const int gap = 2;
+		var room = Ui.Out.Profile.Width - 1;
+		// A narrow terminal gives the subject the room: the sender is cut, marked.
+		var senderRoom = room < 110 ? 16 : 24;
+		widths[3] = Math.Min(widths[3], senderRoom);
+		foreach (var r in rows) r.Cells[3] = Ui.Safe(Ui.Fit(Markup.Remove(r.Cells[3]), senderRoom));
+		widths[4] = Math.Max(30, Math.Min(widths[4], room - widths.Where((_, i) => i != 4).Sum() - gap * 5));
+
+		Spectre.Console.Table Part(bool headed)
+		{
+			var table = new Spectre.Console.Table { Border = TableBorder.None, ShowHeaders = headed };
+			for (var c = 0; c < 6; c++)
+				table.AddColumn(new TableColumn(heads[c].Length > 0 ? $"[dim]{Ui.Safe(heads[c])}[/]" : "")
+				{
+					Width = widths[c], Padding = new Padding(0, 0, c < 5 ? gap : 0, 0), Alignment = c == 0 ? Justify.Right : Justify.Left,
+				});
+			return table;
+		}
+
 		// Days in the order the list has them; within a day what holds the game up first, then as listed.
-		var days = numbered.GroupBy(x => Field(x.Message, "Date")).ToList();
+		var days = rows.GroupBy(r => r.Day).ToList();
 		var dated = days.Any(d => d.Key.Length > 0);
+		Ui.Out.Write(Part(headed: true));
 		foreach (var day in days)
 		{
 			if (dated && day.Key.Length > 0)
 			{
-				if (table.Rows.Count > 0) table.AddEmptyRow();
-				table.AddRow("", "", "", "", $"[bold underline]{Ui.Safe(Program.DayHeading(day.Key))}[/]", "");
+				Ui.Out.WriteLine();
+				Ui.Out.Write(new Rule($"[bold]{Ui.Safe(Program.DayHeading(day.Key))}[/]") { Justification = Justify.Left, Style = new Style(Color.Grey) });
 			}
-			foreach (var (message, number) in day.OrderByDescending(x => Program.Blocking(x.Message)))
-			{
-				var unread = Field(message, "NewsItemHasBeenRead") != "True";
-				var title = Ui.Safe(Field(message, "NewsTitleString"));
-				var preview = GameWords.Of(Field(message, "NewsFirstBubbleSpeechString"));
-				var blocking = Program.Blocking(message);
-				var subject = (blocking ? $"[red bold]{title}[/]" : unread ? $"[bold]{title}[/]" : title)
-				              + (preview.Length > 0 ? $"\n[dim]{Ui.Safe(Ui.Fit(preview.Replace('\n', ' '), 90))}[/]" : "");
-				var state = blocking ? L("[red bold]awaiting an answer[/]")
-					: Program.Answerable(message) ? L("[yellow]can be answered[/]")
-					: "";
-				table.AddRow($"[dim]{number}[/]", unread ? "[deepskyblue1]●[/]" : "", Field(message, "NewsItemTimeSent"), Ui.Safe(Field(message, "Sender")), subject, state);
-			}
+			var part = Part(headed: false);
+			foreach (var row in day.OrderByDescending(r => r.Blocking)) part.AddRow(row.Cells);
+			Ui.Out.Write(part);
 		}
-
-		Ui.Out.Write(table);
 	}
 
 	private static string Field(JsonElement element, string name) =>

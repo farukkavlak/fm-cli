@@ -92,7 +92,7 @@ fm talk               # the open conversation: what was said and what can be sai
 
 ![fm inbox](manual/img/inbox/inbox.png)
 
-- At a terminal the messages come under a heading for each day (the message's own date), unread marked ●, one awaiting an answer in red and first under its day. Each keeps its number, which is what `reply` takes. `--json` has each message's `Date`.
+- At a terminal each day's messages come under a line with the day on it (the message's own date), unread marked ●, one awaiting an answer in red and first under its day. Each keeps its number, which is what `reply` takes. `--json` has each message's `Date`.
 
 ![fm inbox --tasks](manual/img/inbox/inbox-tasks.png)
 
