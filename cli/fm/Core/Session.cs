@@ -41,11 +41,10 @@ internal static class Session
 			}
 		}
 
+		var editor = new LineEditor(Program.Completions);
 		while (true)
 		{
-			Console.Write(Prompt());
-
-			var line = Console.ReadLine();
+			var line = await editor.ReadLine(Prompt(), PromptWidth);
 			if (line == null) break; // ctrl-D
 
 			var words = Split(line);
@@ -63,6 +62,7 @@ internal static class Session
 			if (words[0] == "fm") words = words.Skip(1).ToArray();
 			if (words.Length == 0) continue;
 
+			Program.ForgetNames();
 			await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), execute) : execute(words));
 		}
 
@@ -98,6 +98,9 @@ internal static class Session
 		if (word.Length > 0 || open) words.Add(word.ToString());
 		return words.ToArray();
 	}
+
+	// What the prompt takes on screen: "fm› ".
+	private const int PromptWidth = 4;
 
 	private static string Prompt() => Console.IsOutputRedirected ? "" : "\u001b[2mfm›\u001b[0m ";
 }

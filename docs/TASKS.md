@@ -19,6 +19,8 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 - [ ] T173 First start under a fresh macOS user: which permission prompts (Accessibility, Screen Recording) window hiding and `/shot` raise, and whether the tool says so. The clean install (T83, 22 Nov) ran on a machine that had granted them already
 
+- [ ] T174 Session: short news at the prompt when the game brings something new (message, injury, offer), held by the game's own events, not a poll
+
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 
 - [ ] T81 Windows (Steam): install from the README, one month, sweep, stop

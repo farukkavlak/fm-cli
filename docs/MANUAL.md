@@ -24,6 +24,13 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - With the game's "Read Messages" setting, `next` first opens the unread messages, oldest first, as the game does.
 - `inbox --read-all` marks every message read at once.
 
+### The session
+
+- `fm` alone (or `fm start`) opens the `fm›` prompt: commands without `fm`, until `quit` or ctrl-D.
+- Up/down: the lines typed before, kept between sessions (`~/.config/fm-cli/history`, last 500).
+- Tab: a command, then its options; after `player`, `contract`, `compare` … our players, by any part of the name (`camp` → `"Àlex Campos"`). Tab twice lists the choices.
+- ctrl-C drops the line (or stops a running command, not the session); ctrl-A/E, ctrl-W, ctrl-U/K and alt-arrows edit as in a shell.
+
 ### Asking in a sentence
 
 - Turkish or English: `önümüzdeki maç ne zaman`, `rinaldiyi sat`, `who is injured`.

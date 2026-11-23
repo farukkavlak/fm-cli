@@ -137,6 +137,48 @@ internal static partial class Program
 		return 0;
 	}
 
+	// The squad's names for the session's tab, asked of the game once and again after each command.
+	private static List<string>? namesForTab;
+
+	internal static void ForgetNames() => namesForTab = null;
+
+	/// <summary>
+	/// What tab offers in the session for the word being typed: a command first, then that
+	/// command's options and, where it takes one, our players by any of their names' starts.
+	/// </summary>
+	internal static async Task<IReadOnlyList<string>> Completions(string[] before, string word)
+	{
+		var folded = Fold(word);
+		if (before.Length > 0 && before[0] == "fm") before = before[1..];
+
+		if (before.Length == 0)
+			return [.. CommandNames.Append("quit").Append("clear").Where(c => c.StartsWith(folded, StringComparison.Ordinal)).Order()];
+
+		var typed = Fold(before[0]);
+		var command = CommandNames.Contains(typed) ? typed
+			: CommandAliases.TryGetValue(typed, out var aliased) ? aliased
+			: CommandNames.Where(c => typed.Length >= 2 && c.StartsWith(typed, StringComparison.Ordinal)).ToList() is [var one] ? one
+			: null;
+		if (command == null) return [];
+
+		var choices = CommandFlags.GetValueOrDefault(command, [])
+			.Where(f => !before.Contains(f) && f.StartsWith(folded, StringComparison.Ordinal)).ToList();
+
+		if (TakesOurPlayer.Contains(command) && !word.StartsWith('-'))
+		{
+			if (namesForTab == null)
+			{
+				var squad = await Fm.Pull("Human.Team.Players", "Name", list: true);
+				namesForTab = [.. squad.EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct()];
+			}
+			choices.AddRange(namesForTab.Where(n => folded.Length == 0
+				|| Fold(n).StartsWith(folded, StringComparison.Ordinal)
+				|| Fold(n).Split(' ').Any(part => part.StartsWith(folded, StringComparison.Ordinal))).Order());
+		}
+
+		return choices;
+	}
+
 	/// <summary>
 	/// `fm completion zsh|bash`: a script for the shell to load — `source <(fm completion zsh)`, or
 	/// in bash `eval "$(fm completion bash)"`, since macOS's bash 3.2 cannot source a process.
