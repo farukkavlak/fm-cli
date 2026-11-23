@@ -34,10 +34,6 @@ Speed
 
 Session (`fm›`)
 
-- [ ] T181 A number alone picks from the last list shown
-  - [ ] `inbox` then `3`: opens message 3 (`reply 3`)
-  - [ ] `players` / `search` then `3`: that player's card
-  - [ ] Said which list it took it from; nothing when no list was shown
 - [ ] T182 Tab completes more
   - [ ] Sub-commands (`scout new`, `tactic role`, `schedule set`)
   - [ ] Competition names for `table`, `stages`, `league` (the game's own list)

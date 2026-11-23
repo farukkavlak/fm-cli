@@ -221,12 +221,23 @@ internal static partial class Program
 		}
 
 		var who = await Who(results);
-		Table.Write([L("TYPE"), L("NAME"), L("WHO")], results.Select((r, i) => new[]
-		{
-			Field(r, "Shown"),
-			// Anything else under its kind: Club, Competition, Nation, NationalTeam, Award.
+		// A player row opens his page by the game's id, read now: the search's paths change with the next screen.
+		var players = results.Select(r => Field(r, "Kind") == "Player" && Field(r, "Name").Length > 0 ? Field(r, "Path") : "").ToList();
+		var ids = Ui.Rich && players.Any(p => p.Length > 0) ? await RecordIds(players) : players.Select(_ => "").ToList();
+		ShowedList("search", results.Select((r, i) => (
 			Field(r, "Name") is { Length: > 0 } person ? person : Field(r, Field(r, "Kind")),
-			Field(r, "Name").Length > 0 ? who[i] : "",
+			ids[i].Length > 0 ? new[] { "player", $"{Field(r, "Name")} #{ids[i]}" } : Array.Empty<string>())).ToList());
+		string[] numberHead = Ui.Rich ? ["#"] : [];
+		Table.Write([.. numberHead, L("TYPE"), L("NAME"), L("WHO")], results.Select((r, i) =>
+		{
+			string[] number = Ui.Rich ? [(i + 1).ToString()] : [];
+			return (string[])[
+				.. number,
+				Field(r, "Shown"),
+				// Anything else under its kind: Club, Competition, Nation, NationalTeam, Award.
+				Field(r, "Name") is { Length: > 0 } person ? person : Field(r, Field(r, "Kind")),
+				Field(r, "Name").Length > 0 ? who[i] : "",
+			];
 		}).ToList());
 		return 0;
 	}

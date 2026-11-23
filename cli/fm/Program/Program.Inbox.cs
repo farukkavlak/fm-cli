@@ -455,6 +455,7 @@ internal static partial class Program
 			inbox = System.Text.Json.JsonSerializer.SerializeToElement(args.Contains("--all") ? every : NewestMessages(every));
 		}
 		RememberNumbers(inbox);
+		ShowedList("inbox", inbox.EnumerateArray().Select((m, i) => (Field(m, "NewsTitleString"), new[] { "reply", (i + 1).ToString() })).ToList());
 		if (json)
 		{
 			Console.WriteLine(inbox.ToString());

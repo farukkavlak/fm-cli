@@ -78,7 +78,7 @@ internal static partial class Program
 	}
 
 	/// <summary>Prints people with every field their rows carry as a column, less the table's own bookkeeping.</summary>
-	private static void Columns(List<JsonElement> rows, string? who = null, HashSet<string>? hurt = null)
+	private static List<JsonElement> Columns(List<JsonElement> rows, string? who = null, HashSet<string>? hurt = null, bool numbered = false)
 	{
 		who ??= L("PLAYER");
 		// Bound by a table for its own use (sorting, icons, the pitch view), in every view.
@@ -99,7 +99,7 @@ internal static partial class Program
 			Table.Write([L(who), .. columns.Select(Heading)], ordered
 				.Select(p => new[] { Field(p, "Name") }.Concat(columns.Select(c => Field(p, c))).ToArray())
 				.ToList());
-			return;
+			return ordered;
 		}
 
 		// At a terminal the values are made readable and the columns that do not fit the width
@@ -111,12 +111,13 @@ internal static partial class Program
 			.ToList();
 		var names = ordered.Select(p => Field(p, "Name")).ToList();
 		int Width(IEnumerable<(string Field, List<string> Values)> cols) =>
-			names.Max(n => n.Length) + 4 + cols.Sum(c => Math.Max(Heading(c.Field).Length, c!.Values.Max(v => v.Length)) + 3);
+			(numbered ? ordered.Count.ToString().Length + 3 : 0) + names.Max(n => n.Length) + 4 + cols.Sum(c => Math.Max(Heading(c.Field).Length, c!.Values.Max(v => v.Length)) + 3);
 		var room = Ui.Out.Profile.Width;
 		while (shown.Count > 1 && Width(shown) > room) shown.RemoveAt(shown.Count - 1);
 		var dropped = columns.Count - shown.Count;
 
 		var table = new Spectre.Console.Table { Border = Spectre.Console.TableBorder.Rounded, BorderStyle = new Spectre.Console.Style(Spectre.Console.Color.Grey) };
+		if (numbered) table.AddColumn(new Spectre.Console.TableColumn("[dim]#[/]") { NoWrap = true, Alignment = Spectre.Console.Justify.Right });
 		table.AddColumn(new Spectre.Console.TableColumn($"[dim]{L(who)}[/]") { NoWrap = true });
 		foreach (var c in shown) table.AddColumn(new Spectre.Console.TableColumn($"[dim]{Ui.Safe(Heading(c.Field))}[/]") { NoWrap = true });
 		for (var i = 0; i < ordered.Count; i++)
@@ -125,10 +126,11 @@ internal static partial class Program
 			// game's language ("End", "Fit" beside "Kir" in a Turkish game).
 			var injured = Field(ordered[i], "IsInjured") == "True" || hurt?.Contains(names[i]) == true;
 			var name = injured ? $"[red]{Ui.Safe(names[i])}[/]" : Ui.Safe(names[i]);
-			Spectre.Console.TableExtensions.AddRow(table, [name, .. shown.Select(c => Ui.Safe(c!.Values[i]))]);
+			Spectre.Console.TableExtensions.AddRow(table, [.. numbered ? new[] { $"[dim]{i + 1}[/]" } : [], name, .. shown.Select(c => Ui.Safe(c!.Values[i]))]);
 		}
 		Ui.Out.Write(table);
 		if (dropped > 0) Ui.Line(L($"[dim]{dropped} columns did not fit; for all of them: fm players --json or a wider terminal[/]"));
+		return ordered;
 	}
 
 	/// <summary>The game's raw values as a reader wants them: no "-1", no "Scouting Required", yes for True.</summary>
@@ -396,7 +398,9 @@ internal static partial class Program
 			return 0;
 		}
 
-		Columns(people.EnumerateArray().ToList());
+		var shownRows = Columns(people.EnumerateArray().ToList(), numbered: Ui.Rich);
+		ShowedList("players", shownRows.Select(p => (Field(p, "Name"),
+			Field(p, "UniqueId") is { Length: > 0 } id ? new[] { "player", $"{Field(p, "Name")} #{id}" } : new[] { "player", Field(p, "Name") })).ToList());
 
 		var count = await Found("PersonListCountString");
 		Console.WriteLine(L($"\n{people.GetArrayLength()} rows on screen{(count != null ? L($"; the game: \"{count}\"") : "")}"));

@@ -68,6 +68,14 @@ internal static class Session
 			if (words is ["?"]) words = ["help"];
 			else if (words.Length > 1 && words[^1] == "?") words = [.. words[..^1], "--help"];
 
+			// A number alone: a row of the list shown last. Anything else forgets that list.
+			if (words is [var alone] && int.TryParse(alone, out var number) && number > 0)
+			{
+				if (Program.Picked(number) is not { } picked) continue;
+				words = picked;
+			}
+			else Program.ForgetList();
+
 			Program.ForgetNames();
 			await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), execute) : execute(words));
 			// A save loaded or the game closed is another starting point, not news.
