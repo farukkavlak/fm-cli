@@ -29,34 +29,8 @@ internal static partial class Program
 			return 69;
 		}
 
-		var (team, _) = await Fm.OwnTeam();
-		var everyone = (await Fm.Pull("Human.Team.Players",
-			"Name,Age,PositionCombined,Condition,Sharpness,IsInjured,CurrentInjury.InjuryDescription,CurrentInjury.InjuryReturnDays,"
-			+ "FullContract.EndDate,FullContract.EndDateDescription,LoanClub.Name", list: true)).EnumerateArray()
-			.Where(p => Field(p, "Name").Length > 0).ToList();
-		// Players out on loan are someone else's to look after; one loaned to us has us as his loan club.
-		var squad = everyone.Where(p => Field(p, "LoanClub.Name") is not { Length: > 0 } club || club == team).ToList();
-		var today = DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
-		var worries = await Fm.Strings("Human.Team.TeamConfidence.BoardFeedbackCriticism");
-
+		var (injured, tired, rusty, expiring, thin, worries) = await SquadCheck();
 		static int Number(JsonElement p, string f) => int.TryParse(Field(p, f), out var n) ? n : -1;
-		bool Injured(JsonElement p) => Field(p, "IsInjured") == "True";
-
-		var injured = squad.Where(Injured).OrderByDescending(p => Number(p, "CurrentInjury.InjuryReturnDays")).ToList();
-		var tired = squad.Where(p => !Injured(p) && Number(p, "Condition") is >= 0 and < 85).OrderBy(p => Number(p, "Condition")).ToList();
-		var rusty = squad.Where(p => !Injured(p) && Number(p, "Sharpness") is >= 0 and < 60).OrderBy(p => Number(p, "Sharpness")).ToList();
-		var expiring = squad
-			.Select(p => (Player: p, Ends: GameDay(Field(p, "FullContract.EndDate"))))
-			.Where(x => x.Ends is { } end && end < today.AddYears(1))
-			.OrderBy(x => x.Ends)
-			.ToList();
-
-		// Depth counts the fit: an injured player does not cover his position this week.
-		var fit = squad.Where(p => !Injured(p)).Select(p => (Name: Field(p, "Name"), Slots: Positions(Field(p, "PositionCombined")))).ToList();
-		var thin = DepthRows.SelectMany(r => r)
-			.Select(slot => (Slot: slot, Players: fit.Where(p => p.Slots.Contains(slot)).Select(p => p.Name).ToList()))
-			.Where(x => x.Players.Count <= 1)
-			.ToList();
 
 		if (json)
 		{
@@ -125,5 +99,44 @@ internal static partial class Program
 		if (Ui.Rich) Ui.Line(L("[dim]Happiness and tactical familiarity are separate: happiness, tactic[/]"));
 		else Console.WriteLine(L("Happiness and tactical familiarity are separate: happiness, tactic"));
 		return 0;
+	}
+
+	private sealed record SquadChecked(
+		List<JsonElement> Injured, List<JsonElement> Tired, List<JsonElement> Rusty,
+		List<(JsonElement Player, DateTime? Ends)> Expiring, List<(string Slot, List<string> Players)> Thin, List<string> Worries);
+
+	/// <summary>What `doctor` finds, read from the game's data with no screen opened; `todo` reads the same.</summary>
+	private static async Task<SquadChecked> SquadCheck()
+	{
+		var (team, _) = await Fm.OwnTeam();
+		var everyone = (await Fm.Pull("Human.Team.Players",
+			"Name,Age,PositionCombined,Condition,Sharpness,IsInjured,CurrentInjury.InjuryDescription,CurrentInjury.InjuryReturnDays,"
+			+ "FullContract.EndDate,FullContract.EndDateDescription,LoanClub.Name", list: true)).EnumerateArray()
+			.Where(p => Field(p, "Name").Length > 0).ToList();
+		// Players out on loan are someone else's to look after; one loaned to us has us as his loan club.
+		var squad = everyone.Where(p => Field(p, "LoanClub.Name") is not { Length: > 0 } club || club == team).ToList();
+		var today = DateTime.TryParseExact(Field(await Fm.GetJson("state"), "Date"), "yyyy-MM-dd", null, DateTimeStyles.None, out var d) ? d : DateTime.Today;
+		var worries = await Fm.Strings("Human.Team.TeamConfidence.BoardFeedbackCriticism");
+
+		static int Number(JsonElement p, string f) => int.TryParse(Field(p, f), out var n) ? n : -1;
+		bool Injured(JsonElement p) => Field(p, "IsInjured") == "True";
+
+		var injured = squad.Where(Injured).OrderByDescending(p => Number(p, "CurrentInjury.InjuryReturnDays")).ToList();
+		var tired = squad.Where(p => !Injured(p) && Number(p, "Condition") is >= 0 and < 85).OrderBy(p => Number(p, "Condition")).ToList();
+		var rusty = squad.Where(p => !Injured(p) && Number(p, "Sharpness") is >= 0 and < 60).OrderBy(p => Number(p, "Sharpness")).ToList();
+		var expiring = squad
+			.Select(p => (Player: p, Ends: GameDay(Field(p, "FullContract.EndDate"))))
+			.Where(x => x.Ends is { } end && end < today.AddYears(1))
+			.OrderBy(x => x.Ends)
+			.ToList();
+
+		// Depth counts the fit: an injured player does not cover his position this week.
+		var fit = squad.Where(p => !Injured(p)).Select(p => (Name: Field(p, "Name"), Slots: Positions(Field(p, "PositionCombined")))).ToList();
+		var thin = DepthRows.SelectMany(r => r)
+			.Select(slot => (Slot: slot, Players: fit.Where(p => p.Slots.Contains(slot)).Select(p => p.Name).ToList()))
+			.Where(x => x.Players.Count <= 1)
+			.ToList();
+
+		return new SquadChecked(injured, tired, rusty, expiring, thin, worries);
 	}
 }

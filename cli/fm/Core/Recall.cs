@@ -14,7 +14,7 @@ internal static partial class Program
 	private static readonly HashSet<string> KeptReads =
 	[
 		"squad", "player", "compare", "table", "fixtures", "league", "calendar", "health", "depth", "happiness", "dynamics",
-		"finances", "club", "supporters", "facilities", "manager", "internationals", "progress", "opponent", "report", "world", "news",
+		"finances", "club", "supporters", "facilities", "manager", "internationals", "progress", "opponent", "report", "world", "news", "todo",
 	];
 
 	/// <summary>Reads when given alone; with words they can change something (`board request`, `tactic role`, `staff fire`).</summary>

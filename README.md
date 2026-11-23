@@ -93,6 +93,7 @@ The first start takes longer: BepInEx reads the game once.
 ```bash
 fm start          # open the game hidden, load the last save
 fm status         # date, next match, what is waiting
+fm todo           # what wants doing now, each with its command
 fm inbox          # messages, numbered; fm reply 3 to open one
 fm next           # continue; stops at anything that needs an answer
 fm go             # on to match day, with what came in on the way

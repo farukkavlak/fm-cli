@@ -284,6 +284,7 @@ internal static partial class Program
 				"next" => await Next(args),
 				// Match day in two letters: the same walk as next --until match, its options passed on.
 				"go" => await Next(["next", "--until", "match", .. args.Skip(1)]),
+				"todo" => await Todo(json),
 				"tour" => await Tour(json, args),
 				"talk" => await TalkTo(json, args),
 				"match" => await PlayMatch(args),

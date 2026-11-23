@@ -29,9 +29,6 @@ Session (`fm›`)
 
 Help and finding things
 
-- [ ] T186 `todo`: what wants doing now, each line with its command
-  - [ ] Waiting answers, offers, contract talks, injuries before a match, board concerns
-  - [ ] Reads only what `status` and `doctor` read
 
 Output
 

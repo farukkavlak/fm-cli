@@ -10,6 +10,7 @@ The main workflows, with screenshots. Every command: `fm help`.
 ```bash
 fm start          # launch the game, load the last save, enter a session
 fm status         # date, next match, what is waiting
+fm todo           # what wants doing now, each with its command (yapilacaklar)
 fm next           # continue; stops at a real blocker
 fm next --until match    # on to match day (or the first thing that wants an answer)
 fm go             # the same in two letters (macgunu in Turkish)

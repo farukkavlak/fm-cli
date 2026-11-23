@@ -3090,3 +3090,10 @@ No {0} in the {1} list.	{1} listesinde {0} yok.
 (as read a moment ago; the clock has not moved. Read again: --fresh)	(az önce okunduğu gibi; saat ilerlemedi. Yeniden okumak için: --fresh)
 go              on to match day (next --until match), stopping for anything that wants an answer; says what came in	go              maç gününe git (next --until match); cevap isteyen bir şeyde durur, gelenleri söyler
 not saved for {0} days	{0} gündür kaydedilmedi
+todo            what wants doing now, each with its command: what the game waits on, today's match, messages, the squad's findings	todo            şimdi yapılacaklar, her biri komutuyla: oyunun beklediği, bugünkü maç, mesajlar, kadronun durumu
+A match is under way	Maç sürüyor
+The post-match results screen	Maç sonu sonuç ekranı
+An open question: "{0}"	Açık bir soru: "{0}"
+An open question	Açık bir soru
+Messages that can be answered: {0}	Cevaplanabilecek mesaj: {0}
+Nothing waits on you now. To go on: next	Şu an seni bekleyen bir şey yok. İlerlemek için: next
