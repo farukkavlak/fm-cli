@@ -107,7 +107,12 @@ internal static partial class Program
 			// "<parent guid>\t<its team>\t<name>": a youth team's page sits under that team's squad.
 			var parent = await Fm.Get("pageparent", ("guid", screen));
 			if (!parent.StartsWith("error", StringComparison.Ordinal) && parent.Split('\t') is [var guid, var owner, ..])
-				return await OpenSubpage(guid, screen, () => Task.FromResult(true), owner == "-1" ? null : owner);
+			{
+				// Our own first team's page is the one the menus open without a team: asked for with its id, the
+				// bar answered "no page" for it (Opposition Report, 23 Nov 2026) and the wait ran to its end.
+				var ours = owner == "-1" || owner == Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
+				return await OpenSubpage(guid, screen, () => Task.FromResult(true), ours ? null : owner);
+			}
 			if (Screen.OnBarOf.TryGetValue(screen, out var page))
 				return await OpenSubpage(page, screen, () => Task.FromResult(true));
 		}
