@@ -40,6 +40,9 @@ internal static partial class Launcher
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
 			"Library/Application Support/Steam/steamapps/common", AppName);
 
+	// The most a start is waited for to reach the main menu.
+	private static readonly TimeSpan MenuBound = TimeSpan.FromMinutes(10);
+
 	public static async Task<bool> Start(Bridge fm, bool debug, bool load = true)
 	{
 		// An already-running game is attached to rather than refused: the save may still need
@@ -123,10 +126,14 @@ internal static partial class Launcher
 		}
 
 		// The launch's shell ends with its game, so its ending before the menu is the launch having failed.
-		await WaitFor(async () => launch.HasExited || await Menu(fm), TimeSpan.FromMinutes(4));
+		// The menu is the sign waited for; the bound only stops a game that never gets there. A start
+		// took from 1 to 4 minutes on one machine within the hour (23 Nov 2026), so 4 was too tight.
+		await WaitFor(async () => launch.HasExited || await Menu(fm), MenuBound);
 		if (launch.HasExited || !await Menu(fm))
 		{
-			Console.Error.WriteLine(L($"The game did not reach the main menu. Log: {log}"));
+			Console.Error.WriteLine(!launch.HasExited && await Alive()
+				? L($"The game is still starting after {(int)MenuBound.TotalMinutes} minutes and has not reached the main menu; `status` says when it is up. Log: {log}")
+				: L($"The game did not reach the main menu. Log: {log}"));
 			return false;
 		}
 
@@ -247,7 +254,7 @@ internal static partial class Launcher
 		if (!await Menu(fm))
 		{
 			Console.WriteLine(L("Waiting for the main menu…"));
-			if (!await WaitFor(() => Menu(fm), TimeSpan.FromMinutes(4)))
+			if (!await WaitFor(() => Menu(fm), MenuBound))
 			{
 				Console.Error.WriteLine(L("The game did not reach the main menu."));
 				return false;

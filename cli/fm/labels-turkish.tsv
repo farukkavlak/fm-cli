@@ -3058,3 +3058,4 @@ back from injury: {0}	sakatlıktan döndü: {0}
 left: {0}	ayrıldı: {0}
 new: {0}{1}	yeni: {0}{1}
 {0} more new messages: inbox	{0} yeni mesaj daha: inbox
+The game is still starting after {0} minutes and has not reached the main menu; `status` says when it is up. Log: {1}	Oyun {0} dakikadır açılıyor, ana menüye henüz gelmedi; açılınca `status` söyler. Log: {1}

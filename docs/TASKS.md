@@ -19,7 +19,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 - [ ] T173 First start under a fresh macOS user: which permission prompts (Accessibility, Screen Recording) window hiding and `/shot` raise, and whether the tool says so. The clean install (T83, 22 Nov) ran on a machine that had granted them already
 
-- [ ] T175 `fm load` with a save open said "The game did not reach the main menu" twice on 23 Nov (once the game was at the menu right after); see why the launch is taken as ended
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 

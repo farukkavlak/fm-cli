@@ -163,7 +163,7 @@ internal static partial class Launcher
 			: L($"Starting FM…{(debug ? L($"  (log: {log})") : "")}"));
 
 		// BepInEx reads the game in the same launch on Windows: the menu is waited for, longer on a first start.
-		await WaitFor(async () => launch.HasExited || await Menu(fm), TimeSpan.FromMinutes(firstStart ? 8 : 4));
+		await WaitFor(async () => launch.HasExited || await Menu(fm), MenuBound);
 		if (launch.HasExited || !await Menu(fm))
 		{
 			Console.Error.WriteLine(L($"The game did not reach the main menu. Log: {log}"));
