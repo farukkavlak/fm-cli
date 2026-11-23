@@ -146,27 +146,30 @@ internal sealed class Bridge
 	/// a load a squad's names come seconds after its ids. Only an upper bound; the default keeps the short wait.</param>
 	public async Task<JsonElement> Pull(string path, string props, bool list = false, string shown = "", double seconds = 1.5)
 	{
-		var wanted = props.Split(',').Length;
+		// Index and Row are the reading's own, put on every record: asked for or not, they are not waited for.
+		var wanted = props.Split(',').Count(p => p is not ("Index" or "Row"));
 		// A list's entries are put at rows of their own for this reading.
 		var generation = list ? Interlocked.Increment(ref pulls).ToString() + DateTime.UtcNow.Ticks.ToString()[^6..] : "";
 		JsonElement data = default;
 		// A list bound by one reading is filled by a later frame: asked again a little after, not a quarter second on.
-		var attempts = Math.Max(6, (int)Math.Ceiling(seconds / 0.1));
-		for (var attempt = 0; attempt < attempts; attempt++)
+		// The seconds bound the whole, however many readings fit (a field the record never has is waited for that long).
+		var started = Clock.ElapsedMilliseconds;
+		var limit = (long)(Math.Max(seconds, 1.5) * 1000);
+		for (var attempt = 0; ; attempt++)
 		{
+			var last = Clock.ElapsedMilliseconds - started >= limit;
 			// A list bound by this very call holds nothing until the next frame.
 			try { data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation), ("shown", shown)); }
-			catch (FmError e) when (attempt < attempts - 1 && e.Message.Contains("is not a list", StringComparison.Ordinal))
+			catch (FmError e) when (!last && e.Message.Contains("is not a list", StringComparison.Ordinal))
 			{
 				await Task.Delay(TimeSpan.FromMilliseconds(100));
 				continue;
 			}
 			var records = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().ToList() : [data];
 			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name is not ("Index" or "Row")) >= wanted);
-			if (complete && (attempt > 0 || records.Count > 0)) return data;
+			if (complete && (attempt > 0 || records.Count > 0) || last) return data;
 			await Task.Delay(TimeSpan.FromMilliseconds(100));
 		}
-		return data;
 	}
 
 	/// <summary>A list of plain numbers at a path, bound first if need be: recent form as points per match.</summary>
