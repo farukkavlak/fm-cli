@@ -238,7 +238,8 @@ internal static partial class Program
 				"news" => await News(json, args),
 				"dynamics" => await Dynamics(json),
 				"jobs" => await Jobs(json, args[1..]),
-				"prep" => await Prep(json, args),
+				// Alone at a terminal or in a script, the whole pre-match screen; with words (or --sessions, --json) the sessions as before.
+				"prep" => args.Length == 1 && !json ? await PrepScreen() : await Prep(json, [.. args.Where(a => a != "--sessions")]),
 				"schedule" => args.Length > 1 && args[1] is "copy" or "paste" or "clear" ? await ScheduleWeek(args[1], args)
 					: args.Length > 1 && args[1] is "set" or "style" or "stil" or "degistir" ? await ScheduleChange(args) : await Schedule(json, Option(args, "--team")),
 				"settings" => await SettingsCommand(args),

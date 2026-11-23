@@ -189,7 +189,7 @@ fm schedule --team "<team>"  # the same for the B team or the U19s; set, style, 
 fm schedule copy | paste | clear [this|<weeks ahead>]   # the week's own buttons (paste: within one team)
 fm intensity                 # per-player intensity
 fm coaches                   # coaching assignments
-fm prep                      # match preparation sessions up to the next match
+fm prep --sessions           # match preparation sessions up to the next match
 fm setpieces new             # set-piece routines
 fm takers                    # set-piece takers
 fm penalties                 # penalty order and rules
@@ -209,6 +209,7 @@ fm youth [candidates]        # academy and prospects; the year's intake
 ## 6. Match day
 
 ```bash
+fm prep              # the next match on one screen: opponent, our side, injured, preparation sessions
 fm match             # asks: watch in the terminal or instant result
 fm match --play      # watch: commentary, goals, talks
 fm match --instant   # leave it to the assistants

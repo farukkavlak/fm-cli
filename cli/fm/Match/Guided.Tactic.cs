@@ -87,7 +87,7 @@ internal static partial class Program
 			                  ? L($" · Intensity: {Field(header, "TacticalIntensity")}") + $" · {ratedWord}: {Field(header, "Effectiveness")}\n"
 			                  : L($" · Intensity: {Field(header, "TacticalIntensity")} · Fluidity: {Familiarity(header, "TacticalFamiliarity")}\n")));
 
-		if (Ui.Rich)
+		if (Ui.Rich && !args.Contains("--list"))
 		{
 			Pitch.Draw(tactic);
 			if (Bench(tactic) is { Count: > 0 } benched) Console.WriteLine(L($"\nSubstitutes: {string.Join(", ", benched)}"));
@@ -109,6 +109,7 @@ internal static partial class Program
 		Table.Write([L("IN POSS."), L("ROLE"), L("OUT OF POSS."), L("ROLE"), L("PLAYER"), rated ? ratedWord : L("FLUIDITY")], rows);
 
 		if (Bench(tactic) is { Count: > 0 } bench) Console.WriteLine(L($"\nSubstitutes: {string.Join(", ", bench)}"));
+		if (Ui.Rich && Unfamiliar(tactic) is { Count: > 0 } notYet) Console.WriteLine(L($"Not yet fully familiar with the tactic: {string.Join(", ", notYet)}"));
 		return 0;
 	}
 

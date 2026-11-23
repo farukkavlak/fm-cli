@@ -121,7 +121,8 @@ internal static partial class Program
 			  training <player> --report [--coach <name>]  ask a coach for a training report and show it
 			  training <player> --trait ["<trait>"]  traits and what can be taught; given one, teach it
 			                  --trait-remove "<t>" drop one · --trait-cancel · --yes: despite the assistant's objection
-			  prep            match preparation: the Match Preparation sessions up to the next match (change one: schedule set)
+			  prep            the next match on one screen: the opponent, our side and its familiarity with the tactic, the injured, the preparation sessions
+			    --sessions    only the Match Preparation sessions up to the next match (change one: schedule set)
 			  schedule        the training schedule: this week and next, three sessions a day
 			  schedule --team <team>   another of the club's teams (the B team, the U19s): its schedule; set / style / copy / paste / clear take --team too
 			  schedule set <day> <1|2|3> [<session>]   change a session; with no session given choose it with the arrow keys
@@ -206,6 +207,7 @@ internal static partial class Program
 			  setpieces <kind>            a routine: delivery, target, the players' duties (corner, freekick, wide, deep, throw)
 			  setpieces <kind> delivery <in|out> | aim <option> | <place> <duty> [<otherwise>]   change the routine
 			  tactic          the team's tactic: style, mentality, fluidity, eleven positions and roles
+			    --list        the eleven as a list, not drawn on a pitch
 			  tactic mentality [<x>]      show or change the mentality
 			  tactic style [<x>]          show or change the playing style
 			  tactic pick                 have the game pick the starting eleven (Quick Pick)

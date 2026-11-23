@@ -3097,3 +3097,10 @@ An open question: "{0}"	Açık bir soru: "{0}"
 An open question	Açık bir soru
 Messages that can be answered: {0}	Cevaplanabilecek mesaj: {0}
 Nothing waits on you now. To go on: next	Şu an seni bekleyen bir şey yok. İlerlemek için: next
+prep            the next match on one screen: the opponent, our side and its familiarity with the tactic, the injured, the preparation sessions	prep            sıradaki maç tek ekranda: rakip, bizim kadro ve taktiğe alışması, sakatlar, hazırlık seansları
+--sessions    only the Match Preparation sessions up to the next match (change one: schedule set)	--sessions    yalnızca sıradaki maça kadarki Maç Hazırlığı seansları (değiştirmek için: schedule set)
+No match ahead. The preparation sessions: prep --sessions	Önde maç yok. Hazırlık seansları: prep --sessions
+Opponent	Rakip
+Our side	Bizim taraf
+Nobody is injured.	Sakat oyuncu yok.
+--list        the eleven as a list, not drawn on a pitch	--list        on bir saha çizimi yerine liste olarak

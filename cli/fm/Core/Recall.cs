@@ -19,7 +19,7 @@ internal static partial class Program
 
 	/// <summary>Reads when given alone; with words they can change something (`board request`, `tactic role`, `staff fire`).</summary>
 	private static readonly HashSet<string> KeptBare =
-		["board", "staff", "youth", "tactic", "captains", "coaches", "intensity", "penalties", "takers", "contracts", "doctor", "stages"];
+		["board", "staff", "youth", "tactic", "prep", "captains", "coaches", "intensity", "penalties", "takers", "contracts", "doctor", "stages"];
 
 	/// <summary>Neither kept nor a change: the kept reads stay after them.</summary>
 	private static readonly HashSet<string> Harmless = ["status", "help", "saves", "pages", "buttons", "dropdowns"];
