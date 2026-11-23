@@ -123,7 +123,7 @@ internal static partial class Program
 			if (taken == 0 && !args.Contains("--skip") && await OpenQuestion() is { } asked)
 			{
 				Console.Error.WriteLine(L($"There is an open question{(asked.Length > 0 ? $": \"{asked}\"" : "")}"));
-				Console.Error.WriteLine(L("To answer: talk   ·   to go on without answering: next --skip"));
+				Ui.Hint(L("To answer: talk   ·   to go on without answering: next --skip"), Console.Error);
 				return 1;
 			}
 
@@ -458,7 +458,7 @@ internal static partial class Program
 				// only waits out every read (3 minutes, 6 Nov).
 				if (await VisionControls() != null)
 				{
-					output.WriteLine(L("The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end"));
+					Ui.Hint(L("The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end"), output);
 					return;
 				}
 				// A conversation an answer opened holds its message until it ends; the message is not the step.
@@ -515,7 +515,7 @@ internal static partial class Program
 					// 2026); the button's words are another language's in another game.
 					if (Field(state, "Respond") == "3")
 					{
-						output.WriteLine(L("An offer for one of our players awaits an answer. To see it: offers   ·   to answer: offers <#> view | accept | stall | reject"));
+						Ui.Hint(L("An offer for one of our players awaits an answer. To see it: offers   ·   to answer: offers <#> view | accept | stall | reject"), output);
 						return;
 					}
 					if (await OnlyToRead(state, (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList()))

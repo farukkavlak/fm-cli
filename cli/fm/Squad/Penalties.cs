@@ -121,7 +121,7 @@ internal static partial class Program
 		Console.WriteLine();
 		for (var i = 0; i < rules.Count; i++) Console.WriteLine($"  {i + 1}. {rules[i].Say}: {(rules[i].On ? L("on") : L("off"))}");
 		if (words.Count == 0)
-			Console.WriteLine(L("\nOrder: penalties move <player> <place> · add <player> [<place>] · remove <player>   ·   rule: penalties <1|2|3> on|off"));
+			Ui.Hint(L("\nOrder: penalties move <player> <place> · add <player> [<place>] · remove <player>   ·   rule: penalties <1|2|3> on|off"));
 		return 0;
 
 	}

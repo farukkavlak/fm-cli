@@ -257,7 +257,7 @@ internal static partial class Program
 			for (var i = 0; i < entries.Count; i++) Console.WriteLine($"  {i + 1}  {entries[i].Minute,3}'  {entries[i].Text}{Mark(entries[i])}");
 			if (Ui.Ask(L("Which one?"), entries.Select(e => $"{e.Minute}'  {e.Text}{Mark(e)}").ToList()) is not { } picked)
 			{
-				if (!Ui.Interactive) Console.WriteLine(L("\nTo apply: dugout <no> apply   ·   to dismiss: dugout <no> dismiss"));
+				if (!Ui.Interactive) Ui.Hint(L("\nTo apply: dugout <no> apply   ·   to dismiss: dugout <no> dismiss"));
 				return 0;
 			}
 			words.Add((picked + 1).ToString());

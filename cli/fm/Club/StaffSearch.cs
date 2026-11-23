@@ -199,7 +199,7 @@ internal static partial class Program
 			return 0;
 		}
 		Columns(rows, L("PERSON"));
-		Console.WriteLine(L($"\n{rows.Count} people (as many as the page shows). To narrow it: --role <job> · --free · --reputation <level> · --view <view> · to reset: --clear"));
+		Ui.Hint(L($"\n{rows.Count} people (as many as the page shows). To narrow it: --role <job> · --free · --reputation <level> · --view <view> · to reset: --clear"));
 		return 0;
 	}
 	/// <summary>

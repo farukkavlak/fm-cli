@@ -42,7 +42,7 @@ internal static partial class Program
 			var kind = SetPieceKinds.FirstOrDefault(k => k.Words.Contains(Fold(words[0])));
 			if (kind.Say == null)
 			{
-				Console.Error.WriteLine(L($"'{words[0]}' is not a set piece type.\n{TakersUsage}"));
+				Ui.Hint(L($"'{words[0]}' is not a set piece type.\n{TakersUsage}"), Console.Error);
 				return 64;
 			}
 			kinds = [kind];
@@ -57,7 +57,7 @@ internal static partial class Program
 			verb = words.Count > 1 ? PenaltyVerb(words[1]) : null;
 			if (side == null || verb == null)
 			{
-				Console.Error.WriteLine(TakersUsage);
+				Ui.Hint(TakersUsage, Console.Error);
 				return 64;
 			}
 			words.RemoveRange(0, 2);
@@ -154,7 +154,7 @@ internal static partial class Program
 		if (verb == null)
 		{
 			var name = kinds[0].Words[0];
-			Console.WriteLine(L($"\nOrder: takers {name} <right|left> move <player> <place> · add <player> [<place>] · remove <player>"));
+			Ui.Hint(L($"\nOrder: takers {name} <right|left> move <player> <place> · add <player> [<place>] · remove <player>"));
 		}
 		return 0;
 	}
@@ -266,7 +266,7 @@ internal static partial class Program
 		var who = string.Join(" ", words.Where(w => !int.TryParse(w, out _)));
 		if (who.Length == 0)
 		{
-			Console.Error.WriteLine(TakersUsage);
+			Ui.Hint(TakersUsage, Console.Error);
 			return 64;
 		}
 		var before = await listed();

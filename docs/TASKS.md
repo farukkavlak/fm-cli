@@ -65,7 +65,6 @@ Output
   - [ ] Unread as one mark (●), not a word on every row
   - [ ] Awaiting an answer stands out (colour, and first under its day)
   - [ ] Numbers stay what `reply` takes (`inbox-numbers.json`)
-- [ ] T189 Hint lines fit an 80-column terminal: long ones split or shortened
 
 Playing
 

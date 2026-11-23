@@ -568,7 +568,7 @@ internal static partial class Program
 		if (players.Count == 0) { Console.WriteLine(L("No agent has offered a player.")); return 0; }
 		Table.Write([L("PLAYER"), L("AGE"), L("POSITION"), L("CLUB"), L("VALUE"), L("WAGE"), L("STATUS")],
 			players.Select(p => new[] { p.Player, p.Age, p.Position, p.Club, p.Value, p.Wage, p.Status }).ToList());
-		Console.WriteLine(L("\nTo drop one: transferroom discard <player>   ·   all: transferroom discard --all"));
+		Ui.Hint(L("\nTo drop one: transferroom discard <player>   ·   all: transferroom discard --all"));
 		return 0;
 	}
 

@@ -45,7 +45,7 @@ internal static partial class Program
 				return 0;
 			}
 			Table.Write([L("#"), L("TEAM"), L("SCOUT")], list.Rows.Select(r => new[] { (r.Index + 1).ToString(), r.Team, r.Scout }).ToList());
-			Console.WriteLine(L("\nPut one first: scout teams top <#|team>   ·   call one off: scout teams cancel <#|team>"));
+			Ui.Hint(L("\nPut one first: scout teams top <#|team>   ·   call one off: scout teams cancel <#|team>"));
 			return 0;
 		}
 

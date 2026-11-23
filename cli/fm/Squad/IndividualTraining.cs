@@ -111,7 +111,7 @@ internal static partial class Program
 			return 0;
 		}
 		Table.Write([L("PLAYER"), .. TrainingParts.Select(p => p.ToUpperInvariant())], sorted.Select(r => (string[])[r.Name, .. r.Parts.Select(GameWords.Of)]).ToList());
-		Console.WriteLine(L("\nTo change: training <player> --focus \"<focus>\" · --role \"<role>\" · --position \"<position>><role>\"  (a wrong value lists the options)"));
+		Ui.Hint(L("\nTo change: training <player> --focus \"<focus>\" · --role \"<role>\" · --position \"<position>><role>\"  (a wrong value lists the options)"));
 		return 0;
 	}
 
@@ -209,7 +209,7 @@ internal static partial class Program
 		var takeOver = Field(list, "Enabled") != "True";
 		if (takeOver && control == null)
 		{
-			Console.Error.WriteLine(L($"{player.Name}: your assistant looks after his individual training. To take it over: --control player (him only) · month (him, for the next month) · all (every player)"));
+			Ui.Hint(L($"{player.Name}: your assistant looks after his individual training. To take it over: --control player (him only) · month (him, for the next month) · all (every player)"), Console.Error);
 			return 1;
 		}
 

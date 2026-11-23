@@ -42,7 +42,7 @@ internal static partial class Program
 		// The vision meeting covers the inbox: no message can be found under it (64 s of looking, 6 Nov).
 		if (await VisionControls() != null)
 		{
-			Console.Error.WriteLine(L("The club vision meeting is open and covers the inbox. Objectives and bargaining: vision   ·   to finish: vision end"));
+			Ui.Hint(L("The club vision meeting is open and covers the inbox. Objectives and bargaining: vision   ·   to finish: vision end"), Console.Error);
 			return 1;
 		}
 

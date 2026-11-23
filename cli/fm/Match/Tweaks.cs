@@ -108,7 +108,7 @@ internal static partial class Program
 		if (words.Count == 0)
 		{
 			foreach (var t in tweaks) Console.WriteLine($"  {(t.WillBeOn ? "✓" : " ")} {Line(t)}");
-			Console.WriteLine(L("\nPut one on: tweak <name>   ·   take it off: tweak <name> --off"));
+			Ui.Hint(L("\nPut one on: tweak <name>   ·   take it off: tweak <name> --off"));
 			return 0;
 		}
 

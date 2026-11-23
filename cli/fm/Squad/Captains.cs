@@ -83,7 +83,7 @@ internal static partial class Program
 		}
 		Console.WriteLine(L($"Captain: {(captain.Length > 0 ? captain : "-")}"));
 		Console.WriteLine(L($"Vice captain: {(vice.Length > 0 ? vice : "-")}"));
-		if (changes.Count == 0) Console.WriteLine(L("\nTo change: captains --captain <player> · --vice <player>   (stand-ins: captains --standins;  the dressing room's leaders: dynamics)"));
+		if (changes.Count == 0) Ui.Hint(L("\nTo change: captains --captain <player> · --vice <player>   (stand-ins: captains --standins;  the dressing room's leaders: dynamics)"));
 		return 0;
 	}
 

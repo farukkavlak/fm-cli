@@ -67,7 +67,7 @@ internal static partial class Program
 		foreach (var note in await RegistrationNotes()) Console.WriteLine($"  {note}");
 		if (args.Contains("--send")) return await SendList(L("Squad list"));
 
-		Console.WriteLine(rules.All(r => r.Meets)
+		Ui.Hint(rules.All(r => r.Meets)
 			? L("The rules are met. To send it: register --send")
 			: L("To add a player: register --in <player> · to remove one: register --out <player> · the assistant's choice: register --auto"));
 		return 0;

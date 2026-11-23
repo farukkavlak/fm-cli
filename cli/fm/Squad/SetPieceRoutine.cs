@@ -80,7 +80,7 @@ internal static partial class Program
 		var kind = SetPieceKinds.FirstOrDefault(k => k.Words.Contains(Fold(words[0])));
 		if (kind.Say == null)
 		{
-			Console.Error.WriteLine(L($"'{words[0]}' is not a set piece type.\n{RoutineUsage}"));
+			Ui.Hint(L($"'{words[0]}' is not a set piece type.\n{RoutineUsage}"), Console.Error);
 			return 64;
 		}
 		// The hints name the kind in the word the user typed ("corner" or "korner"), not the list's first.
@@ -117,7 +117,7 @@ internal static partial class Program
 
 		if (words.Count > 0)
 		{
-			if (words.Count < 2) { Console.Error.WriteLine(RoutineUsage); return 64; }
+			if (words.Count < 2) { Ui.Hint(RoutineUsage, Console.Error); return 64; }
 			var what = Fold(words[0]);
 			if (what is "vurus" or "delivery")
 			{
@@ -218,7 +218,7 @@ internal static partial class Program
 		if (words.Count == 0)
 		{
 			var name = kind.Words[0];
-			Console.WriteLine(L($"\nTo change: setpieces {name} delivery <in|out> · aim <option> · <place> <duty>   (duties: setpieces {name} <place> ?)"));
+			Ui.Hint(L($"\nTo change: setpieces {name} delivery <in|out> · aim <option> · <place> <duty>   (duties: setpieces {name} <place> ?)"));
 		}
 		return 0;
 	}

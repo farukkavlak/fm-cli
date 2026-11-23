@@ -227,7 +227,7 @@ internal static partial class Program
 			Console.Error.WriteLine(L($"The game did not add '{entry.Text}'; for the plan as it stands: vision plan"));
 			return 1;
 		}
-		Console.WriteLine(L($"Added: {entry.Text}. To put it to the board: vision suggest   ·   to undo: vision undo   ·   the plan: vision plan"));
+		Ui.Hint(L($"Added: {entry.Text}. To put it to the board: vision suggest   ·   to undo: vision undo   ·   the plan: vision plan"));
 		return 0;
 	}
 }

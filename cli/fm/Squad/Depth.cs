@@ -80,7 +80,7 @@ internal static partial class Program
 
 		var ages = players.Select(p => p.Age).Where(a => a > 0).ToList();
 		Console.WriteLine();
-		Console.WriteLine(L($"Age: average {ages.Average():0.0} · 21 and under {ages.Count(a => a <= 21)} · 22-25 {ages.Count(a => a is >= 22 and <= 25)} · 26-29 {ages.Count(a => a is >= 26 and <= 29)} · 30 and over {ages.Count(a => a >= 30)}  ({players.Count} players, loans and youth left out)"));
+		Ui.Hint(L($"Age: average {ages.Average():0.0} · 21 and under {ages.Count(a => a <= 21)} · 22-25 {ages.Count(a => a is >= 22 and <= 25)} · 26-29 {ages.Count(a => a is >= 26 and <= 29)} · 30 and over {ages.Count(a => a >= 30)}  ({players.Count} players, loans and youth left out)"));
 		return 0;
 	}
 }

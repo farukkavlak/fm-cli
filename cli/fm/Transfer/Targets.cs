@@ -63,7 +63,7 @@ internal static partial class Program
 			Console.WriteLine(L($"Wage budget (weekly): {wage}"));
 		}
 		var found = await Players(json, ["players", "--position", slot, .. (limited ? [] : new[] { "--max-value", transfer }), .. passed]);
-		if (found == 0 && !json) Console.WriteLine(L("Narrow it: --age 18-23 · --grade B · --listed · --loan-listed · --attr \"pace>=14\"   (the search stays open in the game: players --clear)"));
+		if (found == 0 && !json) Ui.Hint(L("Narrow it: --age 18-23 · --grade B · --listed · --loan-listed · --attr \"pace>=14\"   (the search stays open in the game: players --clear)"));
 		return found;
 	}
 
@@ -111,7 +111,7 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"  [bold]{Ui.Safe(PositionShown(slot)),-4}[/] [red]{Ui.Safe(who)}[/][dim]{Ui.Safe(out_)}[/]");
 			else Console.WriteLine($"  {PositionShown(slot),-4} {who}{out_}");
 		}
-		Console.WriteLine(L($"\nOther positions: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{PositionShown(d.Slot)} {d.Fit.Count}"))}"));
+		Ui.Hint(L($"\nOther positions: {string.Join(" · ", depth.Where(d => d.Fit.Count > 1).Select(d => $"{PositionShown(d.Slot)} {d.Fit.Count}"))}"));
 		Console.WriteLine(L($"\nTo search: targets <position>   (e.g. targets {PositionShown("DL")}, targets \"left back\")"));
 		return 0;
 	}

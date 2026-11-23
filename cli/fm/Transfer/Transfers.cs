@@ -56,7 +56,7 @@ internal static partial class Program
 				shown.Draw();
 				var answers = await TalkOptions();
 				if (answers.Count > 0) Console.WriteLine(L($"\nThe options on screen: {string.Join(" · ", answers.Select(a => a.Label))}  (talk <no>)"));
-				Console.WriteLine(L("To answer an incoming offer: offers <#> accept --yes · offers <#> reject --yes · offers <#> stall"));
+				Ui.Hint(L("To answer an incoming offer: offers <#> accept --yes · offers <#> reject --yes · offers <#> stall"));
 				return 0;
 			}
 			Console.Error.WriteLine(L("usage: offer <player> [fee, e.g. 7.5M | 750K] [--term \"Term=value\"]… [--loan] [--dry] [--yes]"));

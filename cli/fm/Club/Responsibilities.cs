@@ -68,8 +68,8 @@ internal static partial class Program
 				Table.Write([L("JOB"), L("WHO HAS IT"), ""], group.Select(d => new[] { d.Title, d.Holder, d.Mine ? L("yours") : d.CanTake ? L("delegated") : L("delegated (locked)") }).ToList());
 			}
 		}
-		if (area == null && typed.Length == 0) Console.WriteLine(L("\nOne area only: responsibilities media | training | tactics | match day | set pieces | transfer | scouting | staff | board"));
-		Console.WriteLine(L("\nTo delegate: responsibilities delegate \"<duty>\"   ·   to someone in particular: responsibilities give \"<duty>\" <person>   ·   to take back: responsibilities take \"<duty>\""));
+		if (area == null && typed.Length == 0) Ui.Hint(L("\nOne area only: responsibilities media | training | tactics | match day | set pieces | transfer | scouting | staff | board"));
+		Ui.Hint(L("\nTo delegate: responsibilities delegate \"<duty>\"   ·   to someone in particular: responsibilities give \"<duty>\" <person>   ·   to take back: responsibilities take \"<duty>\""));
 		return 0;
 	}
 

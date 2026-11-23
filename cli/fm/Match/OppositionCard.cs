@@ -180,7 +180,7 @@ internal static partial class Program
 		else
 			Table.Write([L("PLAYER"), .. OppositionColumns.Select(c => c.Head)], rows.Select(r => new[] { Field(r, "Name") }.Concat(OppositionColumns.Select(c => Value(r, c.Key))).ToArray()).ToList());
 		if (words.Count == 0 && !args.Contains("--advice") && !args.Contains("--clear"))
-			Console.WriteLine(L("\nThe assistant's suggestion: opposition --advice · clear: --clear · by hand: opposition <player> Pressing=Always Tackling=Hard"));
+			Ui.Hint(L("\nThe assistant's suggestion: opposition --advice · clear: --clear · by hand: opposition <player> Pressing=Always Tackling=Hard"));
 		return 0;
 
 		// The plugin reads the choices in English, but they are shown, and the help line names them,

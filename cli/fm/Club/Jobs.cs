@@ -174,7 +174,7 @@ internal static partial class Program
 			jobs.Select(j => all
 				? (string[])[j.Number.ToString(), j.Club, j.League, j.Nation, j.Position, j.Reputation, j.Finances, j.Manager, j.Security]
 				: [j.Number.ToString(), j.Club, j.League, j.Nation, j.Position, j.Reputation, j.Finances]).ToList());
-		Console.WriteLine(L("\nDetails: jobs <club|#>   ·   apply: jobs <club> apply   ·   declare interest: jobs <club> interest   ·   every job: jobs --all"));
+		Ui.Hint(L("\nDetails: jobs <club|#>   ·   apply: jobs <club> apply   ·   declare interest: jobs <club> interest   ·   every job: jobs --all"));
 		return 0;
 	}
 

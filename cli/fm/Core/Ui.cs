@@ -100,4 +100,71 @@ internal static class Ui
 	/// <summary>Cuts a name to a width, marking the cut.</summary>
 	public static string Fit(string text, int width) =>
 		text.Length <= width ? text : text[..(width - 1)] + "…";
+
+	/// <summary>
+	/// A hint line ("to apply: advice 1 apply   ·   all seen: …") written so it fits the terminal:
+	/// a line too wide breaks where its parts meet (the ·), the parts after the first indented;
+	/// a part still too wide breaks between words. A pipe, a script or MCP gets the line whole.
+	/// </summary>
+	public static void Hint(string text, TextWriter? to = null)
+	{
+		to ??= Console.Out;
+		// The MCP server's output is always a pipe, whichever writer it swapped in.
+		var terminal = !Console.IsOutputRedirected && (to != Console.Error || !Console.IsErrorRedirected);
+		if (!terminal || Format != null)
+		{
+			to.WriteLine(text);
+			return;
+		}
+		int width;
+		try { width = Console.WindowWidth >= 40 ? Console.WindowWidth : 80; }
+		catch (IOException) { width = 80; }
+		foreach (var line in text.Split('\n'))
+			foreach (var row in HintRows(line, width - 1)) to.WriteLine(row);
+	}
+
+	internal static IEnumerable<string> HintRows(string line, int width)
+	{
+		if (line.Length <= width)
+		{
+			yield return line;
+			yield break;
+		}
+		const string indent = "  ";
+		var separator = line.Contains("   ·   ") ? "   ·   " : " · ";
+		var parts = line.Split(separator).Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
+		var lead = line[..(line.Length - line.TrimStart().Length)];
+		var row = "";
+		var first = true;
+		foreach (var part in parts)
+		{
+			var start = first ? lead : indent;
+			var joined = row.Length == 0 ? start + part : $"{row} · {part}";
+			if (joined.Length <= width)
+			{
+				row = joined;
+				continue;
+			}
+			if (row.Length > 0)
+			{
+				yield return row;
+				first = false;
+				start = indent;
+			}
+			// A part on its own that is still too wide breaks between words.
+			row = start;
+			foreach (var word in part.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+			{
+				var next = row.Trim().Length == 0 ? row + word : $"{row} {word}";
+				if (next.Length > width && row.Trim().Length > 0)
+				{
+					yield return row;
+					first = false;
+					row = indent + word;
+				}
+				else row = next;
+			}
+		}
+		if (row.Length > 0) yield return row;
+	}
 }

@@ -57,7 +57,7 @@ internal static partial class Program
 
 		if (words.Count < 2 || Fold(words[^1]) is not ("view" or "accept" or "stall" or "reject" or "goster" or "kabul" or "beklet" or "reddet"))
 		{
-			Console.Error.WriteLine(L("usage: offers   ·   offers <# | player> view | accept | stall | reject [--yes]"));
+			Ui.Hint(L("usage: offers   ·   offers <# | player> view | accept | stall | reject [--yes]"), Console.Error);
 			return 64;
 		}
 		var verb = Fold(words[^1]) switch { "goster" => "view", "kabul" => "accept", "beklet" => "stall", "reddet" => "reject", var v => v };

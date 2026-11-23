@@ -67,7 +67,7 @@ internal static partial class Program
 				Console.WriteLine($"  {i + 1,2}  {(r.Subject.Length > 0 ? r.Subject + " — " : "")}{r.Action}{AdviceMark(r)}");
 				if (r.Says.Length > 0) Console.WriteLine($"      {r.Says}");
 			}
-			if (!Ui.Interactive) Console.WriteLine(L("\nTo apply: advice <no> apply   ·   to mark it seen: advice <no> seen   ·   all seen: advice all seen"));
+			if (!Ui.Interactive) Ui.Hint(L("\nTo apply: advice <no> apply   ·   to mark it seen: advice <no> seen   ·   all seen: advice all seen"));
 			return 0;
 		}
 

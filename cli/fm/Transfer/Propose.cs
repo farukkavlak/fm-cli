@@ -22,7 +22,7 @@ internal static partial class Program
 		}
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(L("usage: propose <player> [fee] [--yes]  ·  propose <player> --loan [--yes]   (offer to clubs; with no fee given, \"unspecified\")"));
+			Ui.Hint(L("usage: propose <player> [fee] [--yes]  ·  propose <player> --loan [--yes]   (offer to clubs; with no fee given, \"unspecified\")"), Console.Error);
 			return 64;
 		}
 		// FM27 lists the offer among his actions ("Offer via TransferRoom"), told by the action it stands for

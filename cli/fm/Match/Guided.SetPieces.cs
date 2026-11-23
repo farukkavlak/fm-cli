@@ -16,7 +16,7 @@ internal static partial class Program
 		var words = Words(args).ToList();
 		if (words.Count == 0)
 		{
-			Console.Error.WriteLine(RoutineUsage);
+			Ui.Hint(RoutineUsage, Console.Error);
 			return 64;
 		}
 		if (words[0] != "new") return await SetPieceRoutine(args.Contains("--json"), words);

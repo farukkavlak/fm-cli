@@ -89,7 +89,7 @@ internal static partial class Program
 			if (Ui.Rich) Ui.Line($"  {Ui.Safe(player.Name),-24} [{LevelColour(player.Score)}]{Ui.Safe(player.Level)}[/][dim]{Ui.Safe(flag)}[/]");
 			else Console.WriteLine($"  {player.Name,-24} {player.Level}{flag}");
 		}
-		Console.WriteLine(L("\nWhy: happiness <player>   ·   everyone's complaints: happiness --why"));
+		Ui.Hint(L("\nWhy: happiness <player>   ·   everyone's complaints: happiness --why"));
 		return 0;
 	}
 

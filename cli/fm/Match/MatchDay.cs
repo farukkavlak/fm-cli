@@ -634,7 +634,7 @@ internal static partial class Program
 					? L($"The match stopped at {time}': {string.Join(", ", hurt)} is injured; the game is waiting for a substitution.")
 					: L($"The match stopped at {time}'. If it was paused: resume. Otherwise the game is waiting for a decision (most likely a substitution after an injury or a red card)."));
 				// Seen at a real injury stop: `sub` then `match` carried on from there.
-				Console.Error.WriteLine(L("For a substitution: sub <off> <on>   ·   to carry on as it is: match   ·   what is on screen: buttons"));
+				Ui.Hint(L("For a substitution: sub <off> <on>   ·   to carry on as it is: match   ·   what is on screen: buttons"), Console.Error);
 				return 1;
 			}
 

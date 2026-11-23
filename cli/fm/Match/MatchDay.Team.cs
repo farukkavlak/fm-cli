@@ -148,19 +148,19 @@ internal static partial class Program
 		// mends that. It is known by the wizard's Start, which the set pieces tab carries only while none is set up.
 		if (await SetPiecesUnset())
 		{
-			Console.Error.WriteLine(L($"{problem} The team has no set piece routines, and the game will not start the match without them. To set them up: setpieces new   ·   then: match"));
+			Ui.Hint(L($"{problem} The team has no set piece routines, and the game will not start the match without them. To set them up: setpieces new   ·   then: match"), Console.Error);
 			return 1;
 		}
 
 		if (!Ui.Interactive)
 		{
-			Console.Error.WriteLine(L($"{problem} To have the assistant pick again: tactic pick (youth players too: tactic pick --youth)   ·   yourself: tactic player <position> <player>   ·   then: match"));
+			Ui.Hint(L($"{problem} To have the assistant pick again: tactic pick (youth players too: tactic pick --youth)   ·   yourself: tactic player <position> <player>   ·   then: match"), Console.Error);
 			return 1;
 		}
 		var choice = Ui.Ask(problem, [L("Let the assistant pick again (Quick Pick)"), L("Let the assistant pick, youth players too")], cancel: L("I will change it myself, leave the match"));
 		if (choice == null)
 		{
-			Console.WriteLine(L("For the squad: tactic player <position> <player>   ·   then: match"));
+			Ui.Hint(L("For the squad: tactic player <position> <player>   ·   then: match"));
 			return 0;
 		}
 		return await TacticPick(dry: false, youth: choice == 1) != 0 ? 1 : null;

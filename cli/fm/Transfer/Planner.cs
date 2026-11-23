@@ -125,7 +125,7 @@ internal static partial class Program
 		Console.WriteLine(season switch { "1" => L("Next season"), "2" => L("Season after"), _ => L("Current season") });
 		if (rows.Count == 0) Console.WriteLine(L("No player is planned here."));
 		else Table.Write(["#", L("PLAYER"), L("AGE"), L("POSITION"), L("VALUE")], rows.Select(r => new[] { (r.Index + 1).ToString(), Field(r.Data, "Name"), Field(r.Data, "Age"), Field(r.Data, "PositionCombinedString"), Field(r.Data, "TransferValueRange.TransferValueRangeString") }).ToList());
-		Console.WriteLine(L($"\nOther positions: planner --position <one of> {PlannerTileNames(tiles)}"));
+		Ui.Hint(L($"\nOther positions: planner --position <one of> {PlannerTileNames(tiles)}"));
 		return 0;
 	}
 

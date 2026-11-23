@@ -192,7 +192,7 @@ internal static partial class Program
 					Console.Error.WriteLine(L($"'{goal.Text}' is still there: the game did not take it out."));
 					return 1;
 				}
-				Console.WriteLine(L($"Removed: {goal.Text}. To put it to the board: vision suggest   ·   to undo: vision undo"));
+				Ui.Hint(L($"Removed: {goal.Text}. To put it to the board: vision suggest   ·   to undo: vision undo"));
 				return 0;
 			}
 		}
@@ -221,7 +221,7 @@ internal static partial class Program
 			last = goals[i].Actionable;
 			Console.WriteLine($"  {i + 1}  {goals[i].Text} — {goals[i].Weight}{(goals[i].Removable ? "" : L(" (cannot be removed)"))}");
 		}
-		Console.WriteLine(L("\nAccept: vision confirm   ·   remove an objective: vision remove <no>, then vision suggest   ·   undo: vision undo / reset   ·   finish: vision end"));
+		Ui.Hint(L("\nAccept: vision confirm   ·   remove an objective: vision remove <no>, then vision suggest   ·   undo: vision undo / reset   ·   finish: vision end"));
 		return 0;
 	}
 }

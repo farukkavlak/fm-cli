@@ -153,11 +153,11 @@ internal static partial class Program
 		table.Add(new[] { L("workload") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? areas[i].Load : "")).ToArray());
 		table.Add(new[] { L("lead coach") }.Concat(CoachAreas.Select((_, i) => i < areas.Count ? Stars(areas[i].HalfStars) is { Length: > 0 } st ? st : L("none") : "")).ToArray());
 		Table.Write(headers, table);
-		Console.WriteLine(L("ATT attacking · DEF defending · POS possession · TAC tactical · TEC technical · FIT fitness · SPC set pieces"));
+		Ui.Hint(L("ATT attacking · DEF defending · POS possession · TAC tactical · TEC technical · FIT fitness · SPC set pieces"));
 
 		var empty = CoachAreas.Where((_, i) => !rows.Any(r => r.Cells[i].On)).Select(a => a.Turkish.ToLowerInvariant()).ToList();
 		if (empty.Count > 0) Console.WriteLine(L($"Area with no coach: {string.Join(", ", empty)}"));
-		Console.WriteLine(L("To assign: coaches <coach> <area>   (to remove: --off;  to leave it to the assistant: --auto)"));
+		Ui.Hint(L("To assign: coaches <coach> <area>   (to remove: --off;  to leave it to the assistant: --auto)"));
 	}
 
 	/// <summary>
