@@ -6,6 +6,10 @@ Play the real **Football Manager 27** from a terminal.
 - The `fm` CLI turns them into commands. An MCP server gives AI clients the same commands.
 - The game stays open in the background. No screen capture, no mouse.
 
+<p align="center">
+  <img src="docs/readme/live-match.png" alt="fm match --play: a live match with the radar, stats and commentary" width="820">
+</p>
+
 ```
 $ fm status
 FM is open, save loaded. 25 September 2038 Saturday 13:00
@@ -20,6 +24,30 @@ Ready to continue: next
 - Match day with a live panel and radar; press conferences and talks.
 - Output in the game's language. `fm lang english|turkish|auto` changes only the CLI.
 - Sentences instead of commands (Turkish or English). Anything that changes the game asks first.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/readme/player.png" alt="fm player: a player's card with attributes and ability"></td>
+    <td width="50%"><img src="docs/readme/tactic.png" alt="fm tactic: the formation with and without the ball, roles and players"></td>
+  </tr>
+  <tr>
+    <td align="center"><code>fm player "&lt;name&gt;"</code></td>
+    <td align="center"><code>fm tactic</code></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/readme/radar-braille.png" alt="the match radar drawn in braille"></td>
+    <td width="33%"><img src="docs/readme/radar-pixel.png" alt="the match radar drawn in pixels"></td>
+    <td width="33%"><img src="docs/readme/radar-iso.png" alt="the match radar drawn in isometric view"></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="3">The match radar in three of its seven styles, drawn from the game's own positions: <code>r</code> during a match</td>
+  </tr>
+</table>
+
+More in the [illustrated manual](docs/MANUAL.md).
 
 ## Requirements
 
