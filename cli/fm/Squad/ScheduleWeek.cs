@@ -100,7 +100,7 @@ internal static partial class Program
 			await Leave("EventFmxCancelTrainingWeekEditFromCard");
 			Console.Error.WriteLine(what switch
 			{
-				"paste" => L("Nothing has been copied yet: schedule copy"),
+				"paste" => L("The game offers no paste for that week: copy another week of this team first (schedule copy)."),
 				_ => L("The game offers nothing to clear in that week."),
 			});
 			return 1;

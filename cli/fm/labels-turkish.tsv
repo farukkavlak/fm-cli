@@ -2409,7 +2409,7 @@ On screen	Ekranda
 No cup draw is open. A draw's message offers one: reply	Açık kupa kurası yok. Kura mesajı açar: reply
 Told to run the draw, but it did not finish.	Kura çekilsin denildi ama bitmedi.
 The cup draw is open; the message closes when it is done. To run it: draw	Kupa kurası açık; bitince mesaj kapanır. Çekmek için: draw
-Nothing has been copied yet: schedule copy	Henüz kopyalanmış hafta yok: schedule copy
+The game offers no paste for that week: copy another week of this team first (schedule copy).	Oyun o haftaya yapıştırmayı açmıyor: önce bu takımın başka bir haftasını kopyala (schedule copy).
 The week is copied. To put it on another: schedule paste <weeks ahead>	Hafta kopyalandı. Başka haftaya koymak için: schedule paste <kaç hafta sonra>
 The copied week is pasted.	Kopyalanan hafta yapıştırıldı.
 The week is cleared.	Hafta temizlendi.
