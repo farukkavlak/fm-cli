@@ -143,6 +143,10 @@ internal static partial class Program
 		["start"] = ["--debug", "--menu"],
 		["completion"] = ["zsh", "bash"],
 		["lang"] = ["english", "turkish", "auto"],
+		["vision"] = ["confirm", "remove", "suggest", "undo", "reset", "end", "plan", "add"],
+		["transferroom"] = ["offer", "activity", "wanted", "responses", "new", "delete", "agents", "discard", "--loan", "--all"],
+		["budget"] = ["adjust"],
+		["talk"] = ["leave"],
 	};
 
 	// Commands whose next word is one of our players, which completion offers by name.
@@ -164,7 +168,87 @@ internal static partial class Program
 	// The squad's names for the session's tab, asked of the game once and again after each command.
 	private static List<string>? namesForTab;
 
-	internal static void ForgetNames() => namesForTab = null;
+	internal static void ForgetNames()
+	{
+		namesForTab = null;
+		staffForTab = null;
+		competitionsForTab = null;
+	}
+
+	private static List<string>? staffForTab;
+	private static List<string>? competitionsForTab;
+
+	private static bool NameFits(string name, string folded) =>
+		folded.Length == 0 || Fold(name).StartsWith(folded, StringComparison.Ordinal)
+		|| Fold(name).Split(' ').Any(part => part.StartsWith(folded, StringComparison.Ordinal));
+
+	/// <summary>Everyone on the staff, from the team's own record; no page opened.</summary>
+	private static async Task<List<string>> StaffNamesFor(string folded)
+	{
+		try
+		{
+			staffForTab ??= [.. (await Fm.Pull("Human.Team.StaffAllList", "Name", list: true)).EnumerateArray()
+				.Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct()];
+		}
+		catch (Exception e) when (e is not OperationCanceledException) { return []; }
+		return [.. staffForTab.Where(n => NameFits(n, folded)).Order()];
+	}
+
+	/// <summary>The competitions our team is in, as the game names them.</summary>
+	private static async Task<List<string>> CompetitionNamesFor(string folded)
+	{
+		try { competitionsForTab ??= [.. (await ClubCompetitions()).Select(c => c.Name).Distinct()]; }
+		catch (Exception e) when (e is not OperationCanceledException) { return []; }
+		return [.. competitionsForTab.Where(n => NameFits(n, folded))];
+	}
+
+	/// <summary>The numbers the last `inbox` showed, in order.</summary>
+	private static IEnumerable<string> InboxNumbers()
+	{
+		var count = 0;
+		while (Remembered(count + 1) != null) count++;
+		return Enumerable.Range(1, count).Select(n => n.ToString());
+	}
+
+	/// <summary>
+	/// The words a command takes as its second word ("scout new", "tactic role", "schedule copy"),
+	/// read from the help's own lines so a new one is offered once the help names it.
+	/// </summary>
+	private static readonly Dictionary<string, string[]> SubCommands = ReadSubCommands();
+
+	private static Dictionary<string, string[]> ReadSubCommands()
+	{
+		var found = new Dictionary<string, HashSet<string>>();
+		var parent = "";
+		foreach (var raw in HelpEnglish.Split('\n'))
+		{
+			var line = raw.Replace("\t", "").TrimEnd();
+			var indent = line.Length - line.TrimStart().Length;
+			// The usage ends where the description starts, two spaces on.
+			var usage = line.Trim();
+			if (usage.IndexOf("  ", StringComparison.Ordinal) is var gap and > 0) usage = usage[..gap];
+			var words = usage.Split(' ', StringSplitOptions.RemoveEmptyEntries).SkipWhile(w => w == "fm").ToList();
+			if (words.Count == 0) continue;
+			string command;
+			IEnumerable<string> rest;
+			if (indent == 2 && CommandNames.Contains(words[0])) (command, rest) = (parent = words[0], words.Skip(1));
+			else if (indent == 4 && parent.Length > 0) (command, rest) = (parent, words);
+			else continue;
+			// "copy | paste | clear", "week|month|match": every word of the alternatives.
+			var subs = new List<string>();
+			foreach (var w in rest)
+			{
+				var parts = w.Split('|', StringSplitOptions.RemoveEmptyEntries);
+				if (w == "|") continue;
+				if (parts.Length == 0 || !parts.All(x => System.Text.RegularExpressions.Regex.IsMatch(x, "^[a-z][a-z-]*$"))) break;
+				subs.AddRange(parts);
+				if (!w.Contains('|') && rest.SkipWhile(x => x != w).Skip(1).FirstOrDefault() != "|") break;
+			}
+			foreach (var sub in subs.Where(x => x != command))
+				(found.TryGetValue(command, out var set) ? set : found[command] = []).Add(sub);
+		}
+		return found.ToDictionary(kv => kv.Key, kv => kv.Value.ToArray());
+	}
 
 	/// <summary>The command a typed word stands for, as <see cref="ResolveCommand"/> finds it, but saying nothing when none.</summary>
 	internal static string? QuietCommand(string word)
@@ -191,7 +275,24 @@ internal static partial class Program
 		if (QuietCommand(before[0]) is not { } command) return [];
 
 		var choices = CommandFlags.GetValueOrDefault(command, [])
+			.Concat(before.Length == 1 ? SubCommands.GetValueOrDefault(command, []) : [])
+			.Distinct()
 			.Where(f => !before.Contains(f) && f.StartsWith(folded, StringComparison.Ordinal)).ToList();
+
+		// What the word before asks for: a coach or a scout by name.
+		if (before[^1] is "--coach" or "--by")
+			return await StaffNamesFor(folded);
+		if (!word.StartsWith('-'))
+		{
+			// The first word after these is a competition of ours, as the game names it.
+			if (command is "table" or "stages" or "league" && before.Length == 1)
+				choices.AddRange(await CompetitionNamesFor(folded));
+			if (command is "staff" && before.Length == 2 && before[1] is "fire" or "hire" or "find" || command is "coaches" && before.Length == 1)
+				choices.AddRange(await StaffNamesFor(folded));
+			// The numbers the last `inbox` showed, as `reply` takes them.
+			if (command is "reply" && before.Length == 1)
+				choices.AddRange(InboxNumbers().Where(n => n.StartsWith(folded, StringComparison.Ordinal)));
+		}
 
 		if (TakesOurPlayer.Contains(command) && !word.StartsWith('-'))
 		{

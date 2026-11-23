@@ -5,10 +5,11 @@ namespace FmCli;
 /// <summary>Moving the game's clock forward, and saying where it stands.</summary>
 internal static partial class Program
 {
-	private static readonly string[] Months =
+	// Read each time: the CLI's language is known only once the game has answered.
+	private static string[] Months =>
 		[L("January"), L("February"), L("March"), L("April"), L("May"), L("June"), L("July"), L("August"), L("September"), L("October"), L("November"), L("December")];
 
-	private static readonly string[] Days = [L("Sunday"), L("Monday"), L("Tuesday"), L("Wednesday"), L("Thursday"), L("Friday"), L("Saturday")];
+	private static string[] Days => [L("Sunday"), L("Monday"), L("Tuesday"), L("Wednesday"), L("Thursday"), L("Friday"), L("Saturday")];
 
 	/// <summary>
 	/// Presses Continue and waits for the game to come to rest, then says what changed: the

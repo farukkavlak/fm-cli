@@ -34,11 +34,6 @@ Speed
 
 Session (`fm›`)
 
-- [ ] T182 Tab completes more
-  - [ ] Sub-commands (`scout new`, `tactic role`, `schedule set`)
-  - [ ] Competition names for `table`, `stages`, `league` (the game's own list)
-  - [ ] Staff names for `staff`, `training --coach`, `scout --by`
-  - [ ] Message numbers from the last `inbox`
 
 Help and finding things
 
