@@ -24,14 +24,12 @@ internal static partial class Program
 		{
 			try
 			{
-				var players = await Fm.Pull("Human.Team.Players", SquadBoard.Fields, list: true);
+				// Each player's nation in the same reading as his row: one call, not two for every player (2 s for 32).
+				var players = await Fm.Pull("Human.Team.Players", SquadBoard.Fields + ",Nation.ThreeLetterName", list: true);
 				if (players.ValueKind == JsonValueKind.Array && players.GetArrayLength() > 0)
 				{
-					// Each player's nation hangs under his row: all bound first, then read.
-					var placed = players.EnumerateArray().Select(p => (Name: Field(p, "Name"), Row: Field(p, "Row"))).Where(r => r.Row.Length > 0).ToList();
-					foreach (var r in placed) await Fm.GetJson("pull", ("path", r.Row + ".Nation"), ("props", "ThreeLetterName"));
 					var nations = new Dictionary<string, string>();
-					foreach (var r in placed) nations[r.Name] = Field(await Fm.Pull(r.Row + ".Nation", "ThreeLetterName"), "ThreeLetterName");
+					foreach (var p in players.EnumerateArray()) nations[Field(p, "Name")] = Field(p, "Nation.ThreeLetterName");
 					SquadBoard.Draw(players, nations, await SquadFlags());
 					// A number typed next is the shirt number the table showed; no one is picked by a number two wear.
 					var worn = players.EnumerateArray()

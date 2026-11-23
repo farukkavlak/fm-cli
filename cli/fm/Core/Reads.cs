@@ -111,7 +111,7 @@ internal static partial class Program
 			if (opened.StartsWith("error", StringComparison.Ordinal))
 				throw new FmError((await Fm.GetJson("pages")).GetArrayLength() == 0 ? await PagesClosed() : opened);
 			if (!await Until(async () => (boxes = (await Fm.GetJson("textboxes")).EnumerateArray().ToList())
-				    .Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.25))
+				    .Any(b => Field(b, "Type") == "SearchBox"), seconds: 10, every: 0.1))
 				boxes = [];
 		}
 		// The words the box already holds are what the results on screen answer. The game searches
@@ -260,7 +260,7 @@ internal static partial class Program
 					try { ids[i] = Field(await Fm.GetJson("pull", ("path", $"fmcli.record.p{i}"), ("props", "UniqueId")), "UniqueId"); }
 					catch (FmError) { }
 			return ids.Select((v, i) => paths[i].Length == 0 || v.Length > 0).All(x => x);
-		}, seconds: 4, every: 0.25);
+		}, seconds: 4, every: 0.1);
 		return ids;
 	}
 
@@ -291,7 +291,7 @@ internal static partial class Program
 					var read = await Fm.GetJson("pull", ("path", $"fmcli.youth{i}.Players"), ("props", "Name,UniqueId"), ("list", "1"));
 					rows = read.ValueKind == JsonValueKind.Array ? read.EnumerateArray().ToList() : [];
 					return rows.Count > 0 && rows.All(r => Field(r, "Name").Length > 0 && Field(r, "UniqueId").Length > 0);
-				}, seconds: 4, every: 0.25);
+				}, seconds: 4, every: 0.1);
 				found.AddRange(rows.Where(r => Field(r, "Name").Length > 0 && found.All(f => Field(f, "UniqueId") != Field(r, "UniqueId"))));
 			}
 			catch (FmError) { }
@@ -316,7 +316,7 @@ internal static partial class Program
 		{
 			all = (await Fm.Pull("Human.Team.Players", "Name,UniqueId", list: true, seconds: 5)).EnumerateArray().ToList();
 			return all.Count > 0 && all.All(p => Field(p, "Name").Length > 0);
-		}, seconds: 15, every: 0.25);
+		}, seconds: 15, every: 0.1);
 		var records = all.Where(p => Field(p, "Name").Length > 0).ToList();
 		// Ours in the youth sides too: "Yunus" is ours when the under-19s have him, and search alone found two others.
 		records.AddRange((await YouthPlayers()).Where(y => records.All(r => Field(r, "UniqueId") != Field(y, "UniqueId"))));
@@ -488,7 +488,7 @@ internal static partial class Program
 		// is believed only once the page shows his record.
 		var shown = "";
 		if (!await Until(async () => (card = await Fm.GetJson("player", ("name", full))).TryGetProperty("Player", out var page)
-		                             && (id.Length == 0 || (shown = (await RecordIds([Field(page, "Path")]))[0]) == id), seconds: 15, every: 0.25))
+		                             && (id.Length == 0 || (shown = (await RecordIds([Field(page, "Path")]))[0]) == id), seconds: 15, every: 0.1))
 		{
 			Console.Error.WriteLine(shown.Length > 0
 				? L($"Another {full}'s page opened, not the one in the squad.")

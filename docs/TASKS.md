@@ -17,13 +17,10 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 ## 9. Ease of use
 
-Measured 23 Nov (TR, scn-calm): fixtures 1.3 s, status 2, inbox 4, table 5.5, squad 5.5–7, player 7.7, targets 9, diff 13, advice 15.
+Measured 23 Nov (TR): fixtures 1.3 s, status 2, inbox 4, table 5.5, squad 1.2 (was 6.6), player 4.4 (was 4.9; the game's search panel is most of it), targets 9, diff 13, advice 5.6 (was 13).
 
 Speed
 
-- [ ] T177 Where `squad`, `player` and `advice` spend their time
-  - [ ] Time each step: page open, drawn, rows bound, read, waits
-  - [ ] Drop waits that are not the game's own sign; keep the old if the new is not faster on the same tests
 - [ ] T178 The session reads ahead: the squad's names for tab, the state for the prompt, while the line is being typed
 
 Session (`fm›`)

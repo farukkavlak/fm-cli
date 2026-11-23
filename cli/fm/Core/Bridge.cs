@@ -150,20 +150,21 @@ internal sealed class Bridge
 		// A list's entries are put at rows of their own for this reading.
 		var generation = list ? Interlocked.Increment(ref pulls).ToString() + DateTime.UtcNow.Ticks.ToString()[^6..] : "";
 		JsonElement data = default;
-		var attempts = Math.Max(6, (int)Math.Ceiling(seconds / 0.25));
+		// A list bound by one reading is filled by a later frame: asked again a little after, not a quarter second on.
+		var attempts = Math.Max(6, (int)Math.Ceiling(seconds / 0.1));
 		for (var attempt = 0; attempt < attempts; attempt++)
 		{
 			// A list bound by this very call holds nothing until the next frame.
 			try { data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation), ("shown", shown)); }
 			catch (FmError e) when (attempt < attempts - 1 && e.Message.Contains("is not a list", StringComparison.Ordinal))
 			{
-				await Task.Delay(TimeSpan.FromMilliseconds(250));
+				await Task.Delay(TimeSpan.FromMilliseconds(100));
 				continue;
 			}
 			var records = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().ToList() : [data];
 			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name is not ("Index" or "Row")) >= wanted);
 			if (complete && (attempt > 0 || records.Count > 0)) return data;
-			await Task.Delay(TimeSpan.FromMilliseconds(250));
+			await Task.Delay(TimeSpan.FromMilliseconds(100));
 		}
 		return data;
 	}

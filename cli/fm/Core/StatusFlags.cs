@@ -45,28 +45,48 @@ internal static partial class Program
 		catch (FmError) { return flags; }
 
 		const string props = "StatusTitleShort,StatusTitleFull,StatusReason,StatusFlag,StatusType,IneligibilityReason";
+		(string, (string, string)[]) Ask(string row) => ("pull", [("path", row + ".PlayerStatusFlagsForTeam"), ("props", props), ("list", "1"), ("gen", "f"),
+			// The words as the game shows them: raw, some came in English in a Turkish game ("Unhappy").
+			("shown", "StatusTitleShort,StatusTitleFull,StatusReason")]);
 		var waiting = rows.ToList();
-		// A list is bound by its first reading and filled on a later one: all are asked each round.
-		for (var round = 0; round < 5 && waiting.Count > 0; round++)
+		var round = 0;
+		// A list is bound by its first reading and filled on a later one: every row is asked each round, all in
+		// one frame of the game; the next round is a later frame. The seconds are only an upper bound.
+		await Until(async () =>
 		{
-			foreach (var r in waiting.ToList())
+			var asked = waiting.ToList();
+			List<string> answers;
+			try { answers = await Fm.Batch([.. asked.Select(r => Ask(r.Row))]) ?? []; }
+			catch (FmError) { answers = []; }
+			// A plugin without batches: one at a time.
+			if (answers.Count != asked.Count)
 			{
-				string answer;
-				// The words as the game shows them: raw, some came in English in a Turkish game ("Unhappy").
-				try { answer = await Fm.Get("pull", ("path", r.Row + ".PlayerStatusFlagsForTeam"), ("props", props), ("list", "1"), ("gen", "f"), ("shown", "StatusTitleShort,StatusTitleFull,StatusReason")); }
-				catch (FmError) { continue; }
+				answers = [];
+				foreach (var r in asked)
+				{
+					var (route, query) = Ask(r.Row);
+					try { answers.Add(await Fm.Get(route, query)); }
+					catch (FmError) { answers.Add("error"); }
+				}
+			}
+			for (var i = 0; i < asked.Count; i++)
+			{
+				var answer = answers[i];
 				if (answer.StartsWith("error", StringComparison.Ordinal)) continue;
-				var read = JsonDocument.Parse(answer).RootElement;
-				if (read!.ValueKind != JsonValueKind.Array) continue;
+				JsonElement read;
+				try { read = JsonDocument.Parse(answer).RootElement; }
+				catch (JsonException) { continue; }
+				if (read.ValueKind != JsonValueKind.Array) continue;
 				var entries = read.EnumerateArray().ToList();
 				if (entries.Any(e => Field(e, "StatusTitleShort").Length == 0)) continue;
 				// An empty list on the first round may only not be bound yet.
 				if (round == 0 && entries.Count == 0) continue;
-				flags[r.Name] = entries.Select(e => new Flag(Field(e, "StatusTitleShort"), Field(e, "StatusTitleFull"), Field(e, "StatusReason"), int.TryParse(Field(e, "StatusFlag"), out var id) ? id : -1, int.TryParse(Field(e, "StatusType"), out var type) ? type : -1, int.TryParse(Field(e, "IneligibilityReason"), out var why) ? why : 0)).ToList();
-				waiting.Remove(r);
+				flags[asked[i].Name] = entries.Select(e => new Flag(Field(e, "StatusTitleShort"), Field(e, "StatusTitleFull"), Field(e, "StatusReason"), int.TryParse(Field(e, "StatusFlag"), out var id) ? id : -1, int.TryParse(Field(e, "StatusType"), out var type) ? type : -1, int.TryParse(Field(e, "IneligibilityReason"), out var why) ? why : 0)).ToList();
+				waiting.Remove(asked[i]);
 			}
-			if (waiting.Count > 0) await Task.Delay(250);
-		}
+			round++;
+			return waiting.Count == 0;
+		}, seconds: 4, every: 0.05);
 		return flags;
 	}
 

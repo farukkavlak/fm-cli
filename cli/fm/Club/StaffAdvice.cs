@@ -154,7 +154,7 @@ internal static partial class Program
 		var tabButton = controls.EnumerateArray().FirstOrDefault(c => Field(c, "Kind") == "button" && Field(c, "Name") == button);
 		if (tabButton.ValueKind != JsonValueKind.Object) return false;
 		await Fm.Get("click", ("ptr", Field(tabButton, "Pointer")));
-		return await Until(async () => await AdviceBlock() is { } shown && IsBlock(shown, block), seconds: 8, every: 0.25);
+		return await Until(async () => await AdviceBlock() is { } shown && IsBlock(shown, block), seconds: 8, every: 0.1);
 	}
 
 	/// <summary>Every tab's rows, tab by tab; a tab that would not come up is left out and said.</summary>
@@ -187,22 +187,54 @@ internal static partial class Program
 		var shown = await AdviceBlock();
 		if (shown == null || !IsBlock(shown.Value, block)) return [];
 		var under = Field(shown.Value, "Source") + ".";
-		var rows = new List<AdviceRow>();
-		foreach (var ack in buttons.Where(b => Field(b, "Events").EndsWith(":EventFmxAcknowledgeAdvice", StringComparison.Ordinal)
-		                                       && Field(b, "Source").StartsWith(under, StringComparison.Ordinal)))
+		var acks = buttons.Where(b => Field(b, "Events").EndsWith(":EventFmxAcknowledgeAdvice", StringComparison.Ordinal)
+		                              && Field(b, "Source").StartsWith(under, StringComparison.Ordinal)).ToList();
+
+		// Everything a row is read by, for all rows at once (one frame of the game, not one a value): the row is the
+		// nearest node up to four above its button that holds the explanation, beside the action and its two flags.
+		static string[] RowCandidates(string source)
+		{
+			var parts = source.Split('.');
+			return [.. Enumerable.Range(1, Math.Min(4, parts.Length - 1)).Select(up => string.Join('.', parts[..^up]))];
+		}
+		var asks = new List<(string, (string, string)[])>();
+		foreach (var ack in acks)
 		{
 			var source = Field(ack, "Source");
+			foreach (var path in RowCandidates(source)) asks.Add(("get", [("path", $"..{path}.binding.SuggestionExplanationString")]));
+			asks.Add(("get", [("path", $"..{source}.suggestion.ActionString")]));
+			asks.Add(("get", [("path", $"..{source}.suggestion.IsSuggestionActioned")]));
+			asks.Add(("get", [("path", $"..{source}.suggestion.IsSuggestionAcknowledged")]));
+		}
+		var answers = await GetMany(asks);
+
+		var read = new List<(JsonElement Ack, string Source, string? RowPath, string Explanation, string Action, bool Done, bool Seen)>();
+		var at = 0;
+		foreach (var ack in acks)
+		{
+			var source = Field(ack, "Source");
+			string? rowPath = null;
+			var explanation = "";
+			foreach (var path in RowCandidates(source))
+			{
+				if (rowPath == null && StringAt(answers[at]) is { } said) (rowPath, explanation) = (path, said);
+				at++;
+			}
+			var action = StringAt(answers[at++]) ?? "";
+			var done = answers[at++].StartsWith("(Boolean) True", StringComparison.Ordinal);
+			var seen = answers[at++].StartsWith("(Boolean) True", StringComparison.Ordinal);
+			read.Add((ack, source, rowPath, explanation, action, done, seen));
+		}
+		var subjects = await AdviceSubjects([.. read.Select(r => r.RowPath)]);
+
+		var rows = new List<AdviceRow>();
+		for (var i = 0; i < read.Count; i++)
+		{
+			var (ack, source, _, explanation, action, done, seen) = read[i];
 			var mine = buttons.Where(b => Field(b, "Source") == source || Field(b, "Source").StartsWith(source + ".", StringComparison.Ordinal)).ToList();
 			var apply = mine.FirstOrDefault(b => AdviceApplyEvents.Any(e => Field(b, "Events").EndsWith(":" + e, StringComparison.Ordinal)));
 			var card = mine.Any(b => Field(b, "Events").Split(", ").Contains("OpenNewsActionPanel"));
-			var rowPath = await AdviceRowPath(source);
-			rows.Add(new AdviceRow(block, word, source,
-				rowPath == null ? "" : await AdviceSubject(rowPath),
-				rowPath == null ? "" : StringAt(await Fm.Get("get", ("path", $"..{rowPath}.binding.SuggestionExplanationString")))
-				                       ?? "",
-				StringAt(await Fm.Get("get", ("path", $"..{source}.suggestion.ActionString"))) ?? "",
-				await FlagAt($"..{source}.suggestion.IsSuggestionActioned"),
-				await FlagAt($"..{source}.suggestion.IsSuggestionAcknowledged"),
+			rows.Add(new AdviceRow(block, word, source, subjects[i], explanation, action, done, seen,
 				apply.ValueKind == JsonValueKind.Object && Pressable(apply) ? Field(apply, "Pointer") : null,
 				card,
 				Pressable(ack) ? Field(ack, "Pointer") : null));
@@ -210,28 +242,57 @@ internal static partial class Program
 		return rows;
 	}
 
-	/// <summary>The row above a button: the nearest node holding the advice's explanation.</summary>
-	private static async Task<string?> AdviceRowPath(string source)
+	/// <summary>
+	/// Who or which team each row's advice is about, read at a node of ours: bound by the first reading, filled on the
+	/// second. All rows go together, each round in one frame; "" for a row without a path or a subject.
+	/// </summary>
+	private static async Task<List<string>> AdviceSubjects(List<string?> rowPaths)
 	{
-		var parts = source.Split('.');
-		for (var up = 1; up <= 4 && up < parts.Length; up++)
+		var scopes = rowPaths.Select(p => p == null ? null : $"fmcli.adv{Interlocked.Increment(ref adviceScopes)}").ToList();
+		var set = await GetMany([.. rowPaths.Select((p, i) => (p, i)).Where(x => x.p != null)
+			.Select(x => ("pathset", new[] { ("to", scopes[x.i]!), ("from", $"..{x.p}.binding") }))]);
+		var bound = new bool[rowPaths.Count];
+		var k = 0;
+		for (var i = 0; i < rowPaths.Count; i++)
+			if (rowPaths[i] != null) bound[i] = !set[k++].StartsWith("error", StringComparison.Ordinal);
+
+		var names = rowPaths.Select(_ => (Person: "", Team: "")).ToList();
+		for (var reading = 0; reading < 2; reading++)
 		{
-			var path = string.Join('.', parts[..^up]);
-			if (StringAt(await Fm.Get("get", ("path", $"..{path}.binding.SuggestionExplanationString"))) != null) return path;
+			var asks = new List<(int Row, bool Person, (string, (string, string)[]) Ask)>();
+			for (var i = 0; i < rowPaths.Count; i++)
+			{
+				if (!bound[i]) continue;
+				if (names[i].Person.Length == 0)
+					asks.Add((i, true, ("pull", [("path", $"{scopes[i]}.SuggestionSubject.Person"), ("props", "Name"), ("gen", $"{scopes[i]}{reading}")])));
+				if (names[i].Team.Length == 0)
+					asks.Add((i, false, ("pull", [("path", $"{scopes[i]}.SuggestionSubject.Team"), ("props", "Name"), ("gen", $"{scopes[i]}{reading}")])));
+			}
+			var got = await GetMany([.. asks.Select(a => a.Ask)]);
+			for (var j = 0; j < asks.Count; j++)
+			{
+				if (got[j].StartsWith("error", StringComparison.Ordinal)) continue;
+				string name;
+				try { name = Field(JsonDocument.Parse(got[j]).RootElement, "Name"); }
+				catch (JsonException) { continue; }
+				var (row, person, _) = asks[j];
+				names[row] = person ? (name, names[row].Team) : (names[row].Person, name);
+			}
 		}
-		return null;
+		// The person when there is one, as the one-at-a-time reading had it, then the team.
+		return [.. names.Select(n => n.Person.Length > 0 ? n.Person : n.Team)];
 	}
 
-	/// <summary>Who or which team the advice is about, read at a node of ours (the game fills it on the second reading).</summary>
-	private static async Task<string> AdviceSubject(string rowPath)
+	/// <summary>Several bridge requests in one frame of the game; one at a time when the plugin has no batches.</summary>
+	private static async Task<List<string>> GetMany(List<(string Route, (string Key, string Value)[] Query)> asks)
 	{
-		var at = $"fmcli.adv{Interlocked.Increment(ref adviceScopes)}";
-		if ((await Fm.Get("pathset", ("to", at), ("from", $"..{rowPath}.binding"))).StartsWith("error", StringComparison.Ordinal)) return "";
-		foreach (var who in new[] { "SuggestionSubject.Person", "SuggestionSubject.Team" })
-			for (var reading = 0; reading < 2; reading++)
-				if (Field(await Fm.GetJson("pull", ("path", $"{at}.{who}"), ("props", "Name"), ("gen", $"{at}{reading}")), "Name") is { Length: > 0 } name)
-					return name;
-		return "";
+		if (asks.Count == 0) return [];
+		if (await Fm.Batch(asks) is { } all && all.Count == asks.Count) return all;
+		var one = new List<string>();
+		foreach (var (route, query) in asks)
+			try { one.Add(await Fm.Get(route, query)); }
+			catch (FmError e) { one.Add("error: " + e.Message); }
+		return one;
 	}
 
 	private static int adviceScopes;
