@@ -142,6 +142,16 @@ internal static partial class Program
 
 	internal static void ForgetNames() => namesForTab = null;
 
+	/// <summary>The command a typed word stands for, as <see cref="ResolveCommand"/> finds it, but saying nothing when none.</summary>
+	internal static string? QuietCommand(string word)
+	{
+		var typed = Fold(word);
+		return CommandNames.Contains(typed) ? typed
+			: CommandAliases.TryGetValue(typed, out var aliased) ? aliased
+			: CommandNames.Where(c => typed.Length >= 2 && c.StartsWith(typed, StringComparison.Ordinal)).ToList() is [var one] ? one
+			: null;
+	}
+
 	/// <summary>
 	/// What tab offers in the session for the word being typed: a command first, then that
 	/// command's options and, where it takes one, our players by any of their names' starts.
@@ -154,12 +164,7 @@ internal static partial class Program
 		if (before.Length == 0)
 			return [.. CommandNames.Append("quit").Append("clear").Where(c => c.StartsWith(folded, StringComparison.Ordinal)).Order()];
 
-		var typed = Fold(before[0]);
-		var command = CommandNames.Contains(typed) ? typed
-			: CommandAliases.TryGetValue(typed, out var aliased) ? aliased
-			: CommandNames.Where(c => typed.Length >= 2 && c.StartsWith(typed, StringComparison.Ordinal)).ToList() is [var one] ? one
-			: null;
-		if (command == null) return [];
+		if (QuietCommand(before[0]) is not { } command) return [];
 
 		var choices = CommandFlags.GetValueOrDefault(command, [])
 			.Where(f => !before.Contains(f) && f.StartsWith(folded, StringComparison.Ordinal)).ToList();

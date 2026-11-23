@@ -192,7 +192,10 @@ internal static partial class Program
 					: L($"The game showed a page first ({flow}); time did not move on."));
 			}
 			foreach (var message in arrived)
+			{
+				MessagesSaid.Add(Field(message, "UniqueId"));
 				Console.WriteLine(L($"  new: {Field(message, "NewsTitleString")}{(Blocking(message) ? L("  (awaiting an answer)") : "")}"));
+			}
 			if (until == "message" && arrived.Count > 0) break;
 			if (until != null && taken == times - 1)
 				Console.WriteLine(L($"Stopped after {times} steps without getting there."));

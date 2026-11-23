@@ -3051,3 +3051,10 @@ Add the folder fm is in to PATH.	fm'in bulunduğu klasörü PATH'e ekle.
 If this team's coach leads its general training, the game keeps his week: see responsibilities training, and take it with responsibilities take "<duty>".	Bu takımın genel antrenmanı antrenöründeyse oyun onun haftasını korur: responsibilities training ile bak, responsibilities take "<görev>" ile al.
 error: the club's first team could not be read	error: kulübün A takımı okunamadı
 The game asks: {0} — answer it with: dialog	Oyun soruyor: {0} — cevaplamak için: dialog
+joined: {0}	geldi: {0}
+injured: {0} ({1}{2})	sakatlandı: {0} ({1}{2})
+injured: {0}	sakatlandı: {0}
+back from injury: {0}	sakatlıktan döndü: {0}
+left: {0}	ayrıldı: {0}
+new: {0}{1}	yeni: {0}{1}
+{0} more new messages: inbox	{0} yeni mesaj daha: inbox

@@ -16,6 +16,7 @@ internal static class Session
 			Console.WriteLine();
 			await execute(["status"]);
 		}
+		await Program.NewsBaseline();
 
 		// Ctrl-C ends the command, not the session: at the prompt it starts a new line, and the game is left
 		// to go on with what it was doing (a holiday ends only by the game's own way).
@@ -64,6 +65,9 @@ internal static class Session
 
 			Program.ForgetNames();
 			await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), execute) : execute(words));
+			// A save loaded or the game closed is another starting point, not news.
+			if (Program.QuietCommand(words[0]) is "load" or "continue" or "start" or "stop") await Program.NewsBaseline();
+			else if (!Console.IsOutputRedirected) await Program.SayNews();
 		}
 
 		return 0;
