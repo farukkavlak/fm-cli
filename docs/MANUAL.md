@@ -44,6 +44,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - `fm` alone (or `fm start`) opens the `fm›` prompt: commands without `fm`, until `quit` or ctrl-D.
 - The first session on a terminal shows six lines on typing, tab, the arrows and `?`; once only (`~/.config/fm-cli/welcomed`).
 - The prompt says where things stand: `23 Ekim · maç 2 gün sonra · 1 cevap bekliyor fm›` (the date, days to the next match, priority messages still to answer). Read from the data tree after a command that moved the clock or answered something; no page is opened.
+- When a week of game days has gone by since the last save it saw, the prompt says so (`· 10 gündür kaydedilmedi`); it never saves. A save is seen by the newest file in the save folder (by hand or automatic) or a load; one made before the tool saw any is not counted.
 - Up/down: the lines typed before, kept between sessions (`~/.config/fm-cli/history`, last 500).
 - Ctrl-R: search them; type part of a line, ctrl-R again for an older one, enter runs it, esc or an arrow keeps it to edit, ctrl-G gives the line back.
 - A number alone picks a row of the list shown last, by the number in its # column: after `inbox`, `3` is `reply 3`; after `players` or `search`, that row's player; after `squad`, the player wearing that shirt number. Players are opened by the game's id. It says which list it took; any other command forgets the list.

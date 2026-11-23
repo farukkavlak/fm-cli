@@ -3089,3 +3089,4 @@ No {0} in the {1} list.	{1} listesinde {0} yok.
 {0}: nothing to open from here.	{0}: buradan açılacak bir şey yok.
 (as read a moment ago; the clock has not moved. Read again: --fresh)	(az önce okunduğu gibi; saat ilerlemedi. Yeniden okumak için: --fresh)
 go              on to match day (next --until match), stopping for anything that wants an answer; says what came in	go              maç gününe git (next --until match); cevap isteyen bir şeyde durur, gelenleri söyler
+not saved for {0} days	{0} gündür kaydedilmedi

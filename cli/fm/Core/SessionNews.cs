@@ -135,6 +135,7 @@ internal static partial class Program
 			parts.Add(days switch { 0 => L("match today"), 1 => L("match tomorrow"), _ => L($"match in {days} days") });
 		var waiting = look.Unread.Values.Count(Blocking);
 		if (waiting > 0) parts.Add(L($"{waiting} to answer"));
+		if (UnsavedFor(look) is { } unsaved) parts.Add(L($"not saved for {unsaved} days"));
 		return string.Join(" · ", parts);
 	}
 }

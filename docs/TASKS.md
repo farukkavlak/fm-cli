@@ -44,7 +44,6 @@ Output
 Playing
 
 - [ ] T191 `prep` as one pre-match screen: opponent report, picked side, injuries, tactic familiarity
-- [ ] T192 A reminder in the prompt when no save has been made for N game days (says it, never saves)
 
 Start and first use
 
