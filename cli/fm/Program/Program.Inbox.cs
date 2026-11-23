@@ -114,9 +114,14 @@ internal static partial class Program
 		var rows = top.EnumerateArray().Select(m => m.Clone()).ToList();
 		var seen = rows.Select(m => Field(m, "UniqueId")).Where(id => id.Length > 0).ToHashSet();
 		var from = new Dictionary<string, string>();
-		if (senders) await NoteSenders(from);
+		var days = new Dictionary<string, string>();
+		if (senders)
+		{
+			await NoteSenders(from);
+			await NoteDays(days);
+		}
 		var list = (await Fm.Get("inboxlist")).Trim();
-		if (list.StartsWith("error", StringComparison.Ordinal)) return WithSenders(rows, from);
+		if (list.StartsWith("error", StringComparison.Ordinal)) return WithDays(WithSenders(rows, from), days);
 		// The list draws a window of rows; scrolled by a fixed share, a long inbox (149 messages) was read with gaps
 		// between windows and a waiting message was missed. Each window must share a row with the one before:
 		// when it does not, the step is halved and the gap read again.
@@ -134,6 +139,7 @@ internal static partial class Program
 				ids.Add(id);
 				if (seen.Add(id)) rows.Add(m.Clone());
 			}
+			if (senders) await NoteDays(days);
 			return ids;
 		}
 		var last = rows.Select(m => Field(m, "UniqueId")).ToHashSet();
@@ -158,7 +164,7 @@ internal static partial class Program
 		await Fm.Get("scroll", ("ptr", list), ("to", "0"));
 		// In the order they came, as `inbox` lists its window: the order the scrolled pages handed rows
 		// out in is not the same twice (a message was 15th, then 23rd).
-		return WithSenders(rows.OrderBy(m => Id(m) is var id and >= 0 ? id : long.MaxValue).ToList(), from);
+		return WithDays(WithSenders(rows.OrderBy(m => Id(m) is var id and >= 0 ? id : long.MaxValue).ToList(), from), days);
 	}
 
 	/// <summary>
@@ -198,6 +204,48 @@ internal static partial class Program
 		}, seconds: 3, every: 0.2);
 		foreach (var (id, _) in wanted) from[id] = "";
 	}
+
+	/// <summary>
+	/// The day each message bound now was sent, by its id: the message's own `Date` (a GameDate, "yyyy-MM-dd"). The
+	/// list binds it only on the row that closes a day; put at a node of ours, every message has it on a later
+	/// reading. All rows go together, each round in one frame; the seconds are only an upper bound.
+	/// </summary>
+	private static async Task NoteDays(Dictionary<string, string> days)
+	{
+		var bound = (await Fm.GetJson("inbox", ("paths", "1"))).EnumerateArray()
+			.Select(m => (Id: Field(m, "UniqueId"), Path: Field(m, "Path")))
+			.Where(m => m.Id.Length > 0 && !days.ContainsKey(m.Id) && m.Path.EndsWith(".NewsItem", StringComparison.Ordinal))
+			.ToList();
+		if (bound.Count == 0) return;
+		var at = bound.ToDictionary(m => m.Id, m => $"fmcli.day{m.Id}");
+		await GetMany([.. bound.Select(m => ("pathset", new[] { ("to", at[m.Id]), ("from", m.Path) }))]);
+		var round = 0;
+		await Until(async () =>
+		{
+			var left = bound.Where(m => !days.ContainsKey(m.Id)).ToList();
+			var read = await GetMany([.. left.Select(m => ("pull", new[] { ("path", at[m.Id]), ("props", "Date"), ("gen", $"d{round}") }))]);
+			for (var i = 0; i < left.Count; i++)
+			{
+				if (read[i].StartsWith("error", StringComparison.Ordinal)) continue;
+				try
+				{
+					if (Field(JsonDocument.Parse(read[i]).RootElement, "Date") is { Length: 10 } day) days[left[i].Id] = day;
+				}
+				catch (JsonException) { }
+			}
+			round++;
+			return bound.All(m => days.ContainsKey(m.Id));
+		}, seconds: 2, every: 0.05);
+	}
+
+	private static List<JsonElement> WithDays(List<JsonElement> rows, Dictionary<string, string> days) =>
+		rows.Select(m =>
+		{
+			if (!days.TryGetValue(Field(m, "UniqueId"), out var day)) return m;
+			var row = System.Text.Json.Nodes.JsonNode.Parse(m.GetRawText())!.AsObject();
+			row["Date"] = day;
+			return JsonSerializer.SerializeToElement(row);
+		}).ToList();
 
 	private static List<JsonElement> WithSenders(List<JsonElement> rows, Dictionary<string, string> from) =>
 		rows.Select(m =>

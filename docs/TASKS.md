@@ -32,11 +32,6 @@ Help and finding things
 
 Output
 
-- [ ] T187 `inbox` easier to read
-  - [ ] A day heading over each day's messages, from the message's own date field
-  - [ ] Unread as one mark (●), not a word on every row
-  - [ ] Awaiting an answer stands out (colour, and first under its day)
-  - [ ] Numbers stay what `reply` takes (`inbox-numbers.json`)
 
 Playing
 
