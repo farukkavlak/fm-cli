@@ -3104,3 +3104,8 @@ Opponent	Rakip
 Our side	Bizim taraf
 Nobody is injured.	Sakat oyuncu yok.
 --list        the eleven as a list, not drawn on a pitch	--list        on bir saha çizimi yerine liste olarak
+the game's process is starting	oyun süreci başlıyor
+the game is up, the plugin is not ready yet	oyun açıldı, eklenti henüz hazır değil
+the plugin is ready, the main menu is being built	eklenti hazır, ana menü kuruluyor
+the main menu is being built	ana menü kuruluyor
+the save is loading	kayıt yükleniyor

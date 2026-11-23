@@ -22,6 +22,7 @@ Measured 23 Nov (TR): fixtures 1.3 s, status 2, inbox 4, table 5.5, squad 1.2 (w
 Speed
 
 - [ ] T195 `player` for one of ours opens his page without the search panel (~3 s of 4.4): a way to open a person by his record, found with `tools/sigdump`; keep the search for anyone else
+  - Tried 23 Nov, not kept: `OpenSubtabEvent` with `PlayerReport` and the id is ignored; the squad table's name link opens it but each row has two links and which one works changes (4–18 s)
 - [ ] T196 `opponent` waits on fields a team without data never has (the manager's name, the analysts' tiles): ~5 s of its 10; `prep --sessions` 6 s
 - [ ] T178 The session reads ahead: the squad's names for tab, the state for the prompt, while the line is being typed
 
@@ -39,7 +40,6 @@ Playing
 
 Start and first use
 
-- [ ] T193 `start` / `load` show the game's own stages while waiting: process up, plugin ready, menu built, save loading
 
 ## 10. Quality
 

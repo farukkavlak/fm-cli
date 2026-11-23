@@ -21,6 +21,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 ![fm status](manual/img/start/status.png)
 
+- `start` and `load` say which stage the game is in while they wait (its process, the plugin, the main menu, the save) and, at a terminal, the time so far.
 - `status` names injured players when the match is today or tomorrow: the picked ones when the tactics screen is up, otherwise the squad's.
 - `next` stops for an unanswered message, a press conference, match day, or a question after a match.
 - With the game's "Read Messages" setting, `next` first opens the unread messages, oldest first, as the game does.

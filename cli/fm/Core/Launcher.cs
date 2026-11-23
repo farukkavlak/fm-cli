@@ -128,7 +128,14 @@ internal static partial class Launcher
 		// The launch's shell ends with its game, so its ending before the menu is the launch having failed.
 		// The menu is the sign waited for; the bound only stops a game that never gets there. A start
 		// took from 1 to 4 minutes on one machine within the hour (23 Nov 2026), so 4 was too tight.
-		await WaitFor(async () => launch.HasExited || await Menu(fm), MenuBound);
+		await Staged(async () =>
+		{
+			if (launch.HasExited) return null;
+			if (!await Alive()) return L("the game's process is starting");
+			if (!await fm.Answers()) return L("the game is up, the plugin is not ready yet");
+			if (!await Menu(fm)) return L("the plugin is ready, the main menu is being built");
+			return null;
+		}, MenuBound);
 		if (launch.HasExited || !await Menu(fm))
 		{
 			Console.Error.WriteLine(!launch.HasExited && await Alive()
@@ -254,7 +261,7 @@ internal static partial class Launcher
 		if (!await Menu(fm))
 		{
 			Console.WriteLine(L("Waiting for the main menu…"));
-			if (!await WaitFor(() => Menu(fm), MenuBound))
+			if (!await Staged(async () => await Menu(fm) ? null : L("the main menu is being built"), MenuBound))
 			{
 				Console.Error.WriteLine(L("The game did not reach the main menu."));
 				return false;
@@ -269,7 +276,7 @@ internal static partial class Launcher
 			return false;
 		}
 
-		if (!await WaitFor(() => fm.InGame(), TimeSpan.FromMinutes(3)))
+		if (!await Staged(async () => await fm.InGame() ? null : L("the save is loading"), TimeSpan.FromMinutes(3)))
 		{
 			Console.Error.WriteLine(L("The save did not load."));
 			return false;
@@ -557,6 +564,32 @@ internal static partial class Launcher
 			return int.TryParse(digits, out var nodes) && nodes > 150;
 		}
 		catch (Exception e) when (e is FmUnavailable or FmBusy) { return false; }
+	}
+
+	/// <summary>
+	/// Waits while <paramref name="stage"/> names the stage the game is in (null once it is through), saying it:
+	/// at a terminal one line that keeps the stage and the time so far, elsewhere a line each time the stage
+	/// changes. Each stage is the game's own sign (its process, the plugin's answer, the menu built, a save in);
+	/// the time is only an upper bound. True when it got through.
+	/// </summary>
+	internal static async Task<bool> Staged(Func<Task<string?>> stage, TimeSpan timeout)
+	{
+		var started = DateTime.UtcNow;
+		string? said = null;
+		try
+		{
+			while (DateTime.UtcNow - started < timeout)
+			{
+				if (await stage() is not { } now) return true;
+				var took = DateTime.UtcNow - started;
+				if (Ui.Rich) Ui.Progress($"  {now}… {(int)took.TotalMinutes}:{took.Seconds:00}");
+				else if (now != said) Console.WriteLine($"  {now}…");
+				said = now;
+				await Task.Delay(TimeSpan.FromSeconds(1));
+			}
+			return await stage() is null;
+		}
+		finally { Ui.Progress(null); }
 	}
 
 	/// <summary>Asks <paramref name="condition"/> again every <paramref name="every"/> (3 s unless said) until it holds or time is up.</summary>

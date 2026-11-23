@@ -195,7 +195,7 @@ internal static partial class Program
 		var clicked = await Fm.Get("click", ("ptr", Field(load, "Pointer")));
 		if (clicked.StartsWith("error", StringComparison.Ordinal)) return Report(clicked);
 
-		if (!await Until(() => Fm.InGame(), seconds: 240, every: 3))
+		if (!await Launcher.Staged(async () => await Fm.InGame() ? null : L("the save is loading"), TimeSpan.FromMinutes(4)))
 		{
 			Console.Error.WriteLine(L("The save did not load."));
 			return 1;
