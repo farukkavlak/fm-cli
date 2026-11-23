@@ -37,7 +37,6 @@ Session (`fm›`)
 - [ ] T179 The prompt says where things stand: date, days to the next match, answers waiting
   - [ ] From the data tree only (`state`, `Human.HumanPortalUnreadMessages`), no page opened
   - [ ] Read after each command that moved the clock, not on a timer
-- [ ] T180 Ctrl-R searches the history
 - [ ] T181 A number alone picks from the last list shown
   - [ ] `inbox` then `3`: opens message 3 (`reply 3`)
   - [ ] `players` / `search` then `3`: that player's card

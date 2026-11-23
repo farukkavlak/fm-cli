@@ -3062,3 +3062,5 @@ The game is still starting after {0} minutes and has not reached the main menu; 
 unknown command: {0} — did you mean {1}?	bilinmeyen komut: {0} — bunu mu demek istedin: {1}?
  or 	 ya da 
 [dim]Every name: doctor --all[/]	[dim]Tüm isimler: doctor --all[/]
+search	arama
+no match	bulunamadı

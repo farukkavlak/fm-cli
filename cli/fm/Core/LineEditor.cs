@@ -93,6 +93,22 @@ internal sealed class LineEditor(Func<string[], string, Task<IReadOnlyList<strin
 						if (cursor < line.Length) line.Remove(cursor, 1);
 						break;
 
+					case ConsoleKey.R when ctrl:
+						if (shownRows > 0) Console.Write($"\u001b[{shownRows}A");
+						Console.Write("\r\u001b[J");
+						shownRows = 0;
+						var (found, run) = Search(line.ToString());
+						if (found != null) Set(found);
+						if (run)
+						{
+							Console.Write($"\r{prompt}{line}\u001b[J\r\n");
+							Remember(line.ToString());
+							return line.ToString();
+						}
+						Console.Write("\r\u001b[J");
+						Console.Write(prompt);
+						break;
+
 					case ConsoleKey.L when ctrl:
 						Console.Write("\u001b[2J\u001b[H");
 						shownRows = 0;
@@ -196,6 +212,72 @@ internal sealed class LineEditor(Func<string[], string, Task<IReadOnlyList<strin
 	}
 
 	private int? TabCursor;
+
+	/// <summary>
+	/// Ctrl-R: goes back through the lines typed before for one holding what is typed (case and
+	/// accents aside). Ctrl-R again finds an older one; enter runs it; esc, an arrow or another
+	/// key keeps it on the line to change; ctrl-C or ctrl-G gives back the line as it was. The
+	/// search is drawn on one row; the caller has cleared it.
+	/// </summary>
+	private (string? Line, bool Run) Search(string was)
+	{
+		var query = new System.Text.StringBuilder();
+		var at = history.Count; // the line found; Count is none
+		var failed = false;
+
+		int Find(int before)
+		{
+			for (var i = Math.Min(before, history.Count) - 1; i >= 0; i--)
+				if (Nl.Text.Fold(history[i]).Contains(Nl.Text.Fold(query.ToString()), StringComparison.Ordinal)) return i;
+			return -1;
+		}
+
+		void Draw()
+		{
+			var head = failed ? L($"no match") : L($"search");
+			var shown = $"({head}) '{query}': {(at < history.Count ? history[at] : "")}";
+			var width = Width();
+			if (shown.Length >= width) shown = shown[..(width - 2)] + "…";
+			Console.Write($"\r{shown}\u001b[K");
+		}
+
+		Draw();
+		while (true)
+		{
+			var key = Console.ReadKey(true);
+			var ctrl = key.Modifiers.HasFlag(ConsoleModifiers.Control);
+			switch (key.Key)
+			{
+				case ConsoleKey.Enter:
+					return at < history.Count ? (history[at], true) : (null, false);
+				case ConsoleKey.C when ctrl:
+				case ConsoleKey.G when ctrl:
+					return (was, false);
+				case ConsoleKey.R when ctrl:
+					if (query.Length == 0) break;
+					var older = Find(at);
+					failed = older < 0;
+					if (older >= 0) at = older;
+					break;
+				case ConsoleKey.Backspace:
+				case ConsoleKey.H when ctrl:
+					if (query.Length > 0) query.Length--;
+					var again = query.Length == 0 ? history.Count : Find(history.Count);
+					failed = again < 0 && query.Length > 0;
+					at = again < 0 ? history.Count : again;
+					break;
+				default:
+					if (key.KeyChar == '\0' || char.IsControl(key.KeyChar) || ctrl)
+						return (at < history.Count ? history[at] : was, false);
+					query.Append(key.KeyChar);
+					var match = Find(history.Count);
+					failed = match < 0;
+					if (match >= 0) at = match;
+					break;
+			}
+			Draw();
+		}
+	}
 
 	/// <summary>
 	/// Completes the word before the cursor. One choice is put in whole; several put in what they

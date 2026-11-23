@@ -28,6 +28,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 - `fm` alone (or `fm start`) opens the `fm›` prompt: commands without `fm`, until `quit` or ctrl-D.
 - Up/down: the lines typed before, kept between sessions (`~/.config/fm-cli/history`, last 500).
+- Ctrl-R: search them; type part of a line, ctrl-R again for an older one, enter runs it, esc or an arrow keeps it to edit, ctrl-G gives the line back.
 - Tab: a command, then its options; after `player`, `contract`, `compare` … our players, by any part of the name (`camp` → `"Àlex Campos"`). Tab twice lists the choices.
 - After a command that moves the clock (`next`, `holiday`, `match` …): the new messages (5, then how many more) and who got injured, came back, joined or left. Read without opening a page; nothing when the clock stood still or a save was loaded.
 - ctrl-C drops the line (or stops a running command, not the session); ctrl-A/E, ctrl-W, ctrl-U/K and alt-arrows edit as in a shell.
