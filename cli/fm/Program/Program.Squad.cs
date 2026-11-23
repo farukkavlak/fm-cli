@@ -33,6 +33,13 @@ internal static partial class Program
 					var nations = new Dictionary<string, string>();
 					foreach (var r in placed) nations[r.Name] = Field(await Fm.Pull(r.Row + ".Nation", "ThreeLetterName"), "ThreeLetterName");
 					SquadBoard.Draw(players, nations, await SquadFlags());
+					// A number typed next is the shirt number the table showed; no one is picked by a number two wear.
+					var worn = players.EnumerateArray()
+						.Where(p => Field(p, "UniqueId").Length > 0 && int.TryParse(Field(p, "SquadNumber"), out var n) && n > 0)
+						.GroupBy(p => int.Parse(Field(p, "SquadNumber")))
+						.Where(g => g.Count() == 1)
+						.ToDictionary(g => g.Key, g => (Field(g.First(), "Name"), new[] { "player", $"{Field(g.First(), "Name")} #{Field(g.First(), "UniqueId")}" }));
+					ShowedList("squad", worn);
 					return 0;
 				}
 			}

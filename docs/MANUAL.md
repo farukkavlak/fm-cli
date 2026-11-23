@@ -45,7 +45,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - The prompt says where things stand: `23 Ekim · maç 2 gün sonra · 1 cevap bekliyor fm›` (the date, days to the next match, priority messages still to answer). Read from the data tree after a command that moved the clock or answered something; no page is opened.
 - Up/down: the lines typed before, kept between sessions (`~/.config/fm-cli/history`, last 500).
 - Ctrl-R: search them; type part of a line, ctrl-R again for an older one, enter runs it, esc or an arrow keeps it to edit, ctrl-G gives the line back.
-- A number alone picks a row of the list shown last: after `inbox`, `3` is `reply 3`; after `players` or `search`, that player's page (by the game's id). It says which list it took; any other command forgets the list.
+- A number alone picks a row of the list shown last, by the number in its # column: after `inbox`, `3` is `reply 3`; after `players` or `search`, that row's player; after `squad`, the player wearing that shirt number. Players are opened by the game's id. It says which list it took; any other command forgets the list.
 - Tab: a command, then its options; after `player`, `contract`, `compare` … our players, by any part of the name (`camp` → `"Àlex Campos"`). Tab twice lists the choices.
 - After a command that moves the clock (`next`, `holiday`, `match` …): the new messages (5, then how many more) and who got injured, came back, joined or left. Read without opening a page; nothing when the clock stood still or a save was loaded.
 - ctrl-C drops the line (or stops a running command, not the session); ctrl-A/E, ctrl-W, ctrl-U/K and alt-arrows edit as in a shell.

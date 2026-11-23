@@ -9,7 +9,7 @@ namespace FmCli;
 /// </summary>
 internal static class SquadBoard
 {
-	public const string Fields = "Name,SquadNumber,PositionCombinedString,Age,Condition,Sharpness,IsInjured";
+	public const string Fields = "Name,UniqueId,SquadNumber,PositionCombinedString,Age,Condition,Sharpness,IsInjured";
 
 	/// <summary>Draws the board; <paramref name="nations"/> gives each player's three-letter nation by name, when read;
 	/// <paramref name="flags"/> each player's status flags by name, shown after the bars.</summary>

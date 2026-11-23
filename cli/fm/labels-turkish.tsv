@@ -3084,6 +3084,6 @@ match today	maç bugün
 match tomorrow	maç yarın
 match in {0} days	maç {0} gün sonra
 {0} to answer	{0} cevap bekliyor
-No list to pick {0} from: inbox, players or search first.	{0} hangi listeden seçilsin: önce inbox, players ya da search.
-The {0} list has {1} rows.	{0} listesinde {1} satır var.
+No list to pick {0} from: inbox, squad, players or search first.	{0} hangi listeden seçilsin: önce inbox, squad, players ya da search.
+No {0} in the {1} list.	{1} listesinde {0} yok.
 {0}: nothing to open from here.	{0}: buradan açılacak bir şey yok.
