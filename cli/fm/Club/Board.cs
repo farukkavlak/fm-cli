@@ -8,18 +8,22 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly (string Label, string Field)[] BoardAreas =
+	private static (string Language, (string Label, string Field)[] Value)? BoardAreasKept;
+
+	private static (string Label, string Field)[] BoardAreas => PerLanguage(ref BoardAreasKept, () =>
 	[
 		(L("Overall"), "BoardConfidenceOverallString"), (L("Matches"), "BoardMatchString"), (L("Squad"), "BoardSquadConfidenceString"),
 		(L("Tactics"), "BoardTacticsString"), ("Transfer", "BoardTransferConfidenceOverallSummaryText"), (L("Vision"), "BoardVisionString"),
 		(L("Culture"), "BoardCultureProgressString"), (L("Competitions"), "InternationalCompConfidenceStringLong"),
-	];
+	]);
 
-	private static readonly (string Label, string Field)[] SupporterAreas =
+	private static (string Language, (string Label, string Field)[] Value)? SupporterAreasKept;
+
+	private static (string Label, string Field)[] SupporterAreas => PerLanguage(ref SupporterAreasKept, () =>
 	[
 		(L("Overall"), "SupporterConfidenceOverallString"), (L("Matches"), "SupporterMatchString"), (L("Tactics"), "SupporterTacticsString"),
 		("Transfer", "SupporterTransferConfidenceOverallSummaryText"), (L("Vision"), "SupporterVisionString"),
-	];
+	]);
 
 	private static async Task<int> Board(bool json)
 	{

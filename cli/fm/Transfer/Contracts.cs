@@ -12,7 +12,9 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>What a contract can carry besides the wage, by the name of its field.</summary>
-	private static readonly (string Field, string Say)[] ContractTerms =
+	private static (string Language, (string Field, string Say)[] Value)? ContractTermsKept;
+
+	private static (string Field, string Say)[] ContractTerms => PerLanguage(ref ContractTermsKept, () =>
 	[
 		("Wage", L("Wage")), ("WageAfterTax", L("After tax")), ("AgreedPlayingTime", L("Squad status")), ("ContractType", L("Type")),
 		("LoyaltyBonus", L("Loyalty bonus")), ("AppearanceBonus", L("Appearance fee")), ("GoalBonus", L("Goal bonus")), ("AssistBonus", L("Assist bonus")),
@@ -27,7 +29,7 @@ internal static partial class Program
 		("PromotionWageIncrease", L("Rise on promotion")), ("RelegationWageDecrease", L("Cut on relegation")),
 		("MatchHighestEarnerClause", L("Match highest earner")), ("InjuryReleaseClause", L("Release on injury")),
 		("WageNextSeason", L("Next season's wage")),
-	];
+	]);
 
 	/// <summary>
 	/// A day from the game's data ("2027-06-30"); null for none, which the game writes as a day in 1900

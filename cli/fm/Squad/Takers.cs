@@ -14,7 +14,9 @@ internal static partial class Program
 	/// The kinds with takers, by the number each stands for in the page's Set Piece Type menu (the
 	/// game's own, the same in every language); throw-ins have a taker button of their own.
 	/// </summary>
-	private static readonly (string Say, int Value, bool ThrowIn, string[] Words)[] SetPieceKinds =
+	private static (string Language, (string Say, int Value, bool ThrowIn, string[] Words)[] Value)? SetPieceKindsKept;
+
+	private static (string Say, int Value, bool ThrowIn, string[] Words)[] SetPieceKinds => PerLanguage(ref SetPieceKindsKept, () =>
 	[
 		(L("Corners"), 0, false, ["korner", "corner", "corners", "kose"]),
 		(L("Free kick · shooting range"), 1, false, ["frikik", "serbest", "freekick", "sut"]),
@@ -22,7 +24,7 @@ internal static partial class Program
 		(L("Free kick · deep"), 4, false, ["derin", "frikik-derin", "deep"]),
 		// Throw-ins in the other two thirds (6, 5) have no taker to choose.
 		(L("Throw-in · attacking third"), 2, true, ["tac", "throw", "throwin", "throw-in"]),
-	];
+	]);
 
 	private sealed record SetPieceTaker(int Order, string Number, string Name, string Where, List<string> Stats);
 

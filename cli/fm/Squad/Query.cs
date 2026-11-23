@@ -19,7 +19,9 @@ internal static partial class Program
 		public string Say => Words[0] switch { "yas" => L("age"), "ulke" => L("nation"), "maas" => L("wages"), "sozlesme" => L("contract"), "statu" => L("status"), "mac" => L("apps"), var word => word };
 	}
 
-	private static readonly QueryField[] QueryFields =
+	private static (string Language, QueryField[] Value)? QueryFieldsKept;
+
+	private static QueryField[] QueryFields => PerLanguage(ref QueryFieldsKept, () =>
 	[
 		new(L("NAME"), "Name", QueryKind.Text, L("their name"), ["ad", "isim", "name"]),
 		new(L("AGE"), "Age", QueryKind.Number, L("their age"), ["yas", "age"]),
@@ -39,7 +41,7 @@ internal static partial class Program
 		new(L("GOALS"), "ClubGoalsThisSeason", QueryKind.Number, L("goals this season"), ["gol", "goals"]),
 		new(L("ASSISTS"), "ClubAssistsThisSeason", QueryKind.Number, L("assists this season"), ["asist", "assists"]),
 		new(L("RATING"), "ClubAverageRatingThisSeason", QueryKind.Number, L("average rating this season"), ["puan", "rating", "ortalama"]),
-	];
+	]);
 
 	private sealed record QueryTerm(QueryField Field, string Op, string Raw, double Number);
 

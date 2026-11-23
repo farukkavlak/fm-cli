@@ -10,8 +10,10 @@ namespace FmCli;
 internal static partial class Program
 {
 	// Headings spelled out: the CLI runs without culture data, so Turkish upper case is not computed.
-	private static readonly (string Key, string Say, string Head)[] OppositionColumns =
-		[("Marking", L("Tight marking"), L("TIGHT MARKING")), ("Pressing", L("Pressing"), L("PRESSING")), ("Tackling", L("Tackling"), L("TACKLING")), ("Foot", L("Show onto foot"), L("SHOW ONTO FOOT"))];
+	private static (string Language, (string Key, string Say, string Head)[] Value)? OppositionColumnsKept;
+
+	private static (string Key, string Say, string Head)[] OppositionColumns => PerLanguage(ref OppositionColumnsKept, () =>
+		[("Marking", L("Tight marking"), L("TIGHT MARKING")), ("Pressing", L("Pressing"), L("PRESSING")), ("Tackling", L("Tackling"), L("TACKLING")), ("Foot", L("Show onto foot"), L("SHOW ONTO FOOT"))]);
 
 	private static async Task<int> Opposition(string[] args)
 	{

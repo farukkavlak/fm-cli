@@ -9,23 +9,29 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly (string Path, string Say)[] ManagerFacts =
+	private static (string Language, (string Path, string Say)[] Value)? ManagerFactsKept;
+
+	private static (string Path, string Say)[] ManagerFacts => PerLanguage(ref ManagerFactsKept, () =>
 	[
 		("Person.NumberOfClubsManaged", L("Clubs managed")), ("Person.NumberOfNationsManaged", L("National teams managed")),
 		("Person.LongestTimeAtClub", L("Longest at a club")), ("Person.ShortestTimeAtClub", L("Shortest at a club")),
 		("Person.NumberOfAwards", L("Awards")),
-	];
+	]);
 
-	private static readonly (string Path, string Say)[] ManagerTransfers =
+	private static (string Language, (string Path, string Say)[] Value)? ManagerTransfersKept;
+
+	private static (string Path, string Say)[] ManagerTransfers => PerLanguage(ref ManagerTransfersKept, () =>
 	[
 		("Person.NumberOfPlayersBought", L("Players bought")), ("Person.TotalTransferFeesOut", L("Spent on fees")),
 		("Person.NumberOfPlayersSold", L("Players sold")), ("Person.TotalTransferFeesIn", L("Received in fees")),
 		("Person.HighestFeeSpent", L("Highest fee paid")), ("Person.HighestFeeReceived", L("Highest fee received")),
 		("Person.TotalAgentFees", L("Paid to agents")), ("Person.NumberOfPlayersReleased", L("Players released")),
-	];
+	]);
 
 	// The results, this club's and the whole career's side by side: (what, this club's path, the career's path).
-	private static readonly (string Say, string Club, string Career)[] ManagerResults =
+	private static (string Language, (string Say, string Club, string Career)[] Value)? ManagerResultsKept;
+
+	private static (string Say, string Club, string Career)[] ManagerResults => PerLanguage(ref ManagerResultsKept, () =>
 	[
 		(L("Played"), "Person.CurrentClubTotalGamesPlayed", "Person.TotalGamesPlayed"),
 		(L("Won"), "Person.CurrentClubTotalGamesWon", "Person.TotalGamesWon"),
@@ -40,7 +46,7 @@ internal static partial class Program
 		(L("Promotions"), "Person.CurrentClubTotalNoPromotions", "Person.ClubTotalNoPromotions"),
 		(L("Relegations"), "Person.CurrentClubTotalNoRelegations", "Person.ClubTotalNoRelegations"),
 		(L("Days in charge"), "Person.CurrentClubDaysInCharge", ""),
-	];
+	]);
 
 	private static async Task<int> ManagerStats(bool json)
 	{

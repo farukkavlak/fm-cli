@@ -7,11 +7,13 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly (string Command, string Title)[] ExportDefault =
+	private static (string Language, (string Command, string Title)[] Value)? ExportDefaultKept;
+
+	private static (string Command, string Title)[] ExportDefault => PerLanguage(ref ExportDefaultKept, () =>
 	[
 		("status", L("Status")), ("squad", L("Squad")), ("table", L("League table")), ("fixtures", L("Fixtures")),
 		("health", L("Medical")), ("contracts", L("Contracts")), ("finances", L("Finances")),
-	];
+	]);
 
 	private static async Task<int> Export(string[] args)
 	{

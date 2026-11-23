@@ -34,13 +34,15 @@ internal static partial class Program
 	};
 
 	/// <summary>Preferences the page gives no title of their own to find: named here, by their keys.</summary>
-	private static readonly Setting[] UntitledSettings =
+	private static (string Language, Setting[] Value)? UntitledSettingsKept;
+
+	private static Setting[] UntitledSettings => PerLanguage(ref UntitledSettingsKept, () =>
 	[
 		new(L("past match speed"), L("Match day"), "settings.PastMatchSpeedDuringHighlightsIndex", SettingKind.Slider,
 			Steps: ["0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x", "2.5x", "3x", "4x", "10x"],
 			StepShown: "settings.PastMatchSpeedDuringHighlights"),
 		new(L("manual saves use the auto save type"), L("Saving"), "use_auto_save_mode_for_manual_save", SettingKind.Checkbox),
-	];
+	]);
 
 	/// <summary>
 	/// A list whose rows are bare numbers (the 3D lists, colour blind mode) with the words the game

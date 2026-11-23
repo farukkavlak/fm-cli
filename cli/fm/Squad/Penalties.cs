@@ -12,12 +12,14 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>The three rules, by the data path each switch writes (the same in every language).</summary>
-	private static readonly (string Label, string Binds, string Say, string[] Words)[] PenaltyRules =
+	private static (string Language, (string Label, string Binds, string Say, string[] Words)[] Value)? PenaltyRulesKept;
+
+	private static (string Label, string Binds, string Say, string[] Words)[] PenaltyRules => PerLanguage(ref PenaltyRulesKept, () =>
 	[
 		("Allow player who has scored 2 goals to take penalty", "setpiece.PenaltyAllowTwoGoalsScorers", L("A player who has scored twice may take one"), ["iki", "2", "two"]),
 		("Change taker if player has already taken a penalty", "setpiece.PenaltyChangeAlreadyTaken", L("A player who has taken a penalty leaves the next one"), ["atan", "taken", "atti"]),
 		("Change taker if player has already missed a penalty", "setpiece.PenaltyChangeIfMissed", L("A player who has missed a penalty leaves the next one"), ["kaciran", "missed", "kacirdi"]),
-	];
+	]);
 
 	private static async Task<int> Penalties(bool json, string[] args)
 	{

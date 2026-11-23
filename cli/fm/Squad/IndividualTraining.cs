@@ -9,7 +9,9 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly string[] TrainingParts = [L("Position/role"), L("Out-of-possession role"), L("Focus")];
+	private static (string Language, string[] Value)? TrainingPartsKept;
+
+	private static string[] TrainingParts => PerLanguage(ref TrainingPartsKept, () => [L("Position/role"), L("Out-of-possession role"), L("Focus")]);
 
 	/// <summary>What each part is, under a player's PlayerTraining, and the event its list on the page sends.</summary>
 	private static readonly (string Shown, string Event)[] TrainingData =

@@ -15,14 +15,16 @@ internal static partial class Program
 	private const string AdvicePanel = "8117945aee0beda4d858eddd7d7c98b7";
 
 	/// <summary>Each tab: its button's element name, the element name of the block it shows, the CLI's word for it.</summary>
-	private static readonly (string Tab, string Block, string Word)[] AdviceTabs =
+	private static (string Language, (string Tab, string Block, string Word)[] Value)? AdviceTabsKept;
+
+	private static (string Tab, string Block, string Word)[] AdviceTabs => PerLanguage(ref AdviceTabsKept, () =>
 	[
 		("SquadTabButton", "Squad", L("Squad")),
 		("TacticsTabButton", "Tactics", L("Tactics")),
 		("RecruitmentTabButton", "Recruitment", L("Transfers")),
 		("TrainingTabButton", "Training", L("Training")),
 		("ClubTabButton", "Staffing", L("Club")),
-	];
+	]);
 
 	/// <summary>The events that carry a suggestion out where it stands (the tactics' ones for the next match only).</summary>
 	private static readonly string[] AdviceApplyEvents = ["EventFmxActionSuggestion", "EventFmxApplyChangeForNextMatch"];

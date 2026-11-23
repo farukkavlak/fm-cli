@@ -15,7 +15,9 @@ internal static partial class Program
 	private static List<(string Spot, string Player)> liveShape = [];
 	private static string liveFormation = "";
 
-	private static readonly Dictionary<string, string> Stops = new()
+	private static (string Language, Dictionary<string, string> Value)? StopsKept;
+
+	private static Dictionary<string, string> Stops => PerLanguage(ref StopsKept, () => new()
 	{
 		["Tactics"] = L("Tactics"),
 		["SubmitTeam"] = L("Submitting the team"),
@@ -28,7 +30,7 @@ internal static partial class Program
 		["FullTimeTeamTalk"] = L("Full-time team talk"),
 		["PostMatchReaction"] = L("Post-match reactions"),
 		["LeaveMatch"] = L("Leaving the match"),
-	};
+	});
 
 	/// <summary>The chosen shape, read from the tactic screen's slots; left alone when it is not up.</summary>
 	private static async Task LearnShape()

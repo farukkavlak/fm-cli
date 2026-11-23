@@ -9,7 +9,9 @@ namespace FmCli;
 /// </summary>
 internal static class MatchReport
 {
-	private static readonly (string Label, string Field)[] Numbers =
+	private static (string Language, (string Label, string Field)[] Value)? NumbersKept;
+
+	private static (string Label, string Field)[] Numbers => PerLanguage(ref NumbersKept, () =>
 	[
 		(L("Possession"), "Possession"),
 		(L("Shots"), "Shots"),
@@ -17,7 +19,7 @@ internal static class MatchReport
 		(L("Expected goals"), "ExpectedGoals"),
 		(L("Corners"), "Corners"),
 		(L("Fouls"), "Fouls"),
-	];
+	]);
 
 	/// <summary>
 	/// Whether the last fixture is the match the caller watched. A score picked up after the post-match talk can

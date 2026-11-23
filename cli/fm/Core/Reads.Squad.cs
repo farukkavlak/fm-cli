@@ -162,7 +162,9 @@ internal static partial class Program
 	};
 
 	/// <summary>The columns' names as a reader knows them; anything else spelled out from the game's own field name.</summary>
-	private static readonly Dictionary<string, string> Headings = new()
+	private static (string Language, Dictionary<string, string> Value)? HeadingsKept;
+
+	private static Dictionary<string, string> Headings => PerLanguage(ref HeadingsKept, () => new()
 	{
 		["PositionCombinedString"] = L("POSITION"), ["Age"] = L("AGE"), ["Wage"] = L("WAGE"), ["SquadNumber"] = "NO",
 		["TransferValueRangeString"] = L("VALUE"), ["AskingPrice"] = L("ASKING PRICE"), ["TransferOptions"] = L("TRANSFER STATUS"),
@@ -174,7 +176,7 @@ internal static partial class Program
 		["HierarchyInfluenceCategoryString"] = L("HIERARCHY"), ["SocialGroupString"] = L("GROUP"), ["Height"] = L("HEIGHT"),
 		["ShortName"] = L("CLUB"), ["JobString"] = L("JOB"), ["ShortGradeString"] = "SCOUT", ["ScoutRecommendationGrade"] = L("RECOMMENDATION"), ["ScoutingCosts"] = L("SCOUTING COST"),
 		["DaysSinceLastScouted"] = L("LAST SCOUTED"), ["ScoutedMinWage"] = L("WAGE (MIN)"), ["ScoutedMaxWage"] = L("WAGE (MAX)"),
-	};
+	});
 
 	private static string Heading(string field)
 	{

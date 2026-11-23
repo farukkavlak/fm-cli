@@ -11,7 +11,9 @@ namespace FmCli;
 internal static partial class Program
 {
 	/// <summary>The nine areas, each by the name the game's records give it (CoachAssignmentReference).</summary>
-	private static readonly (string Heading, string Turkish, string[] Words, string Record)[] CoachAreas =
+	private static (string Language, (string Heading, string Turkish, string[] Words, string Record)[] Value)? CoachAreasKept;
+
+	private static (string Heading, string Turkish, string[] Words, string Record)[] CoachAreas => PerLanguage(ref CoachAreasKept, () =>
 	[
 		("Att Tact", L("Attacking tactical"), ["hucum taktik", "att tact", "attacking tactical"], "AttackingTacticalCategory"),
 		("Att Tech", L("Attacking technical"), ["hucum teknik", "att tech", "attacking technical"], "AttackingTechnicalCategory"),
@@ -22,7 +24,7 @@ internal static partial class Program
 		("Glk", L("Goalkeeping"), ["kaleci", "glk", "goalkeeping"], "GoalkeepingCategory"),
 		("Fit", L("Condition"), ["kondisyon", "fit", "fitness"], "FitnessCategory"),
 		("SPC", L("Set pieces"), ["duran top", "spc", "set pieces"], "SetPiecesCategory"),
-	];
+	]);
 
 	/// <summary>An area's load as the record numbers it (0 none … 4 very heavy), in the CLI's words.</summary>
 	private static string WorkloadWord(int load) => load switch

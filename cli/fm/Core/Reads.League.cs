@@ -4,7 +4,9 @@ namespace FmCli;
 
 internal static partial class Program
 {
-	private static readonly string[] ShortDays = [L("Sun"), L("Mon"), L("Tue"), L("Wed"), L("Thu"), L("Fri"), L("Sat")];
+	private static (string Language, string[] Value)? ShortDaysKept;
+
+	private static string[] ShortDays => PerLanguage(ref ShortDaysKept, () => [L("Sun"), L("Mon"), L("Tue"), L("Wed"), L("Thu"), L("Fri"), L("Sat")]);
 
 	private static async Task<int> LeagueTable(bool json, string[] args)
 	{

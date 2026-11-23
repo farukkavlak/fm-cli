@@ -9,11 +9,13 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private static readonly Setting[] ScaleSettings =
+	private static (string Language, Setting[] Value)? ScaleSettingsKept;
+
+	private static Setting[] ScaleSettings => PerLanguage(ref ScaleSettingsKept, () =>
 	[
 		new(L("text scaling"), L("Interface"), "settings.TextScaling", SettingKind.Radio),
 		new(L("information display"), L("Interface"), "settings.AdaptiveScalingLevelIndex", SettingKind.Radio),
-	];
+	]);
 
 	private sealed record ScaleChoice(string Word, string Label, string Pointer, bool Enabled);
 

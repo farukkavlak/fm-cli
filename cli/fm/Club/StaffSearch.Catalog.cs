@@ -4,14 +4,16 @@ namespace FmCli;
 
 internal static partial class Program
 {
-	private static readonly Dictionary<string, string> PositionNames = new(StringComparer.OrdinalIgnoreCase)
+	private static (string Language, Dictionary<string, string> Value)? PositionNamesKept;
+
+	private static Dictionary<string, string> PositionNames => PerLanguage(ref PositionNamesKept, () => new(StringComparer.OrdinalIgnoreCase)
 	{
 		["GK"] = "Goalkeeper", ["DR"] = "Defender (Right)", ["DL"] = "Defender (Left)", ["DC"] = L("DC"),
 		["WBR"] = "Wing-Back (Right)", ["WBL"] = "Wing-Back (Left)", ["DM"] = L("DM"),
 		["MR"] = L("MR"), ["ML"] = L("ML"), ["MC"] = L("MC"),
 		["AMR"] = L("AMR"), ["AML"] = L("AML"), ["AMC"] = L("AMC"),
 		["ST"] = L("ST"), ["STC"] = L("ST"),
-	};
+	});
 
 	/// <summary>
 	/// The attributes by their English names (folded) and the game's own id for each, which the search

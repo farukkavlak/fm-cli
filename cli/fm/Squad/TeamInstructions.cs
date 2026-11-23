@@ -20,14 +20,16 @@ internal static partial class Program
 	/// ball (Dribbling is one setting shown in two of them) and the instructions without it.
 	/// 31, a second "Supporting Runs", is on no page.
 	/// </summary>
-	private static readonly (string Group, bool WithBall, int[] Ids)[] TeamInstructionGroups =
+	private static (string Language, (string Group, bool WithBall, int[] Ids)[] Value)? TeamInstructionGroupsKept;
+
+	private static (string Group, bool WithBall, int[] Ids)[] TeamInstructionGroups => PerLanguage(ref TeamInstructionGroupsKept, () =>
 	[
 		(L("Overall"), true, [1, 21, 4, 3, 5, 7, 6]),
 		(L("Final third"), true, [19, 18, 27, 26]),
 		(L("Progression"), true, [28, 30, 20]),
 		(L("Playmaking"), true, [24, 29, 17, 16]),
 		(L("Out of possession"), false, [8, 9, 15, 10, 25, 11, 12, 22, 23]),
-	];
+	]);
 
 	/// <summary>Learns the game's words for the instructions' and their settings' names (one call; none in an English game).</summary>
 	private static Task AskInstructionWords(List<TeamInstruction> catalogue) =>

@@ -101,6 +101,20 @@ internal static class Labels
 		_ => null,
 	};
 
+	/// <summary>
+	/// A table of the CLI's words, made again when the language changes and kept while it holds:
+	/// a static field is made once at start, before the game has said its language, and the same
+	/// objects are wanted back within one language (a setting found in it is looked for in it again).
+	/// </summary>
+	public static T PerLanguage<T>(ref (string Language, T Value)? kept, Func<T> make)
+	{
+		var now = Language;
+		if (kept is { } held && held.Language == now) return held.Value;
+		var made = make();
+		kept = (now, made);
+		return made;
+	}
+
 	/// <summary>Whether the CLI's words are shown in Turkish.</summary>
 	public static bool Turkish => Language.StartsWith("turkish", StringComparison.OrdinalIgnoreCase);
 

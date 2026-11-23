@@ -16,7 +16,9 @@ internal static partial class Program
 		string Name, string Group, string Pref, SettingKind Kind,
 		string[]? Steps = null, string? StepShown = null, string? Hint = null);
 
-	private static readonly Setting[] Settings =
+	private static (string Language, Setting[] Value)? SettingsKept;
+
+	private static Setting[] Settings => PerLanguage(ref SettingsKept, () =>
 	[
 		new(L("match display"), L("Match day"), "settings.MatchHighlightMode", SettingKind.Radio,
 			Hint: L("fewer highlights make the match shorter")),
@@ -48,7 +50,7 @@ internal static partial class Program
 			Hint: L("whether matches are moved for broadcasting")),
 		new(L("unread messages"), L("Processing"), "continue_button_cycle_messages", SettingKind.Dropdown,
 			Hint: L("whether Continue waits until every message is read")),
-	];
+	]);
 
 	/// <summary>A setting as found on its page: the control, its choices and which one is in force.</summary>
 	/// <param name="Choices">As the game shows them, in its language.</param>
