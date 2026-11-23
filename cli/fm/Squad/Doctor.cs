@@ -11,6 +11,9 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
+	// Names shown of a long finding at a terminal.
+	private const int DoctorShown = 3;
+
 	private static async Task<int> Doctor(bool json, string[] args)
 	{
 		if (args.Contains("--install"))
@@ -82,11 +85,20 @@ internal static partial class Program
 		Finding(L($"Injured: {injured.Count}"), injured.Select(p =>
 			$"{Field(p, "Name")} — {Field(p, "CurrentInjury.InjuryDescription")}{(Number(p, "CurrentInjury.InjuryReturnDays") is > 0 and var days ? L($", {days} more days") : "")}").ToList(),
 			"health");
-		Finding(L($"Tired (condition under 85%): {tired.Count}"), Wrapped(tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}")), L("intensity <player> \"rest 1\""));
-		Finding(L($"Low match sharpness (under 60%): {rusty.Count}"), Wrapped(rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}")), "squad --fitness");
-		Finding(L($"Contract ends within a year: {expiring.Count}"), expiring.Select(x => $"{Field(x.Player, "Name")} — {Field(x.Player, "FullContract.EndDateDescription")}").ToList(), L("contract <player>"));
+		// At a terminal a long list is its first few and how many more; scripts, the MCP and --all get all of it.
+		var shortened = Ui.Rich && !args.Contains("--all");
+		List<string> Few(IEnumerable<string> items, int count)
+		{
+			var all = items.ToList();
+			if (!shortened || all.Count <= DoctorShown + 1) return all;
+			return [.. all.Take(DoctorShown), L($"… and {count - DoctorShown} more")];
+		}
+
+		Finding(L($"Tired (condition under 85%): {tired.Count}"), Wrapped(Few(tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}"), tired.Count)), L("intensity <player> \"rest 1\""));
+		Finding(L($"Low match sharpness (under 60%): {rusty.Count}"), Wrapped(Few(rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}"), rusty.Count)), "squad --fitness");
+		Finding(L($"Contract ends within a year: {expiring.Count}"), Few(expiring.Select(x => $"{Field(x.Player, "Name")} — {Field(x.Player, "FullContract.EndDateDescription")}"), expiring.Count), L("contract <player>"));
 		Finding(L("Thin positions (one fit player or none)"), thin.Select(x => $"{x.Slot,-4} {(x.Players.Count == 0 ? L("nobody") : L($"only {x.Players[0]}"))}").ToList(), "depth");
-		Finding(L($"The board's concerns: {worries.Count}"), worries.Take(3).Concat(worries.Count > 3 ? [L($"… and {worries.Count - 3} more")] : []).ToList(), "board");
+		Finding(L($"The board's concerns: {worries.Count}"), Few(worries, worries.Count), "board");
 
 		// A list of names, comma after comma, broken into lines that fit the terminal under the indent.
 		static List<string> Wrapped(IEnumerable<string> items)
@@ -107,6 +119,8 @@ internal static partial class Program
 			return lines;
 		}
 
+		if (shortened && new[] { tired.Count, rusty.Count, expiring.Count, worries.Count }.Any(n => n > DoctorShown + 1))
+			Ui.Line(L("[dim]Every name: doctor --all[/]"));
 		if (problems == 0) Console.WriteLine(L("Nothing in the squad stands out as a problem."));
 		if (Ui.Rich) Ui.Line(L("[dim]Happiness and tactical familiarity are separate: happiness, tactic[/]"));
 		else Console.WriteLine(L("Happiness and tactical familiarity are separate: happiness, tactic"));

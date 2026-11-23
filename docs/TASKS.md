@@ -47,7 +47,6 @@ Session (`fm›`)
   - [ ] Competition names for `table`, `stages`, `league` (the game's own list)
   - [ ] Staff names for `staff`, `training --coach`, `scout --by`
   - [ ] Message numbers from the last `inbox`
-- [ ] T183 `?` in the session: short help; `<command> ?`: that command's help
 
 Help and finding things
 
@@ -56,9 +55,6 @@ Help and finding things
   - [ ] `help <group>`: start, squad, match, transfers, training, club, settings
   - [ ] Every command in one group; a test fails when one is in none
   - [ ] MANUAL and README follow the groups
-- [ ] T185 A mistyped command gets a suggestion: `sqaud` → "did you mean squad?"
-  - [ ] By edit distance against `CommandNames` and aliases, ours only
-  - [ ] Two close ones: both named; none close: as today
 - [ ] T186 `todo`: what wants doing now, each line with its command
   - [ ] Waiting answers, offers, contract talks, injuries before a match, board concerns
   - [ ] Reads only what `status` and `doctor` read
@@ -70,7 +66,6 @@ Output
   - [ ] Unread as one mark (●), not a word on every row
   - [ ] Awaiting an answer stands out (colour, and first under its day)
   - [ ] Numbers stay what `reply` takes (`inbox-numbers.json`)
-- [ ] T188 `doctor` lists: three names, then "… and N more"; `--all` for all
 - [ ] T189 Hint lines fit an 80-column terminal: long ones split or shortened
 
 Playing

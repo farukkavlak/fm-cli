@@ -53,10 +53,33 @@ internal static partial class Program
 		var starting = CommandNames.Where(c => c.StartsWith(folded, StringComparison.Ordinal)).ToList();
 		if (folded.Length >= 2 && starting.Count == 1) return starting[0];
 
-		Console.Error.WriteLine(starting.Count > 1 && folded.Length >= 2
-			? L($"'{typed}' matches more than one command: {string.Join(", ", starting)}")
-			: L($"unknown command: {typed} — for the commands: `help`"));
+		if (starting.Count > 1 && folded.Length >= 2)
+			Console.Error.WriteLine(L($"'{typed}' matches more than one command: {string.Join(", ", starting)}"));
+		else if (Misspelt(folded) is { Count: > 0 } close)
+			Console.Error.WriteLine(L($"unknown command: {typed} — did you mean {string.Join(L(" or "), close)}?"));
+		else
+			Console.Error.WriteLine(L($"unknown command: {typed} — for the commands: `help`"));
 		return null;
+	}
+
+	/// <summary>
+	/// The commands a mistyped word is one or two letters away from ("sqaud" → squad), by our own
+	/// command words and aliases; an alias is said as the command it stands for. Short words are
+	/// allowed one slip, longer ones two; only the closest are named, at most three.
+	/// </summary>
+	private static List<string> Misspelt(string folded)
+	{
+		if (folded.Length < 3) return [];
+		var cap = folded.Length <= 4 ? 1 : 2;
+		var near = CommandNames.Select(c => (Command: c, Word: c))
+			.Concat(CommandAliases.Select(a => (Command: a.Value, Word: a.Key)))
+			.Where(c => c.Word.Length >= 3)
+			.Select(c => (c.Command, Distance: Nl.Text.Distance(folded, c.Word, cap)))
+			.Where(c => c.Distance <= cap)
+			.ToList();
+		if (near.Count == 0) return [];
+		var best = near.Min(c => c.Distance);
+		return near.Where(c => c.Distance == best).Select(c => c.Command).Distinct().Take(3).ToList();
 	}
 
 	/// <summary>Each command's description, from the first line of the help that starts with it.</summary>
@@ -89,6 +112,7 @@ internal static partial class Program
 		["friendly"] = ["--date", "--away", "--rules", "--yes"],
 		["numbers"] = ["--auto", "--send"],
 		["happiness"] = ["--why"],
+		["doctor"] = ["--all", "--install"],
 		["scout"] = ["player", "teams", "top", "cancel", "who", "new", "edit", "remove", "restart", "areas", "staff", "--position", "--role", "--area", "--age", "--ability", "--potential", "--name", "--priority", "--yes", "--by", "--analysts", "--for", "--cancel", "--near", "--progress", "--matched"],
 		["shortlist"] = ["add", "remove", "--for"],
 		["interest"] = ["--top", "--transfer", "--loan", "--yes"],

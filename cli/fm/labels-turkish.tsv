@@ -2867,7 +2867,7 @@ staff fire <name> [--mutual] [--yes]   part ways with staff: the game names the 
 actions <person|club> ["<option>"]   the game's right-click menu for that person or club (assign a scout, shortlist, send on a course, a team report…); an option given is carried out	actions <kişi|kulüp> ["<seçenek>"]   o kişi ya da kulübün sağ tık menüsü (gözlemci ata, kısa liste, kursa gönder, takım raporu…); seçenek verilirse uygulanır
 board           the board's and supporters' view: matches, squad, tactics, transfers, vision; what pleases them, their concerns; this season's expectations	board           yönetimin ve taraftarın görüşü: maçlar, kadro, taktik, transferler, vizyon; memnun oldukları, kaygıları; bu sezonun beklentileri
 request ["<request>" --yes]   what can be asked of the board; ask for one by name	request ["<istek>" --yes]   yönetimden istenebilecekler; adıyla birini iste
-doctor          what is wrong in the squad: injured, tired, low sharpness, ending contracts, thin positions, the board's concerns	doctor          kadroda sorun ne: sakat, yorgun, keskinliği düşük, sözleşmesi biten, zayıf mevkiler, yönetimin kaygıları
+doctor          what is wrong in the squad: injured, tired, low sharpness, ending contracts, thin positions, the board's concerns (--all: every name)	doctor          kadroda sorun ne: sakat, yorgun, keskinliği düşük, sözleşmesi biten, zayıf mevkiler, yönetimin kaygıları (--all: tüm isimler)
 --install     check the installation: game, BepInEx, shadow bundle, plugin, fm command, save folder	--install     kurulumu denetle: oyun, BepInEx, gölge paket, eklenti, fm komutu, kayıt klasörü
 facilities      facilities: stadium (capacity, pitch, size), training facilities, youth, commercial	facilities      tesisler: stadyum (kapasite, zemin, boyut), antrenman tesisleri, altyapı, ticari
 query "<conditions>"   query the squad: "age<23 and potential>140", "contract<1year", "position=ST and goals>2";  on its own it lists the fields	query "<koşullar>"   kadroyu sorgula: "age<23 and potential>140", "contract<1year", "position=ST and goals>2";  tek başına alanları listeler
@@ -3059,3 +3059,6 @@ left: {0}	ayrıldı: {0}
 new: {0}{1}	yeni: {0}{1}
 {0} more new messages: inbox	{0} yeni mesaj daha: inbox
 The game is still starting after {0} minutes and has not reached the main menu; `status` says when it is up. Log: {1}	Oyun {0} dakikadır açılıyor, ana menüye henüz gelmedi; açılınca `status` söyler. Log: {1}
+unknown command: {0} — did you mean {1}?	bilinmeyen komut: {0} — bunu mu demek istedin: {1}?
+ or 	 ya da 
+[dim]Every name: doctor --all[/]	[dim]Tüm isimler: doctor --all[/]

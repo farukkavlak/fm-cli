@@ -63,6 +63,10 @@ internal static class Session
 			if (words[0] == "fm") words = words.Skip(1).ToArray();
 			if (words.Length == 0) continue;
 
+			// "?" is help: alone, the list of commands; after a command, that command's.
+			if (words is ["?"]) words = ["help"];
+			else if (words.Length > 1 && words[^1] == "?") words = [.. words[..^1], "--help"];
+
 			Program.ForgetNames();
 			await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), execute) : execute(words));
 			// A save loaded or the game closed is another starting point, not news.
