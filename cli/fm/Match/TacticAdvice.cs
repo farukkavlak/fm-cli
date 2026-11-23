@@ -41,7 +41,12 @@ internal static partial class Program
 		{
 			control = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 				.FirstOrDefault(b => Field(b, "Events").Contains("AdviceOptionsSelection", StringComparison.Ordinal) && Field(b, "Visible") == "True");
-			return control.ValueKind == JsonValueKind.Object;
+			if (control.ValueKind != JsonValueKind.Object) return false;
+			// The list is drawn before its rows are filled; each row holds its AdviceOption number.
+			var pointer = Field(control, "Pointer");
+			var list = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().FirstOrDefault(d => Field(d, "Pointer") == pointer);
+			return list.ValueKind == JsonValueKind.Object && list.TryGetProperty("Choices", out var rows)
+				&& rows.EnumerateArray().Any(r => r.GetString() == option.ToString());
 		}, seconds: 8, every: 0.25);
 		if (control.ValueKind != JsonValueKind.Object)
 		{
