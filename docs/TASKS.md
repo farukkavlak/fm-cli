@@ -32,8 +32,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 ## 13. Later (v2)
 
-- [ ] `dugout` mentality card ("Set team mentality") seen live and read back (T160); not met in 15+ matches
-- [ ] A penalty shootout seen in a TR match (its board's score); not caught so far
 - [ ] `fm watch`: report when a player or value changes
 - [ ] A web dashboard (the plugin already speaks HTTP)
 - [ ] AI v2: see `AI.md`
