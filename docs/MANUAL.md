@@ -48,6 +48,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - A number alone picks a row of the list shown last, by the number in its # column: after `inbox`, `3` is `reply 3`; after `players` or `search`, that row's player; after `squad`, the player wearing that shirt number. Players are opened by the game's id. It says which list it took; any other command forgets the list.
 - Tab: a command, its sub-commands (`scout new`, `tactic role`, `schedule paste`) and options; after `player`, `contract`, `compare` … our players, by any part of the name (`camp` → `"Àlex Campos"`); our competitions after `table`, `stages`, `league`; our staff after `coaches`, `staff fire`, `--coach`, `--by`; the last `inbox`'s numbers after `reply`. Tab twice lists the choices.
 - After a command that moves the clock (`next`, `holiday`, `match` …): the new messages (5, then how many more) and who got injured, came back, joined or left. Read without opening a page; nothing when the clock stood still or a save was loaded.
+- A read asked again while the game's clock stands still (`squad`, `player`, `table`, `health` …) is answered from the last time, in the session and over MCP: `squad` 6 s, then 0.3 s. Any command that may change the game forgets them; `--fresh` reads again.
 - ctrl-C drops the line (or stops a running command, not the session); ctrl-A/E, ctrl-W, ctrl-U/K and alt-arrows edit as in a shell.
 
 ### Asking in a sentence

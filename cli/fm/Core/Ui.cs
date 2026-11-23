@@ -52,9 +52,13 @@ internal static class Ui
 	/// unanswered, which comes back as null; so does a terminal with no one to ask. The list wraps,
 	/// so that entry is one key up from the first, not thirty down (a press question naming the squad).
 	/// </summary>
+	/// <summary>How many questions have been put at the terminal: an answer that took one is not kept to be shown again.</summary>
+	public static int Asked { get; private set; }
+
 	public static int? Ask(string title, IReadOnlyList<string> choices, int current = -1, string? cancel = null)
 	{
 		if (!Interactive || choices.Count == 0) return null;
+		Asked++;
 		cancel ??= L("Cancel");
 
 		var prompt = new SelectionPrompt<int>()
@@ -80,6 +84,7 @@ internal static class Ui
 	public static string Text(string question)
 	{
 		if (!Interactive) return null;
+		Asked++;
 		var answer = Out.Prompt(new TextPrompt<string>(Safe(question)).AllowEmpty());
 		return string.IsNullOrWhiteSpace(answer) ? null : answer.Trim();
 	}

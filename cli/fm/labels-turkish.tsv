@@ -3087,3 +3087,4 @@ match in {0} days	maç {0} gün sonra
 No list to pick {0} from: inbox, squad, players or search first.	{0} hangi listeden seçilsin: önce inbox, squad, players ya da search.
 No {0} in the {1} list.	{1} listesinde {0} yok.
 {0}: nothing to open from here.	{0}: buradan açılacak bir şey yok.
+(as read a moment ago; the clock has not moved. Read again: --fresh)	(az önce okunduğu gibi; saat ilerlemedi. Yeniden okumak için: --fresh)

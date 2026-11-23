@@ -21,12 +21,6 @@ Measured 23 Nov (TR, scn-calm): fixtures 1.3 s, status 2, inbox 4, table 5.5, sq
 
 Speed
 
-- [ ] T176 A read asked again with the clock unmoved answers from the last one
-  - [ ] Key: the game's date and hour (`state`), the save, the language and the command with its words
-  - [ ] Forgotten after any command that changes the game (sell, train, tactic, reply …): the list kept beside `CommandNames`
-  - [ ] Which commands may be kept: reads only; MCP `fm_*` reads too
-  - [ ] `--fresh` reads again
-  - [ ] Measure: squad twice in a row; a change (tactic, sub) then squad shows it
 - [ ] T177 Where `squad`, `player` and `advice` spend their time
   - [ ] Time each step: page open, drawn, rows bound, read, waits
   - [ ] Drop waits that are not the game's own sign; keep the old if the new is not faster on the same tests

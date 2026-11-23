@@ -184,6 +184,12 @@ internal static partial class Program
 			return 1;
 		}
 
+		return await Recalled(command, args, json);
+	}
+
+	/// <summary>The command itself, once its name is known and the game may be asked.</summary>
+	private static async Task<int> Dispatch(string command, string[] args, bool json)
+	{
 		try
 		{
 			return command switch
