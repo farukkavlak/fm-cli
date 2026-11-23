@@ -42,6 +42,7 @@ internal static class Session
 			}
 		}
 
+		FirstTime();
 		var editor = new LineEditor(Program.Completions);
 		while (true)
 		{
@@ -75,6 +76,29 @@ internal static class Session
 		}
 
 		return 0;
+	}
+
+	private static string WelcomedFile =>
+		Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "fm-cli", "welcomed");
+
+	/// <summary>The first session on a terminal says how the line works; once only.</summary>
+	private static void FirstTime()
+	{
+		if (!LineEditor.Usable || File.Exists(WelcomedFile)) return;
+		Console.WriteLine();
+		Console.WriteLine(L("First time here, so in short:"));
+		Console.WriteLine(L("  Commands go without fm: squad, inbox, next."));
+		Console.WriteLine(L("  Tab completes commands, options and our players' names; twice lists them."));
+		Console.WriteLine(L("  Up and down bring back what was typed; ctrl-R searches it."));
+		Console.WriteLine(L("  ? lists the commands; squad ? explains one."));
+		Console.WriteLine(L("  quit leaves the session; the game stays open."));
+		try
+		{
+			Directory.CreateDirectory(Path.GetDirectoryName(WelcomedFile)!);
+			File.WriteAllText(WelcomedFile, "");
+		}
+		catch (IOException) { }
+		catch (UnauthorizedAccessException) { }
 	}
 
 	/// <summary>

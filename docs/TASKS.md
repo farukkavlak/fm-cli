@@ -75,7 +75,6 @@ Playing
 Start and first use
 
 - [ ] T193 `start` / `load` show the game's own stages while waiting: process up, plugin ready, menu built, save loading
-- [ ] T194 First session: four or five lines on what to type, tab and the arrows; once only
 
 ## 10. Quality
 

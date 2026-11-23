@@ -3064,3 +3064,9 @@ unknown command: {0} — did you mean {1}?	bilinmeyen komut: {0} — bunu mu dem
 [dim]Every name: doctor --all[/]	[dim]Tüm isimler: doctor --all[/]
 search	arama
 no match	bulunamadı
+First time here, so in short:	İlk kez açıldığı için kısaca:
+  Commands go without fm: squad, inbox, next.	  Komutlar fm olmadan yazılır: squad, inbox, next.
+  Up and down bring back what was typed; ctrl-R searches it.	  Yukarı/aşağı ok yazılanları geri getirir; ctrl-R içinde arar.
+  Tab completes commands, options and our players' names; twice lists them.	  Tab komutu, seçeneği ve oyuncu adını tamamlar; iki kez basınca listeler.
+  ? lists the commands; squad ? explains one.	  ? komutları listeler; squad ? birini açıklar.
+  quit leaves the session; the game stays open.	  quit oturumdan çıkar; oyun açık kalır.
