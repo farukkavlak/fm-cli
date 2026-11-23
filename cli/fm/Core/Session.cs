@@ -46,7 +46,7 @@ internal static class Session
 		var editor = new LineEditor(Program.Completions);
 		while (true)
 		{
-			var line = await editor.ReadLine(Prompt(), PromptWidth);
+			var line = await editor.ReadLine(Prompt(), PromptWidth());
 			if (line == null) break; // ctrl-D
 
 			var words = Split(line);
@@ -72,7 +72,7 @@ internal static class Session
 			await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), execute) : execute(words));
 			// A save loaded or the game closed is another starting point, not news.
 			if (Program.QuietCommand(words[0]) is "load" or "continue" or "start" or "stop") await Program.NewsBaseline();
-			else if (!Console.IsOutputRedirected) await Program.SayNews();
+			else if (!Console.IsOutputRedirected) await Program.SayNews(again: Program.QuietCommand(words[0]) is "reply" or "talk" or "dialog" or "offers" or "contract" or "meeting" or "press");
 		}
 
 		return 0;
@@ -131,8 +131,12 @@ internal static class Session
 		return words.ToArray();
 	}
 
-	// What the prompt takes on screen: "fm› ".
-	private const int PromptWidth = 4;
+	/// <summary>The prompt: where things stand, then "fm›"; dim, so the typed line stands out.</summary>
+	private static string Prompt() =>
+		Console.IsOutputRedirected ? "" : $"\u001b[2m{PromptText()}\u001b[0m ";
 
-	private static string Prompt() => Console.IsOutputRedirected ? "" : "\u001b[2mfm›\u001b[0m ";
+	private static string PromptText() => Program.PromptStatus() is { Length: > 0 } status ? $"{status} fm›" : "fm›";
+
+	// What the prompt takes on screen: its text and a space.
+	private static int PromptWidth() => Console.IsOutputRedirected ? 0 : PromptText().Length + 1;
 }

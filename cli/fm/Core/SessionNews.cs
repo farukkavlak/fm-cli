@@ -13,7 +13,7 @@ namespace FmCli;
 /// </summary>
 internal static partial class Program
 {
-	private sealed record NewsLook(string Team, string Date, string Clock, Dictionary<string, JsonElement> Unread, Dictionary<string, JsonElement> Squad);
+	private sealed record NewsLook(string Team, string Date, string Clock, Dictionary<string, JsonElement> Unread, Dictionary<string, JsonElement> Squad, int? MatchDays);
 
 	private const int NewsShown = 5;
 
@@ -31,7 +31,8 @@ internal static partial class Program
 	}
 
 	/// <summary>Says what the command brought, if it moved the clock, and keeps the new look for the next one.</summary>
-	internal static async Task SayNews()
+	/// <summary><paramref name="again"/>: read even if the clock stood still (a command that answers messages).</summary>
+	internal static async Task SayNews(bool again = false)
 	{
 		var before = newsBefore;
 		if (before == null)
@@ -40,7 +41,7 @@ internal static partial class Program
 			return;
 		}
 
-		var now = await NewsNow(before);
+		var now = await NewsNow(again ? null : before);
 		newsBefore = now;
 		if (now == null || ReferenceEquals(now, before)) return;
 		// Another save (load, continue): a different career, not news.
@@ -105,7 +106,9 @@ internal static partial class Program
 			var team = Field(await Fm.Pull("Human.Team", "UniqueId"), "UniqueId");
 			var unread = await Fm.Pull("Human.HumanPortalUnreadMessages", "UniqueId,NewsTitleString,CanRespond,NewsHasResponded,NewsItemIsPriority", list: true);
 			var squad = await Fm.Pull("Human.Team.Players", "UniqueId,Name,IsInjured,CurrentInjury.InjuryDescription,CurrentInjury.InjuryReturnDays", list: true);
-			return new NewsLook(team, date, clock, ById(unread), ById(squad));
+			var fixture = await Fm.Pull("Human.Team.NextFixture", "FixtureDateDistanceInDays,IsFutureMatch");
+			int? days = Field(fixture, "IsFutureMatch") == "True" && int.TryParse(Field(fixture, "FixtureDateDistanceInDays"), out var d) ? d : null;
+			return new NewsLook(team, date, clock, ById(unread), ById(squad), days);
 		}
 		catch (Exception e) when (e is not OperationCanceledException)
 		{
@@ -116,5 +119,22 @@ internal static partial class Program
 			list.ValueKind != JsonValueKind.Array ? []
 				: list.EnumerateArray().Where(e => Field(e, "UniqueId").Length > 0)
 					.GroupBy(e => Field(e, "UniqueId")).ToDictionary(g => g.Key, g => g.First().Clone());
+	}
+
+	/// <summary>
+	/// Where things stand, for the prompt: the date, days to the next match, messages waiting for
+	/// an answer. From the last look, so it costs nothing; empty when there is no save.
+	/// </summary>
+	internal static string PromptStatus()
+	{
+		var look = newsBefore;
+		if (look == null || !DateTime.TryParseExact(look.Date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+			    System.Globalization.DateTimeStyles.None, out var date)) return "";
+		var parts = new List<string> { $"{date.Day} {Months[date.Month - 1]}" };
+		if (look.MatchDays is { } days)
+			parts.Add(days switch { 0 => L("match today"), 1 => L("match tomorrow"), _ => L($"match in {days} days") });
+		var waiting = look.Unread.Values.Count(Blocking);
+		if (waiting > 0) parts.Add(L($"{waiting} to answer"));
+		return string.Join(" · ", parts);
 	}
 }

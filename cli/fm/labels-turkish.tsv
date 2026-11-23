@@ -3080,3 +3080,7 @@ Settings, language and output	Ayarlar, dil, çıktı
 The game's screen, by hand	Oyunun ekranı, elle
 Used most: {0}	En çok kullanılan: {0}
 A group: help <group>   ·   a command: help <command> (or squad ?)   ·   everything: help --all	Bir grup: help <grup>   ·   bir komut: help <komut> (ya da squad ?)   ·   hepsi: help --all
+match today	maç bugün
+match tomorrow	maç yarın
+match in {0} days	maç {0} gün sonra
+{0} to answer	{0} cevap bekliyor

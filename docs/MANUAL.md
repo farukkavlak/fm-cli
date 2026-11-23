@@ -42,6 +42,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 - `fm` alone (or `fm start`) opens the `fm›` prompt: commands without `fm`, until `quit` or ctrl-D.
 - The first session on a terminal shows six lines on typing, tab, the arrows and `?`; once only (`~/.config/fm-cli/welcomed`).
+- The prompt says where things stand: `23 Ekim · maç 2 gün sonra · 1 cevap bekliyor fm›` (the date, days to the next match, priority messages still to answer). Read from the data tree after a command that moved the clock or answered something; no page is opened.
 - Up/down: the lines typed before, kept between sessions (`~/.config/fm-cli/history`, last 500).
 - Ctrl-R: search them; type part of a line, ctrl-R again for an older one, enter runs it, esc or an arrow keeps it to edit, ctrl-G gives the line back.
 - Tab: a command, then its options; after `player`, `contract`, `compare` … our players, by any part of the name (`camp` → `"Àlex Campos"`). Tab twice lists the choices.
