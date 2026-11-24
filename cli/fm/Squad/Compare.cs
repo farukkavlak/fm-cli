@@ -16,6 +16,8 @@ internal static partial class Program
 		// "compare kerem vs osimhen", or each name in quotes when it is more than one word.
 		var split = words.FindIndex(w => w is "vs" or "ile" or "-");
 		var names = split > 0 ? [string.Join(" ", words.Take(split)), string.Join(" ", words.Skip(split + 1))] : words;
+		// "compare soldo and susak": two of ours on either side of a word that is neither, told by the save's names
+		if (split < 0 && words.Count > 2 && await TwoOurs(words) is { } two) names = two;
 		if (names.Count != 2 || names.Any(n => n.Length == 0))
 		{
 			Console.Error.WriteLine(L("usage: compare <player> <player>   (quote a name of several words or put vs between them: compare \"erling haaland\" vs \"kylian mbappe\")"));
@@ -118,5 +120,25 @@ internal static partial class Program
 			var numbers = parts.Select(p => int.TryParse(p, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n) ? n : (int?)null).ToList();
 			return numbers.Count > 0 && numbers.All(n => n != null) ? (numbers.Min()!.Value, numbers.Max()!.Value) : null;
 		}
+	}
+
+	/// <summary>
+	/// The typed words cut into two of our players, with at most one word between them that names
+	/// neither; the cut where both fit best. Null when no cut gives two.
+	/// </summary>
+	private static async Task<List<string>?> TwoOurs(List<string> typed)
+	{
+		var known = await SaveNames();
+		var words = typed.Select(w => Nl.Text.Fold(w)).ToList();
+		(double Score, List<string> Names)? best = null;
+		for (var i = 1; i < words.Count; i++)
+			for (var gap = 0; gap <= 1 && i + gap < words.Count; gap++)
+			{
+				var (left, right) = (words[..i], words[(i + gap)..]);
+				if (Nl.NameFit.Who(left, known, Nl.SaveName.Player) is not [var a] || Nl.NameFit.Who(right, known, Nl.SaveName.Player) is not [var b] || a.Id == b.Id) continue;
+				var score = Nl.NameFit.Score(left, a.Name) + Nl.NameFit.Score(right, b.Name);
+				if (best is null || score > best.Value.Score) best = (score, [a.Name, b.Name]);
+			}
+		return best?.Names;
 	}
 }
