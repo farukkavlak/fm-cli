@@ -14,15 +14,43 @@ internal sealed class Neighbours
 {
 	private readonly Embedder _embedder;
 	private readonly List<(string Text, string Call)> _examples;
-	private readonly float[][] _index;
+	private readonly float[][] _shippedIndex;
+	private float[][] _index;
+	private float[] _weight;
+	private readonly int _shipped;
 	private readonly int _k;
+
+	/// <summary>How much more a sentence the user taught counts than a shipped example (T206 in docs/AI.md).</summary>
+	public static float LearnedWeight = 2f;
+
+	/// <summary>From this similarity up, a taught sentence that is the nearest of all decides (T206 in docs/AI.md).</summary>
+	public static float LearnedNear = 0.9f;
+
+	/// <summary>The share a deciding taught sentence gets: enough to run without offering a list.</summary>
+	private const float LearnedShare = 0.85f;
 
 	public Neighbours(Embedder embedder, List<(string Text, string Call)> examples, string cacheDir, int k = 5)
 	{
 		_embedder = embedder;
-		_examples = examples;
+		_examples = [.. examples];
+		_shipped = examples.Count;
 		_k = k;
-		_index = Cached(cacheDir, examples) ?? Build(cacheDir, examples);
+		_index = _shippedIndex = Cached(cacheDir, examples) ?? Build(cacheDir, examples);
+		_weight = [.. Enumerable.Repeat(1f, _shipped)];
+	}
+
+	/// <summary>
+	/// The user's own sentences (Learned), counted <see cref="LearnedWeight"/> times a shipped
+	/// example's, in place of those given before. Unlike a shipped example, one the user types
+	/// again finds itself.
+	/// </summary>
+	public void Learn(List<(string Text, string Call)> learned, string cacheDir)
+	{
+		_examples.RemoveRange(_shipped, _examples.Count - _shipped);
+		var index = learned.Count == 0 ? [] : Cached(cacheDir, learned, "learned") ?? Build(cacheDir, learned, "learned");
+		_examples.AddRange(learned);
+		_index = [.. _shippedIndex, .. index];
+		_weight = [.. Enumerable.Repeat(1f, _shipped), .. Enumerable.Repeat(LearnedWeight, learned.Count)];
 	}
 
 	/// <summary>The winning call as JSON (a tool name in quotes, "null" or a list).</summary>
@@ -38,15 +66,26 @@ internal sealed class Neighbours
 		var top = new List<(float Sim, int At)>();
 		for (var j = 0; j < _index.Length; j++)
 		{
-			// an example must not find itself, or the dev score says nothing
-			if (_examples[j].Text == text) continue;
+			// a shipped example must not find itself, or the dev score says nothing
+			if (j < _shipped && _examples[j].Text == text) continue;
 			top.Add((Embedder.Dot(q, _index[j]), j));
 		}
 		var votes = new Dictionary<string, float>();
-		foreach (var (sim, at) in top.OrderByDescending(t => t.Sim).Take(k))
-			votes[_examples[at].Call] = votes.GetValueOrDefault(_examples[at].Call) + sim;
+		var nearest = top.OrderByDescending(t => t.Sim).Take(k).ToList();
+		foreach (var (sim, at) in nearest)
+			votes[_examples[at].Call] = votes.GetValueOrDefault(_examples[at].Call) + sim * _weight[at];
 		var total = votes.Values.Sum();
-		return [.. votes.OrderByDescending(v => v.Value).Select(v => (v.Key, v.Value / total))];
+		var ranked = votes.OrderByDescending(v => v.Value).Select(v => (v.Key, v.Value / total)).ToList();
+		// a sentence the user taught, nearer than any shipped one and near enough, is what they mean
+		if (nearest.Count > 0 && nearest[0].At >= _shipped && nearest[0].Sim >= LearnedNear)
+		{
+			var call = _examples[nearest[0].At].Call;
+			var share = ranked.First(r => r.Key == call).Item2;
+			var raised = Math.Max(share, LearnedShare);
+			var rest = share < 1 ? (1 - raised) / (1 - share) : 0;
+			ranked = [(call, raised), .. ranked.Where(r => r.Key != call).Select(r => (r.Key, r.Item2 * rest))];
+		}
+		return ranked;
 	}
 
 	/// <summary>
@@ -60,14 +99,14 @@ internal sealed class Neighbours
 		var q = vector ?? _embedder.Embed([text])[0];
 		var near = new List<(float Sim, int At)>();
 		for (var j = 0; j < _index.Length; j++)
-			if (_examples[j].Text != text) near.Add((Embedder.Dot(q, _index[j]), j));
+			if (j >= _shipped || _examples[j].Text != text) near.Add((Embedder.Dot(q, _index[j]), j));
 		var by = new Dictionary<string, float>();
 		foreach (var (sim, at) in near.OrderByDescending(t => t.Sim).Take(pool))
 		{
 			var call = JsonNode.Parse(_examples[at].Call);
 			var tools = call is JsonArray a ? a.Select(x => x!.GetValue<string>()) : call is JsonValue v ? [v.GetValue<string>()] : [];
 			foreach (var t in tools.Distinct())
-				by[t] = by.GetValueOrDefault(t) + sim;
+				by[t] = by.GetValueOrDefault(t) + sim * _weight[at];
 		}
 		var total = by.Values.Sum();
 		return [.. by.OrderByDescending(v => v.Value).Select(v => (v.Key, v.Value / total))];
@@ -75,12 +114,16 @@ internal sealed class Neighbours
 
 	public float[][] Embed(IReadOnlyList<string> texts) => _embedder.Embed(texts);
 
-	private float[][] Build(string cacheDir, List<(string Text, string Call)> examples)
+	private float[][] Build(string cacheDir, List<(string Text, string Call)> examples, string kind = "index")
 	{
 		var index = _embedder.Embed([.. examples.Select(e => e.Text)]);
 		try
 		{
-			using var w = new BinaryWriter(File.Create(CachePath(cacheDir, examples)));
+			var path = CachePath(cacheDir, examples, kind);
+			// the user's sentences change as they teach: only the index of the current ones is kept
+			if (kind != "index")
+				foreach (var old in Directory.GetFiles(cacheDir, $"{kind}-*.bin")) File.Delete(old);
+			using var w = new BinaryWriter(File.Create(path));
 			w.Write(index.Length);
 			w.Write(index[0].Length);
 			foreach (var v in index)
@@ -91,9 +134,9 @@ internal sealed class Neighbours
 		return index;
 	}
 
-	private static float[][]? Cached(string cacheDir, List<(string Text, string Call)> examples)
+	private static float[][]? Cached(string cacheDir, List<(string Text, string Call)> examples, string kind = "index")
 	{
-		var path = CachePath(cacheDir, examples);
+		var path = CachePath(cacheDir, examples, kind);
 		if (!File.Exists(path)) return null;
 		using var r = new BinaryReader(File.OpenRead(path));
 		var n = r.ReadInt32();
@@ -108,12 +151,12 @@ internal sealed class Neighbours
 		return index;
 	}
 
-	private static string CachePath(string cacheDir, List<(string Text, string Call)> examples)
+	private static string CachePath(string cacheDir, List<(string Text, string Call)> examples, string kind = "index")
 	{
 		var model = new FileInfo(Path.Combine(cacheDir, "model.onnx"));
 		var key = $"lower|one-by-one|{model.Length}|{model.LastWriteTimeUtc.Ticks}|" + string.Join('\n', examples.Select(e => e.Text));
 		var hash = Convert.ToHexString(SHA1.HashData(Encoding.UTF8.GetBytes(key)))[..12].ToLowerInvariant();
-		return Path.Combine(cacheDir, $"index-{hash}.bin");
+		return Path.Combine(cacheDir, $"{kind}-{hash}.bin");
 	}
 
 	/// <summary>

@@ -100,9 +100,16 @@ internal static partial class Program
 		var who = players[0];
 		if (players.Count > 1)
 		{
-			if (!Ui.Interactive) return string.Join(' ', words);
-			if (Ui.Ask(L($"Which player: '{typed}'?"), [.. players.Select(p => p.Name)], cancel: L("None")) is not { } at) return null;
-			who = players[at];
+			// the one the user picked for these words before, while he is still in the save
+			var key = string.Join(' ', words);
+			if (Learned.IdFor(key, SaveName.Player, players.Select(p => p.Id)) is { } id) who = players.First(p => p.Id == id);
+			else
+			{
+				if (!Ui.Interactive) return key;
+				if (Ui.Ask(L($"Which player: '{typed}'?"), [.. players.Select(p => p.Name)], cancel: L("None")) is not { } at) return null;
+				who = players[at];
+				Learned.Picked(key, SaveName.Player, who.Id, who.Name);
+			}
 		}
 		// Two of ours with one name are told apart by the id, as `player` reads it.
 		return byId && known.Count(k => k.Kind == SaveName.Player && k.Name == who.Name) > 1 ? $"{who.Name} #{who.Id}" : who.Name;

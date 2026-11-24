@@ -26,6 +26,8 @@ internal static partial class Program
 		if (IsSentence(args)) return await Understand(string.Join(' ', args), Run);
 		// fm "compare konate isidori": a command quoted whole is still its words
 		if (args.Length == 1 && args[0].Contains(' ')) args = args[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		// a choice made for a sentence just before is kept, or forgotten when this command puts it right
+		Nl.Learned.Next(QuietCommand(args[0]));
 
 		if (args[0] == "start" && args.Skip(1).Any(a => a is "--help" or "-h")) return HelpFor("start");
 
@@ -180,7 +182,7 @@ internal static partial class Program
 
 		// A game version the probe was not written for can be read wrongly rather than not at
 		// all, so it is refused once, up front, with what to do about it.
-		if (command is not ("help" or "start" or "stop" or "continue" or "completion")
+		if (command is not ("help" or "start" or "stop" or "continue" or "completion" or "learned")
 		    && !(command == "doctor" && args.Contains("--install"))
 		    && await VersionGuard() is { } refused) return refused;
 
@@ -320,6 +322,7 @@ internal static partial class Program
 				"start" => await Attach(args.Contains("--debug"), !args.Contains("--menu")),
 				"stop" => await Stop(args),
 				"lang" or "language" or "dil" => LanguageChoice(args),
+				"learned" => LearnedCommand(args),
 				"help" or "--help" or "-h" => Help(args),
 				_ => Unknown(command),
 			};

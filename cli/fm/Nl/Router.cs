@@ -100,8 +100,12 @@ internal static partial class Router
 		return new Call(tool, ctx.Args, ctx.Asks, score);
 	}
 
-	/// <summary>What a typed sentence was taken to mean: the calls to make, or the choices to offer.</summary>
-	public sealed record Understood(List<Call> Calls, List<(Call Call, float Weight)> Options);
+	/// <summary>
+	/// What a typed sentence was taken to mean: the calls to make, or the choices to offer.
+	/// <paramref name="Tools"/> are the tools the nearest examples voted for, best first (what a
+	/// pick is told apart from when it is learned).
+	/// </summary>
+	public sealed record Understood(List<Call> Calls, List<(Call Call, float Weight)> Options, List<string> Tools);
 
 	/// <summary>From this share of the nearest examples' vote up, the pick is taken as meant.</summary>
 	public const float Sure = 0.8f;
@@ -123,22 +127,23 @@ internal static partial class Router
 	public static Understood Understand(string text, Neighbours near, string? seen = null)
 	{
 		var r = Route(text);
-		if (r.Calls.Count > 1) return new Understood(r.Calls, []);
+		if (r.Calls.Count > 1) return new Understood(r.Calls, [], []);
 		seen ??= text;
 		var vector = near.Embed([seen])[0];
 		var pick = near.Pick(seen, vector);
 		var rank = near.Rank(seen, vector, 15);
-		if (pick.StartsWith('[')) return new Understood(r.Calls, []);
+		if (pick.StartsWith('[')) return new Understood(r.Calls, [], []);
 		var tools = rank.Where(v => v.Call.StartsWith('"')).Select(v => (Tool: JsonNode.Parse(v.Call)!.GetValue<string>(), v.Weight)).ToList();
+		List<string> voted = [.. tools.Select(t => t.Tool).Take(5)];
 		if (pick == "null")
-			return new Understood([], [.. tools.Where(t => t.Weight >= Maybe).Take(3).Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))]);
+			return new Understood([], [.. tools.Where(t => t.Weight >= Maybe).Take(3).Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))], voted);
 		var tool = JsonNode.Parse(pick)!.GetValue<string>();
 		var weight = tools.FirstOrDefault(t => t.Tool == tool).Weight;
-		if (weight >= Sure) return new Understood([Fill(tool, new Text(text), 0)], []);
+		if (weight >= Sure) return new Understood([Fill(tool, new Text(text), 0)], [], voted);
 		var n = weight >= Unsure ? 3 : 5;
 		// the pick is among them however the wider vote ranks it; shown by share
 		var options = tools.Where(t => t.Tool == tool).Concat(tools.Where(t => t.Tool != tool)).Take(n).OrderByDescending(t => t.Weight);
-		return new Understood([], [.. options.Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))]);
+		return new Understood([], [.. options.Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))], voted);
 	}
 
 	/// <summary>
@@ -151,7 +156,8 @@ internal static partial class Router
 	/// dev and train sentences are the examples; "votes" then lists the five best candidate
 	/// tools of the 50 nearest examples, and "asks" the five best of each ask when the sentence
 	/// splits into several, with "ask_texts" the words of each; "share" is the pick's share of the
-	/// 15 nearest, the one Understand holds against Sure.
+	/// 15 nearest, the one Understand holds against Sure. --learned FILE adds a learned.json's
+	/// sentences as the user's (tools/nl-learn.py), --learned-weight and --learned-near try other values.
 	/// </summary>
 	public static int RouteLines(string[] args)
 	{
@@ -175,6 +181,10 @@ internal static partial class Router
 			model = Path.GetFullPath(model.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
 			using var embedder = new Embedder(model);
 			var near = new Neighbours(embedder, Neighbours.Examples(Opt("--cases") ?? "tests/nl", withHeld: false), model);
+			// tools/nl-learn.py: sentences taught as if the user had picked them
+			if (Opt("--learned-weight") is { } lw) Neighbours.LearnedWeight = float.Parse(lw, System.Globalization.CultureInfo.InvariantCulture);
+			if (Opt("--learned-near") is { } ln) Neighbours.LearnedNear = float.Parse(ln, System.Globalization.CultureInfo.InvariantCulture);
+			if (Opt("--learned") is { } learned) near.Learn(Learned.Examples(Learned.Load(learned)), model);
 			var vectors = near.Embed([.. texts.Select(t => t.Text)]);
 			for (var i = 0; i < texts.Count; i++)
 			{

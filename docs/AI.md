@@ -42,15 +42,19 @@ Order: names first, then the learning router, then the cloud.
   - [ ] Offers, shortlist
 - [x] T205 Fuzzy names: Turkish endings, typos, a club before the name; ask when two fit (`Nl/NameFit.cs`)
   - The model sees our players as a name it was taught ("hreljaya bak" → "rinaldiye bak"); arguments keep the typed name
-- [ ] T206 The router learns from the user
-  - Learns only what the user chose: a pick from the options, or a yes. Not what the router ran on its own.
-  - A choice undone right away (another command at once) is forgotten.
-  - Learns sentence → tool only; arguments are read again every time.
-  - Learns nicknames for names ("cimbom" → the club's id), tied to T204.
-  - The user's own sentences weigh more than the shipped examples.
-  - A weighty call still asks for a yes, however sure.
-  - `fm learned`: list and delete.
-  - Measured: teach held misses as if picked, then ask their noisy forms.
+- [ ] T206 The router learns from the user (`Nl/Learned.cs`, `~/.config/fm-cli/learned.json`)
+  - [x] Learns only what the user chose: a pick from the options, or a yes. Not what the router ran on its own.
+  - [x] A choice is pending until the next command; when that command is another of the offered ones, it is forgotten.
+    - Told apart by command name: `tactic` and `tactic slot` are one command here.
+  - [x] Learns sentence → tool only; arguments are read again every time.
+  - [x] A player picked between two who fit is kept by his id.
+  - [ ] Nicknames for clubs ("cimbom" → the club's id): needs other clubs' ids (T204).
+  - [ ] A choice the list did not offer (the user types the command after "none") is not learned.
+  - [x] The user's sentences count twice; the nearest of all, from 0.9 similarity, decides.
+  - [x] A weighty call still asks for a yes, however sure.
+  - [x] `fm learned`: list and delete.
+  - [x] Measured (`tools/nl-learn.py`, held): taught 0% → 100%, their noisy forms 9% → 76% top-1,
+    sure-wrong on them 35% → 5%; the rest 86.2% → 85.5% top-1.
 - [ ] T207 Smart mode: router first, a cloud model when unsure; our code always asks for a missing value that changes the game
 - [ ] T208 Assistant, read-only: provider interface, session memory ("him"), answers only from what was read
 - [ ] T209 Plans: steps, approval, run, verify

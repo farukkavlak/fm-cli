@@ -30,7 +30,11 @@ internal static partial class Program
 		}
 		Console.WriteLine();
 		if (IsSentence(words)) await Understand(string.Join(' ', words), Run);
-		else await Run(words);
+		else
+		{
+			Nl.Learned.Next(QuietCommand(words[0]));
+			await Run(words);
+		}
 		Console.WriteLine(L("Any key: back to the match"));
 		Console.ReadKey(true);
 		if (paused) await Quietly(MatchPause("resume"));

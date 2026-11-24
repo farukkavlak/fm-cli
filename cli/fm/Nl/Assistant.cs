@@ -43,7 +43,8 @@ internal static partial class Program
 			return 64;
 		}
 
-		var understood = Nl.Router.Understand(sentence, model, NameFit.StandIn(sentence, await SaveNames()));
+		var seen = NameFit.StandIn(sentence, await SaveNames());
+		var understood = Nl.Router.Understand(sentence, model, seen);
 		if (understood.Calls.Count == 0 && understood.Options.Count == 0)
 		{
 			Console.WriteLine(L("No command does that. For the commands: `help`"));
@@ -53,7 +54,11 @@ internal static partial class Program
 		// A line that starts with the command it means is that command, every word kept: the command says
 		// what it does not understand, where a filled-in call would drop the word ("dugout 1 zzz" opening advice 1).
 		var typed = sentence.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-		if (understood.Calls is [var only] && only.Tool == $"fm_{typed[0]}") return await execute(typed);
+		if (understood.Calls is [var only] && only.Tool == $"fm_{typed[0]}")
+		{
+			Learned.Next(typed[0]);
+			return await execute(typed);
+		}
 
 		var calls = understood.Calls;
 		var chosen = false;
@@ -72,19 +77,31 @@ internal static partial class Program
 			if (!AskFor(call) || !await NamePlayers(call)) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
 			if (Typed(call) is not { } words) continue;
 			var shown = Shown(words);
+			var yes = chosen;
 			// a pick from the list, with nothing asked after, was already a yes
 			if (IsWeighty(call) && !(chosen && call.Ask.Count == 0))
 			{
 				if (!Confirm(L($"Run `{shown}`?"))) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
+				yes = true;
 			}
 			else Console.WriteLine(Dim($"→ {shown}"));
+			Learned.Next(words[0]);
 			code = await execute(words);
+			// what the user chose for a sentence of one ask is learned (the tool only), unless it failed
+			if (code == 0 && yes && calls.Count == 1)
+				Learned.Chose(new Learned.Sentence(seen ?? sentence, sentence, call.Tool, shown), Rivals(understood, call));
 			// a step that failed stops the rest: they were asked for after it, and may count on it
 			if (code != 0) return Stopped(done, calls.Skip(i + 1), code, calls.Count);
 			done.Add(shown);
 		}
 		return code;
 	}
+
+	/// <summary>The commands of the other tools the sentence was near: a next command among them puts a choice right.</summary>
+	private static IEnumerable<string> Rivals(Nl.Router.Understood understood, Nl.Router.Call chosen) =>
+		understood.Options.Select(o => o.Call.Tool).Concat(understood.Tools).Where(t => t != chosen.Tool).Distinct()
+			.Select(t => Mcp.CommandFor(t, new JsonObject()) is [var name, ..] ? name : null).OfType<string>()
+			.Where(name => name != (Typed(chosen) is [var mine, ..] ? mine : null));
 
 	/// <summary>The exit code of a line left undone: a person said no, a script got nothing it asked for.</summary>
 	private static int NothingRun => Ui.Interactive ? 0 : 1;
@@ -105,15 +122,28 @@ internal static partial class Program
 	/// <summary>The model, loaded once and kept for the session; null when it is not installed.</summary>
 	private static Neighbours? Model()
 	{
-		if (near != null) return near;
 		var dir = ModelDir;
+		if (near != null) return Taught(near, dir);
 		if (!File.Exists(Path.Combine(dir, "model.onnx"))) return null;
 		var examples = Neighbours.Embedded();
 		if (!Neighbours.Indexed(dir, examples))
 			Console.WriteLine(L("Getting the language model ready (only the first time, about half a minute)…"));
 		embedder = new Embedder(dir);
 		near = new Neighbours(embedder, examples, dir);
-		return near;
+		learnedFrom = null;
+		return Taught(near, dir);
+	}
+
+	private static string? learnedFrom;
+
+	/// <summary>The user's own sentences put in the vote, again whenever the file has changed (a session goes on learning).</summary>
+	private static Neighbours Taught(Neighbours model, string dir)
+	{
+		var stamp = File.Exists(Learned.File) ? $"{File.GetLastWriteTimeUtc(Learned.File).Ticks}" : "";
+		if (stamp == learnedFrom) return model;
+		model.Learn(Learned.Examples(Learned.Load()), dir);
+		learnedFrom = stamp;
+		return model;
 	}
 
 	/// <summary>

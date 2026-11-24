@@ -67,6 +67,14 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 ![a sentence the model is not sure of](manual/img/ask/options.png)
 
+- What you pick from the list is learned: the same sentence, or one close to it, then runs that command.
+- A pick put right by the next command (another of the offered ones) is forgotten.
+- Only the command is learned; names and numbers are read again every time.
+- A player picked between two with one name is remembered, while he is in the save.
+- `fm learned` lists what was learned; `fm learned delete 2` (or `all`) forgets it.
+
+![what was learned](manual/img/ask/learned.png)
+
 ### Language
 
 The CLI follows the game's language. To use another language for the CLI alone:

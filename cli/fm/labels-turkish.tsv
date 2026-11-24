@@ -3115,3 +3115,12 @@ The game has no last save of its own to continue, so it waits at its main menu. 
 Other lists: {0}   ·   to see one: shortlist --list "<name>"	Diğer listeler: {0}   ·   birini görmek için: shortlist --list "<ad>"
 The game is on a screen without a menu (the round's results, a news roundup); pages cannot be opened. To go past it: next	Oyun menüsü olmayan bir ekranda (turun sonuçları, haber özeti); sayfalar açılamaz. Geçmek için: next
 Which player: '{0}'?	Hangi oyuncu: '{0}'?
+(kept at the next command, unless it puts this right)	(sonraki komutta kalıcı olur, o komut bunu düzeltmezse)
+Which one: learned delete <number> (or all)	Hangisi: learned delete <numara> (ya da all)
+Forgot all {0}.	{0} kaydın hepsi unutuldu.
+No such number: {0} (1-{1})	Böyle bir numara yok: {0} (1-{1})
+Forgot: {0}	Unutuldu: {0}
+Nothing learned yet: a command picked from the list offered for a sentence is learned.	Henüz öğrenilen bir şey yok: bir cümleye karşı sunulan listeden seçilen komut öğrenilir.
+Learned from your choices:	Seçimlerinden öğrenilenler:
+Forget one: learned delete <number> · all: learned delete all	Birini unutmak için: learned delete <numara> · hepsi: learned delete all
+learned         what sentences taught: the commands you picked for them, the players you picked by name;  learned delete <number>|all	learned         cümlelerden öğrenilenler: onlar için seçtiğin komutlar, adıyla seçtiğin oyuncular;  learned delete <numara>|all

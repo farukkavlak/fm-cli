@@ -133,6 +133,7 @@ internal static partial class Program
 			  settings all    every preference of the game, each with its key
 			  settings <setting> [<value>]   change it (e.g. settings "highlight speed" 2x; a title or key from settings all too); with no value it is chosen with the arrow keys
 			  lang            CLI language: english, turkish or auto (follow the game); FM_LANG also works
+			  learned         what sentences taught: the commands you picked for them, the players you picked by name;  learned delete <number>|all
 			  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii|auto]   the live match panel
 			  happiness       the players' happiness, unhappiest first
 			    happiness <player>   why: morale, their place in the dressing room, what pleases them and what they complain about
