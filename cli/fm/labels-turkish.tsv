@@ -3114,3 +3114,4 @@ The game has no last save of its own to continue, so it waits at its main menu. 
 (hurt, has to come off)	(sakat, çıkması gerekiyor)
 Other lists: {0}   ·   to see one: shortlist --list "<name>"	Diğer listeler: {0}   ·   birini görmek için: shortlist --list "<ad>"
 The game is on a screen without a menu (the round's results, a news roundup); pages cannot be opened. To go past it: next	Oyun menüsü olmayan bir ekranda (turun sonuçları, haber özeti); sayfalar açılamaz. Geçmek için: next
+Which player: '{0}'?	Hangi oyuncu: '{0}'?

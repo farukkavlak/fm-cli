@@ -378,7 +378,7 @@ internal sealed partial class Ctx(Text text, string? tool = null)
 			.ToDictionary(p => p[0], p => p.Length > 1 ? p[1] : "");
 	});
 
-	private static bool IsCommon(string w) => Common.Value.ContainsKey(w);
+	internal static bool IsCommon(string w) => Common.Value.ContainsKey(w);
 
 
 	private static bool CommonIn(string w, string lang) => Common.Value.TryGetValue(w, out var langs) && langs.Contains(lang);

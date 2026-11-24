@@ -43,7 +43,7 @@ internal static partial class Program
 			return 64;
 		}
 
-		var understood = Nl.Router.Understand(sentence, model);
+		var understood = Nl.Router.Understand(sentence, model, NameFit.StandIn(sentence, await SaveNames()));
 		if (understood.Calls.Count == 0 && understood.Options.Count == 0)
 		{
 			Console.WriteLine(L("No command does that. For the commands: `help`"));
@@ -69,7 +69,7 @@ internal static partial class Program
 		for (var i = 0; i < calls.Count; i++)
 		{
 			var call = calls[i];
-			if (!AskFor(call)) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
+			if (!AskFor(call) || !await NamePlayers(call)) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
 			if (Typed(call) is not { } words) continue;
 			var shown = Shown(words);
 			// a pick from the list, with nothing asked after, was already a yes

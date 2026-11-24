@@ -115,13 +115,19 @@ internal static partial class Router
 	/// sentence the rules split into several asks stays split. A pick with less than the sure
 	/// share of the vote is offered with the runners-up (tests/nl/README.md has the measurements).
 	/// </summary>
-	public static Understood Understand(string text, Neighbours near)
+	/// <remarks>
+	/// <paramref name="seen"/> is the sentence as the model is to see it: the save's people put in
+	/// as a name it was taught with (<see cref="NameFit.StandIn"/>). It knows "rinaldiye bak" and
+	/// not "hreljaya bak"; the arguments are still read from the words typed.
+	/// </remarks>
+	public static Understood Understand(string text, Neighbours near, string? seen = null)
 	{
 		var r = Route(text);
 		if (r.Calls.Count > 1) return new Understood(r.Calls, []);
-		var vector = near.Embed([text])[0];
-		var pick = near.Pick(text, vector);
-		var rank = near.Rank(text, vector, 15);
+		seen ??= text;
+		var vector = near.Embed([seen])[0];
+		var pick = near.Pick(seen, vector);
+		var rank = near.Rank(seen, vector, 15);
 		if (pick.StartsWith('[')) return new Understood(r.Calls, []);
 		var tools = rank.Where(v => v.Call.StartsWith('"')).Select(v => (Tool: JsonNode.Parse(v.Call)!.GetValue<string>(), v.Weight)).ToList();
 		if (pick == "null")
