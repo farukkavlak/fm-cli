@@ -45,7 +45,7 @@ internal static partial class Program
 	/// </summary>
 	private static string ResolveCommand(string typed)
 	{
-		if (CommandNames.Contains(typed) || typed is "--help" or "-h" or "__names") return typed;
+		if (CommandNames.Contains(typed) || typed is "--help" or "-h" or "__names" or "__savenames") return typed;
 
 		var folded = Fold(typed);
 		if (CommandAliases.TryGetValue(folded, out var aliased)) return aliased;

@@ -286,6 +286,8 @@ internal static partial class Program
 				"takers" => await Takers(json, args),
 				"query" => await Query(json, args),
 				"__names" => await OurNames(),
+				// the names a sentence is held to, with their ids (tests and diagnosis)
+				"__savenames" => await PrintSaveNames(),
 				"facilities" => await Facilities(json),
 				"contracts" => await ContractsCalendar(json, args),
 				"training" => await IndividualTraining(args),

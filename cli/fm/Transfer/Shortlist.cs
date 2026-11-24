@@ -79,13 +79,15 @@ internal static partial class Program
 				var under = Field(rows[0], "Item")[..Field(rows[0], "Item").LastIndexOf('.')];
 				await Fm.Get("pathset", ("to", $"{under}.human"), ("from", "Human"));
 			}
-			players = await PullEach(rows.Select(r => (Field(r, "Item"), "Name,Age,PositionCombinedString,Club.Name,TransferValueRange.TransferValueRangeString,Nation.ThreeLetterName")).ToList());
+			players = await PullEach(rows.Select(r => (Field(r, "Item"), "Name,UniqueId,Age,PositionCombinedString,Club.Name,Club.UniqueId,TransferValueRange.TransferValueRangeString,Nation.ThreeLetterName")).ToList());
 			var now = string.Join("|", players.Select(p => Field(p, "Name")));
 			var settled = tables.Count > 0 && now == last;
 			last = now;
 			return settled;
 		}, seconds: 10, every: 0.5);
 		players = players.Where(p => Field(p, "Name").Length > 0).ToList();
+		// kept for the sentences after: the shortlist is not read without its page
+		await KeepShortlistNames(players);
 		if (players.Count == 0 && !json)
 		{
 			Console.WriteLine(L("The shortlist is empty."));

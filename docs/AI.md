@@ -36,10 +36,14 @@ Playing by sentence (`fm <sentence>`), and later an assistant.
 
 Order: names first, then the learning router, then the cloud.
 
-- [ ] T204 Players, clubs, offers held by the game's own ids
-  - [x] Our players (youth too), our club, the next opponent (`Nl/Assistant.Names.cs`)
-  - [ ] Other clubs: not readable without opening a page (`Human.Team.Division.Teams` is empty until one binds it); collect them from reads that carry ids
-  - [ ] Offers, shortlist
+- [ ] T204 Players, clubs, offers held by the game's own ids (`Nl/Assistant.Names.cs`)
+  - [x] Our players (youth too), our club, the next opponent
+  - [x] Every club we play this season, from our own `Team.FixtureList` (no page; a league's whole field)
+    - `Human.Team.Division.Teams` stays empty until a page binds it: not used
+  - [x] Shortlist: its players and their clubs, kept when `shortlist` reads its page (`Nl/SeenNames.cs`), per club and save
+    - The save is told by `app.LastSaveSummary.GameSummaryGameName`; another save of the club keeps its own list
+  - [ ] Offers: players and clubs of `TransferActivityPlayerListAll`, read with no page; seen empty only, not yet with an offer
+  - [ ] Clubs as an argument: `friendly` picks from the game's own list of opponents, not the league's; left as typed
 - [x] T205 Fuzzy names: Turkish endings, typos, a club before the name; ask when two fit (`Nl/NameFit.cs`)
   - The model sees our players as a name it was taught ("hreljaya bak" → "rinaldiye bak"); arguments keep the typed name
 - [ ] T206 The router learns from the user (`Nl/Learned.cs`, `~/.config/fm-cli/learned.json`)
