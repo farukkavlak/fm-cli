@@ -1,0 +1,314 @@
+diff --git a/Runtimes/Unity/BepInEx.Unity.IL2CPP/Hook/BaseNativeDetour.cs b/Runtimes/Unity/BepInEx.Unity.IL2CPP/Hook/BaseNativeDetour.cs
+index a8b0ae9..123017b 100644
+--- a/Runtimes/Unity/BepInEx.Unity.IL2CPP/Hook/BaseNativeDetour.cs
++++ b/Runtimes/Unity/BepInEx.Unity.IL2CPP/Hook/BaseNativeDetour.cs
+@@ -63,7 +63,15 @@ internal abstract class BaseNativeDetour<T> : INativeDetour where T : BaseNative
+         if (TrampolineMethod == null)
+         {
+             Prepare();
+-            TrampolineMethod = DetourHelper.GenerateNativeProxy(TrampolinePtr, signature);
++            // fm-cli patch: MonoMod cannot make the proxy on macOS arm64; the detour works without it.
++            try
++            {
++                TrampolineMethod = DetourHelper.GenerateNativeProxy(TrampolinePtr, signature);
++            }
++            catch (Exception ex)
++            {
++                Logger.Log(LogLevel.Debug, $"GenerateNativeProxy skipped (arm64 MonoMod): {ex.GetType().Name}");
++            }
+         }
+ 
+         return TrampolineMethod;
+diff --git a/Runtimes/Unity/BepInEx.Unity.IL2CPP/IL2CPPChainloader.cs b/Runtimes/Unity/BepInEx.Unity.IL2CPP/IL2CPPChainloader.cs
+index 1ccfb9e..2eab46b 100644
+--- a/Runtimes/Unity/BepInEx.Unity.IL2CPP/IL2CPPChainloader.cs
++++ b/Runtimes/Unity/BepInEx.Unity.IL2CPP/IL2CPPChainloader.cs
+@@ -1,6 +1,9 @@
+ using System;
++using System.Collections.Generic;
+ using System.Reflection;
+ using System.Runtime.InteropServices;
++using System.Text;
++using System.Threading;
+ using BepInEx.Bootstrap;
+ using BepInEx.Configuration;
+ using BepInEx.Logging;
+@@ -29,6 +32,22 @@ public class IL2CPPChainloader : BaseChainloader<BasePlugin>
+      false,
+      "Include unity log messages in log file output.");
+ 
++    // fm-cli patch (macOS arm64 and Windows): plugins load once, from the scene hook or a fallback timer; the
++    // runtime_invoke hook stays on afterwards and feeds MainThreadTick. FM26_TICK_TEST logs every 60th tick,
++    // FM26_MEASURE_ONLY counts the hook's calls a second instead of loading anything.
++    private static int _pluginsLoaded;
++    private static bool _diagFired;
++    private static long _diagCount;
++
++    [ThreadStatic] private static bool _inTick;
++
++    private static long _lastTickMs;
++    private static readonly bool TickTest = Environment.GetEnvironmentVariable("FM26_TICK_TEST") == "1";
++    private static long _tickCount;
++    private static readonly bool MeasureOnly = Environment.GetEnvironmentVariable("FM26_MEASURE_ONLY") == "1";
++    private static long _measureWindowStart;
++    private static long _measureWindowCount;
++    private static readonly Dictionary<string, int> _measureNames = new();
+ 
+     private static INativeDetour RuntimeInvokeDetour { get; set; }
+ 
+@@ -53,6 +72,13 @@ public class IL2CPPChainloader : BaseChainloader<BasePlugin>
+     /// </summary>
+     public event Action<PluginInfo, Assembly, BasePlugin> PluginLoad;
+ 
++    /// <summary>
++    ///     fm-cli patch: raised from the runtime_invoke hook once plugins are loaded, at most every 15 ms and never
++    ///     re-entered on the thread raising it. The game calls runtime_invoke from other threads too: a handler that
++    ///     touches Unity checks it is on the main thread.
++    /// </summary>
++    public static event Action MainThreadTick;
++
+     public override void Initialize(string gameExePath = null)
+     {
+         base.Initialize(gameExePath);
+@@ -67,22 +93,188 @@ public class IL2CPPChainloader : BaseChainloader<BasePlugin>
+ 
+         var runtimeInvokePtr = NativeLibrary.GetExport(il2CppHandle, "il2cpp_runtime_invoke");
+         PreloaderLogger.Log.Log(LogLevel.Debug, $"Runtime invoke pointer: 0x{runtimeInvokePtr.ToInt64():X}");
++        runtimeInvokePtr = ResolveArm64BranchThunk(runtimeInvokePtr);
++        PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] bytes@target BEFORE: {DumpBytes(runtimeInvokePtr, 64)}");
+         RuntimeInvokeDetourDelegate invokeMethodDetour = OnInvokeMethod;
+ 
+         RuntimeInvokeDetour =
+             INativeDetour.CreateAndApply(runtimeInvokePtr, invokeMethodDetour, out originalInvoke);
+         PreloaderLogger.Log.Log(LogLevel.Debug, "Runtime invoke patched");
++        PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] bytes@target AFTER:  {DumpBytes(runtimeInvokePtr, 16)}");
++        PreloaderLogger.Log.Log(LogLevel.Message,
++                                $"[DIAG] trampoline@0x{RuntimeInvokeDetour.TrampolinePtr:X} bytes: {DumpBytes(RuntimeInvokeDetour.TrampolinePtr, 64)}");
++        StartFallbackLoader();
++    }
++
++    /// <summary>
++    ///     fm-cli patch: on arm64 the exported il2cpp_runtime_invoke can be a stub of one B (branch) to the
++    ///     implementation; the hook goes on the implementation. Up to four hops; any other instruction ends it.
++    /// </summary>
++    private static IntPtr ResolveArm64BranchThunk(IntPtr ptr)
++    {
++        try
++        {
++            for (var hop = 0; hop < 4; hop++)
++            {
++                var instruction = (uint) Marshal.ReadInt32(ptr);
++                if ((instruction & 0xFC000000u) != 0x14000000u) break;
++                var imm26 = instruction & 0x3FFFFFFu;
++                var offset = (imm26 & 0x2000000u) != 0 ? (long) (int) (imm26 | 0xFC000000u) : imm26;
++                var target = new IntPtr(ptr.ToInt64() + (offset << 2));
++                PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] runtime_invoke stub 0x{ptr.ToInt64():X} -> impl 0x{target.ToInt64():X}");
++                ptr = target;
++            }
++        }
++        catch (Exception ex)
++        {
++            PreloaderLogger.Log.Log(LogLevel.Warning, $"[DIAG] thunk resolve failed: {ex.Message}");
++        }
++        return ptr;
++    }
++
++    private static string DumpBytes(IntPtr addr, int count)
++    {
++        try
++        {
++            var bytes = new byte[count];
++            Marshal.Copy(addr, bytes, 0, count);
++            return BitConverter.ToString(bytes);
++        }
++        catch (Exception ex)
++        {
++            return $"<read failed: {ex.Message}>";
++        }
++    }
++
++    /// <summary>fm-cli patch: should the hook never fire, plugins are loaded from a timer thread after 60 s.</summary>
++    private void StartFallbackLoader()
++    {
++        var thread = new Thread(() =>
++        {
++            try
++            {
++                for (var i = 0; i < 60; i++)
++                {
++                    Thread.Sleep(1000);
++                    if (_diagFired) return;
++                }
++                PreloaderLogger.Log.Log(LogLevel.Message, "[DIAG] hook never fired after 60s -> FALLBACK: forcing plugin load from timer thread");
++                try
++                {
++                    var domain = Il2CppInterop.Runtime.IL2CPP.il2cpp_domain_get();
++                    var attached = Il2CppInterop.Runtime.IL2CPP.il2cpp_thread_attach(domain);
++                    PreloaderLogger.Log.Log(LogLevel.Message,
++                                            $"[DIAG] fallback thread attached to IL2CPP domain=0x{domain.ToInt64():X} thread=0x{attached.ToInt64():X}");
++                }
++                catch (Exception ex)
++                {
++                    PreloaderLogger.Log.Log(LogLevel.Error, $"[DIAG] il2cpp_thread_attach failed: {ex}");
++                }
++                LoadPluginsOnce("fallback-timer");
++            }
++            catch (Exception ex)
++            {
++                Logger.Log(LogLevel.Error, $"[DIAG] fallback loader failed: {ex}");
++            }
++        }) { IsBackground = true };
++        thread.Start();
++        PreloaderLogger.Log.Log(LogLevel.Message, "[DIAG] fallback loader armed (60s)");
++    }
++
++    private static void LoadPluginsOnce(string source)
++    {
++        if (Interlocked.Exchange(ref _pluginsLoaded, 1) != 0) return;
++        try
++        {
++            PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] ({source}) PreloadInteropAssemblies...");
++            Il2CppInteropManager.PreloadInteropAssemblies();
++            PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] ({source}) Execute()...");
++            Instance.Execute();
++            PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] ({source}) Execute() done");
++        }
++        catch (Exception ex)
++        {
++            Logger.Log(LogLevel.Fatal, "Unable to execute IL2CPP chainloader");
++            Logger.Log(LogLevel.Error, ex);
++        }
++    }
++
++    private static void PumpMainThreadTick()
++    {
++        if (_inTick) return;
++        var now = Environment.TickCount64;
++        if (now - _lastTickMs < 15) return;
++        _lastTickMs = now;
++        _inTick = true;
++        try
++        {
++            if (TickTest && ++_tickCount % 60 == 0)
++                PreloaderLogger.Log.Log(LogLevel.Message,
++                                        $"[TICK] main-thread tick #{_tickCount} (managed thread {Thread.CurrentThread.ManagedThreadId})");
++            MainThreadTick?.Invoke();
++        }
++        catch (Exception ex)
++        {
++            PreloaderLogger.Log.Log(LogLevel.Error, $"[TICK] handler threw: {ex}");
++        }
++        finally
++        {
++            _inTick = false;
++        }
+     }
+ 
+     private static IntPtr OnInvokeMethod(IntPtr method, IntPtr obj, IntPtr parameters, IntPtr exc)
+     {
++        // fm-cli patch: the hook is kept once plugins are loaded, and only pumps the tick from then on.
++        if (_pluginsLoaded == 1 && !MeasureOnly)
++        {
++            PumpMainThreadTick();
++            return originalInvoke(method, obj, parameters, exc);
++        }
++
+         var methodName = Marshal.PtrToStringAnsi(Il2CppInterop.Runtime.IL2CPP.il2cpp_method_get_name(method));
+ 
+-        var unhook = false;
++        if (!_diagFired)
++        {
++            _diagFired = true;
++            PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] OnInvokeMethod FIRED - hook works! first method='{methodName}'");
++            _measureWindowStart = Environment.TickCount64;
++        }
++        _diagCount++;
++
++        if (MeasureOnly)
++        {
++            _measureWindowCount++;
++            if (methodName != null)
++            {
++                _measureNames.TryGetValue(methodName, out var seen);
++                _measureNames[methodName] = seen + 1;
++            }
++            var now = Environment.TickCount64;
++            if (now - _measureWindowStart >= 1000)
++            {
++                var top = new List<KeyValuePair<string, int>>(_measureNames);
++                top.Sort((a, b) => b.Value.CompareTo(a.Value));
++                var said = new StringBuilder();
++                for (var i = 0; i < top.Count && i < 8; i++) said.Append($"{top[i].Key}={top[i].Value} ");
++                PreloaderLogger.Log.Log(LogLevel.Message,
++                                        $"[PUMP] invokes/sec={_measureWindowCount} uniqueMethods={_measureNames.Count} top: {said}");
++                _measureWindowStart = now;
++                _measureWindowCount = 0;
++                _measureNames.Clear();
++            }
++            return originalInvoke(method, obj, parameters, exc);
++        }
++
++        if (_diagCount % 20000 == 0)
++            PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] invoke count={_diagCount} lastMethod='{methodName}'");
++        if (methodName != null && methodName.Contains("Scene"))
++            PreloaderLogger.Log.Log(LogLevel.Message, $"[DIAG] scene-ish method: '{methodName}'");
+ 
+         if (methodName == "Internal_ActiveSceneChanged")
+             try
+             {
++                PreloaderLogger.Log.Log(LogLevel.Message, "[DIAG] Internal_ActiveSceneChanged -> starting plugin load");
+                 if (ConfigUnityLogging.Value)
+                 {
+                     Logger.Sources.Add(new IL2CPPUnityLogSource());
+@@ -91,11 +283,7 @@ public class IL2CPPChainloader : BaseChainloader<BasePlugin>
+                                                 true);
+                 }
+ 
+-                unhook = true;
+-
+-                Il2CppInteropManager.PreloadInteropAssemblies();
+-
+-                Instance.Execute();
++                LoadPluginsOnce("scene-hook");
+             }
+             catch (Exception ex)
+             {
+@@ -103,16 +291,7 @@ public class IL2CPPChainloader : BaseChainloader<BasePlugin>
+                 Logger.Log(LogLevel.Error, ex);
+             }
+ 
+-        var result = originalInvoke(method, obj, parameters, exc);
+-
+-        if (unhook)
+-        {
+-            RuntimeInvokeDetour.Dispose();
+-
+-            PreloaderLogger.Log.Log(LogLevel.Debug, "Runtime invoke unpatched");
+-        }
+-
+-        return result;
++        return originalInvoke(method, obj, parameters, exc);
+     }
+ 
+     protected override void InitializeLoggers()
+diff --git a/Runtimes/Unity/BepInEx.Unity.IL2CPP/Preloader.cs b/Runtimes/Unity/BepInEx.Unity.IL2CPP/Preloader.cs
+index 690d4ef..8ad022f 100644
+--- a/Runtimes/Unity/BepInEx.Unity.IL2CPP/Preloader.cs
++++ b/Runtimes/Unity/BepInEx.Unity.IL2CPP/Preloader.cs
+@@ -26,7 +26,15 @@ public static class Preloader
+         try
+         {
+             HarmonyBackendFix.Initialize();
+-            ConsoleSetOutFix.Apply();
++            // fm-cli patch: on macOS arm64 this fix throws; the preloader goes on without it.
++            try
++            {
++                ConsoleSetOutFix.Apply();
++            }
++            catch (Exception ex)
++            {
++                Console.WriteLine("[arm64-diag] ConsoleSetOutFix skipped: " + ex.GetType().Name + ": " + ex.Message);
++            }
+             UnityInfo.Initialize(Paths.ExecutablePath, Paths.GameDataPath);
+ 
+             ConsoleManager.Initialize(false, true);

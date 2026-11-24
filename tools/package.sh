@@ -16,6 +16,10 @@ rm -rf "$STAGE"; mkdir -p "$STAGE/game/BepInEx"
 for d in core patchers unity-libs; do
 	[ -e "$BESIDE/BepInEx/$d" ] && cp -R "$BESIDE/BepInEx/$d" "$STAGE/game/BepInEx/"
 done
+# The core assembly is the patched one (MainThreadTick, arm64), built from BepInEx's source: tools/bepinex-patch.
+zsh tools/bepinex-patch/build.sh >/dev/null
+cp dist/bepinex-core/BepInEx.Unity.IL2CPP.dll "$STAGE/game/BepInEx/core/BepInEx.Unity.IL2CPP.dll"
+rm -f "$STAGE/game/BepInEx/core/BepInEx.Unity.IL2CPP.dll.orig"
 # Only BepInEx's own settings: other mods' settings and plugins on this machine stay out.
 mkdir -p "$STAGE/game/BepInEx/config"
 cp "$BESIDE/BepInEx/config/BepInEx.cfg" "$STAGE/game/BepInEx/config/"
