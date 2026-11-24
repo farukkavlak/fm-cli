@@ -113,15 +113,19 @@ internal static partial class Program
 		// A man hurt badly enough loses his menu on the pitch once the game has said he cannot stay on
 		// (Draper, 11 April 2026), and with it the way above. His slot in the planner's table still
 		// takes a substitute, and the stop's button then makes the change and plays on.
-		if (Field(await Fm.GetJson("state"), "Playing") != "True" && !onPitch.Any(n => Named(n, words[0])))
+		// The one of ours the typed name means exactly ("Karademir" for Ahmet Karademir), from the squad's own names:
+		// the planner can hold only his first name, and a man forced off is on no menu of the pitch.
+		var squad = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList();
+		var meant = squad.Where(n => Named(n, words[0])).Distinct().ToList() is [var one] ? one : words[0];
+		if (Field(await Fm.GetJson("state"), "Playing") != "True" && !onPitch.Any(n => Named(n, meant)))
 		{
 			var planner = await Fm.GetJson("tactic");
 			var slots = planner.TryGetProperty("Slots", out var listed) ? listed.EnumerateArray().ToList() : [];
-			var hurtAt = slots.FindIndex(slot => Named(Field(slot, "Player"), words[0]));
+			var hurtAt = slots.FindIndex(slot => Named(Field(slot, "Player"), meant));
 			// The planner can hold the first name instead of the surname ("Ali" for Ali Pağda): taken only when no
 			// other slot holds the same.
 			if (hurtAt < 0 && slots.Select((slot, i) => (Short: Field(slot, "Player"), At: i))
-			        .Where(x => x.Short.Length > 0 && words[0].StartsWith(x.Short + " ", StringComparison.OrdinalIgnoreCase)).ToList() is [var first])
+			        .Where(x => x.Short.Length > 0 && meant.StartsWith(x.Short + " ", StringComparison.OrdinalIgnoreCase)).ToList() is [var first])
 				hurtAt = first.At;
 			if (hurtAt >= 0)
 			{
@@ -137,6 +141,13 @@ internal static partial class Program
 			}
 		}
 
+		// One of ours named exactly but not on the pitch is not taken for a like name that is: "Karademir" (forced
+		// off, on no menu) once took Karadeniz off (24 Nov 2026).
+		if (squad.Contains(meant) && !onPitch.Any(n => Named(n, meant)))
+		{
+			Console.Error.WriteLine(L($"{meant} is not among those on the pitch: {string.Join(", ", onPitch)}"));
+			return 1;
+		}
 		if (Choose(onPitch, words[0], L("Coming off")) is not { } leaving) return 1;
 		var from = menus[onPitch.IndexOf(leaving)];
 
