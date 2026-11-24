@@ -47,6 +47,7 @@ internal static class Session
 		var editor = new LineEditor(Program.Completions);
 		while (true)
 		{
+			Program.ReadAhead();
 			var line = await editor.ReadLine(Prompt(), PromptWidth());
 			if (line == null) break; // ctrl-D
 

@@ -168,16 +168,59 @@ internal static partial class Program
 
 	// The squad's names for the session's tab, asked of the game once and again after each command.
 	private static List<string>? namesForTab;
+	// A command run since a reading ahead began makes what it read old: it is not kept.
+	private static int namesRound;
+	private static Task<List<string>>? squadAhead, staffAhead, competitionsAhead;
 
 	internal static void ForgetNames()
 	{
+		namesRound++;
 		namesForTab = null;
 		staffForTab = null;
 		competitionsForTab = null;
+		squadAhead = staffAhead = competitionsAhead = null;
 	}
 
 	private static List<string>? staffForTab;
 	private static List<string>? competitionsForTab;
+
+	/// <summary>
+	/// While the line is typed, the names tab offers are read: the squad, the staff, our competitions. Tab then
+	/// answers from them, not from a reading started by the key. Nothing is read without a line editor.
+	/// </summary>
+	internal static void ReadAhead()
+	{
+		if (!LineEditor.Usable || squadAhead != null) return;
+		var round = namesRound;
+		squadAhead = Task.Run(SquadNames);
+		staffAhead = Task.Run(StaffNames);
+		competitionsAhead = Task.Run(async () => (await ClubCompetitions()).Select(c => c.Name).Distinct().ToList());
+		_ = Task.Run(async () =>
+		{
+			var (squad, staff, competitions) = (await Quietly(squadAhead), await Quietly(staffAhead), await Quietly(competitionsAhead));
+			if (round != namesRound) return;
+			namesForTab ??= squad;
+			staffForTab ??= staff;
+			competitionsForTab ??= competitions;
+		});
+	}
+
+	// A reading ahead that fails (the game closed, a page in the way) leaves tab to ask when the key is pressed.
+	private static async Task<List<string>?> Quietly(Task<List<string>>? reading)
+	{
+		if (reading == null) return null;
+		// Ctrl-C on a command stops a reading still under way too (OperationCanceledException).
+		try { return await reading; }
+		catch (Exception) { return null; }
+	}
+
+	private static async Task<List<string>> SquadNames() =>
+		[.. (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray()
+			.Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct()];
+
+	private static async Task<List<string>> StaffNames() =>
+		[.. (await Fm.Pull("Human.Team.StaffAllList", "Name", list: true)).EnumerateArray()
+			.Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct()];
 
 	private static bool NameFits(string name, string folded) =>
 		folded.Length == 0 || Fold(name).StartsWith(folded, StringComparison.Ordinal)
@@ -188,8 +231,7 @@ internal static partial class Program
 	{
 		try
 		{
-			staffForTab ??= [.. (await Fm.Pull("Human.Team.StaffAllList", "Name", list: true)).EnumerateArray()
-				.Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct()];
+			staffForTab ??= await Quietly(staffAhead) ?? await StaffNames();
 		}
 		catch (Exception e) when (e is not OperationCanceledException) { return []; }
 		return [.. staffForTab.Where(n => NameFits(n, folded)).Order()];
@@ -198,7 +240,7 @@ internal static partial class Program
 	/// <summary>The competitions our team is in, as the game names them.</summary>
 	private static async Task<List<string>> CompetitionNamesFor(string folded)
 	{
-		try { competitionsForTab ??= [.. (await ClubCompetitions()).Select(c => c.Name).Distinct()]; }
+		try { competitionsForTab ??= await Quietly(competitionsAhead) ?? [.. (await ClubCompetitions()).Select(c => c.Name).Distinct()]; }
 		catch (Exception e) when (e is not OperationCanceledException) { return []; }
 		return [.. competitionsForTab.Where(n => NameFits(n, folded))];
 	}
@@ -297,11 +339,7 @@ internal static partial class Program
 
 		if (TakesOurPlayer.Contains(command) && !word.StartsWith('-'))
 		{
-			if (namesForTab == null)
-			{
-				var squad = await Fm.Pull("Human.Team.Players", "Name", list: true);
-				namesForTab = [.. squad.EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).Distinct()];
-			}
+			namesForTab ??= await Quietly(squadAhead) ?? await SquadNames();
 			choices.AddRange(namesForTab.Where(n => folded.Length == 0
 				|| Fold(n).StartsWith(folded, StringComparison.Ordinal)
 				|| Fold(n).Split(' ').Any(part => part.StartsWith(folded, StringComparison.Ordinal))).Order());
