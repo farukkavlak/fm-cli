@@ -43,6 +43,7 @@ internal static partial class FmApi
 		"keys" => Keys(Int(q["depth"], 4)),
 		"schema" => Schema.Catalog(q["filter"]),
 		"send" => Send.Event(q),
+		"openperson" => Send.Person(q["path"]),
 		"dyn" => Dynamic(q["path"]),
 		"panels" => Panels.Catalog(q["filter"]),
 		"squad" => Report.Squad(),

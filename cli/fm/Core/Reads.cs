@@ -359,7 +359,12 @@ internal static partial class Program
 		{
 			if (Choose(own, wanted, L("Player")) is not { } mine) return null;
 			full = mine;
-			id = Field(records.First(p => Field(p, "Name") == full), "UniqueId");
+			var record = records.First(p => Field(p, "Name") == full);
+			id = Field(record, "UniqueId");
+			// His record opened as a click on his name in the game's own text opens it (T195): no search panel. Believed
+			// only once the page shows his record; a plugin without the route, or a page that does not come, falls back to search.
+			if (Field(record, "Row") is { Length: > 0 } row && await ClickOpens(row, full, id))
+				return await Settled(full);
 			var named = (await SearchFor(full)).Where(r => Field(r, "Kind") == "Player" && Fold(Field(r, "Name")) == Fold(full)).ToList();
 			var ids = await RecordIds([.. named.Select(r => Field(r, "Path"))]);
 			result = named.Zip(ids).Where(p => p.Second == id).Select(p => Field(p.First, "Path")).FirstOrDefault() ?? "";
@@ -496,19 +501,36 @@ internal static partial class Program
 			return null;
 		}
 
+		return await Settled(full);
+
 		// The name arrives before the rest: the attributes, the contract and the career bind a
 		// moment later, the attributes a few at a time, so their count has to hold still.
-		var counted = -1;
-		await Until(async () =>
+		async Task<JsonElement?> Settled(string who)
 		{
-			var now = await Fm.GetJson("player", ("name", full));
-			if (now.TryGetProperty("Player", out _)) card = now;
-			var count = card.GetProperty("Attributes").GetArrayLength();
-			var still = count == counted;
-			counted = count;
-			return count > 0 && still && Field(card.GetProperty("Player"), "TotalCareerLeagueAppearances").Length > 0;
-		}, seconds: 5, every: 0.25);
-		return await Named(card);
+			var counted = -1;
+			await Until(async () =>
+			{
+				var now = await Fm.GetJson("player", ("name", who));
+				if (now.TryGetProperty("Player", out _)) card = now;
+				var count = card.GetProperty("Attributes").GetArrayLength();
+				var still = count == counted;
+				counted = count;
+				return count > 0 && still && Field(card.GetProperty("Player"), "TotalCareerLeagueAppearances").Length > 0;
+			}, seconds: 5, every: 0.25);
+			return await Named(card);
+		}
+
+		// The person at a row of ours opened by the plugin's click on his record; true once the page shows that record.
+		async Task<bool> ClickOpens(string row, string who, string record)
+		{
+			try
+			{
+				if ((await Fm.Get("openperson", ("path", row))).StartsWith("error", StringComparison.Ordinal)) return false;
+			}
+			catch (FmError) { return false; }
+			return await Until(async () => (card = await Fm.GetJson("player", ("name", who))).TryGetProperty("Player", out var page)
+			                               && (await RecordIds([Field(page, "Path")]))[0] == record, seconds: 4, every: 0.1);
+		}
 
 		// The names are the game's English ones, picked by the attribute's number rather than by the
 		// word the page binds put back into English (a Turkish "Teknik" comes back "Technical"). What is

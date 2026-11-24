@@ -17,12 +17,9 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 
 ## 9. Ease of use
 
-Measured 23 Nov (TR): fixtures 1.3 s, status 2, inbox 4, table 5.5, squad 1.2 (was 6.6), player 4.4 (was 4.9; the game's search panel is most of it), targets 9, diff 13, advice 5.6 (was 13).
+Measured 23 Nov (TR): fixtures 1.3 s, status 2, inbox 4, table 5.5, squad 1.2 (was 6.6), player 2.0 for one of ours (was 5.8; opened by his record, no search), targets 9, diff 13, advice 5.6 (was 13).
 
 Speed
-
-- [ ] T195 `player` for one of ours opens his page without the search panel (~3 s of 4.4): a way to open a person by his record, found with `tools/sigdump`; keep the search for anyone else
-  - Tried 23 Nov, not kept: `OpenSubtabEvent` with `PlayerReport` and the id is ignored; the squad table's name link opens it but each row has two links and which one works changes (4–18 s)
 
 Session (`fm›`)
 

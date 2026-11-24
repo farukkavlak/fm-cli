@@ -185,6 +185,28 @@ internal static class Send
 		catch { return new Type[0]; }
 	}
 
+	/// <summary>
+	/// Opens the person at a path as a click on his name in the game's own text does: the value is packed as the
+	/// click event packs it (EmbeddedDataClickedEvent.PackValueInRecordForEvent) and the event sent, which the
+	/// game's person handler answers with the player's (or staff member's) page. No search, no list on screen.
+	/// </summary>
+	public static string Person(string path)
+	{
+		if (string.IsNullOrEmpty(path)) return "error: ?path= required";
+		var events = Game.Events;
+		if (events == null) return "error: event subsystem unavailable";
+		var node = FmApi.NodeAt(path, out var error);
+		if (error != null) return error;
+		if (node.Value is not { IsNull: false } value) return $"error: '{path}' holds no value";
+		try
+		{
+			var click = new SI.Bindable.EmbeddedDataClickedEvent { Record = SI.Bindable.EmbeddedDataClickedEvent.PackValueInRecordForEvent(value) };
+			events.SendEvent(click);
+			return $"sent a click on '{path}'";
+		}
+		catch (Exception ex) { return $"error: the click could not be sent: {ex.Message}"; }
+	}
+
 	/// <summary>A record's entries by name, for the callers that read what a control or menu row carries.</summary>
 	internal static System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> Entries(
 		SI.Bindable.DynamicReference record)
