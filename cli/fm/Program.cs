@@ -182,7 +182,7 @@ internal static partial class Program
 
 		// A game version the probe was not written for can be read wrongly rather than not at
 		// all, so it is refused once, up front, with what to do about it.
-		if (command is not ("help" or "start" or "stop" or "continue" or "completion" or "learned")
+		if (command is not ("help" or "start" or "stop" or "continue" or "completion" or "learned" or "ai")
 		    && !(command == "doctor" && args.Contains("--install"))
 		    && await VersionGuard() is { } refused) return refused;
 
@@ -325,6 +325,7 @@ internal static partial class Program
 				"stop" => await Stop(args),
 				"lang" or "language" or "dil" => LanguageChoice(args),
 				"learned" => LearnedCommand(args),
+				"ai" => await AiCommand(args),
 				"help" or "--help" or "-h" => Help(args),
 				_ => Unknown(command),
 			};

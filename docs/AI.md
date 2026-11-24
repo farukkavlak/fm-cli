@@ -59,7 +59,16 @@ Order: names first, then the learning router, then the cloud.
   - [x] `fm learned`: list and delete.
   - [x] Measured (`tools/nl-learn.py`, held): taught 0% → 100%, their noisy forms 9% → 76% top-1,
     sure-wrong on them 35% → 5%; the rest 86.2% → 85.5% top-1.
-- [ ] T207 Smart mode: router first, a cloud model when unsure; our code always asks for a missing value that changes the game
+- [x] T207 Smart mode: router first, a cloud model when unsure (`Nl/Cloud.cs`, `fm ai`)
+  - Any OpenAI-style provider: URL, key, model, extra headers (`~/.config/fm-cli/ai.json`, only the user reads it)
+  - Asked only when the router is not sure; shown with the tools the 50 nearest examples point at (10)
+  - Agrees with the router's pick: runs; asks a yes first when it changes the game. Another pick: offered first, marked `ai`
+  - Its arguments: a name or number only when the sentence gives it; a choice only for a read; never confirm/send/sign
+  - Picks none, fails or times out (20 s): the router's list as before
+  - Measured (`tools/nl-cloud.py`, held, claude-haiku-5-5 via OpenCode Go), of the sentences the router is not sure of:
+    - base 159: 45 run without a list (42 right); the cloud's pick first in the list 34 (17 right); median 1.1 s
+    - noisy 393: 107 run without a list (91 right); first in the list 86 (45 right); median 1.3 s
+    - gpt-6-luna and qwen3.8-flash about the same; deepseek-v4.1-flash gave no usable answer
 - [ ] T208 Assistant, read-only: provider interface, session memory ("him"), answers only from what was read
 - [ ] T209 Plans: steps, approval, run, verify
 - [ ] T210 Save memory: facts, preferences, plans; list, fix, delete

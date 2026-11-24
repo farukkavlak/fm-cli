@@ -105,7 +105,36 @@ internal static partial class Router
 	/// <paramref name="Tools"/> are the tools the nearest examples voted for, best first (what a
 	/// pick is told apart from when it is learned).
 	/// </summary>
-	public sealed record Understood(List<Call> Calls, List<(Call Call, float Weight)> Options, List<string> Tools);
+	/// <paramref name="Pick"/> is the tool the nearest examples picked (null for none).
+	public sealed record Understood(List<Call> Calls, List<(Call Call, float Weight)> Options, List<string> Tools, string? Pick = null, bool FromCloud = false);
+
+	/// <summary>The weight an option the cloud model proposed is shown with: it has no share of the vote.</summary>
+	public const float FromCloudWeight = -1;
+
+	/// <summary>How many of the nearest examples' tools the cloud model is shown.</summary>
+	public const int CloudTools = 10;
+
+	/// <summary>
+	/// Smart mode (T207): a sentence the router is not sure of, put to the cloud model with the
+	/// tools the nearest examples point at. Its pick gets our reader's arguments, then the model's
+	/// where Cloud.Merge allows. When it picks the router's own pick, the two agree and it is taken
+	/// as meant; when it picks another, that one is offered first with the router's. Null when it
+	/// picks none or cannot be asked: the router's own choices stand (T207 in docs/AI.md).
+	/// </summary>
+	public static async Task<Understood?> AskCloud(string text, Neighbours near, string? seen, Cloud.Settings settings, Understood local)
+	{
+		if (local.Calls.Count > 0) return null;
+		var tools = near.Candidates(seen ?? text, null).Select(c => c.Tool).Take(CloudTools)
+			.Concat(local.Options.Select(o => o.Call.Tool)).Distinct()
+			.Select(t => (Name: t, Card: Mcp.Card(t))).Where(t => t.Card != null)
+			.Select(t => (t.Name, t.Card!.Value.Description, t.Card.Value.Schema)).ToList();
+		var proposal = await Cloud.Propose(settings, text, tools);
+		if (proposal.Tool is not { } tool) return null;
+		var call = Fill(tool, new Text(text), 0);
+		Cloud.Merge(call, proposal.Args, text);
+		if (tool == local.Pick) return local with { Calls = [call], Options = [], FromCloud = true };
+		return local with { Calls = [], Options = [(call, FromCloudWeight), .. local.Options.Where(o => o.Call.Tool != tool)], FromCloud = true };
+	}
 
 	/// <summary>From this share of the nearest examples' vote up, the pick is taken as meant.</summary>
 	public const float Sure = 0.8f;
@@ -139,11 +168,11 @@ internal static partial class Router
 			return new Understood([], [.. tools.Where(t => t.Weight >= Maybe).Take(3).Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))], voted);
 		var tool = JsonNode.Parse(pick)!.GetValue<string>();
 		var weight = tools.FirstOrDefault(t => t.Tool == tool).Weight;
-		if (weight >= Sure) return new Understood([Fill(tool, new Text(text), 0)], [], voted);
+		if (weight >= Sure) return new Understood([Fill(tool, new Text(text), 0)], [], voted, tool);
 		var n = weight >= Unsure ? 3 : 5;
 		// the pick is among them however the wider vote ranks it; shown by share
 		var options = tools.Where(t => t.Tool == tool).Concat(tools.Where(t => t.Tool != tool)).Take(n).OrderByDescending(t => t.Weight);
-		return new Understood([], [.. options.Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))], voted);
+		return new Understood([], [.. options.Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))], voted, tool);
 	}
 
 	/// <summary>
@@ -158,8 +187,13 @@ internal static partial class Router
 	/// splits into several, with "ask_texts" the words of each; "share" is the pick's share of the
 	/// 15 nearest, the one Understand holds against Sure. --learned FILE adds a learned.json's
 	/// sentences as the user's (tools/nl-learn.py), --learned-weight and --learned-near try other values.
+	/// --cloud asks the cloud model set up (FM_AI_*) where the router is not sure: "cloud" when it
+	/// agreed (its call in "call"), "cloud_first" for a pick it would put first, "cloud_s" the wait
+	/// (tools/nl-cloud.py).
 	/// </summary>
-	public static int RouteLines(string[] args)
+	public static int RouteLines(string[] args) => RouteLinesAsync(args).GetAwaiter().GetResult();
+
+	private static async Task<int> RouteLinesAsync(string[] args)
 	{
 		string? Opt(string name) => Array.IndexOf(args, name) is var i and >= 0 && i + 1 < args.Length ? args[i + 1] : null;
 		var texts = new List<(string Text, string? Tool)>();
@@ -176,6 +210,8 @@ internal static partial class Router
 		var perAsk = new List<List<string>>?[texts.Count];
 		var askTexts = new List<string>?[texts.Count];
 		var shares = new float?[texts.Count];
+		var clouds = new Understood?[texts.Count];
+		var cloudSeconds = new double?[texts.Count];
 		if (Opt("--model") is { } model)
 		{
 			model = Path.GetFullPath(model.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
@@ -198,6 +234,24 @@ internal static partial class Router
 					perAsk[i] = [.. asks.Select(a => near.Candidates(a, null).Select(c => c.Tool).Take(5).ToList())];
 					askTexts[i] = asks;
 				}
+			}
+			// --cloud: smart mode, the cloud model (FM_AI_URL, FM_AI_KEY, FM_AI_MODEL) asked where the router is not sure
+			if (args.Contains("--cloud") && Cloud.Current() is { } settings)
+			{
+				using var gate = new SemaphoreSlim(4);
+				await Task.WhenAll(Enumerable.Range(0, texts.Count).Select(async i =>
+				{
+					var local = Understand(texts[i].Text, near);
+					if (local.Calls.Count > 0) return;
+					await gate.WaitAsync();
+					try
+					{
+						var started = Environment.TickCount64;
+						clouds[i] = await AskCloud(texts[i].Text, near, null, settings, local);
+						cloudSeconds[i] = (Environment.TickCount64 - started) / 1000.0;
+					}
+					finally { gate.Release(); }
+				}));
 			}
 		}
 
@@ -233,6 +287,20 @@ internal static partial class Router
 				o["asks"] = new JsonArray([.. pa.Select(a => (JsonNode)new JsonArray([.. a.Select(t => (JsonNode)t)]))]);
 			if (shares[i] is { } sh)
 				o["share"] = Math.Round(sh, 3);
+			if (cloudSeconds[i] is { } cs)
+			{
+				o["cloud_s"] = Math.Round(cs, 2);
+				if (clouds[i] is { Options: [var first, ..] } && first.Weight == FromCloudWeight)
+					o["cloud_first"] = first.Call.Tool;
+				if (clouds[i] is { Calls: [var c] })
+				{
+					o["call"] = c.Tool;
+					o["args"] = (JsonObject)c.Args.DeepClone();
+					o.Remove("ask");
+					if (c.Ask.Count > 0) o["ask"] = new JsonArray([.. c.Ask.Select(a => (JsonNode)a)]);
+					o["cloud"] = true;
+				}
+			}
 			if (askTexts[i] is { } at)
 				o["ask_texts"] = new JsonArray([.. at.Select(t => (JsonNode)t)]);
 			w.WriteLine(o.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));

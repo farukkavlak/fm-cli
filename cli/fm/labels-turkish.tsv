@@ -3124,3 +3124,18 @@ Nothing learned yet: a command picked from the list offered for a sentence is le
 Learned from your choices:	Seçimlerinden öğrenilenler:
 Forget one: learned delete <number> · all: learned delete all	Birini unutmak için: learned delete <numara> · hepsi: learned delete all
 learned         what sentences taught: the commands you picked for them, the players you picked by name;  learned delete <number>|all	learned         cümlelerden öğrenilenler: onlar için seçtiğin komutlar, adıyla seçtiğin oyuncular;  learned delete <numara>|all
+Not sure; asking {0}…	Emin değilim; {0} modeline soruluyor…
+ai	yz
+Smart mode off: sentences stay on this computer.	Akıllı mod kapalı: cümleler bu bilgisayarda kalır.
+Give the provider's URL and the model: ai set <url> <model> [--key <key>] [--header "Name: value"]	Sağlayıcının adresini ve modeli ver: ai set <adres> <model> [--key <anahtar>] [--header "Ad: değer"]
+API key (Enter: none): 	API anahtarı (Enter: yok): 
+Smart mode on: {0}. Sentences the router is not sure of are sent there. Try it: ai test	Akıllı mod açık: {0}. Yönlendiricinin emin olmadığı cümleler oraya gönderilir. Denemek için: ai test
+Smart mode is off: sentences stay on this computer.	Akıllı mod kapalı: cümleler bu bilgisayarda kalır.
+To ask a cloud model when the router is not sure: ai set <url> <model> --key <key>  (any OpenAI-style provider)	Yönlendirici emin olmadığında bir bulut modeline sormak için: ai set <adres> <model> --key <anahtar>  (OpenAI tarzı her sağlayıcı)
+{0} did not answer as asked ({1:0.0} s). Check the URL, model and key: ai	{0} beklenen cevabı vermedi ({1:0.0} sn). Adresi, modeli ve anahtarı kontrol et: ai
+{0} answered right in {1:0.0} s.	{0} {1:0.0} sn'de doğru cevap verdi.
+Smart mode on: {0}	Akıllı mod açık: {0}
+key	anahtar
+set	var
+Sentences the router is not sure of are sent there. ai test · ai off	Yönlendiricinin emin olmadığı cümleler oraya gönderilir. ai test · ai off
+ai              smart mode: a cloud model asked when a sentence is not clear;  ai set <url> <model> --key <key> · ai test · ai off	ai              akıllı mod: cümle net değilse bir bulut modeline sorulur;  ai set <adres> <model> --key <anahtar> · ai test · ai off

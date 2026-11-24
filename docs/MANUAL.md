@@ -75,6 +75,24 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 ![what was learned](manual/img/ask/learned.png)
 
+### Smart mode
+
+- Off by default: sentences stay on this computer.
+- With a cloud model set up, a sentence the router is not sure of is sent to it (your key, your provider).
+- It agrees with the router: the command runs (a yes first if it changes the game). It picks another: that one comes first in the list, marked `ai`.
+- Names and numbers are taken only from what you typed; a yes is always yours.
+
+```bash
+fm ai set https://opencode.ai/zen/go claude-haiku-5-5 --key <key> --header "x-opencode-session: {session}"
+fm ai test    # one question to check the URL, model and key
+fm ai         # what is set up
+fm ai off
+```
+
+Any OpenAI-style provider works (`<url>/v1/chat/completions`).
+
+![a sentence the cloud model answered](manual/img/ask/smart.png)
+
 ### Language
 
 The CLI follows the game's language. To use another language for the CLI alone:

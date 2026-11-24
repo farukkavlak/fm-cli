@@ -19,6 +19,7 @@ Written the way people type: typos, no Turkish letters, slang, half sentences.
 | `tools/nl-split.py` | gives new cases their side (dev, held, final); run it after adding cases |
 | `tools/nl-expand.py [--train]` | writes noisy variants: Turkish letters folded, a letter dropped, doubled, swapped or mistyped, filler words, odd capitals, another player's name |
 | `tools/nl-score.py` | scores a router; `--router CMD` for another one, `--given-tool` for the argument readers alone, `--fails N` to list misses, `--final` to score the final set too, `--save` to keep the result in `results/` |
+| `tools/nl-cloud.py` | smart mode: the cloud model asked where the router is not sure (`fm __route --cloud`); what runs, what is offered first, how long (T207) |
 | `tools/nl-learn.py` | teaches the held misses as if the user had picked them, then asks them and their noisy forms again (T206) |
 | `tools/nl-train.py` | fine-tunes the embedding model, exports int8 ONNX to `~/.cache/fm-cli/nl/<name>` |
 | `tools/nl-embed.py` | the same router in Python, for experiments |

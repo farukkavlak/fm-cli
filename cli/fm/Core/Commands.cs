@@ -16,7 +16,7 @@ internal static partial class Program
 		"resign", "manager", "read", "meeting", "transferroom", "planner", "draw", "friendly", "pause", "resume", "skip", "dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "coaches", "budget", "settings", "happiness", "dynamics", "jobs", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "vision", "opponent",
 		"opposition", "saves", "save", "load", "world", "shortlist", "scout", "responsibilities", "youth", "progress", "register", "numbers", "tactic", "setpieces", "pages", "crawl", "open", "buttons",
-		"dropdowns", "press", "select", "type", "completion", "export", "diff", "compare", "penalties", "takers", "query", "actions", "interest", "trial", "enquire", "targets", "lang", "learned", "help", "go", "todo",
+		"dropdowns", "press", "select", "type", "completion", "export", "diff", "compare", "penalties", "takers", "query", "actions", "interest", "trial", "enquire", "targets", "lang", "learned", "ai", "help", "go", "todo",
 	];
 
 	/// <summary>
@@ -144,6 +144,7 @@ internal static partial class Program
 		["completion"] = ["zsh", "bash"],
 		["lang"] = ["english", "turkish", "auto"],
 		["learned"] = ["delete", "sil"],
+		["ai"] = ["set", "test", "off", "--key", "--header"],
 		["prep"] = ["--sessions"],
 		["vision"] = ["confirm", "remove", "suggest", "undo", "reset", "end", "plan", "add"],
 		["transferroom"] = ["offer", "activity", "wanted", "responses", "new", "delete", "agents", "discard", "--loan", "--all"],

@@ -45,6 +45,12 @@ internal static partial class Program
 
 		var seen = NameFit.StandIn(sentence, await SaveNames());
 		var understood = Nl.Router.Understand(sentence, model, seen);
+		// smart mode: the cloud model the user set up, asked only when the router is not sure
+		if (understood.Calls.Count == 0 && Cloud.Current() is { } cloud)
+		{
+			Console.WriteLine(Dim(L($"Not sure; asking {cloud.Model}…")));
+			understood = await Nl.Router.AskCloud(sentence, model, seen, cloud, understood) ?? understood;
+		}
 		if (understood.Calls.Count == 0 && understood.Options.Count == 0)
 		{
 			Console.WriteLine(L("No command does that. For the commands: `help`"));
@@ -78,8 +84,10 @@ internal static partial class Program
 			if (Typed(call) is not { } words) continue;
 			var shown = Shown(words);
 			var yes = chosen;
-			// a pick from the list, with nothing asked after, was already a yes
-			if (IsWeighty(call) && !(chosen && call.Ask.Count == 0))
+			// a pick from the list, with nothing asked after, was already a yes; one the cloud model and
+			// the router agreed on runs by itself only when it changes nothing in the game
+			var agreed = understood.FromCloud && !chosen && Mcp.EffectOf(call.Tool, call.Args) != Mcp.Effect.Read;
+			if (IsWeighty(call) && !(chosen && call.Ask.Count == 0) || agreed)
 			{
 				if (!Confirm(L($"Run `{shown}`?"))) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
 				yes = true;
@@ -167,7 +175,8 @@ internal static partial class Program
 			var words = Typed(call) ?? [call.Tool];
 			var shown = string.Join(' ', words.Select(w => w.Contains(' ') ? $"\"{w}\"" : w));
 			var about = described.GetValueOrDefault(words[0], "");
-			Console.WriteLine($"  {i + 1}. {shown,-28} {weight * 100,3:0}%  {Dim(Short(about))}");
+			var share = weight == Nl.Router.FromCloudWeight ? L("ai").PadLeft(4) : $"{weight * 100,3:0}%";
+			Console.WriteLine($"  {i + 1}. {shown,-28} {share}  {Dim(Short(about))}");
 		}
 		if (options.Count == 1) return Confirm(L("Run it?")) ? options[0].Call : null;
 		Console.Write(L($"Which one (1-{options.Count}, Enter: none)? "));

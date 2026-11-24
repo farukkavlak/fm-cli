@@ -181,6 +181,10 @@ internal static partial class Mcp
 	}
 
 	/// <summary>An argument's schema (type, description, choices) from the tool's input schema.</summary>
+	/// <summary>A tool's description and argument schema, as a model is shown them; null for no such tool.</summary>
+	public static (string Description, string Schema)? Card(string tool) =>
+		Tools.FirstOrDefault(t => t.Name == tool) is { } t ? (t.Description, t.Schema) : null;
+
 	public static JsonObject? ArgumentSchema(string tool, string argument) =>
 		Tools.FirstOrDefault(t => t.Name == tool) is { } t ? JsonNode.Parse(t.Schema)?["properties"]?[argument] as JsonObject : null;
 
