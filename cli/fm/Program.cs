@@ -33,7 +33,9 @@ internal static partial class Program
 			// --menu stops at the main menu: the save to load is then chosen with `load`.
 			if (!await Launcher.Start(Fm, args.Contains("--debug"), load: !args.Contains("--menu"))) return 69;
 			if (args.Contains("--menu")) return 0;
-			return await Session.Run(Run);
+			// The session only at a terminal: from a script or with its input empty it would print its first
+			// line and end at once (T200).
+			return LineEditor.Usable ? await Session.Run(Run) : 0;
 		}
 
 		return await Run(args);

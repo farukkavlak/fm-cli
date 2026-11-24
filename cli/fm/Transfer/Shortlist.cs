@@ -44,12 +44,22 @@ internal static partial class Program
 			if (await ShortlistSelector() is not { } selector) return Report("error: the shortlist selector is not on the page");
 			var said = await Fm.Get("select", ("ptr", Field(selector, "Pointer")), ("index", hits[0].At.ToString()), ("fire", "1"));
 			if (said.StartsWith("error", StringComparison.Ordinal)) return Report(said);
-			if (!await Until(async () => (await ShortlistLists()).FirstOrDefault(l => l.Active)?.At == hits[0].At, seconds: 5, every: 0.3))
+			// Each look reads every list's record; on a slow machine (Windows, 24 Nov 2026) five seconds ran out first.
+			if (!await Until(async () => (await ShortlistLists()).FirstOrDefault(l => l.Active)?.At == hits[0].At, seconds: 12, every: 0.3))
 			{
 				Console.Error.WriteLine(L($"'{hits[0].Name}' could not be chosen."));
 				return 1;
 			}
 			Console.WriteLine(L($"Shortlist: {hits[0].Name}"));
+		}
+
+		// Several lists: the one shown is named, and the others said with how many each holds, since the game shows
+		// one at a time (24 Nov 2026: "empty" while the player added sat in the other list).
+		var shownLists = json ? [] : await ShortlistLists();
+		if (shownLists.Count > 1 && Option(args, "--list") == null && shownLists.FirstOrDefault(l => l.Active) is { } active)
+		{
+			Console.WriteLine(L($"Shortlist: {active.Name}"));
+			Ui.Hint(L($"Other lists: {string.Join(" · ", shownLists.Where(l => !l.Active).Select(l => $"{l.Name} ({l.Count})"))}   ·   to see one: shortlist --list \"<name>\""));
 		}
 
 		// The list is the table laid out on the Shortlists page (its own Page); its rows' items are

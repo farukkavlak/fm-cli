@@ -104,6 +104,28 @@ internal static partial class Program
 				var marks = match.TryGetValue(menu.Name, out var m) ? m.Marks : "";
 				Console.WriteLine($"  {menu.Name}  ({menu.State}){(marks.Length > 0 ? "  " + marks : "")}");
 			}
+			// A man hurt badly enough to be forced off has lost his menu but keeps his slot in the stopped match's
+			// planner (which holds a short name): he is the one the game wants replaced (T201, Karademir, 24 Nov 2026).
+			if ((await Fm.GetJson("tactic")).TryGetProperty("Slots", out var held))
+			{
+				var squadNames = (await Fm.Pull("Human.Team.Players", "Name", list: true)).EnumerateArray().Select(p => Field(p, "Name")).Where(n => n.Length > 0).ToList();
+				// One slot to each man on the pitch, the surer match first (whole name or surname, then a first name):
+				// two Ahmets, one hurt, leave the hurt one's slot over.
+				var left = held.EnumerateArray().Select(s => Field(s, "Player")).Where(n => n.Length > 0).ToList();
+				var unmatched = menus.Select(m => m.Name).ToList();
+				foreach (var sure in new Func<string, string, bool>[] { (man, slot) => Named(man, slot), (man, slot) => man.StartsWith(slot + " ", StringComparison.OrdinalIgnoreCase) })
+					foreach (var man in unmatched.ToList())
+						if (left.FindIndex(slot => sure(man, slot)) is var at and >= 0)
+						{
+							left.RemoveAt(at);
+							unmatched.Remove(man);
+						}
+				foreach (var slot in left)
+				{
+					var full = squadNames.Where(n => Named(n, slot) || n.StartsWith(slot + " ", StringComparison.OrdinalIgnoreCase)).ToList() is [var found] ? found : slot;
+					Console.WriteLine($"  {full}  {L("(hurt, has to come off)")}");
+				}
+			}
 			Console.WriteLine(L("\nOn the bench:"));
 			foreach (var row in bench) Console.WriteLine($"  {row.Shown}");
 			Console.WriteLine(L("\nTo substitute: sub <off> <on>"));

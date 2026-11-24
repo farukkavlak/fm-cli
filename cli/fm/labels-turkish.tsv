@@ -1785,7 +1785,6 @@ whether Continue waits until every message is read	Devam, bütün mesajlar okuna
 None	Hiçbiri
 Do not send, leave the screen open	Gönderme, ekranı açık bırak
 A new tactic will be built in a free slot and made active; the active one ({0}) stays in its slot.	Yeni taktik boş bir yuvada kurulup etkin olacak; şimdiki ({0}) kendi yuvasında kalır.
-The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next	Oyun menüsüz bir ekranda ({0}); sayfalar açılamıyor. Geçmek için: next
 Ready: {0} ({1}).	Hazır: {0} ({1}).
 The game does not take number changes right now: numbers are saved at the start of the season or when a new signing arrives, and then do not change until the end of the season.	Oyun şu an numara değişikliği almıyor: numaralar sezon başında ya da yeni transfer gelince kaydediliyor, sonra sezon sonuna kadar değişmiyor.
 HEIGHT	BOY
@@ -3112,3 +3111,6 @@ the save is loading	kayıt yükleniyor
 No save yet, so the game waits at its main menu. To begin a career in its window: fm stop, then fm start --debug	Henüz kayıt yok, oyun ana menüde bekliyor. Penceresinde kariyer başlatmak için: fm stop, sonra fm start --debug
 The game has no last save of its own to continue, so it waits at its main menu. The newest save here: fm load "{0}"	Oyunun devam edeceği kendi son kaydı yok, ana menüde bekliyor. Buradaki en yeni kayıt: fm load "{0}"
 {0} is not among those on the pitch: {1}	{0} sahadakiler arasında değil: {1}
+(hurt, has to come off)	(sakat, çıkması gerekiyor)
+Other lists: {0}   ·   to see one: shortlist --list "<name>"	Diğer listeler: {0}   ·   birini görmek için: shortlist --list "<ad>"
+The game is on a screen without a menu (the round's results, a news roundup); pages cannot be opened. To go past it: next	Oyun menüsü olmayan bir ekranda (turun sonuçları, haber özeti); sayfalar açılamaz. Geçmek için: next

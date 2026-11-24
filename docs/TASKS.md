@@ -13,7 +13,6 @@ the read sweep, two weeks of play (instant and live matches, talks, subs, a cup 
   `BepInEx.Unity.IL2CPP.dll`; its source is gone. Write the patch again against be.755 (3fab71a) and build both platforms from it
 - [ ] T199 README: a Windows section (the package's own README.txt was used), and a look at `fm` in a Windows terminal by eye:
   ✓ and Turkish letters, Tab, the arrows, ctrl-R
-- [ ] T200 `fm start` with its input empty (`< NUL`, a script) prints the session's first line after it has started the game
 
 ## 9. Ease of use
 
@@ -32,11 +31,6 @@ Output
 
 Playing
 
-- [ ] T201 In a match, a man forced off hurt (on no menu of the pitch) is not shown in `sub`'s list; say he is hurt and where
-- [ ] T202 Shortlists: `shortlist` shows only the list chosen in the game; "(Default)" cannot be chosen with `--list`; `add`'s
-  question says `--to` while tab offers `--for`
-- [ ] T203 After a match, the "no menu" screen (the round's Breaking News) is named by Continue's state ("Messages") in the
-  message; name the screen
 
 
 Start and first use

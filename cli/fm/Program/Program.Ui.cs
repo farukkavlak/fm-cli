@@ -261,7 +261,8 @@ internal static partial class Program
 		// Held, the queue takes no more: the game is wedged until it is started again (see OpenWith).
 		if ((await Fm.Get("queue")).Split(' ')[0] != "0")
 			return L("The game's event queue is held: no page opens until the game is started again (fm stop, fm start).");
-		return Lf("The game is on a screen without a menu ({0}); pages cannot be opened. To go past it: next", Field(state, "State"));
+		// Not named by its state: that is Continue's (it said "Messages" over the round's Breaking News, T203).
+		return L("The game is on a screen without a menu (the round's results, a news roundup); pages cannot be opened. To go past it: next");
 	}
 
 	/// <summary>

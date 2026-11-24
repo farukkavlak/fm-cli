@@ -114,7 +114,7 @@ internal static partial class Program
 		["happiness"] = ["--why"],
 		["doctor"] = ["--all", "--install"],
 		["scout"] = ["player", "teams", "top", "cancel", "who", "new", "edit", "remove", "restart", "areas", "staff", "--position", "--role", "--area", "--age", "--ability", "--potential", "--name", "--priority", "--yes", "--by", "--analysts", "--for", "--cancel", "--near", "--progress", "--matched"],
-		["shortlist"] = ["add", "remove", "--for"],
+		["shortlist"] = ["add", "remove", "--for", "--to", "--list", "--lists", "--new"],
 		["interest"] = ["--top", "--transfer", "--loan", "--yes"],
 		["trial"] = ["--for", "--yes"],
 		["board"] = ["request", "--yes"],
