@@ -9,8 +9,6 @@ Only open work is listed; what was done, and how it was measured, is in git. Por
 Windows was tried on 24 Nov 2026 on an AWS g4dn (Windows Server 2022, Steam, English): install, start/stop, load/save,
 the read sweep, two weeks of play (instant and live matches, talks, subs, a cup draw), tactics, a transfer from offer to signing.
 
-- [ ] T199 A look at `fm` in a Windows terminal by eye: ✓ and Turkish letters, Tab, the arrows, ctrl-R (the README's
-  Windows section and the release's Windows zip are in; the console is put on UTF-8, its bytes checked)
 
 ## 9. Ease of use
 

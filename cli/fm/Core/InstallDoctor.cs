@@ -22,7 +22,7 @@ internal static partial class Program
 		if (windows) beside = game;
 		var checks = windows ? new List<(string Name, bool Ok, string Detail, string Fix)>
 		{
-			(L("Game"), Launcher.WinExecutable(game) != null, game, L($"Install {Launcher.AppName} from Steam; set FM_HOME if it is elsewhere.")),
+			(L("Game"), Launcher.WinExecutable(game) != null, game, Lf("Install {0} from Steam; set FM_HOME if it is elsewhere.", Launcher.AppName)),
 			(L("BepInEx core"), File.Exists(Path.Combine(game, "BepInEx", "core", "BepInEx.Unity.IL2CPP.dll")),
 				Path.Combine(game, "BepInEx"), L("`fm doctor --install` puts the BepInEx the package carries in the game's folder.")),
 			(L("BepInEx doorstop"), File.Exists(Path.Combine(game, "winhttp.dll")), Path.Combine(game, "winhttp.dll"),
@@ -35,7 +35,7 @@ internal static partial class Program
 		} : new List<(string Name, bool Ok, string Detail, string Fix)>
 		{
 			(L("Game"), Directory.Exists(game) && File.Exists(Path.Combine(game, $"fm.app/Contents/MacOS/{Launcher.AppName}")),
-				game, L($"Install {Launcher.AppName} from Steam; set FM_HOME if it is elsewhere.")),
+				game, Lf("Install {0} from Steam; set FM_HOME if it is elsewhere.", Launcher.AppName)),
 			(L("BepInEx core"), File.Exists(Path.Combine(beside, "BepInEx/core/BepInEx.Unity.IL2CPP.dll")),
 				Path.Combine(beside, "BepInEx"), L("Unpack BepInEx 6 IL2CPP arm64 beside the shadow bundle (see docs/PORTING.md).")),
 			(L("BepInEx launcher"), File.Exists(Path.Combine(beside, "run_bepinex_arm64.sh")),

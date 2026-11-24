@@ -12,6 +12,7 @@ internal static partial class Program
 		{
 			Console.OutputEncoding = new System.Text.UTF8Encoding(false);
 			Console.InputEncoding = new System.Text.UTF8Encoding(false);
+			WindowsConsole.AllowEscapes();
 		}
 		// With no command, drop into the session rather than printing help: the game is usually
 		// already running and typing "fm" before every command gets old.
