@@ -6,7 +6,8 @@ set -eu
 cd "${0:A:h}/.."
 VERSION="${1:?usage: tools/release.sh <version> [--formula]}"
 ZIP=dist/fm-cli-osx-arm64.zip
-[ "${2:-}" = --formula ] || tools/package.sh
+WINZIP=dist/fm-cli-win-x64.zip
+[ "${2:-}" = --formula ] || { tools/package.sh; tools/package-windows.sh; }
 SUM=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)
 URL="${FM_CLI_FORMULA_URL:-https://github.com/farukkavlak/fm-cli/releases/download/v$VERSION/fm-cli-osx-arm64.zip}"
 
@@ -47,9 +48,9 @@ RUBY
 echo "Formula/fm-cli.rb: $VERSION $SUM"
 [ "${2:-}" = --formula ] && exit 0
 
-printf "publish v%s on GitHub (zip) now? [y/N] " "$VERSION"
+printf "publish v%s on GitHub (macOS and Windows zips) now? [y/N] " "$VERSION"
 read -r answer
 [ "$answer" = y ] || { echo "not published"; exit 0; }
-gh release create "v$VERSION" "$ZIP" --target main --title "fm-cli $VERSION (macOS, Apple Silicon)" --latest \
-	--notes "Install: \`curl -fsSL https://raw.githubusercontent.com/farukkavlak/fm-cli/main/install.sh | zsh\`, Homebrew or this zip: see the README."
+gh release create "v$VERSION" "$ZIP" "$WINZIP" --target main --title "fm-cli $VERSION (macOS Apple Silicon, Windows x64)" --latest \
+	--notes "macOS: \`curl -fsSL https://raw.githubusercontent.com/farukkavlak/fm-cli/main/install.sh | zsh\`, Homebrew or fm-cli-osx-arm64.zip. Windows: fm-cli-win-x64.zip, then install.ps1. See the README."
 echo "commit and push Formula/fm-cli.rb so brew sees this release"

@@ -51,7 +51,7 @@ More in the [illustrated manual](docs/MANUAL.md).
 
 ## Requirements
 
-- macOS on Apple Silicon, Football Manager 27 from Steam.
+- macOS on Apple Silicon, or Windows x64; Football Manager 27 from Steam.
 - Development: .NET SDK 10. The packaged `fm` needs nothing else.
 
 ## Install
@@ -87,6 +87,19 @@ The first start takes longer: BepInEx reads the game once.
 
 - Game in another folder: `FM_HOME=/path/to/Football Manager 27`.
 - From source (.NET SDK 10, BepInEx 6 IL2CPP arm64 unpacked in `~/fm27_bep/game`): `tools/install.sh`.
+
+### Windows
+
+Windows x64 with Football Manager 27 from Steam. As on macOS: open the game once, start a career and save it; Steam open
+and signed in for `fm start`.
+
+1. Download `fm-cli-win-x64.zip` from [Releases](https://github.com/farukkavlak/fm-cli/releases) and unpack it.
+2. In PowerShell, in that folder: `powershell -ExecutionPolicy Bypass -File install.ps1`. It puts `fm` in
+   `%LOCALAPPDATA%\fm-cli`, adds it to your PATH and runs `fm doctor --install` (BepInEx and the plugin beside the game).
+3. Open a new terminal: `fm start`.
+
+The game's window stays hidden, as on macOS; `fm start --debug` shows it (to begin a career, for one). A new install has
+the game's tutorials on: their steps are moved past while the game is hidden.
 
 ## First steps
 
