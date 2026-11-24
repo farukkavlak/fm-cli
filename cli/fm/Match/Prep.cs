@@ -149,6 +149,9 @@ internal static partial class Program
 		// The fixture still to be played: its preparation, not the last match's.
 		if (!await set("FixtureHasResult", "const.False") || !await set("training", "Human.Team.TeamTraining")) return null;
 
+		// FM27 keeps the match focus as a null reference (its preparation is the week's sessions): said at once,
+		// not waited out over the four focuses' rounds.
+		if (Field(await Fm.Pull($"{focusScope}.training", "TrainingMatchFocus", nulls: true), "TrainingMatchFocus").Length == 0) return null;
 		var focus = $"{focusScope}.training.TrainingMatchFocus";
 		var now = (await PullEach([(focus, "MatchFocusInPossessionType.MatchFocusSessionName,MatchFocusOutOfPossessionType.MatchFocusSessionName,MatchFocusFirstSetPiece.MatchFocusSessionName,MatchFocusSecondSetPiece.MatchFocusSessionName")]))[0];
 		if (Field(now, "MatchFocusInPossessionType.MatchFocusSessionName").Length == 0) return null;

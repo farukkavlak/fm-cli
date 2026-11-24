@@ -177,7 +177,7 @@ internal static class RawPath
 	/// The properties named in <paramref name="shown"/> come in the game's own words, not put into
 	/// English: text only shown, which the way back from English can land on another word.
 	/// </summary>
-	public static string Pull(string path, string props, bool list, string generation = null, string shown = null)
+	public static string Pull(string path, string props, bool list, string generation = null, string shown = null, bool nulls = false)
 	{
 		var inGameWords = new System.Collections.Generic.HashSet<string>((shown ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 		if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(props)) return "error: ?path=&props=a,b,c required";
@@ -221,6 +221,10 @@ internal static class RawPath
 		string Record(string at, string[] wanted, int? index)
 		{
 			var fields = new System.Collections.Generic.Dictionary<string, string>();
+			var none = new System.Collections.Generic.List<string>();
+			// A record that is a bag of its own (DynamicReference) says which fields it holds: one the tree does not
+			// bind (an analyst's tile's verdict) is read from it, and one it lacks is known to be none.
+			var bag = nulls ? Entries(b, at) : null;
 			if (index is { } n)
 			{
 				fields["Index"] = n.ToString();
@@ -232,8 +236,19 @@ internal static class RawPath
 				var childKey = PathKey.Of(child);
 				if (!b.Exists(ref childKey) || b.Get(ref childKey) is not { IsNull: false } value)
 				{
+					// Bound by an earlier reading (a frame has passed) and still null: the record has none, which
+					// ?nulls=1 says in "Null" so the caller need not wait for it. One bound by this very call is not yet known.
+					var boundBefore = b.Exists(ref childKey);
 					Bind(child);
-					if (!b.Exists(ref childKey) || b.Get(ref childKey) is not { IsNull: false } now) continue;
+					if (!b.Exists(ref childKey) || b.Get(ref childKey) is not { IsNull: false } now)
+					{
+						if (bag != null && bag.TryGetValue(name, out var own) && own is { IsNull: false }) now = own;
+						else
+						{
+							if (bag != null || boundBefore && nulls) none.Add(name);
+							continue;
+						}
+					}
 					value = now;
 				}
 				// A value that is itself a list — a run of recent results, a history of numbers —
@@ -255,8 +270,25 @@ internal static class RawPath
 				catch { }
 				try { fields[name] = inGameWords.Contains(name) ? Text.ShownOf(value) : Text.Field(name, value); } catch { }
 			}
-			return Report.Json(fields, [.. inGameWords]);
+			if (none.Count > 0) fields["Null"] = string.Join(",", none);
+			return Report.Json(fields, [.. inGameWords, "Null"]);
 		}
+	}
+
+	/// <summary>The entries of the record at a path by their names, when it is a DynamicReference; null otherwise.</summary>
+	private static System.Collections.Generic.Dictionary<string, SI.Core.TypedValue> Entries(Bindings b, string path)
+	{
+		try
+		{
+			var key = PathKey.Of(path);
+			if (!b.Exists(ref key) || b.Get(ref key)?.Get()?.TryCast<DynamicReference>() is not { } record) return null;
+			var keys = new Il2CppSystem.Collections.Generic.List<SI.Bindable.Reference.Core.PropertyID>();
+			record.GetProperties(keys);
+			var entries = new System.Collections.Generic.Dictionary<string, SI.Core.TypedValue>();
+			foreach (var property in keys) entries[Schema.NameOf(property)] = record[property.ID];
+			return entries;
+		}
+		catch { return null; }
 	}
 
 	/// <summary>

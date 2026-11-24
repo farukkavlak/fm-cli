@@ -32,7 +32,9 @@ internal static partial class Program
 		foreach (var list in lists)
 		{
 			var tile = list[..^".DataPointList".Length];
-			var head = await Fm.Pull(tile, "GraphType,PerformanceSummary");
+			// A tile the tree draws without its verdict has it in its own record, which the plugin reads (nulls);
+			// one with none is not waited on.
+			var head = await Fm.Pull(tile, "GraphType,PerformanceSummary", nulls: true);
 			var points = await Fm.Pull(list, "StatNameLabel,StatNameLabelShort,SubjectStatValue", list: true);
 			if (points.ValueKind != JsonValueKind.Array || Field(head, "GraphType").Length == 0) continue;
 			var stats = points.EnumerateArray()
@@ -55,7 +57,11 @@ internal static partial class Program
 		var where = await FixtureVenue();
 		var friendly = await NextIsFriendly();
 		const string them = "Human.Team.NextFixture.TeamOpponent";
-		var team = await Fm.Pull(them, "Name,Description,MostUsedFormation,RecentFormValues,NextOppositionThreatLevelAssessment");
+		// The manager and the standout players as references too: a team with none holds the game's null reference,
+		// and its name is not waited on.
+		var team = await Fm.Pull(them, "Name,Description,MostUsedFormation,RecentFormValues,NextOppositionThreatLevelAssessment,"
+			+ "Manager,TopGoalscorerPlayer,MostAssistsPlayer,HighestAverageRatingPlayer", nulls: true);
+		bool None(string reference) => Field(team, reference) is var r && (r.Length == 0 || r.Contains("NullReference", StringComparison.Ordinal));
 		if (Field(team, "Name").Length == 0)
 		{
 			Console.Error.WriteLine(L("The opponent could not be read (there may be no next match)."));
@@ -63,6 +69,7 @@ internal static partial class Program
 		}
 		async Task<string> Standout(string which)
 		{
+			if (None(which)) return "";
 			var name = Field(await Fm.Pull($"{them}.{which}.Player", "Name"), "Name");
 			var value = Field(await Fm.Pull($"{them}.{which}", "StatValue"), "StatValue");
 			// Average ratings arrive as the engine's raw double (6.844444444444444); goals and
@@ -72,7 +79,7 @@ internal static partial class Program
 				value = GameNumbers.Of(rating, "0.00");
 			return name.Length == 0 ? "" : value.Length > 0 ? $"{name} ({value})" : name;
 		}
-		var manager = Field(await Fm.Pull($"{them}.Manager", "Name"), "Name");
+		var manager = None("Manager") ? "" : Field(await Fm.Pull($"{them}.Manager", "Name"), "Name");
 		var form = string.Join(" ", Standings.Form(Field(team, "RecentFormValues")));
 		var venue = VenueWord(where);
 		var days = Field(fixture, "FixtureDateDistanceInDays");
@@ -152,7 +159,8 @@ internal static partial class Program
 		{
 			// A tile the analysts have no word on yet is its name over its figures.
 			Console.WriteLine(t.Verdict.Length > 0 ? $"{GameWords.Of(t.Name)}: {GameWords.Of(t.Verdict)}" : GameWords.Of(t.Name));
-			if (t.Stats.Count > 0) Console.WriteLine("  " + string.Join(" · ", t.Stats.Select(x => $"{x.Label} {x.Value}")));
+			// A tile's figures are cut at their separators in a terminal; a pipe gets them on one line.
+			if (t.Stats.Count > 0) Ui.Hint("  " + string.Join(" · ", t.Stats.Select(x => $"{x.Label} {x.Value}")));
 		}
 		if (news.Count > 0)
 		{

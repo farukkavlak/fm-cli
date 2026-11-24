@@ -144,7 +144,9 @@ internal sealed class Bridge
 	/// <param name="shown">Properties to have in the game's own words rather than English.</param>
 	/// <param name="seconds">How long one reading may wait for every record to be complete (its rows kept): just after
 	/// a load a squad's names come seconds after its ids. Only an upper bound; the default keeps the short wait.</param>
-	public async Task<JsonElement> Pull(string path, string props, bool list = false, string shown = "", double seconds = 1.5)
+	/// <param name="nulls">A field the record holds as null (the plugin says so once it has been bound a frame) counts as read,
+	/// so a record that has none is not waited on for the whole bound.</param>
+	public async Task<JsonElement> Pull(string path, string props, bool list = false, string shown = "", double seconds = 1.5, bool nulls = false)
 	{
 		// Index and Row are the reading's own, put on every record: asked for or not, they are not waited for.
 		var wanted = props.Split(',').Count(p => p is not ("Index" or "Row"));
@@ -153,20 +155,22 @@ internal sealed class Bridge
 		JsonElement data = default;
 		// A list bound by one reading is filled by a later frame: asked again a little after, not a quarter second on.
 		// The seconds bound the whole, however many readings fit (a field the record never has is waited for that long).
+		(string, string)[] query = [("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation), ("shown", shown)];
 		var started = Clock.ElapsedMilliseconds;
 		var limit = (long)(Math.Max(seconds, 1.5) * 1000);
 		for (var attempt = 0; ; attempt++)
 		{
 			var last = Clock.ElapsedMilliseconds - started >= limit;
 			// A list bound by this very call holds nothing until the next frame.
-			try { data = await GetJson("pull", ("path", path), ("props", props), ("list", list ? "1" : "0"), ("gen", generation), ("shown", shown)); }
+			try { data = await GetJson("pull", nulls ? [.. query, ("nulls", "1")] : query); }
 			catch (FmError e) when (!last && e.Message.Contains("is not a list", StringComparison.Ordinal))
 			{
 				await Task.Delay(TimeSpan.FromMilliseconds(100));
 				continue;
 			}
 			var records = data.ValueKind == JsonValueKind.Array ? data.EnumerateArray().ToList() : [data];
-			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name is not ("Index" or "Row")) >= wanted);
+			var complete = records.All(r => r.EnumerateObject().Count(p => p.Name is not ("Index" or "Row" or "Null"))
+				+ (r.TryGetProperty("Null", out var none) ? none.GetString()!.Split(',').Length : 0) >= wanted);
 			if (complete && (attempt > 0 || records.Count > 0) || last) return data;
 			await Task.Delay(TimeSpan.FromMilliseconds(100));
 		}
