@@ -34,7 +34,6 @@ Start and first use
 
 ## 10. Quality
 
-- [ ] T173 First start under a fresh macOS user: which permission prompts (Accessibility, Screen Recording) window hiding and `/shot` raise, and whether the tool says so. The clean install (T83, 22 Nov) ran on a machine that had granted them already
 
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)

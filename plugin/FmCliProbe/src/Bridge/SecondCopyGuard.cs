@@ -87,12 +87,15 @@ internal static class SecondCopyGuard
 				{ IsBackground = true, Name = "fm-cli notice" }.Start();
 			return;
 		}
+		// An alert, not a notification: osascript's notifications go out as Script Editor's, and where that app's
+		// notifications are off (a new user's default) the note was dropped without a word (24 Nov 2026, T173).
+		// An alert needs no permission; its own process holds it, gone after a minute if no one answers.
 		try
 		{
 			var quoted = text.Replace("\\", "\\\\").Replace("\"", "\\\"");
 			var start = new ProcessStartInfo("/usr/bin/osascript") { UseShellExecute = false };
 			start.ArgumentList.Add("-e");
-			start.ArgumentList.Add($"display notification \"{quoted}\" with title \"fm\"");
+			start.ArgumentList.Add($"display alert \"fm\" message \"{quoted}\" giving up after 60");
 			Process.Start(start)?.Dispose();
 		}
 		catch (Exception) { }
