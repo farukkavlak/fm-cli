@@ -236,7 +236,7 @@ internal static class Pages
 		// every tab's menu counts as shown, and the youth team's bar lists pages the Training tab does too.
 		var dropdowns = Buttons.AllDropdowns().ToList();
 		var ordered = dropdowns.Where(d => d.name != "NavTabDropdown").Concat(barOnly ? [] : dropdowns.Where(d => d.name == "NavTabDropdown"));
-		string failed = null;
+		string failed = null, undecided = null;
 		foreach (var dropdown in ordered)
 		{
 			try
@@ -253,7 +253,16 @@ internal static class Pages
 					{
 						var on = dropdown.SelectedIndex;
 						var at = on >= 0 && on < count ? Read(choices[on]) : null;
-						return $"{(on == i ? "shown" : "not shown")} {row.Name} (bar on row {on}: {at?.Name} {at?.Guid}; first row {Read(choices[0])?.Guid})";
+						var said = $"{(on == i ? "shown" : "not shown")} {row.Name} (bar on row {on}: {at?.Name} {at?.Guid}; first row {Read(choices[0])?.Guid})";
+						// A bar with no row chosen says nothing, and another bar may: FM27's secondary menus (a club's Team
+						// Report › Overview, the Opposition Report) never mark a row chosen. When no bar does, the answer is
+						// "unchosen": the caller tells the page by what it shows.
+						if (on < 0)
+						{
+							undecided ??= $"unchosen {row.Name} (no bar has a row chosen; first row {Read(choices[0])?.Guid})";
+							continue;
+						}
+						return said;
 					}
 					if (dry) return $"dry run, NOT opened: {row.Name} (subtab row {i})";
 					// Another list can hold the page too, so a row that fails does not end the search.
@@ -270,7 +279,7 @@ internal static class Pages
 			}
 			catch { }
 		}
-		return failed ?? $"error: no page with guid {guid} (a subtab's page: open the page whose bar lists it first)";
+		return failed ?? undecided ?? $"error: no page with guid {guid} (a subtab's page: open the page whose bar lists it first)";
 	}
 
 	/// <summary>

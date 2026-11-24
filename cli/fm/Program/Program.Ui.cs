@@ -203,7 +203,10 @@ internal static partial class Program
 			if (await Until(async () =>
 			{
 				var bar = await OnBar(screen, team);
-				var on = (bar.StartsWith("shown", StringComparison.Ordinal) || bar.StartsWith("error", StringComparison.Ordinal) && answer.StartsWith("opened", StringComparison.Ordinal))
+				// "unchosen": the page is listed only on menus that never mark a row (FM27's secondary menus), so it is
+				// told by what it shows, as when the listing bar has gone.
+				var on = (bar.StartsWith("shown", StringComparison.Ordinal)
+				          || (bar.StartsWith("error", StringComparison.Ordinal) || bar.StartsWith("unchosen", StringComparison.Ordinal)) && answer.StartsWith("opened", StringComparison.Ordinal))
 				         && await shown();
 				var settled = on && standing;
 				standing = on;

@@ -23,7 +23,6 @@ Speed
 
 - [ ] T195 `player` for one of ours opens his page without the search panel (~3 s of 4.4): a way to open a person by his record, found with `tools/sigdump`; keep the search for anyone else
   - Tried 23 Nov, not kept: `OpenSubtabEvent` with `PlayerReport` and the id is ignored; the squad table's name link opens it but each row has two links and which one works changes (4–18 s)
-- [ ] T197 `opponent`/`prep` from another page: the opposition report opens in 2–10 s (the Tactics bar first, then dry runs until it is drawn); same page open: 2.8 s
 - [ ] T178 The session reads ahead: the squad's names for tab, the state for the prompt, while the line is being typed
 
 Session (`fm›`)
