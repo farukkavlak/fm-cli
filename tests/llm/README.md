@@ -5,7 +5,7 @@ Planning and arguments use the NL test set and `tools/nl-score.py`; these files 
 
 | File | What |
 |---|---|
-| `conversation.jsonl` | 20 questions to Mahmut; `reads` = the saved `fm` outputs he answers from |
+| `conversation.jsonl` | 20 questions to the assistant; `reads` = the saved `fm` outputs it answers from |
 | `memory.jsonl` | 10 short talks; the last turn refers back ("onu sat"); scored as tool+args |
 | `results/` | one file per model: answers, memory plans, cost, manifest |
 

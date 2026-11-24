@@ -1,6 +1,6 @@
 # AI
 
-Playing by sentence (`fm <sentence>`), and later an assistant (Mahmut).
+Playing by sentence (`fm <sentence>`), and later an assistant.
 
 ## Rules
 
@@ -8,6 +8,8 @@ Playing by sentence (`fm <sentence>`), and later an assistant (Mahmut).
 - Facts come from the game. Say what was checked.
 - Every feature is a command first.
 - Local and free by default. A cloud model is the user's choice, with the user's key.
+- Any provider: one interface (OpenAI-compatible and others); the user picks the model.
+- The assistant has no name in the app.
 
 ## Today
 
@@ -30,13 +32,25 @@ Playing by sentence (`fm <sentence>`), and later an assistant (Mahmut).
 - A chain of commands that stops part way says what was done and what was not.
 - Bench: `tests/FmCli.Tests/SafetyTests.cs`; live: `tests/live/round68.toml` (read-only tools change nothing).
 
-## Later (v2)
+## v2
 
-- [ ] Players, clubs, offers from the save with stable ids
-- [ ] Fuzzy names: Turkish endings, typos ("frosinonenin rinaldi"); ask when two fit
-- [ ] Mahmut, read-only: provider interface, session memory ("him"), answers only from what was read
-- [ ] Plans: steps, approval, run, verify
-- [ ] Save memory: facts, preferences, plans; list, fix, delete
-- [ ] Transfer and tactic advice from real match data
-- [ ] Personality setting
-- [ ] README demo; publish the model (`tools/nl-release.sh`) once the repo is public
+Order: names first, then the learning router, then the cloud.
+
+- [ ] T204 Players, clubs, offers held by the game's own ids
+- [ ] T205 Fuzzy names: Turkish endings, typos ("frosinonenin rinaldi"); ask when two fit
+- [ ] T206 The router learns from the user
+  - Learns only what the user chose: a pick from the options, or a yes. Not what the router ran on its own.
+  - A choice undone right away (another command at once) is forgotten.
+  - Learns sentence → tool only; arguments are read again every time.
+  - Learns nicknames for names ("cimbom" → the club's id), tied to T204.
+  - The user's own sentences weigh more than the shipped examples.
+  - A weighty call still asks for a yes, however sure.
+  - `fm learned`: list and delete.
+  - Measured: teach held misses as if picked, then ask their noisy forms.
+- [ ] T207 Smart mode: router first, a cloud model when unsure; our code always asks for a missing value that changes the game
+- [ ] T208 Assistant, read-only: provider interface, session memory ("him"), answers only from what was read
+- [ ] T209 Plans: steps, approval, run, verify
+- [ ] T210 Save memory: facts, preferences, plans; list, fix, delete
+- [ ] T211 Transfer and tactic advice from real match data
+- [ ] T212 Personality setting
+- [ ] T213 README demo

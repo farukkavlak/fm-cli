@@ -44,4 +44,4 @@ Start and first use
 
 ## 13. Later (v2)
 
-- [ ] AI v2: see `AI.md`
+- [ ] AI v2: T204–T213, listed in `AI.md`

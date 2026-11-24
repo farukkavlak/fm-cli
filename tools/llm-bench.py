@@ -4,7 +4,7 @@
   tools/llm-bench.py --gguf ~/.cache/fm-cli/llm/FILE.gguf --snapshot ~/.cache/fm-cli/llm/snapshot-2029-08-04 \
       [--plan-log FILE] --save NAME
 
-- conversation: tests/llm/conversation.jsonl; Mahmut answers each question from the snapshot files it
+- conversation: tests/llm/conversation.jsonl; the assistant answers each question from the snapshot files it
   reads (saved `fm` outputs). Capitalised words that are not in those files are flagged as possibly
   invented names, to be checked by hand with the blind scores.
 - memory: tests/llm/memory.jsonl; earlier turns go in as the plans they became, the last turn is
@@ -39,7 +39,7 @@ def module(name, file):
 llm = module("nl_llm", "nl-llm.py")
 score = module("nl_score", "nl-score.py")
 
-MAHMUT = """Sen Mahmut'sun: kullanıcının Football Manager kariyerindeki yardımcı antrenör.
+ASSISTANT = """Sen kullanıcının Football Manager kariyerindeki yardımcı antrenörsün.
 - Kullanıcının dilinde cevap ver (Türkçe soruya Türkçe, İngilizce soruya İngilizce).
 - Yalnızca aşağıdaki oyun verisini kullan. Veride olmayan oyuncu, kulüp, sayı veya olay uydurma; bilmiyorsan söyle.
 - Kısa ve net ol: en fazla 5-6 cümle. Samimi ama ciddi, gerektiğinde fikrini söyle.
@@ -92,7 +92,7 @@ def unknown_names(answer, data):
 	out = []
 	for m in NAME.finditer(answer):
 		w = m.group(1)
-		if SENTENCE_START.search(answer[:m.start()]) or w in ("Mahmut", "Football", "Manager", "FM"):
+		if SENTENCE_START.search(answer[:m.start()]) or w in ("Football", "Manager", "FM"):
 			continue
 		if w.lower() not in low and w.lower().replace("i̇", "i") not in low and w not in out:
 			out.append(w)
@@ -108,7 +108,7 @@ def conversation(server, snapshot):
 	rows = []
 	for c in lines(BENCH / "conversation.jsonl"):
 		data = "\n\n".join(f"### fm {r}\n" + (snapshot / f"{r}.txt").read_text() for r in c["reads"])
-		messages = [{"role": "system", "content": MAHMUT + "\n\nOyun verisi:\n" + data}, {"role": "user", "content": c["q"]}]
+		messages = [{"role": "system", "content": ASSISTANT + "\n\nOyun verisi:\n" + data}, {"role": "user", "content": c["q"]}]
 		answer, took = chat(server, messages, 400)
 		rows.append({"id": c["id"], "q": c["q"], "answer": answer.strip(), "s": round(took, 2), "unknown_names": unknown_names(answer, data)})
 		print(f"  {c['id']} {took:5.1f}s {rows[-1]['unknown_names'] or ''}", file=sys.stderr)
