@@ -17,7 +17,26 @@ internal static partial class FmApi
 	private const int DefaultDepth = 3;
 	private const int MaxNodes = 20000;
 
-	public static string Handle(string route, NameValueCollection q) => route switch
+	// When a tutorial step was last looked for (see Handle).
+	private static long _tutorialLook;
+
+	/// <summary>
+	/// Each request, with the game hidden: a tutorial step on screen is moved past first (at most once a second).
+	/// FM puts one over a page the first time it is visited while tutorials are on (a new install's default), and
+	/// under it messages do not open and Continue does nothing; no one can see it to press it (24 Nov 2026, Windows).
+	/// </summary>
+	public static string Handle(string route, NameValueCollection q)
+	{
+		if (WindowHider.Wanted && route is not ("" or "health") && System.Environment.TickCount64 - _tutorialLook > 1000)
+		{
+			_tutorialLook = System.Environment.TickCount64;
+			try { if (Pages.CloseIntro() == "closed") Plugin.Log.LogInfo("[fm-cli] moved past a tutorial step"); }
+			catch (Exception) { }
+		}
+		return Dispatch(route, q);
+	}
+
+	private static string Dispatch(string route, NameValueCollection q) => route switch
 	{
 		"" or "health" => Health(),
 		"tree" => Tree(q["path"], Int(q["depth"], DefaultDepth), q["shown"]),
@@ -143,9 +162,29 @@ internal static partial class FmApi
 	/// decide these; the CLI asks rather than guesses.
 	/// </summary>
 	private static string Folders() =>
-		$"{{\"User\": \"{Report.Escape(UnityEngine.Application.persistentDataPath)}\", " +
+		$"{{\"User\": \"{Report.Escape(UserFolder())}\", " +
 		$"\"Install\": \"{Report.Escape(UnityEngine.Application.dataPath)}\", " +
 		$"\"Platform\": \"{UnityEngine.Application.platform}\", \"Version\": \"{Report.Escape(UnityEngine.Application.version)}\"}}\n";
+
+	/// <summary>
+	/// The game's own user folder: the one where it has written its games\config.xml. On macOS that is Unity's data
+	/// folder; on Windows FM keeps it under Documents, by its company and product name, while Unity's is AppData\LocalLow
+	/// (24 Nov 2026: saves were looked for there and none were found). Unity's folder when neither has it yet.
+	/// </summary>
+	private static string UserFolder()
+	{
+		var unity = UnityEngine.Application.persistentDataPath;
+		string documents = null;
+		try
+		{
+			documents = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments),
+				UnityEngine.Application.companyName, UnityEngine.Application.productName);
+		}
+		catch { }
+		foreach (var folder in new[] { unity, documents })
+			if (!string.IsNullOrEmpty(folder) && System.IO.File.Exists(System.IO.Path.Combine(folder, "games", "config.xml"))) return folder;
+		return unity;
+	}
 
 	/// <summary>
 	/// The tree's node count, stopping at <paramref name="cap"/>: FM27 dropped Bindings.GetDescendantCount,
@@ -247,8 +286,10 @@ internal static partial class FmApi
 		var events = Game.Events;
 		if (events == null) return "error: event subsystem unavailable";
 
+		// A tutorial step's popup takes Continue away while it is up; the step is closed first (see CloseIntro).
+		var closed = Pages.CloseIntro() == "closed";
 		events.SendEvent(new FM.UI.ContinueGameEvent());
-		return "sent ContinueGameEvent";
+		return closed ? "closed a tutorial step; sent ContinueGameEvent" : "sent ContinueGameEvent";
 	}
 
 	/// <summary>

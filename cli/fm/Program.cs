@@ -6,6 +6,13 @@ internal static partial class Program
 
 	public static async Task<int> Main(string[] args)
 	{
+		// A Windows console starts on its OEM code page (437, 857), where ✓, · and the game's own letters (ğ, ş, é)
+		// come out as ? or �: the console is put on UTF-8, as macOS's is, for what is written and what is typed.
+		if (OperatingSystem.IsWindows())
+		{
+			Console.OutputEncoding = new System.Text.UTF8Encoding(false);
+			Console.InputEncoding = new System.Text.UTF8Encoding(false);
+		}
 		// With no command, drop into the session rather than printing help: the game is usually
 		// already running and typing "fm" before every command gets old.
 		if (args.Length == 0) return await Session.Run(Run);

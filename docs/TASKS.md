@@ -4,16 +4,16 @@ One list. Pick by id ("T12"). Tick a box in the commit that does it.
 Done = every box ticked; acceptance tests (section 11) last. New work is added here first.
 Only open work is listed; what was done, and how it was measured, is in git. Port notes: `PORTING.md`. Crawl data: `reference/fm27/`.
 
-## 7. Platform (macOS only today)
+## 7. Platform
 
-- [ ] T49 `fm start` / `stop` on Windows
-  - 22 Nov, written ahead (cli/fm/Core/Launcher.Windows.cs): game found in the Steam libraries (registry + libraryfolders.vdf), exe by Unity's layout, SteamAppId from the app manifest, BepInEx's doorstop in the game folder; stop/alive by process. Untested
-- [ ] T50 Window hiding on Windows
-  - 22 Nov, written ahead: the plugin's WindowHider makes the process's windows layered, alpha 0, click-through and off the taskbar; the second-copy notice is a message box. Untested
-- [ ] T52 Publishing for other targets
-  - 22 Nov: `tools/package-windows.sh` builds fm.exe (win-x64), the plugin and BepInEx be.755 win-x64 into a zip with `install.ps1`; built here, not yet installed on Windows
-- [ ] T53 Plugin on Windows x64 (untried; its main-thread check now has a Windows way: the thread Load runs on)
-- [ ] T54 Save and user folders on Windows (the game says where; AppData/LocalLow before it has; `fm doctor` has Windows checks)
+Windows was tried on 24 Nov 2026 on an AWS g4dn (Windows Server 2022, Steam, English): install, start/stop, load/save,
+the read sweep, two weeks of play (instant and live matches, talks, subs, a cup draw), tactics, a transfer from offer to signing.
+
+- [ ] T198 The patched BepInEx core (`IL2CPPChainloader.MainThreadTick`, the plugin needs it) exists only as this Mac's built
+  `BepInEx.Unity.IL2CPP.dll`; its source is gone. Write the patch again against be.755 (3fab71a) and build both platforms from it
+- [ ] T199 README: a Windows section (the package's own README.txt was used), and a look at `fm` in a Windows terminal by eye:
+  ✓ and Turkish letters, Tab, the arrows, ctrl-R
+- [ ] T200 `fm start` with its input empty (`< NUL`, a script) prints the session's first line after it has started the game
 
 ## 9. Ease of use
 
@@ -32,6 +32,12 @@ Output
 
 Playing
 
+- [ ] T201 In a match, a man forced off hurt (on no menu of the pitch) is not shown in `sub`'s list; say he is hurt and where
+- [ ] T202 Shortlists: `shortlist` shows only the list chosen in the game; "(Default)" cannot be chosen with `--list`; `add`'s
+  question says `--to` while tab offers `--for`
+- [ ] T203 After a match, the "no menu" screen (the round's Breaking News) is named by Continue's state ("Messages") in the
+  message; name the screen
+
 
 Start and first use
 
@@ -43,7 +49,6 @@ Start and first use
 
 ## 11. Acceptance tests (each in one go, tool only, no bridge)
 
-- [ ] T81 Windows (Steam): install from the README, one month, sweep, stop
 
 ## 12. Final check (the last box)
 

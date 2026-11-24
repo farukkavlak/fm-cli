@@ -150,7 +150,24 @@ internal static partial class Program
 					return 1;
 				}
 				await Fm.Get("click", ("ptr", Field(tile, "Pointer")));
-				if (!await Until(SaveBrowserOpen, seconds: 20, every: 0.25))
+				// The first time, the tile opens an intro of its own first (importing older saves): its button, known
+				// by what it sends (closes the intro and selects the tile again), goes on to the list (24 Nov 2026,
+				// a new Windows install: the list was waited for behind it).
+				// The button is in the menu's tree all along: only one on screen is the intro's, and it is pressed once.
+				var introPressed = false;
+				if (!await Until(async () =>
+				    {
+					    if (await SaveBrowserOpen()) return true;
+					    if (introPressed) return false;
+					    var intro = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray().FirstOrDefault(b => Field(b, "Visible") == "True"
+						    && Field(b, "Events").Split(", ") is var sent && sent.Contains("ClosePanel") && sent.Contains("LoadGameTileSelection"));
+					    if (intro.ValueKind == JsonValueKind.Object)
+					    {
+						    await Fm.Get("click", ("ptr", Field(intro, "Pointer")));
+						    introPressed = true;
+					    }
+					    return false;
+				    }, seconds: 20, every: 0.25))
 				{
 					Console.Error.WriteLine(L("Save list did not open."));
 					return 1;

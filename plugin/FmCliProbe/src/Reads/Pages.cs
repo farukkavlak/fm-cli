@@ -285,6 +285,9 @@ internal static class Pages
 	/// <summary>
 	/// Closes the intro FM27 lays over a tab the first time it is visited ("Got It"): while it is up, a
 	/// page chosen in a menu does not open. Known by its button's name, #EndTutorialButton, in every language.
+	/// Also a tutorial step's popup (its ContinueSection's button, the step only, not "hide tutorials", which is the
+	/// player's setting): on a new install the first save opens on one, and Continue does nothing under it
+	/// (24 Nov 2026, Windows: the game never moved on).
 	/// </summary>
 	public static string CloseIntro()
 	{
@@ -292,7 +295,7 @@ internal static class Pages
 		{
 			try
 			{
-				if (element.name != "EndTutorialButton" || !Shown(element)) continue;
+				if (!(element.name == "EndTutorialButton" || TutorialStep(element)) || !Shown(element)) continue;
 				var button = element.TryCast<SIButton>();
 				if (button == null) continue;
 				button.SimulateButtonClick(false);
@@ -301,6 +304,21 @@ internal static class Pages
 			catch { }
 		}
 		return "none";
+	}
+
+	/// <summary>
+	/// A tutorial step's own way on: a button in its ContinueSection, inside the TutorialPopup (Understood on the
+	/// first step, Continue on the next ones). The popup's other button, Hide Tutorial, sits elsewhere and is never this.
+	/// </summary>
+	private static bool TutorialStep(UnityEngine.UIElements.VisualElement element)
+	{
+		var section = false;
+		for (var at = element.parent; at != null; at = at.parent)
+		{
+			if (at.name == "ContinueSection") section = true;
+			else if (at.name == "TutorialPopup") return section;
+		}
+		return false;
 	}
 
 	/// <summary>The first page of a page's tab: the tab's own screen.</summary>

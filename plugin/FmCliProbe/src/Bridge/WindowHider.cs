@@ -45,10 +45,53 @@ internal static class WindowHider
 	private static readonly uint Self = (uint)System.Diagnostics.Process.GetCurrentProcess().Id;
 	private static readonly EnumWindowsProc Each = HideOne;
 
+	[DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassNameW(IntPtr window, System.Text.StringBuilder name, int size);
+	[DllImport("user32.dll")] private static extern bool GetClientRect(IntPtr window, out Rect rect);
+	[DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr window, out Rect rect);
+	[DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr window, IntPtr after, int x, int y, int width, int height, uint flags);
+	[StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; }
+	private const uint SwpNoMove = 0x2, SwpNoZOrder = 0x4, SwpNoActivate = 0x10;
+
+	// Unity's window once it has the asked size; looked at no more.
+	private static IntPtr _sized;
+
+	/// <summary>The size the launcher asked for (-screen-width/-height on the command line); none, nothing is resized.</summary>
+	private static readonly (int Width, int Height)? Asked = AskedSize();
+
+	private static (int, int)? AskedSize()
+	{
+		var args = Environment.GetCommandLineArgs();
+		int At(string flag) => Array.IndexOf(args, flag) is var i and >= 0 && i + 1 < args.Length && int.TryParse(args[i + 1], out var n) ? n : 0;
+		var (w, h) = (At("-screen-width"), At("-screen-height"));
+		return w > 0 && h > 0 ? (w, h) : null;
+	}
+
+	/// <summary>
+	/// Unity's own window (its class, UnityWndClass) given the size the launcher asked for: Windows fits a new window
+	/// to the desktop, and a small one (a laptop's, a remote session's 976x610) folded the game's tab bars into a
+	/// "More" menu and left columns out, so pages were not found (24 Nov 2026). Hidden, it may be larger than the screen.
+	/// </summary>
+	private static void Size(IntPtr window)
+	{
+		if (Asked is not { } asked || window == _sized) return;
+		var name = new System.Text.StringBuilder(64);
+		if (GetClassNameW(window, name, name.Capacity) == 0 || name.ToString() != "UnityWndClass") return;
+		if (!GetClientRect(window, out var client) || !GetWindowRect(window, out var outer)) return;
+		var (w, h) = (client.Right - client.Left, client.Bottom - client.Top);
+		if (w >= asked.Width && h >= asked.Height)
+		{
+			_sized = window;
+			return;
+		}
+		var (frameW, frameH) = (outer.Right - outer.Left - w, outer.Bottom - outer.Top - h);
+		SetWindowPos(window, IntPtr.Zero, 0, 0, asked.Width + frameW, asked.Height + frameH, SwpNoMove | SwpNoZOrder | SwpNoActivate);
+	}
+
 	private static bool HideOne(IntPtr window, IntPtr data)
 	{
 		GetWindowThreadProcessId(window, out var process);
 		if (process != Self) return true;
+		Size(window);
 		var style = (long)GetWindowLongPtr(window, GwlExStyle);
 		const long wanted = WsExLayered | WsExTransparent | WsExToolWindow;
 		if ((style & wanted) == wanted && (style & WsExAppWindow) == 0) return true;

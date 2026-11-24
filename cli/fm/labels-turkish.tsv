@@ -3109,3 +3109,6 @@ the game is up, the plugin is not ready yet	oyun açıldı, eklenti henüz hazı
 the plugin is ready, the main menu is being built	eklenti hazır, ana menü kuruluyor
 the main menu is being built	ana menü kuruluyor
 the save is loading	kayıt yükleniyor
+No save yet, so the game waits at its main menu. To begin a career in its window: fm stop, then fm start --debug	Henüz kayıt yok, oyun ana menüde bekliyor. Penceresinde kariyer başlatmak için: fm stop, sonra fm start --debug
+The game has no last save of its own to continue, so it waits at its main menu. The newest save here: fm load "{0}"	Oyunun devam edeceği kendi son kaydı yok, ana menüde bekliyor. Buradaki en yeni kayıt: fm load "{0}"
+{0} is not among those on the pitch: {1}	{0} sahadakiler arasında değil: {1}

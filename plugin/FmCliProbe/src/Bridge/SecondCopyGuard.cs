@@ -12,9 +12,9 @@ namespace FmCliProbe;
 /// tool's game, Steam's copy came up as a second game). Only the hidden game guards
 /// (FMCLI_HIDDEN=1): a game opened by hand never closes another.
 ///
-/// A copy is told by its executable's name, taken from this very process, not written here, and
-/// by having started after this one: an older one is a game stuck on its way out (not killable),
-/// and `fm start` refuses to start beside a running game anyway. Each process is tried once.
+/// A copy is told by its executable's name, taken from this very process, not written here, by being a game
+/// (see <see cref="IsGame"/>) and by having started after this one: an older one is a game stuck on its way out
+/// (not killable), and `fm start` refuses to start beside a running game anyway. Each process is tried once.
 /// </summary>
 internal static class SecondCopyGuard
 {
@@ -36,6 +36,7 @@ internal static class SecondCopyGuard
 					{
 						if (other.Id == self.Id || Tried.Contains(other.Id)) continue;
 						Tried.Add(other.Id);
+						if (!IsGame(other)) continue;
 						try { if (other.StartTime <= self.StartTime) continue; } catch (Exception) { continue; }
 						try { other.Kill(); }
 						catch (Exception ex)
@@ -52,6 +53,26 @@ internal static class SecondCopyGuard
 				Thread.Sleep(400);
 			}
 		}) { IsBackground = true, Name = "fm-cli second copy guard" }.Start();
+	}
+
+	/// <summary>
+	/// Whether a process of the game's name is a game, by where it runs from: on Windows Unity's own layout (the
+	/// .exe beside its &lt;name&gt;_Data folder), on macOS an app bundle. FM27's Windows executable is fm.exe, the
+	/// tool's own name, and every fm command run while the game was open was closed as a second copy (24 Nov 2026).
+	/// One whose file cannot be read is left alone.
+	/// </summary>
+	private static bool IsGame(Process other)
+	{
+		try
+		{
+			var file = other.MainModule?.FileName;
+			if (string.IsNullOrEmpty(file)) return false;
+			if (OperatingSystem.IsWindows())
+				return System.IO.Directory.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file) ?? "",
+					System.IO.Path.GetFileNameWithoutExtension(file) + "_Data"));
+			return file.Contains(".app/Contents/MacOS/", StringComparison.Ordinal);
+		}
+		catch (Exception) { return false; }
 	}
 
 	[System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]

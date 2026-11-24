@@ -272,8 +272,23 @@ internal static partial class Launcher
 		var answer = await fm.Get("loadlast");
 		if (answer.StartsWith("error", StringComparison.Ordinal))
 		{
-			Console.Error.WriteLine(answer.Trim());
-			return false;
+			// No save at all, as on a first start: not a failure. The game waits at its menu, and a career is begun
+			// in its window (24 Nov 2026, a new Windows install: start ended on the plugin's error).
+			var folder = GameFolders.Saves;
+			if (!Directory.Exists(folder) || !Directory.EnumerateFiles(folder, "*.fm").Any())
+			{
+				Console.WriteLine(L("No save yet, so the game waits at its main menu. To begin a career in its window: fm stop, then fm start --debug"));
+				return true;
+			}
+			// Saves are there, and the menu's own last save comes a moment after the menu. A game that has never saved
+			// here (saves copied in from another machine) has none: start ends at the menu with the newest save named.
+			if (!await WaitFor(async () => !(answer = await fm.Get("loadlast")).StartsWith("error", StringComparison.Ordinal),
+				    TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(0.5)))
+			{
+				var newest = Path.GetFileNameWithoutExtension(new DirectoryInfo(folder).GetFiles("*.fm").MaxBy(f => f.LastWriteTimeUtc)!.Name);
+				Console.WriteLine(L($"The game has no last save of its own to continue, so it waits at its main menu. The newest save here: fm load \"{newest}\""));
+				return true;
+			}
 		}
 
 		if (!await Staged(async () => await fm.InGame() ? null : L("the save is loading"), TimeSpan.FromMinutes(3)))

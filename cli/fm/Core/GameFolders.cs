@@ -24,10 +24,11 @@ internal static class GameFolders
 				if (File.Exists(Cache) && File.ReadAllText(Cache).Trim() is { Length: > 0 } kept && Directory.Exists(kept)) return kept;
 			}
 			catch (IOException) { }
-			// Unity's persistent data path: ~/Library/Application Support/<company>/<product> on macOS,
-			// AppData/LocalLow/<company>/<product> on Windows.
+			// Until the game has said (the folder holding its games\config.xml): on macOS Unity's data folder,
+			// ~/Library/Application Support/<company>/<product>; on Windows FM's own, Documents\<company>\<product>
+			// (Unity's AppData\LocalLow holds no saves there).
 			return OperatingSystem.IsWindows()
-				? Path.Combine(Home, "AppData", "LocalLow", "Sports Interactive", "Football Manager 27")
+				? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Sports Interactive", "Football Manager 27")
 				: Path.Combine(Home, "Library", "Application Support", "Sports Interactive", "Football Manager 27");
 		}
 	}

@@ -82,12 +82,23 @@ internal static partial class Launcher
 	private static bool WinBepInExInstalled(string dir) =>
 		Directory.Exists(Path.Combine(dir, "BepInEx", "core")) && File.Exists(Path.Combine(dir, "winhttp.dll"));
 
-	private static string WinProcessName => WinExecutable(GameDirectory) is { } exe ? Path.GetFileNameWithoutExtension(exe) : "fm";
-
-	private static List<Process> WinGames() => Process.GetProcessesByName(WinProcessName).Where(p =>
+	/// <summary>
+	/// The game's processes, by the file they run: FM27's executable is fm.exe, the very name of this tool's, so a
+	/// name alone found the tool itself and said the game was running (24 Nov 2026). This process is never one.
+	/// </summary>
+	private static List<Process> WinGames()
 	{
-		try { return !p.HasExited; } catch (Exception) { return false; }
-	}).ToList();
+		if (WinExecutable(GameDirectory) is not { } exe) return [];
+		return Process.GetProcessesByName(Path.GetFileNameWithoutExtension(exe)).Where(p =>
+		{
+			try
+			{
+				return p.Id != Environment.ProcessId && !p.HasExited
+				       && string.Equals(Path.GetFullPath(p.MainModule?.FileName ?? ""), Path.GetFullPath(exe), StringComparison.OrdinalIgnoreCase);
+			}
+			catch (Exception) { return false; }
+		}).ToList();
+	}
 
 	private static bool WinSteamRunning() => Process.GetProcessesByName("steam").Length > 0;
 
@@ -131,23 +142,27 @@ internal static partial class Launcher
 			return false;
 		}
 
+		// Through the shell, as a double-click starts it: a child started directly inherits this command's output
+		// and kept it open after fm had ended, so `fm start | …` and every caller reading its output waited for good
+		// (24 Nov 2026: the game's own log lines came out on fm's output). Its settings go by this process's
+		// environment, which a shell-started child takes on.
 		var start = new ProcessStartInfo(exe)
 		{
 			WorkingDirectory = dir,
-			UseShellExecute = false,
+			UseShellExecute = true,
 		};
 		// A windowed launch: the plugin hides that window from inside the game.
 		if (!debug)
 			foreach (var arg in new[] { "-screen-fullscreen", "0", "-screen-width", "1920", "-screen-height", "1080" }) start.ArgumentList.Add(arg);
 		if (WinSteamAppId(dir) is { } appId)
 		{
-			start.Environment["SteamAppId"] = appId;
-			start.Environment["SteamGameId"] = appId;
+			Environment.SetEnvironmentVariable("SteamAppId", appId);
+			Environment.SetEnvironmentVariable("SteamGameId", appId);
 		}
 		if (!debug)
 		{
-			start.Environment["FMCLI_HIDDEN"] = "1";
-			start.Environment["FMCLI_SECOND_COPY_NOTICE"] = L("fm is playing FM in the background, so this copy was closed. To play by hand: fm stop");
+			Environment.SetEnvironmentVariable("FMCLI_HIDDEN", "1");
+			Environment.SetEnvironmentVariable("FMCLI_SECOND_COPY_NOTICE", L("fm is playing FM in the background, so this copy was closed. To play by hand: fm stop"));
 		}
 		var firstStart = !Directory.Exists(Path.Combine(dir, "BepInEx", "interop")) || !Directory.EnumerateFiles(Path.Combine(dir, "BepInEx", "interop"), "*.dll").Any();
 		Process launch;

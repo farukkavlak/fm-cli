@@ -17,6 +17,12 @@ fi
 # BepInEx as its zip lays it out beside a game's executable: BepInEx/, dotnet/, winhttp.dll, doorstop_config.ini.
 unzip -q "$CACHE" -d "$STAGE/game"
 [ -f "$STAGE/game/winhttp.dll" ] && [ -d "$STAGE/game/BepInEx/core" ] || { echo "unexpected BepInEx layout in $CACHE"; exit 1; }
+# The plugin needs BepInEx's main-thread tick (IL2CPPChainloader.MainThreadTick), which be.755 as released does not
+# have: the core assembly is the patched build this Mac's BepInEx runs (same commit, 3fab71a; managed, AnyCPU).
+# Its patch's source is not in this repository (see docs/TASKS.md).
+PATCHED="${FM26_BEP:-$HOME/fm27_bep}/game/BepInEx/core/BepInEx.Unity.IL2CPP.dll"
+[ -f "$PATCHED" ] || { echo "missing $PATCHED (the patched BepInEx core)"; exit 1; }
+cp "$PATCHED" "$STAGE/game/BepInEx/core/BepInEx.Unity.IL2CPP.dll"
 # Only what differs from BepInEx's defaults (it writes the rest on the first start): no console window beside the
 # hidden game. The macOS settings are not copied: they are its launcher's (interop kept, console on).
 mkdir -p "$STAGE/game/BepInEx/config"
