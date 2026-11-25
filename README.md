@@ -146,7 +146,7 @@ docs/reference/      data dumped from the game
 ## Docs
 
 - [MANUAL.md](docs/MANUAL.md): illustrated manual
-- [TASKS.md](docs/TASKS.md): open work
+- [AI.md](docs/AI.md): open work, playing by sentence
 - [PORTING.md](docs/PORTING.md): how the bridge works, FM27 notes
 - [CODE-LAYOUT.md](docs/CODE-LAYOUT.md): which file holds what
 - [AI.md](docs/AI.md): sentences and the assistant

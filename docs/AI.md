@@ -1,6 +1,6 @@
 # AI
 
-Playing by sentence (`fm <sentence>`), and later an assistant.
+Playing by sentence (`fm <sentence>`) and the assistant. The one list of open work: tick a box in the commit that does it; what was done is in git.
 
 ## Rules
 
@@ -13,10 +13,17 @@ Playing by sentence (`fm <sentence>`), and later an assistant.
 
 ## Today
 
-- A router picks the tool: a fine-tuned multilingual embedding model (ONNX, 280 MB, ~5 ms), kNN vote, rules.
-- ≥80% sure: run it (ask first if it changes the game). 50–80%: offer 3. Below: offer 5.
-- Code: `cli/fm/Nl/`. Tests: `tests/nl/`. Model installed by `fm doctor --install`.
-- Local LLMs were measured on this Mac (29 Oct): all failed. Not used.
+- Router: a fine-tuned multilingual embedding model (ONNX, 280 MB, ~5 ms), kNN vote, rules (`cli/fm/Nl/`, tests `tests/nl/`).
+  - ≥80% sure: run it (ask first if it changes the game). 50–80%: offer 3. Below: offer 5.
+  - Model installed by `fm doctor --install`. Local LLMs measured on this Mac (29 Oct): all failed, not used.
+- Names held by the game's ids: our players, our club, the season's opponents, the shortlist, offers (`Nl/Assistant.Names.cs`).
+- Fuzzy names: Turkish endings, typos, a club before the name; asks when two fit (`Nl/NameFit.cs`).
+- Learns from the user: the command picked from the options or a yes, a player picked between two; `fm learned` (`Nl/Learned.cs`).
+- Smart mode: a cloud model (any OpenAI-style provider, the user's key) asked only when the router is not sure (`Nl/Cloud.cs`, `fm ai`).
+- `fm ask`: read-only assistant; each call checked again, says what it read, flags names no read holds (`Nl/Ask.cs`).
+- `fm plan`: steps proposed by the model, checked by our code, run on a yes, each read back (`Nl/Plan.cs`).
+- Notes per save, given to `ask` and `plan` as the user's word; `ask` offers one, kept only on a yes; a plan against a note names it (`Nl/Memory.cs`, `fm memory`, `fm remember`).
+- Live tests: `tests/live/round79.toml` (ask), `round80.toml` (plan), `round81.toml` (notes).
 
 ## Safety
 
@@ -32,70 +39,68 @@ Playing by sentence (`fm <sentence>`), and later an assistant.
 - A chain of commands that stops part way says what was done and what was not.
 - Bench: `tests/FmCli.Tests/SafetyTests.cs`; live: `tests/live/round68.toml` (read-only tools change nothing).
 
-## v2
+## Free play by talking
 
-Order: names first, then the learning router, then the cloud.
+Most of a season is the same loop: find players, buy, sell, set training, set the tactic, go on,
+read and answer the news, play the match, decide in it, go on. That loop in plain sentences, with
+no model and no key, is the goal. A cloud model (haiku …) stays an extra, never a need.
 
-- [ ] T204 Players, clubs, offers held by the game's own ids (`Nl/Assistant.Names.cs`)
-  - [x] Our players (youth too), our club, the next opponent
-  - [x] Every club we play this season, from our own `Team.FixtureList` (no page; a league's whole field)
-    - `Human.Team.Division.Teams` stays empty until a page binds it: not used
-  - [x] Shortlist: its players and their clubs, kept when `shortlist` reads its page (`Nl/SeenNames.cs`), per club and save
-    - The save is told by `app.LastSaveSummary.GameSummaryGameName`; another save of the club keeps its own list
-  - [x] Offers: players and clubs of `TransferActivityPlayerListAll`, read with no page (seen with 11 bids on `window-bids`, TR)
-  - [ ] Clubs as an argument: `friendly` picks from the game's own list of opponents, not the league's; left as typed
-- [x] T205 Fuzzy names: Turkish endings, typos, a club before the name; ask when two fit (`Nl/NameFit.cs`)
-  - The model sees our players as a name it was taught ("hreljaya bak" → "rinaldiye bak"); arguments keep the typed name
-- [ ] T206 The router learns from the user (`Nl/Learned.cs`, `~/.config/fm-cli/learned.json`)
-  - [x] Learns only what the user chose: a pick from the options, or a yes. Not what the router ran on its own.
-  - [x] A choice is pending until the next command; when that command is another of the offered ones, it is forgotten.
-    - Told apart by command name: `tactic` and `tactic slot` are one command here.
-  - [x] Learns sentence → tool only; arguments are read again every time.
-  - [x] A player picked between two who fit is kept by his id.
-  - [ ] Nicknames for clubs ("cimbom" → the club's id): needs other clubs' ids (T204).
-  - [ ] A choice the list did not offer (the user types the command after "none") is not learned.
-  - [x] The user's sentences count twice; the nearest of all, from 0.9 similarity, decides.
-  - [x] A weighty call still asks for a yes, however sure.
-  - [x] `fm learned`: list and delete.
-  - [x] Measured (`tools/nl-learn.py`, held): taught 0% → 100%, their noisy forms 9% → 76% top-1,
-    sure-wrong on them 35% → 5%; the rest 86.2% → 85.5% top-1.
-- [x] T207 Smart mode: router first, a cloud model when unsure (`Nl/Cloud.cs`, `fm ai`)
-  - Any OpenAI-style provider: URL, key, model, extra headers (`~/.config/fm-cli/ai.json`, only the user reads it)
-  - Asked only when the router is not sure; shown with the tools the 50 nearest examples point at (10)
-  - Agrees with the router's pick: runs; asks a yes first when it changes the game. Another pick: offered first, marked `ai`
-  - Its arguments: a name or number only when the sentence gives it; a choice only for a read; never confirm/send/sign
-  - Picks none, fails or times out (20 s): the router's list as before
-  - Measured (`tools/nl-cloud.py`, held, claude-haiku-5-5 via OpenCode Go), of the sentences the router is not sure of:
-    - base 159: 45 run without a list (42 right); the cloud's pick first in the list 34 (17 right); median 1.1 s
-    - noisy 393: 107 run without a list (91 right); first in the list 86 (45 right); median 1.3 s
-    - gpt-6-luna and qwen3.8-flash about the same; deepseek-v4.1-flash gave no usable answer
-- [ ] T208 Assistant, read-only: `fm ask <question>` (`Nl/Ask.cs`, `Nl/Chat.cs`)
-  - [x] Provider interface (`IChatModel`); OpenAI-style chat with tools, the model from `fm ai set`
-  - [x] Offered the read tools only (`Mcp.ReadTools`): Read tools, and tools that act only with some arguments, without them
-  - [x] Each call checked again before it runs (`Mcp.RunRead`): an argument not shown or a call that could act is refused
-  - [x] The commands that act are named in the prompt (not callable): asked to act, it names the command
-  - [x] Talk kept per club and save for 2 h (`~/.cache/fm-cli/ask.json`); earlier answers are not facts: figures are read again
-  - [x] Under the answer: what was read; a capitalised name no read, question or earlier turn holds is flagged
-  - [ ] Anthropic's own API (no key to test with); OpenAI-style providers only for now
-  - [x] Live: `tests/live/round79.toml` TR + EN (changes nothing, says what it read, follow-ups); `tools/ask-bench.py`
-    - haiku-5-5, TR game: 20/20 answered, 2 with a name flagged, talks 8/8, median 16.7 s
-    - Found and fixed: a yearly wage told as weekly; an earlier wrong answer taken as a fact; a player of another club
-      taken as ours (`player` now shows the club)
-- [ ] T209 Plans: `fm plan <what to do>` (`Nl/Plan.cs`)
-  - [x] The model reads, then proposes steps: one acting tool call each, with a read that checks it and what it should show
-  - [x] Each step checked by our code (`Mcp.NotAStep`): tools that act only, arguments of the schema, never `dry`
-    - Not in a plan: time (next, match, holiday), talks, saves, the session, the job, the screen by hand
-    - A plan with a fault is sent back to the model, not shown (3 tries)
-  - [x] Shown in full, run on a yes (`--yes` in a script, `--dry` only shows); a weighty step asks again, never runs without a terminal
-  - [x] Each step: its check read before and after; done only when it changed and the model says it shows the step
-    - Unchanged and shown: already so. Failed, not shown, no verdict: the rest stop, and the end says what ran, failed, was left
-  - [x] Up to 12 steps; a reply cut at its length is told so and proposed again (one player each: 10 tired players)
-  - [x] Live: `tests/live/round80.toml` TR + EN 5/5 (repeats 3/3): does it and reads it back, `--dry` and no yes change
-    nothing, a weighty step / time / talks not run, a step the game refuses told as failed
-    - Found and fixed: a plan of 10 steps cut at the reply's length; a long check read cut past the changed row
-      (the verdict now gets the changed lines first)
-  - [ ] It sometimes plans a step for what already holds (shown as "already so", harmless)
-- [ ] T210 Save memory: facts, preferences, plans; list, fix, delete
+- The game leads, not a model: at each stop the tool says what the game waits for, in the game's
+  language, and what can be answered. Stops are read by identity (events, data paths), never by text.
+- At a stop the router picks among that stop's few answers (accept, refuse, ask for more, the 2nd one),
+  not among all commands: far surer, local, ~5 ms.
+- A question at any stop ("kim yorgun", "rakip kim") is answered and the stop waits.
+- Anything weighty is shown and runs on a yes, as now.
+
+### Stops (source read 25 Nov, for T214–T215)
+
+`next` already finds every stop by identity (`Core/Clock.cs`: `Passable`, `Explain`); today it ends by naming a command.
+
+| Stop | Told by | Answers | Today |
+|---|---|---|---|
+| Free to go on, a page to look at | `State` CanContinue or a `Passable` page | go on | `next` |
+| A message only to read | NeedAction + `OnlyToRead`, `Messages`, `NextUnreadMessage` | open it | `next` |
+| A message with answers | inbox item `NewsItemIsPriority` + `CanRespond` | the message's own answers | `reply` |
+| An offer for our player | `Respond` 3 + an incoming offer that `CanAccept` | accept, reject, stall, negotiate | `offers` |
+| Our bid accepted | `Respond` 3, no incoming offer | contract talks, hand over, walk away | `reply`, `contract` |
+| Set piece wizard | `Respond` 14 + a visible `EventFmxSetPieceCreator` button | six questions' options | `setpieces new` |
+| Club vision meeting | its controls drawn (`VisionControls`) | remove, suggest, confirm, end | `vision` |
+| A conversation open | `TalkOptions` not empty | its numbered lines, leave | `talk` |
+| Guided tour | `TourOpen` | walk, skip | `tour` |
+| Press conference | `State` PressConference | attend, skip; then lines | `reply`, `talk` |
+| Match day | `State` Tactics / SubmitTeam | how (instant, play), the XI, the tactic | `match` |
+| Team news, team talk, tunnel interview | `State` TeamNews / TeamTalk / TunnelInterview | lines | `talk`, `match` |
+| In a match | `DuringMatch` | shout, sub, tweak, tactic; half-time talk | `shout`, `sub`, `tweak` |
+| A confirmation window | `/dialog` `Type` | its buttons | `dialog` |
+| No club | `Human.Team` none, `Club` null reference | jobs | `jobs` |
+| A step with a button and nothing else | NeedAction, none of the above | none yet | gap |
+
+- `Respond` is `continue.ContinueButtonMustRespondGrouping`; its kinds are native (no managed enum found by sigdump). Known: 0, 1, 3, 14.
+- Two kinds of answers:
+  - Fixed: accept, reject, go on, instant/play. A small set per stop, the same in every save: local examples per stop.
+  - The game's own lines: message answers, talk and press lines, wizard options. Picked by number or by the user's words
+    held against the lines as the game shows them; the pick is sent by its index or id, never by the text.
+- T214 shape: `Explain` gives a stop (kind, its id, subject, answers) instead of only a line of text; the session shows it
+  and takes the next sentence as an answer to it first, a command or question second.
+
+Order (before T211–T213). New work is added in this file, by id.
+
+- [ ] T214 The talking loop: `fm` session, "maça kadar ilerle" goes on and stops at each thing to answer, told plainly
+- [ ] T215 Answers at a stop: the router held to the stop's answers (offer, message, press, talk, board, dialog)
+- [ ] T220 The options list: command and % stay; beside each a short line of what that call does with its arguments
+  ("sol bekin rolünü değiştirir"), not the command's whole description; options that differ only in arguments told apart
+  - [ ] Enter takes the first; "none" asks what was meant, and the command typed after it is learned (open in T206)
+- [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell
+- [ ] T217 The week by talking: training, intensity, the tactic and roles, who plays
+- [ ] T218 Match day by talking: the XI and tactic asked, the match played, shouts, subs and tweaks in it, half time and the end told
+- [ ] T219 Measured: a month of a season played by sentences only, TR + EN; every stuck place a tool bug
+
+## Open
+
+- [ ] T204 Clubs as an argument: `friendly` picks from the game's own list of opponents, not the league's
+- [ ] T206 Nicknames for clubs ("cimbom" → the club's id)
+- [ ] T208 Anthropic's own API (no key to test with); OpenAI-style providers only for now
+- [ ] T209 A plan sometimes has a step for what already holds (shown as "already so", harmless)
 - [ ] T211 Transfer and tactic advice from real match data
 - [ ] T212 Personality setting
 - [ ] T213 README demo
