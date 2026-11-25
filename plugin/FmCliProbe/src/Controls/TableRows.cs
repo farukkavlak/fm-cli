@@ -332,6 +332,40 @@ internal static class TableRows
 		return found;
 	}
 
+	/// <summary>
+	/// Every table on screen, laid out or not, with what it holds: its element name, the items it has
+	/// (ItemCount), whether its data has come (SourceData), whether the game counts it resolved, and how
+	/// many rows are laid. A page put again builds a new table that is empty until its data comes: an
+	/// empty table is told from one not filled yet by these, not by waiting. Changes nothing.
+	/// </summary>
+	public static string States()
+	{
+		var tables = new List<string>();
+		foreach (var e in Buttons.Elements())
+		{
+			try
+			{
+				var table = e.TryCast<StreamedListView>();
+				if (table == null || table.panel == null) continue;
+				var laid = 0;
+				try
+				{
+					var step = table.m_boundElements?.GetEnumerator();
+					while (step != null && step.MoveNext())
+						if (step.Current.Key is { panel: not null } row && row.worldBound.width > 0) laid++;
+				}
+				catch { }
+				string Flag(System.Func<bool> read) { try { return read() ? "true" : "false"; } catch { return "null"; } }
+				tables.Add($"{{\"Table\": \"0x{table.Pointer.ToInt64():x}\", \"Name\": \"{Report.Escape(table.name ?? "")}\", " +
+				           $"\"Items\": {table.ItemCount}, \"Laid\": {laid}, \"Shown\": {Flag(() => table.worldBound.width > 0)}, " +
+				           $"\"HasSource\": {Flag(() => table.SourceData != null)}, \"Resolved\": {Flag(() => table.DependenciesResolved)}, " +
+				           $"\"Dirty\": \"{Report.Escape(table.Dirty.ToString())}\"}}");
+			}
+			catch { }
+		}
+		return "[" + string.Join(",\n ", tables) + "]\n";
+	}
+
 	internal static IEnumerable<(UnityEngine.UIElements.VisualElement Row, StreamedListView Table, int Index)> Laid()
 	{
 		var found = new List<(UnityEngine.UIElements.VisualElement, StreamedListView, int)>();

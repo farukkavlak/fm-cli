@@ -62,29 +62,8 @@ internal static partial class Program
 			Ui.Hint(L($"Other lists: {string.Join(" · ", shownLists.Where(l => !l.Active).Select(l => $"{l.Name} ({l.Count})"))}   ·   to see one: shortlist --list \"<name>\""));
 		}
 
-		// The list is the table laid out on the Shortlists page (its own Page); its rows' items are
-		// the players. A list left open underneath (the squad) is someone else's. Read once two
-		// readings agree; an empty shortlist has no rows to agree on.
-		List<JsonElement> players = [];
-		var last = "";
-		await Until(async () =>
-		{
-			var tables = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
-				.Where(b => Field(b, "Type") == "StreamedTable" && Field(b, "Page") == Screen.Shortlists).Select(b => Field(b, "Pointer")).ToHashSet();
-			var rows = (await Fm.GetJson("rowtexts", ("has", "primarytext"), ("gen", Environment.TickCount64.ToString()))).EnumerateArray()
-				.Where(r => tables.Contains(Field(r, "Table"))).ToList();
-			// The value is as the human sees it: a `human` beside the rows (/contexts names it).
-			if (rows.Count > 0)
-			{
-				var under = Field(rows[0], "Item")[..Field(rows[0], "Item").LastIndexOf('.')];
-				await Fm.Get("pathset", ("to", $"{under}.human"), ("from", "Human"));
-			}
-			players = await PullEach(rows.Select(r => (Field(r, "Item"), "Name,UniqueId,Age,PositionCombinedString,Club.Name,Club.UniqueId,TransferValueRange.TransferValueRangeString,Nation.ThreeLetterName")).ToList());
-			var now = string.Join("|", players.Select(p => Field(p, "Name")));
-			var settled = tables.Count > 0 && now == last;
-			last = now;
-			return settled;
-		}, seconds: 10, every: 0.5);
+		var (players, read) = await ShortlistPlayers();
+		if (!read) return Report(L("error: the shortlist's table did not finish loading; try again: shortlist"));
 		players = players.Where(p => Field(p, "Name").Length > 0).ToList();
 		// kept for the sentences after: the shortlist is not read without its page
 		await KeepShortlistNames(players);
@@ -105,6 +84,48 @@ internal static partial class Program
 		Table.Write([L("PLAYER"), L("POSITION"), L("AGE"), L("CLUB"), L("VALUE"), L("NATION")],
 			players.Select(p => new[] { Field(p, "Name"), Field(p, "PositionCombinedString"), Field(p, "Age"), Field(p, "Club.Name"), Field(p, "TransferValueRange.TransferValueRangeString"), Field(p, "Nation.ThreeLetterName") }).ToList());
 		return 0;
+	}
+
+	/// <summary>
+	/// The players of the list shown, each an item of the table on the Shortlists page (its own Page): a table left
+	/// open underneath (the squad) is someone else's. The page is put again when it opens, and its new table is
+	/// empty until its data comes, so the table is read only once the game has it ready (its data come, resolved,
+	/// shown, nothing left to rebuild): then its item count is the list's size, and an empty list is told from one
+	/// not filled yet (24 Nov 2026: "empty" read right after a player was added). Every item is read, not only
+	/// the rows laid out: a long list lays out a few. False when the table never came ready.
+	/// </summary>
+	private static async Task<(List<JsonElement> Players, bool Read)> ShortlistPlayers()
+	{
+		List<JsonElement> players = [];
+		var last = "?";
+		var read = await Until(async () =>
+		{
+			var ours = (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
+				.Where(b => Field(b, "Type") == "StreamedTable" && Field(b, "Page") == Screen.Shortlists).Select(b => Field(b, "Pointer")).ToHashSet();
+			var tables = (await Fm.GetJson("tables")).EnumerateArray().Where(t => ours.Contains(Field(t, "Table"))).ToList();
+			static bool Yes(JsonElement t, string name) => t.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.True;
+			static bool Ready(JsonElement t) => Yes(t, "HasSource") && Yes(t, "Resolved") && Yes(t, "Shown") && Field(t, "Dirty") == "None";
+			if (tables.Count == 0 || !tables.All(Ready)) return false;
+			var size = tables.Sum(t => int.TryParse(JsonRead.RawText(t, "Items"), out var n) ? n : 0);
+			List<string> items = [];
+			if (size > 0)
+			{
+				var gen = Environment.TickCount64.ToString();
+				items = (await Fm.GetJson("checkrows", ("gen", gen))).EnumerateArray()
+					.Where(t => ours.Contains(Field(t, "Table"))).SelectMany(t => t.GetProperty("Items").EnumerateArray().Select(i => i.GetString() ?? "")).ToList();
+				if (items.Count != size || items.Any(i => i.Length == 0)) return false;
+				// The value is as the human sees it: a `human` beside the items (/contexts names it).
+				foreach (var under in items.Select(i => i[..i.LastIndexOf('.')]).Distinct())
+					await Fm.Get("pathset", ("to", $"{under}.human"), ("from", "Human"));
+			}
+			players = await PullEach(items.Select(i => (i, "Name,UniqueId,Age,PositionCombinedString,Club.Name,Club.UniqueId,TransferValueRange.TransferValueRangeString,Nation.ThreeLetterName")).ToList());
+			// Two readings that agree: the table holds still.
+			var now = $"{size}:" + string.Join("|", players.Select(p => Field(p, "UniqueId")));
+			var settled = now == last;
+			last = now;
+			return settled;
+		}, seconds: 10, every: 0.25);
+		return (players, read);
 	}
 
 	/// <summary>The page's shortlist selector, by the data it writes (human.humanselectedshortlist).</summary>

@@ -111,6 +111,7 @@ internal static partial class FmApi
 		"rowremove" => TableRows.Remove(q),
 		"rowselect" => TableRows.Select(q),
 		"checkrows" => TableRows.Checkable(q),
+		"tables" => TableRows.States(),
 		"rowtexts" => TableRows.Shown(q),
 		"rowlinks" => TableRows.Links(q),
 		"actions" => ContextMenus.Handle(q),

@@ -3139,3 +3139,4 @@ key	anahtar
 set	var
 Sentences the router is not sure of are sent there. ai test · ai off	Yönlendiricinin emin olmadığı cümleler oraya gönderilir. ai test · ai off
 ai              smart mode: a cloud model asked when a sentence is not clear;  ai set <url> <model> --key <key> · ai test · ai off	ai              akıllı mod: cümle net değilse bir bulut modeline sorulur;  ai set <adres> <model> --key <anahtar> · ai test · ai off
+error: the shortlist's table did not finish loading; try again: shortlist	error: kısa listenin tablosu yüklenmeyi bitirmedi; yeniden dene: shortlist
