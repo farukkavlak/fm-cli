@@ -23,6 +23,11 @@ internal static partial class Program
 
 	internal static void ForgetList() => lastList = null;
 
+	internal static bool HasList => lastList != null;
+
+	/// <summary>The list shown last is a stop's answers.</summary>
+	internal static bool ListIsStop => lastList?.From == L("answers");
+
 	/// <summary>The command a number alone stands for, having said which list it came from; null having said why not.</summary>
 	internal static string[]? Picked(int number)
 	{

@@ -187,7 +187,7 @@ internal static partial class Program
 		return int.TryParse(answer, out var n) && n >= 1 && n <= options.Count ? options[n - 1].Call : null;
 	}
 
-	private static string Dim(string text) => Ui.Rich ? $"\u001b[2m{text}\u001b[0m" : text;
+	internal static string Dim(string text) => Ui.Rich ? $"\u001b[2m{text}\u001b[0m" : text;
 
 	private static string Short(string text) => text.Length <= 60 ? text : text[..57] + "…";
 

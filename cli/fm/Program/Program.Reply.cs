@@ -81,6 +81,7 @@ internal static partial class Program
 		if (message == null && !byNumber)
 		{
 			if (many.Count > 0) SayMany(manyIn, many, words[0]);
+			else if (words[0].StartsWith("id:", StringComparison.Ordinal)) Console.Error.WriteLine(L("That message is no longer in the inbox. For the current messages: inbox"));
 			else Console.Error.WriteLine(L($"No message has '{words[0]}' in its subject."));
 		}
 		if (message is not { } chosen) return 1;

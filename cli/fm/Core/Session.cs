@@ -18,6 +18,16 @@ internal static class Session
 		}
 		await Program.NewsBaseline();
 		await Program.NoteSave(loaded: false);
+		// Where `next` stops is shown here as a thing to answer, with numbered answers.
+		Program.SessionShowsStops = true;
+		Program.HeldStop? shownStop = null;
+		// The commands a line ran, a sentence's included: told against the stop's answers.
+		var ran = new List<string[]>();
+		async Task<int> Run(string[] w)
+		{
+			ran.Add(w);
+			return await execute(w);
+		}
 
 		// Ctrl-C ends the command, not the session: at the prompt it starts a new line, and the game is left
 		// to go on with what it was doing (a holiday ends only by the game's own way).
@@ -29,13 +39,17 @@ internal static class Session
 			if (busy) running.Cancel();
 			else Console.Write($"\n{Prompt()}");
 		};
-		async Task Interruptible(Func<Task> command)
+		async Task<int> Interruptible(Func<Task<int>> command)
 		{
 			running = new CancellationTokenSource();
 			Bridge.Interruption = running.Token;
 			busy = true;
-			try { await command(); }
-			catch (Interrupted) { Console.WriteLine(L("\nStopped. What the game was doing goes on: status")); }
+			try { return await command(); }
+			catch (Interrupted)
+			{
+				Console.WriteLine(L("\nStopped. What the game was doing goes on: status"));
+				return 130;
+			}
 			finally
 			{
 				busy = false;
@@ -71,24 +85,68 @@ internal static class Session
 			else if (words.Length > 1 && words[^1] == "?") words = [.. words[..^1], "--help"];
 
 			// A number alone: a row of the list shown last. Anything else forgets that list.
+			var answering = false;
 			if (words is [var alone] && int.TryParse(alone, out var number) && number > 0)
 			{
+				answering = Program.ListIsStop;
 				if (Program.Picked(number) is not { } picked) continue;
 				words = picked;
 			}
 			else Program.ForgetList();
 
+			// At a stop with somewhere to go, going on from it goes there.
+			var standing = Program.StopNow;
+			if (standing != null && Program.GoalNow is { } goal && words is ["next"] or ["next", "--skip"])
+				words = [.. words, "--until", goal];
+
 			Program.ForgetNames();
+			ran.Clear();
 			if (!Program.IsSentence(words)) Nl.Learned.Next(Program.QuietCommand(words[0]));
-			await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), execute) : execute(words));
+			var code = await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), Run) : Run(words));
 			// A save loaded or the game closed is another starting point, not news.
 			if (Program.QuietCommand(words[0]) is "load" or "continue" or "start" or "stop")
 			{
+				Program.ForgetStop();
+				Program.GoalNow = null;
+				shownStop = null;
 				await Program.NewsBaseline();
 				await Program.NoteSave(loaded: Program.QuietCommand(words[0]) is not "stop");
 				continue;
 			}
 			if (!Console.IsOutputRedirected) await Program.SayNews(again: Program.QuietCommand(words[0]) is "reply" or "talk" or "dialog" or "offers" or "contract" or "meeting" or "press");
+
+			// The stop answered: forgotten, and the way on taken again to where it was going (match day is
+			// where it was going, so answering that one ends it).
+			var wentOn = ran.Any(w => Program.QuietCommand(w[0]) == "next");
+			if (standing != null && ReferenceEquals(Program.StopNow, standing) && code == 0
+			    && (answering || ran.Any(w => Program.Answers(standing, w))))
+			{
+				Program.ForgetStop();
+				shownStop = null;
+				if (standing.Kind == "match") Program.GoalNow = null;
+				else if (Program.GoalNow is { } on && !wentOn)
+				{
+					string[] onward = ["next", "--until", on];
+					Console.WriteLine(Program.Dim($"→ {string.Join(' ', onward)}"));
+					ran.Clear();
+					await Interruptible(() => Run(onward));
+					if (!Console.IsOutputRedirected) await Program.SayNews();
+				}
+			}
+
+			// A stop come to is shown once, with its answers; one still standing after a question keeps its
+			// answers for a number alone, unless the question showed a list of its own.
+			if (Program.StopNow is { } stop)
+			{
+				if (!ReferenceEquals(stop, shownStop))
+				{
+					Program.ShowStop(stop);
+					shownStop = stop;
+				}
+				else if (!Program.HasList) Program.PickStop(stop);
+			}
+			else shownStop = null;
+
 			// A save, or an autosave on the way: the prompt's reminder counts from it.
 			await Program.NoteSave(loaded: false);
 		}

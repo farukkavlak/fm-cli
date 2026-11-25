@@ -1,0 +1,80 @@
+# T214: the talking loop. `next --json` names the stop by kind (an id of the CLI's, the same in every
+# language) with its answers as commands; the session shows it, takes a number or a command as its answer,
+# and goes on to where it was told to go. Session output is not compared: the reads after it say what it did.
+
+[[test]]
+task = "T214"
+name = "go on until the match: stops at the first thing to answer, with its answers"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { session = ["maça kadar ilerle"], seconds = 900 },
+  { read = "next", path = "Stop.Kind", not = "other", live = true },
+  { read = "next", path = "Stop.Answers.#", not = 0, live = true },
+  { read = "next", path = "Moved", is = false, live = true },
+]
+
+[[test]]
+task = "T214"
+name = "match day is a stop that takes play or the result"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { session = ["maça kadar ilerle"], seconds = 900 },
+  { read = "next", path = "Stop.Kind", is = "match", live = true },
+  { read = "next", path = "Stop.Answers.1.Command", is = "match --instant", live = true },
+]
+
+[[test]]
+task = "T214"
+name = "a question at the stop is answered and the stop waits"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "match", live = true },
+  { read = "status", path = "State", keep = "flow" },
+  { session = ["rakip kim", "kim sakat", "opponent", "table"] },
+  { read = "status", path = "State", same_as = "flow" },
+  { read = "next", path = "Stop.Kind", is = "match", live = true },
+]
+
+[[test]]
+task = "T214"
+name = "a message stop names the message by its id"
+at = "cup-draw"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Answers.0.Command", keep = "open", live = true },
+  { read = "next", path = "Stop.Kind", is = "message", live = true },
+  { run = "{open}" },
+  { run = "reply id:0", rc = "fail" },
+]
+
+[[test]]
+task = "T214"
+name = "the press invitation waits as a message stop, opened by its id"
+at = "press"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "message", live = true },
+  { read = "next", path = "Stop.Answers.#", is = 1, live = true },
+  { read = "next", path = "Stop.Answers.0.Command", keep = "open", live = true },
+  { run = "{open}" },
+]
+
+[[test]]
+task = "T214"
+name = "the vision meeting's messages wait as one stop, each an answer"
+at = "vision-meeting"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "message", live = true },
+  { read = "next", path = "Stop.Answers.#", is = 3, live = true },
+  { read = "next", path = "Moved", is = false, live = true },
+]

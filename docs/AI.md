@@ -85,7 +85,6 @@ no model and no key, is the goal. A cloud model (haiku …) stays an extra, neve
 
 Order (before T211–T213). New work is added in this file, by id.
 
-- [ ] T214 The talking loop: `fm` session, "maça kadar ilerle" goes on and stops at each thing to answer, told plainly
 - [ ] T215 Answers at a stop: the router held to the stop's answers (offer, message, press, talk, board, dialog)
 - [ ] T220 The options list: command and % stay; beside each a short line of what that call does with its arguments
   ("sol bekin rolünü değiştirir"), not the command's whole description; options that differ only in arguments told apart

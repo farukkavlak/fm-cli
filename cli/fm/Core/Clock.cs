@@ -26,7 +26,40 @@ internal static partial class Program
 			return 69;
 		}
 
-		return await NextSteps(args);
+		if (!args.Contains("--json")) return await NextSteps(args);
+
+		// --json: what was said, as lines, and where it stopped, as a stop with its answers' commands.
+		var said = new StringWriter();
+		var shown = Console.Out;
+		var shows = SessionShowsStops;
+		Console.SetOut(said);
+		int code;
+		try
+		{
+			SessionShowsStops = true;
+			code = await NextSteps(args);
+		}
+		finally
+		{
+			Console.SetOut(shown);
+			SessionShowsStops = shows;
+		}
+		var stop = StopNow;
+		Console.WriteLine(JsonOut.Of(new
+		{
+			Moved = code == 0,
+			Said = said.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+			Stop = stop == null ? null : new
+			{
+				stop.Kind,
+				stop.About,
+				Answers = stop.Answers.Select(a => new { a.Label, Command = string.Join(' ', a.Command.Select(w => w.Contains(' ') ? $"\"{w}\"" : w)) }),
+				Told = stop.Told.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+				stop.Notes,
+			},
+		}));
+		// Not moved is said in the JSON (a stop); only a failure is an exit code.
+		return code == 1 ? 0 : code;
 	}
 
 	private const int UntilSteps = 60;
@@ -44,6 +77,8 @@ internal static partial class Program
 			return 64;
 		}
 		if (times == 0) times = until != null ? UntilSteps : 1;
+		ForgetStop();
+		GoalNow = until;
 
 		var shown = false;
 		var reads = 0;
@@ -69,7 +104,8 @@ internal static partial class Program
 			// inbox from inside the match would mean opening the portal over it.
 			if (Field(state, "DuringMatch") == "True" || Field(state, "State") is "Tactics" or "SubmitTeam")
 			{
-				(taken == 0 ? Console.Error : Console.Out).WriteLine(L("Match day. To play: match"));
+				HaltMatchDay();
+				if (!SessionShowsStops) (taken == 0 ? Console.Error : Console.Out).WriteLine(L("Match day. To play: match"));
 				return taken == 0 ? 1 : 0;
 			}
 
@@ -123,6 +159,8 @@ internal static partial class Program
 			// walk past it. It is said once and the step left to him, unless told to skip it.
 			if (taken == 0 && !args.Contains("--skip") && await OpenQuestion() is { } asked)
 			{
+				Halt("question", [asked], (L("answer it"), ["talk"]), (L("go on without answering"), ["next", "--skip"]));
+				if (SessionShowsStops) return 1;
 				Console.Error.WriteLine(L($"There is an open question{(asked.Length > 0 ? $": \"{asked}\"" : "")}"));
 				Ui.Hint(L("To answer: talk   ·   to go on without answering: next --skip"), Console.Error);
 				return 1;
@@ -213,15 +251,23 @@ internal static partial class Program
 			// record of the one last opened.
 			if (waiting.Count == 0 && await LastOpenedMessage() is { } open && Blocking(open))
 			{
-				Console.WriteLine(L("Waiting for an answer, the message open on screen:"));
-				Console.WriteLine($"  {GameWords.Of(Field(open, "NewsTitleString"))}");
-				Console.WriteLine(L($"To answer: reply \"{Field(open, "NewsTitleString")}\""));
+				HaltOnMessages("message", [open]);
+				if (!SessionShowsStops)
+				{
+					Console.WriteLine(L("Waiting for an answer, the message open on screen:"));
+					Console.WriteLine($"  {GameWords.Of(Field(open, "NewsTitleString"))}");
+					Console.WriteLine(L($"To answer: reply \"{Field(open, "NewsTitleString")}\""));
+				}
 			}
 			if (waiting.Count > 0)
 			{
-				Console.WriteLine(L("Waiting for an answer, listed under the inbox's Tasks filter:"));
-				foreach (var m in waiting) Console.WriteLine($"  {GameWords.Of(Field(m, "NewsTitleString"))}");
-				Console.WriteLine(L("To answer: inbox --tasks, then reply <#>"));
+				HaltOnMessages("message", waiting);
+				if (!SessionShowsStops)
+				{
+					Console.WriteLine(L("Waiting for an answer, listed under the inbox's Tasks filter:"));
+					foreach (var m in waiting) Console.WriteLine($"  {GameWords.Of(Field(m, "NewsTitleString"))}");
+					Console.WriteLine(L("To answer: inbox --tasks, then reply <#>"));
+				}
 			}
 		}
 		// Nothing moved: the game holds the day for something (a message asked again), and a script or the
@@ -421,6 +467,20 @@ internal static partial class Program
 	/// <summary>Why the game will not continue, in the terms of what to do about it.</summary>
 	private static async Task Explain(JsonElement state, TextWriter output, string? flow = null)
 	{
+		// What is said is kept with the stop; the session shows the stop in its own way, as answers.
+		var told = new StringWriter();
+		StopNow = null;
+		try { await Explained(state, told, flow); }
+		finally
+		{
+			StopNow ??= new HeldStop("other", [], []);
+			StopNow.Told = told.ToString();
+			if (!SessionShowsStops) output.Write(StopNow.Told);
+		}
+	}
+
+	private static async Task Explained(JsonElement state, TextWriter output, string? flow)
+	{
 		flow ??= Field(state, "State");
 		var button = Field(state, "Button");
 		// The state is read apart from any request, so the button's words come without the game's own;
@@ -440,6 +500,16 @@ internal static partial class Program
 					List<WaitingOffer> waiting = [];
 					try { waiting = await WaitingOffers(); }
 					catch (FmError) { }
+					// Each answer goes by the offer's place in the game's own list, read again when it runs.
+					var answers = waiting.Select((o, i) => (o, n: (i + 1).ToString())).Where(x => x.o.Incoming && x.o.CanAccept)
+						.SelectMany(x => new[]
+						{
+							(L($"see the offer: {x.o.Club} → {x.o.Player} ({x.o.Fee})"), new[] { "offers", x.n, "view" }),
+							(L($"accept it: {x.o.Club} → {x.o.Player}"), new[] { "offers", x.n, "accept" }),
+							(L($"reject it: {x.o.Club} → {x.o.Player}"), new[] { "offers", x.n, "reject" }),
+						}).ToArray();
+					if (answers.Length > 0) Halt("offer", null, answers);
+					else Halt("bid");
 					output.WriteLine(waiting.Any(o => o.Incoming && o.CanAccept)
 						? L("Transfer offer waiting: offers   ·   reject: offers <#> reject --yes   (stall does not close this step)")
 						: L("A bid of ours was accepted: its message waits for what to do next (contract talks, hand over, walk away)."));
@@ -451,6 +521,7 @@ internal static partial class Program
 				if (Field(state, "Respond") == "14" && (await Fm.GetJson("buttons", ("json", "1"))).EnumerateArray()
 					    .Any(b => Field(b, "Events").Contains("EventFmxSetPieceCreator", StringComparison.Ordinal) && Field(b, "Visible") == "True"))
 				{
+					Halt("setpieces", null, (L("answer its questions"), ["setpieces", "new"]));
 					output.WriteLine(L("The set piece wizard is open. To answer it: setpieces new   (the game's choices: setpieces new, then Enter at each question)"));
 					return;
 				}
@@ -459,12 +530,14 @@ internal static partial class Program
 				// only waits out every read (3 minutes, 6 Nov).
 				if (await VisionControls() != null)
 				{
+					Halt("vision", null, (L("see the objectives and bargain"), ["vision"]), (L("finish the meeting"), ["vision", "end"]));
 					Ui.Hint(L("The club vision meeting is open. Objectives and bargaining: vision   ·   to finish: vision end"), output);
 					return;
 				}
 				// A conversation an answer opened holds its message until it ends; the message is not the step.
 				if ((await TalkOptions()).Count > 0)
 				{
+					Halt("talk", null, (L("go on with the conversation"), ["talk"]));
 					output.WriteLine(L("A conversation is open; the message closes when it is over. To go on: talk"));
 					return;
 				}
@@ -482,6 +555,8 @@ internal static partial class Program
 				{
 					// Say what each waiting message needs: a notice only has to be opened, a question
 					// has answers; a transfer offer is cleared by accept or reject, not by stall.
+					// A bid of ours accepted is answered in its message: the stop keeps that kind.
+					HaltOnMessages("message", blocking);
 					foreach (var m in blocking)
 						output.WriteLine($"  {GameWords.Of(Field(m, "NewsTitleString"))}");
 					var one = blocking.Count == 1 ? Field(blocking[0], "NewsTitleString") : "";
@@ -495,15 +570,15 @@ internal static partial class Program
 					// A message answered once that the game opens again: after a teammate asked to talk a
 					// player round fails, the player's message offers its choices anew but stays marked
 					// as answered.
-					var again = (await Bound("inbox", "PortalScreen")).EnumerateArray()
-						.Where(m => Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True")
-						.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
+					static bool AskedAgain(JsonElement m) =>
+						Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True" && Field(m, "NewsTitleString").Length > 0;
+					var againMessages = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(AskedAgain).Select(m => m.Clone()).ToList();
 					// Like the blocking messages above, it may be below the first window.
-					if (again.Count == 0)
-						again = (all ?? await AllInbox()).Where(m => Field(m, "NewsItemIsPriority") == "True" && Field(m, "CanRespond") == "True")
-							.Select(m => Field(m, "NewsTitleString")).Where(t => t is { Length: > 0 }).ToList();
+					if (againMessages.Count == 0) againMessages = (all ?? await AllInbox()).Where(AskedAgain).ToList();
+					var again = againMessages.Select(m => Field(m, "NewsTitleString")).ToList();
 					if (again.Count > 0)
 					{
+						HaltOnMessages("again", againMessages);
 						output.WriteLine(L("The game may be waiting for a message to be answered again:"));
 						foreach (var title in again) output.WriteLine($"  {title}");
 						output.WriteLine(again.Count == 1 && !again[0].Contains('"')
@@ -516,17 +591,20 @@ internal static partial class Program
 					// 2026); the button's words are another language's in another game.
 					if (Field(state, "Respond") == "3")
 					{
+						if (StopNow is not { Kind: "offer", Answers.Count: > 0 }) Halt("offer", null, (L("see the offers"), ["offers"]));
 						Ui.Hint(L("An offer for one of our players awaits an answer. To see it: offers   ·   to answer: offers <#> view | accept | stall | reject"), output);
 						return;
 					}
 					if (await OnlyToRead(state, (await Bound("inbox", "PortalScreen")).EnumerateArray().ToList()))
 					{
+						Halt("read", null, (L("open it"), ["next"]));
 						output.WriteLine(L("The game is waiting for a message to be read; next opens it."));
 						return;
 					}
 					// Something to do that no message holds: a deal to go on with, a screen to finish.
 					// Not a button to press blind: Continue with "Negotiate Contract" showing moved
 					// time on and the deal was withdrawn.
+					Halt("other", [button]);
 					output.WriteLine(button is { Length: > 0 }
 						? L($"The game is waiting on a step: \"{button}\". It may be a message whose answer was left half-way (inbox, then reply <#>) or a pending offer (offers); otherwise this step cannot be done by command yet, and `next` may skip it (e.g. withdraw the transfer).")
 						: L("The game is waiting on a step but does not say what. For what is on screen: buttons"));
@@ -538,7 +616,10 @@ internal static partial class Program
 				// One message waiting: name it by its subject, which `reply` takes as well as a number
 				// and which does not go stale the way the numbers of the last `inbox` do.
 				var only = blocking.Count == 1 ? Field(blocking[0], "NewsTitleString") : null;
-				output.WriteLine(await TourOpen()
+				var touring = await TourOpen();
+				if (touring) Halt("tour", null, (L("walk through it"), ["tour"]));
+				else HaltOnMessages("message", blocking);
+				output.WriteLine(touring
 					? L("A guided tour is open; to run it: tour")
 					: only is { Length: > 0 } && !only.Contains('"')
 						? L($"To answer: reply \"{GameWords.Of(only)}\"")
@@ -550,23 +631,31 @@ internal static partial class Program
 				var press = (await Bound("inbox", "PortalScreen")).EnumerateArray().Where(Blocking).ToList();
 				if (press.Count == 0) press = (await FreshInbox()).EnumerateArray().Where(Blocking).ToList();
 				var pressTitle = press.Count == 1 ? Field(press[0], "NewsTitleString") : "";
+				HaltOnMessages("press", press);
 				output.WriteLine(pressTitle.Length > 0 && !pressTitle.Contains('"')
 					? L($"The game is waiting for a press conference: {pressTitle}\nTo attend or skip it: reply \"{pressTitle}\"")
 					: L("The game is waiting for a press conference. To attend or skip it, answer the press message: inbox, reply <#>"));
 				break;
 			case "Tactics" or "SubmitTeam":
+				HaltMatchDay();
 				output.WriteLine(L("Match day. To play: match"));
-				if (await InjuryNote() is { } note) output.WriteLine(note);
+				if (await InjuryNote() is { } note)
+				{
+					output.WriteLine(note);
+					StopNow!.Notes.Add(note);
+				}
 				break;
-			case "TeamNews": output.WriteLine(L("The game is waiting for the pre-match team news.")); break;
-			case "TeamTalk": output.WriteLine(L("The game is waiting for a team talk.")); break;
-			case "TunnelInterview": output.WriteLine(L("The game is waiting for a tunnel interview.")); break;
-			case "Match": output.WriteLine(L("There is a match.")); break;
-			case "Processing" or "Saving" or "Waiting": output.WriteLine(L("The game is busy (processing or saving).")); break;
-			case "OnHoliday": output.WriteLine(L("The manager is on holiday.")); break;
+			case "TeamNews": Halt("teamnews", null, (L("go on to the match"), ["match"])); output.WriteLine(L("The game is waiting for the pre-match team news.")); break;
+			case "TeamTalk": Halt("teamtalk", null, (L("go on to the match"), ["match"])); output.WriteLine(L("The game is waiting for a team talk.")); break;
+			case "TunnelInterview": Halt("tunnel", null, (L("go on to the match"), ["match"])); output.WriteLine(L("The game is waiting for a tunnel interview.")); break;
+			case "Match": HaltMatchDay(); output.WriteLine(L("There is a match.")); break;
+			case "Processing" or "Saving" or "Waiting": Halt("busy"); output.WriteLine(L("The game is busy (processing or saving).")); break;
+			case "OnHoliday": Halt("holiday"); output.WriteLine(L("The manager is on holiday.")); break;
 			// A message opened from the inbox holds Continue at "next unread message"; a guided tour opened by one keeps it
 			// there until the tour ends (a new club's tactics briefing, T131).
 			case "NextUnreadMessage":
+				if (await TourOpen()) Halt("tour", null, (L("walk through it"), ["tour"]));
+				else Halt("read", null, (L("open it"), ["next"]));
 				output.WriteLine(await TourOpen() ? L("A guided tour is open; to run it: tour") : L("The game is waiting for a message to be read; next opens it."));
 				break;
 			default: output.WriteLine(L($"The game does not move on: {flow}")); break;
@@ -574,4 +663,8 @@ internal static partial class Program
 
 		if (!string.IsNullOrEmpty(button) && button is not ("Continue" or "Response Required")) output.WriteLine(L($"Continue button: {GameWords.Of(button)}"));
 	}
+
+	/// <summary>Match day as a stop: played as the game plays it, or straight to the result.</summary>
+	private static void HaltMatchDay() =>
+		Halt("match", null, (L("play the match"), ["match", "--play"]), (L("straight to the result"), ["match", "--instant"]));
 }

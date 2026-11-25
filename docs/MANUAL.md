@@ -55,6 +55,17 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - A read asked again while the game's clock stands still (`squad`, `player`, `table`, `health` …) is answered from the last time, in the session and over MCP: `squad` 6 s, then 0.3 s. Any command that may change the game forgets them; `--fresh` reads again.
 - ctrl-C drops the line (or stops a running command, not the session); ctrl-A/E, ctrl-W, ctrl-U/K and alt-arrows edit as in a shell.
 
+### Stops
+
+- Where `next` stops, the session says what waits and its answers, numbered: an offer (see, accept, reject), a message, the press, a talk, the vision meeting, the set piece wizard, match day (play, or straight to the result).
+- A number answers. So does typing the command (`offers 1 reject`) or a sentence.
+- A question in between (`rakip kim`, `kim sakat`) is answered and the stop waits; its answers stay on the numbers, unless the question showed a list of its own.
+- After `next --until match` (`maça kadar ilerle`) an answered stop goes on to the match by itself; match day ends it.
+- Anything weighty (accept, reject, sell) still asks for a yes.
+- `next --json` gives the stop too: `Stop.Kind`, `Stop.About`, `Stop.Answers[].Command`.
+
+![a stop in the session](manual/img/start/stop.png)
+
 ### Asking in a sentence
 
 - Turkish or English: `önümüzdeki maç ne zaman`, `rinaldiyi sat`, `who is injured`.

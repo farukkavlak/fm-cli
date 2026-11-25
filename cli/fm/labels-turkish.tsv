@@ -3196,3 +3196,39 @@ To forget note #{0}: memory delete {1}	#{0} numaralı notu unutmak için: memory
 To keep it: remember {0}	Not almak için: remember {0}
 memory          notes kept for this save, given to ask and plan;  memory add <note> · fix <number> <note> · delete <number>|all	memory          bu kayıt için alınan notlar, ask ve plan bunları bilir;  memory add <not> · fix <numara> <not> · delete <numara>|all
 remember        keep a note for this save: remember <note>  (--plan, --rule, --about: its kind)	remember        bu kayıt için not al: remember <not>  (--plan, --rule, --about: türü)
+An offer for one of our players	Oyuncularımızdan birine teklif var
+A bid of ours was accepted	Teklifimiz kabul edildi
+The set piece wizard	Duran top sihirbazı
+The club vision meeting	Kulüp vizyonu toplantısı
+A conversation is open	Bir konuşma açık
+A guided tour	Rehberli tur
+A message waits for an answer	Bir mesaj cevap bekliyor
+A message may want answering again	Bir mesaj yeniden cevap bekliyor olabilir
+A message to read	Okunacak bir mesaj
+A press conference	Basın toplantısı
+Team news before the match	Maç öncesi takım haberleri
+A team talk	Takım konuşması
+A tunnel interview	Tünel röportajı
+An open question	Açık bir soru
+The game is busy	Oyun meşgul
+On holiday	Tatilde
+The game is waiting	Oyun bekliyor
+To answer: 1   ·   a question is answered and the stop waits	Cevap: 1   ·   soru sorarsan cevaplanır, durak bekler
+To answer: 1–{0}   ·   a question is answered and the stop waits	Cevap: 1–{0}   ·   soru sorarsan cevaplanır, durak bekler
+answers	cevaplar
+That message is no longer in the inbox. For the current messages: inbox	O mesaj artık gelen kutusunda yok. Güncel mesajlar: inbox
+see the offer: {0} → {1} ({2})	teklife bak: {0} → {1} ({2})
+accept it: {0} → {1}	kabul et: {0} → {1}
+reject it: {0} → {1}	reddet: {0} → {1}
+answer its questions	sorularını cevapla
+see the objectives and bargain	hedeflere bak, pazarlık et
+finish the meeting	toplantıyı bitir
+go on with the conversation	konuşmaya devam et
+see the offers	tekliflere bak
+open it	aç
+walk through it	turu gez
+go on to the match	maça geç
+play the match	maçı oyna
+straight to the result	doğrudan sonuç
+answer it	cevapla
+go on without answering	cevaplamadan devam et

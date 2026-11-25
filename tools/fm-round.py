@@ -46,6 +46,8 @@ Steps:
   A match beside the steps that stops is answered and played on: a question by its primary button, a hurt man of
   ours for a substitute, then the step's `again`. A game that dies in a try is started again and the try counted
   as without the moment (T92), not as a failure.
+  session = ["<line>", …]  lines typed into an `fm` session, one after another, then quit; rc as for run.
+                           What it prints is not compared: the reads after it say what it did
   {name} in a command      the value kept under that name
 
 A hunt list (tests/live/hunt*.toml): scenarios taken in turn while a moment they serve is short of its quota;
@@ -160,6 +162,21 @@ def fm(command, timeout=COMMAND_LIMIT):
         LOG.flush()
     if result[0] == FATAL:
         raise Fatal(f"fm {command}: {result[2].strip()[:200]}")
+    return result
+
+
+def session(lines, timeout=COMMAND_LIMIT):
+    """Lines typed into an `fm` session, then quit. Its answer is logged like a command's."""
+    start = time.time()
+    typed = "\n".join([*lines, "quit"]) + "\n"
+    try:
+        done = subprocess.run(["fm"], input=typed, capture_output=True, text=True, timeout=timeout)
+        result = done.returncode, done.stdout, done.stderr, time.time() - start
+    except subprocess.TimeoutExpired:
+        result = 124, "", f"no answer in {timeout} s", time.time() - start
+    if LOG:
+        LOG.write(f"{datetime.datetime.now():%H:%M:%S} fm session {lines!r} rc={result[0]} {result[3]:.1f}s\n{result[1][:12000]}{result[2][:500]}\n")
+        LOG.flush()
     return result
 
 
@@ -638,7 +655,7 @@ def load_list(path):
         return tomllib.load(file).get("test", [])
 
 
-STEP_KINDS = ("run", "read", "until", "start", "finish", "stop")
+STEP_KINDS = ("run", "read", "until", "start", "finish", "stop", "session")
 READ_KEYS = {"read", "until", "path", "keep", "is", "not", "same_as", "differs_from", "present", "absent", "seconds", "every", "live", "note", "doing", "again", "moment", "steer"}
 
 
@@ -725,6 +742,8 @@ def dry(args):
     for test in tests:
         for step, kind, command in commands_of(test) if "steps" in test else []:
             word = shlex.split(command)[0]
+            if word.startswith("{"):
+                continue  # a command kept from a read (a stop's answer): known only then
             if word not in seen:
                 rc, out, err, _ = fm(f"{word} --help", 30)
                 seen[word] = known_flags(command)
@@ -934,6 +953,12 @@ def play(test):
             step = {k: filled(v, kept) if k in ("run", "read", "until", "start") else v for k, v in step.items()}
             if "run" in step or "read" in step:
                 plain_step(number, step, kept)
+            elif "session" in step:
+                lines = [filled(line, kept) for line in step["session"]]
+                rc, out, err, _ = session(lines, step.get("seconds", COMMAND_LIMIT))
+                wanted = step.get("rc", 0)
+                if wanted != "any" and ((wanted == "fail" and rc == 0) or (wanted != "fail" and rc != wanted)):
+                    raise Failed(f"step {number} session {lines!r}: rc={rc}, wanted {wanted}: {(err or out).strip()[-300:]}")
             elif "start" in step:
                 started = step["start"]
                 side = subprocess.Popen(["fm", *shlex.split(step["start"])], stdin=subprocess.DEVNULL, stdout=LOG or subprocess.DEVNULL, stderr=subprocess.STDOUT)

@@ -112,6 +112,16 @@ internal static partial class Program
 			return null;
 		}
 
+		// A message named by the game's own id (a stop's answer): that one, or none.
+		if (wanted.StartsWith("id:", StringComparison.Ordinal))
+		{
+			var id = wanted[3..];
+			var byId = inbox.Where(m => Field(m, "UniqueId") == id).Take(1).ToList();
+			if (byId.Count == 1) return byId[0];
+			if (!quiet) Console.Error.WriteLine(L("That message is no longer in the inbox. For the current messages: inbox"));
+			return null;
+		}
+
 		var matches = inbox
 			// The subject as the game shows it, or the English the plugin gives for it.
 			.Where(m => Field(m, "NewsTitleString") is var subject && (subject.Contains(wanted, StringComparison.OrdinalIgnoreCase) || GameWords.Of(subject).Contains(wanted, StringComparison.OrdinalIgnoreCase)))
