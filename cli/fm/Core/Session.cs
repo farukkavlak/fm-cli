@@ -10,17 +10,24 @@ internal static class Session
 	{
 		Console.WriteLine(L("fm session — commands: squad, inbox, next, continue, status, help · to leave: quit"));
 
+		// Where `next` stops is shown here as a thing to answer, with numbered answers: the opening status too,
+		// so a stop is told once, numbered, and not first as a plain list.
+		Program.SessionShowsStops = true;
+		Program.HeldStop? shownStop = null;
 		// Opening on where things stand saves typing the first command of every session.
 		if (Ui.Rich)
 		{
 			Console.WriteLine();
+			Program.ForgetStop();
 			await execute(["status"]);
+			if (Program.StopNow is { } opening)
+			{
+				Program.ShowStop(opening);
+				shownStop = opening;
+			}
 		}
 		await Program.NewsBaseline();
 		await Program.NoteSave(loaded: false);
-		// Where `next` stops is shown here as a thing to answer, with numbered answers.
-		Program.SessionShowsStops = true;
-		Program.HeldStop? shownStop = null;
 		// The commands a line ran, a sentence's included: told against the stop's answers.
 		var ran = new List<string[]>();
 		async Task<int> Run(string[] w)
