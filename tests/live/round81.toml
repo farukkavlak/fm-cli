@@ -1,0 +1,75 @@
+# T210: notes kept for a save. Run without a terminal: a note the assistant offers is never kept here.
+# The `ask` and `plan` tests need a model set up (`fm ai set`). The game is only read.
+
+[[test]]
+task = "T210"
+name = "notes kept, fixed and deleted by command; the game unchanged"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "#", keep = "squad" },
+  { read = "status", path = "Date", keep = "day" },
+  { run = "memory delete all" },
+  { read = "memory", path = "Notes.#", is = 0 },
+  { run = 'remember --rule "kaptanı satma"' },
+  { run = 'remember --plan "ocakta sol bek al"' },
+  { read = "memory", path = "Notes.#", is = 2 },
+  { read = "memory", path = "Notes.1.Kind", is = "plan" },
+  { run = 'memory fix 2 "yazın sol bek al"' },
+  { read = "memory", path = "Notes.1.Text", is = "yazın sol bek al" },
+  { read = "memory", path = "Notes.1.N", is = 2 },
+  { run = "memory delete 1" },
+  { read = "memory", path = "Notes.#", is = 1 },
+  { read = "memory", path = "Notes.0.N", is = 2 },
+  { run = "memory delete 7", rc = "fail" },
+  { run = "memory fix 7 x", rc = "fail" },
+  { run = "memory frobnicate", rc = "fail" },
+  { run = "remember", rc = "fail" },
+  { read = "memory", path = "Notes.#", is = 1 },
+  { run = "memory delete all" },
+  { read = "squad", path = "#", same_as = "squad" },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T210"
+name = "ask offers a note but keeps none without a terminal"
+at = "calm"
+repeat = 3
+steps = [
+  { run = "memory delete all" },
+  { read = 'ask --new "bundan sonra genç oyuncuları daha çok oynatmak istiyorum, bunu aklında tut"', path = "Offers.#", not = 0 },
+  { read = "memory", path = "Notes.#", is = 0 },
+  { read = 'ask --new "remember that I never want to sell a player to a club in our league"', path = "Offers.#", not = 0 },
+  { read = "memory", path = "Notes.#", is = 0 },
+  { read = 'ask --new "kaç puanımız var?"', path = "Offers.#", is = 0 },
+]
+
+[[test]]
+task = "T210"
+name = "a note reaches ask and is cited"
+at = "calm"
+repeat = 3
+steps = [
+  { run = "memory delete all" },
+  { run = 'remember --about "en sevdiğim diziliş 4-4-2"' },
+  { read = 'ask --new "en sevdiğim diziliş hangisi?"', path = "Cited.#", not = 0 },
+  { read = 'ask --new "which formation do I like best?"', path = "Cited.#", not = 0 },
+  { run = "memory delete all" },
+  { read = 'ask --new "en sevdiğim diziliş hangisi?"', path = "Cited.#", is = 0 },
+]
+
+[[test]]
+task = "T210"
+name = "a plan against a note says so"
+at = "calm"
+repeat = 3
+steps = [
+  { run = "memory delete all" },
+  { run = 'remember --rule "hiçbir oyuncunun antrenman yoğunluğunu değiştirme"' },
+  { read = 'plan --dry "yorgun oyuncuların hepsini yarı yoğunluğa al"', path = "Cited.#", not = 0 },
+  { read = 'plan --dry "put all our tired players on half intensity"', path = "Cited.#", not = 0 },
+  { run = "memory delete all" },
+  { read = 'plan --dry "yorgun oyuncuların hepsini yarı yoğunluğa al"', path = "Cited.#", is = 0 },
+]

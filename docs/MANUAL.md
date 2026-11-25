@@ -125,6 +125,23 @@ fm plan --dry "set our two least fit players to half intensity"
 
 ![a plan run and read back](manual/img/ask/plan.png)
 
+### Notes
+
+- Notes are kept for the save (club and save), and `ask` and `plan` are given them.
+- `fm remember <note>` keeps one; `--rule`, `--plan`, `--about` give its kind (a wish otherwise).
+- Tell `ask` something to keep ("bundan sonra gençleri oynat, unutma"): it offers the note, kept only on your yes.
+- A note is your word, not a fact: what it says of the game is read again. An answer that stands on one says so.
+- Each note keeps its number. `fm memory` lists them; `fm memory fix 2 <note>`, `fm memory delete 2` (or `all`).
+- Turkish: `fm hatırla …`, `fm hafıza`, `fm hafıza düzelt 2 …`, `fm hafıza sil 2`.
+
+```bash
+fm remember --rule "kaptanı satma"
+fm memory
+fm ask "kaptanı satabilir miyim?"
+```
+
+![notes kept for the save](manual/img/ask/memory.png)
+
 ### Language
 
 The CLI follows the game's language. To use another language for the CLI alone:

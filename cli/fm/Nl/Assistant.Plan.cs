@@ -26,10 +26,10 @@ internal static partial class Program
 		}
 		if (await NotNow() is { } refused) return refused;
 
-		var club = "";
-		try { club = Field(await Fm.Pull("Human.Club", "Name"), "Name"); }
-		catch (Exception e) when (e is FmError or FmBusy) { }
-		var context = club.Length > 0 ? $"The user manages {club}; \"we\" and \"our\" mean this club." : "The user manages no club at the moment.";
+		var (club, save, _) = await SaveNow();
+		var book = Memory.Of(save);
+		var context = (club.Length > 0 ? $"The user manages {club}; \"we\" and \"our\" mean this club." : "The user manages no club at the moment.")
+			+ Memory.ForModel(book);
 
 		var draft = await Plan.Make(model, goal, context, Run, reading: words => Ui.Progress(L($"reading: {words}…")));
 		Ui.Progress(null);
@@ -38,7 +38,13 @@ internal static partial class Program
 		var left = draft.Steps;
 		var asked = false;
 		var went = false;
-		if (!json) ShowPlan(draft, model.Name);
+		// the notes the plan names, shown before the yes: one it goes against is the user's to weigh
+		var cited = Memory.Cited(string.Join("\n", draft.Steps.Select(s => s.Why).Prepend(draft.Note)), book);
+		if (!json)
+		{
+			ShowPlan(draft, model.Name);
+			foreach (var n in cited) Console.WriteLine(L($"From your notes: #{n.N} {n.Text}"));
+		}
 		if (draft.Error == null && draft.Steps.Count > 0 && !dry)
 		{
 			var go = yes;
@@ -65,7 +71,7 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(new
 			{
 				Steps = draft.Steps.Select(s => new { s.Command, Effect = s.Effect.ToString(), s.Why, s.Check, s.Expect }),
-				draft.Note, draft.Read, draft.Refused,
+				draft.Note, draft.Read, draft.Refused, Cited = cited.Select(n => n.N),
 				Ran = ran.Select(r => new { r.Step.Command, Outcome = r.Outcome.ToString(), r.Seen }),
 				NotRun = left.Select(s => s.Command).Where(_ => went).ToList(),
 				draft.Seconds, draft.Tokens, draft.Error,

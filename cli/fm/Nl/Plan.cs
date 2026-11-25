@@ -50,6 +50,7 @@ internal static class Plan
 		Each step is one call of a tool from the list of tools that act below, with arguments as its schema gives them.
 		Use only what the tools returned in this talk, never your own knowledge of football: names, numbers and options exactly as a tool wrote them. Never make up a fee, a wage or a name: one the user did not give and no read showed is left out of the plan, and the note says what is missing.
 		For each step give a check: one read call (a read tool and its arguments) whose result shows whether the step held, and in expect, what it should show after the step.
+		When what is asked goes against one of the user's notes, plan what was asked all the same, and say in the note which note it goes against, as (#N): the user decides.
 		No step for what already holds. As few steps as do it, at most 12; keep why and expect to a few words. Time, matches, talks and saves stay the user's: never plan them.
 		If it cannot be done with these tools, or the user has to decide something first (which player, how much), call no propose_plan: say so in a few lines, with what you read that bears on it.
 		Write why, expect and the note in the language the request is written in, even when the game is in another; short and plain. Keep names and the game's own words as the tools write them.

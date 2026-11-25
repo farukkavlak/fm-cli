@@ -136,6 +136,8 @@ internal static partial class Program
 			  ai              smart mode: a cloud model asked when a sentence is not clear;  ai set <url> <model> --key <key> · ai test · ai off
 			  ask             the assistant: a question answered from what it reads in the game (read-only; needs ai set);  ask --new <question>: a new talk
 			  plan            something to do, done in steps: the assistant reads and proposes them, you say yes, each is read back;  --dry: only show · --yes: no question
+			  memory          notes kept for this save, given to ask and plan;  memory add <note> · fix <number> <note> · delete <number>|all
+			  remember        keep a note for this save: remember <note>  (--plan, --rule, --about: its kind)
 			  learned         what sentences taught: the commands you picked for them, the players you picked by name;  learned delete <number>|all
 			  settings panel [view full|key|score] [pitch on|off] [events 0-12] [colour on|off] [radar on|off|pixel|braille|colour|ascii|auto]   the live match panel
 			  happiness       the players' happiness, unhappiest first

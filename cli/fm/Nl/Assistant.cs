@@ -23,7 +23,8 @@ internal static partial class Program
 	/// words: "next 3", "dugout 2 uygula" and "player rinaldi" stay commands, "next opponent" or
 	/// "table please" do not. A one-word
 	/// line stays a command, as does "squad --fitness"; "kadro ne" or "maç ne zaman" start with
-	/// an alias but read as sentences.
+	/// an alias but read as sentences. An alias of a command no tool runs (`sor`, `planla`, `hafıza`)
+	/// stays that command: it reads its words itself.
 	/// </summary>
 	public static bool IsSentence(string[] args) =>
 		// fm "maç ne zaman" arrives as one argument
@@ -32,7 +33,9 @@ internal static partial class Program
 		&& !words.Any(w => w.StartsWith("--", StringComparison.Ordinal))
 		&& (CommandNames.Contains(words[0]) ? !Mcp.TakesText(words[0])
 			&& !words.Skip(1).All(w => w.All(char.IsDigit) || CommandFlags.GetValueOrDefault(words[0], []).Contains(Nl.Text.Fold(w)))
-			: !(words[0].Length <= 2 && CommandAliases.ContainsKey(words[0])));
+			: !(words[0].Length <= 2 && CommandAliases.ContainsKey(words[0]))
+				// "sor kaç puanımız var", "hafıza sil 2": an alias of a command of the CLI's own (no tool), which reads its words itself
+				&& !(CommandAliases.TryGetValue(Nl.Text.Fold(words[0]), out var own) && Mcp.OwnCommand(own)));
 
 	public static async Task<int> Understand(string sentence, Func<string[], Task<int>> execute)
 	{

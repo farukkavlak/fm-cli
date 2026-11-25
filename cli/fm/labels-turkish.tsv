@@ -3168,3 +3168,31 @@ ran; not checked	çalıştı; denetlenemedi
 plan            something to do, done in steps: the assistant reads and proposes them, you say yes, each is read back;  --dry: only show · --yes: no question	plan            bir iş, adım adım: asistan okur ve adımları önerir, sen evet dersin, her adım geri okunur;  --dry: yalnız göster · --yes: sormadan
 Ran, not shown to hold: {0}. Check it before going on.	Çalıştı, tuttuğu görülmedi: {0}. Devam etmeden denetle.
 Failed: {0}	Başarısız: {0}
+rule	kural
+plan	plan
+about you	senin hakkında
+wish	istek
+usage: memory · memory add <note> · memory fix <number> <note> · memory delete <number>|all	kullanım: memory · memory add <not> · memory fix <numara> <not> · memory delete <numara>|all
+Notes are kept per club and save: load a save with a club first (status).	Notlar kulüp ve kayıt başına tutulur: önce kulübü olan bir kayıt yükle (status).
+Could not write {0}.	{0} yazılamadı.
+Fixed: {0}	Düzeltildi: {0}
+Kept: {0}	Not alındı: {0}
+usage: memory add <note>   (--plan, --rule, --about: its kind)	kullanım: memory add <not>   (--plan, --rule, --about: türü)
+Not kept: {0}.	Alınmadı: {0}.
+usage: memory fix <number> <note>	kullanım: memory fix <numara> <not>
+No such note: {0} (memory lists them)	Böyle bir not yok: {0} (memory listeler)
+Which one: memory delete <number> (or all)	Hangisi: memory delete <numara> (ya da all)
+Forgot all {0} notes of this save.	Bu kaydın {0} notunun hepsi unutuldu.
+No notes for this save. Keep one: remember <note>, or tell ask ("remember that …").	Bu kayıt için not yok. Not almak için: remember <not>, ya da ask'e söyle ("şunu unutma: …").
+Notes for {0}, this save:	{0} notları, bu kayıt:
+memory fix <number> <note> · memory delete <number>|all	memory fix <numara> <not> · memory delete <numara>|all
+Forget the note?	Not unutulsun mu?
+Change the note?	Not değişsin mi?
+Keep a note?	Not alayım mı?
+From your notes: #{0} {1}	Notlarından: #{0} {1}
+Note #{0} forgotten.	#{0} numaralı not unutuldu.
+Kept as note #{0}: memory lists your notes.	#{0} numaralı not olarak alındı: notlarını memory listeler.
+To forget note #{0}: memory delete {1}	#{0} numaralı notu unutmak için: memory delete {1}
+To keep it: remember {0}	Not almak için: remember {0}
+memory          notes kept for this save, given to ask and plan;  memory add <note> · fix <number> <note> · delete <number>|all	memory          bu kayıt için alınan notlar, ask ve plan bunları bilir;  memory add <not> · fix <numara> <not> · delete <numara>|all
+remember        keep a note for this save: remember <note>  (--plan, --rule, --about: its kind)	remember        bu kayıt için not al: remember <not>  (--plan, --rule, --about: türü)

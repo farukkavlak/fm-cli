@@ -149,6 +149,10 @@ internal static partial class Mcp
 	/// running each tool's words with a marker in one text argument at a time. A command no tool
 	/// stands for (help, lang, start…) counts as taking text.
 	/// </summary>
+	/// <summary>A command of the CLI's own, which no tool runs (`ask`, `plan`, `memory`, `lang`).</summary>
+	public static bool OwnCommand(string command) =>
+		!Tools.Any(t => t.Words(JsonDocument.Parse("{}").RootElement) is [var name, ..] && name == command);
+
 	public static bool TakesText(string command)
 	{
 		const string marker = "§text§";

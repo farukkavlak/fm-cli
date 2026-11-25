@@ -33,23 +33,19 @@ internal static partial class Program
 		}
 		if (await NotNow() is { } refused) return refused;
 
-		string club = "", save = "";
-		try
-		{
-			var human = await Fm.Pull("Human.Club", "Name,UniqueId");
-			club = Field(human, "Name");
-			save = $"{Field(human, "UniqueId")}|{Field(await Fm.Pull("app.LastSaveSummary", "GameSummaryGameName"), "GameSummaryGameName")}";
-		}
-		catch (Exception e) when (e is FmError or FmBusy) { }
+		var (club, save, day) = await SaveNow();
 		var context = club.Length > 0 ? $"The user manages {club}; \"we\" and \"our\" mean this club." : "The user manages no club at the moment.";
+		var book = Memory.Of(save);
+		book.Club = club;
 
 		var result = await Ask.Answer(model, question, save, context, fresh, Run,
-			reading: words => Ui.Progress(L($"reading: {words}…")));
+			reading: words => Ui.Progress(L($"reading: {words}…")),
+			book: book, offer: save.Length > 0 ? o => OfferNote(o, book, save, day, json) : null);
 		Ui.Progress(null);
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { result.Answer, result.Read, result.Refused, result.Unread, result.Seconds, result.Tokens, result.Error }));
+			Console.WriteLine(JsonOut.Of(new { result.Answer, result.Read, result.Refused, result.Unread, result.Seconds, result.Tokens, result.Error, result.Offers, Cited = result.Cited.Select(n => n.N) }));
 			return result.Error == null ? 0 : 1;
 		}
 		if (result.Error != null)
@@ -65,6 +61,12 @@ internal static partial class Program
 			: L($"Nothing was read from the game for this answer ({result.Seconds:0.0} s).")));
 		if (result.Refused.Count > 0)
 			Console.WriteLine(Dim(L($"Not run (it could change the game): {string.Join(" · ", result.Refused.Distinct())}")));
+		foreach (var n in result.Cited)
+			Console.WriteLine(Dim(L($"From your notes: #{n.N} {n.Text}")));
+		foreach (var o in result.Offers.Where(o => o.Yes))
+			Console.WriteLine(o.Offer.Forget is { } f ? L($"Note #{f} forgotten.") : L($"Kept as note #{o.Kept?.N}: memory lists your notes."));
+		foreach (var o in result.Offers.Where(o => !o.Asked))
+			Console.WriteLine(o.Offer.Forget is { } f ? L($"To forget note #{f}: memory delete {f}") : L($"To keep it: remember {o.Offer.Text}"));
 		if (result.Unread.Count > 0)
 			Console.WriteLine(L($"⚠ Not in anything read: {string.Join(", ", result.Unread)}. Check before you rely on it."));
 		return 0;
