@@ -3140,3 +3140,13 @@ set	var
 Sentences the router is not sure of are sent there. ai test · ai off	Yönlendiricinin emin olmadığı cümleler oraya gönderilir. ai test · ai off
 ai              smart mode: a cloud model asked when a sentence is not clear;  ai set <url> <model> --key <key> · ai test · ai off	ai              akıllı mod: cümle net değilse bir bulut modeline sorulur;  ai set <adres> <model> --key <anahtar> · ai test · ai off
 error: the shortlist's table did not finish loading; try again: shortlist	error: kısa listenin tablosu yüklenmeyi bitirmedi; yeniden dene: shortlist
+The talk is forgotten: the next question starts a new one.	Konuşma unutuldu: sıradaki soru yeni bir konuşma başlatır.
+usage: ask <question>   (ask --new <question>: a new talk)	kullanım: ask <soru>   (ask --new <soru>: yeni bir konuşma)
+The assistant needs a model: ai set <url> <model> --key <key>  (any OpenAI-style provider)	Asistan için bir model gerekli: ai set <adres> <model> --key <anahtar>  (OpenAI tarzı her sağlayıcı)
+reading: {0}…	okunuyor: {0}…
+{0} gave no answer ({1}). Check it: ai test	{0} cevap vermedi ({1}). Denemek için: ai test
+Read: {0}  ({1:0.0} s)	Okunan: {0}  ({1:0.0} sn)
+Nothing was read from the game for this answer ({0:0.0} s).	Bu cevap için oyundan hiçbir şey okunmadı ({0:0.0} sn).
+Not run (it could change the game): {0}	Çalıştırılmadı (oyunu değiştirebilirdi): {0}
+⚠ Not in anything read: {0}. Check before you rely on it.	⚠ Okunan hiçbir şeyde yok: {0}. Güvenmeden önce kontrol et.
+ask             the assistant: a question answered from what it reads in the game (read-only; needs ai set);  ask --new <question>: a new talk	ask             asistan: soruyu oyundan okuduğuyla cevaplar (yalnız okur; ai set gerekir);  ask --new <soru>: yeni bir konuşma

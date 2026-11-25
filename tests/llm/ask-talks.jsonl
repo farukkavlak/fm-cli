@@ -1,0 +1,8 @@
+{"id": "a01", "turns": [{"user": "{p1} nasıl oynuyor"}, {"user": "onu sat", "act": "propose"}]}
+{"id": "a02", "turns": [{"user": "{p1} hakkında bilgi ver"}, {"user": "mutlu mu o, neden?", "reads": "{p1}"}]}
+{"id": "a03", "turns": [{"user": "{p1} kaç yaşında"}, {"user": "bu hafta dinlensin", "act": "intensity"}]}
+{"id": "a04", "turns": [{"user": "{p1}'ın durumu ne"}, {"user": "sözleşmesi ne zaman bitiyor?", "reads": "{p1}"}]}
+{"id": "a05", "turns": [{"user": "{p1} ne kadar kazanıyor"}, {"user": "{p2} nasıl peki"}, {"user": "ilkinin sözleşmesi ne zaman bitiyor", "reads": "{p1}"}]}
+{"id": "a06", "turns": [{"user": "{p1} yorgun mu"}, {"user": "onu kiralık gönder", "act": "propose"}]}
+{"id": "a07", "turns": [{"user": "show me {p1}"}, {"user": "how much does he earn?", "reads": "{p1}"}]}
+{"id": "a08", "turns": [{"user": "who is {p2}?"}, {"user": "loan him out", "act": "propose"}]}

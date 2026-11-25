@@ -93,6 +93,23 @@ Any OpenAI-style provider works (`<url>/v1/chat/completions`).
 
 ![a sentence the cloud model answered](manual/img/ask/smart.png)
 
+### The assistant
+
+- `fm ask <question>` answers from what it reads in the game, with the model set up by `fm ai set`.
+- It only reads: it is offered the read commands, and each call is checked again before it runs.
+- Under the answer: the commands it read. A name in the answer that nothing read holds is flagged.
+- Asked to do something, it says what it read and the command that does it.
+- The talk is kept for the save for two hours, so "his contract" means the player of the last answer. `fm ask --new …` starts a new one.
+- Your question and what it reads (names, numbers) go to your provider.
+
+```bash
+fm ask "sakat var mı, kim yorgun?"
+fm ask "onun sözleşmesi ne zaman bitiyor?"
+fm ask --new "how many points do we have?"
+```
+
+![an answer from the assistant](manual/img/ask/assistant.png)
+
 ### Language
 
 The CLI follows the game's language. To use another language for the CLI alone:

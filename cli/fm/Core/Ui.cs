@@ -8,7 +8,13 @@ namespace FmCli;
 /// </summary>
 internal static class Ui
 {
-	public static bool Rich => Format == null && !Console.IsOutputRedirected;
+	public static bool Rich => Format == null && !Captured && !Console.IsOutputRedirected;
+
+	/// <summary>
+	/// A command run for the assistant (`ask`): what it prints is read, not looked at, so nothing is
+	/// drawn and nothing asked, as for a pipe.
+	/// </summary>
+	public static bool Captured { get; set; }
 
 	/// <summary>One line that shows how a long wait goes, written over itself; only on a terminal. Null clears it.</summary>
 	public static void Progress(string? text)

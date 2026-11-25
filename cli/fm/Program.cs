@@ -326,6 +326,7 @@ internal static partial class Program
 				"lang" or "language" or "dil" => LanguageChoice(args),
 				"learned" => LearnedCommand(args),
 				"ai" => await AiCommand(args),
+				"ask" => await AskCommand(args, json),
 				"help" or "--help" or "-h" => Help(args),
 				_ => Unknown(command),
 			};

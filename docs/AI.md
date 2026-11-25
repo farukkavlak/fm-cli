@@ -42,7 +42,7 @@ Order: names first, then the learning router, then the cloud.
     - `Human.Team.Division.Teams` stays empty until a page binds it: not used
   - [x] Shortlist: its players and their clubs, kept when `shortlist` reads its page (`Nl/SeenNames.cs`), per club and save
     - The save is told by `app.LastSaveSummary.GameSummaryGameName`; another save of the club keeps its own list
-  - [ ] Offers: players and clubs of `TransferActivityPlayerListAll`, read with no page; seen empty only, not yet with an offer
+  - [x] Offers: players and clubs of `TransferActivityPlayerListAll`, read with no page (seen with 11 bids on `window-bids`, TR)
   - [ ] Clubs as an argument: `friendly` picks from the game's own list of opponents, not the league's; left as typed
 - [x] T205 Fuzzy names: Turkish endings, typos, a club before the name; ask when two fit (`Nl/NameFit.cs`)
   - The model sees our players as a name it was taught ("hreljaya bak" → "rinaldiye bak"); arguments keep the typed name
@@ -69,7 +69,18 @@ Order: names first, then the learning router, then the cloud.
     - base 159: 45 run without a list (42 right); the cloud's pick first in the list 34 (17 right); median 1.1 s
     - noisy 393: 107 run without a list (91 right); first in the list 86 (45 right); median 1.3 s
     - gpt-6-luna and qwen3.8-flash about the same; deepseek-v4.1-flash gave no usable answer
-- [ ] T208 Assistant, read-only: provider interface, session memory ("him"), answers only from what was read
+- [ ] T208 Assistant, read-only: `fm ask <question>` (`Nl/Ask.cs`, `Nl/Chat.cs`)
+  - [x] Provider interface (`IChatModel`); OpenAI-style chat with tools, the model from `fm ai set`
+  - [x] Offered the read tools only (`Mcp.ReadTools`): Read tools, and tools that act only with some arguments, without them
+  - [x] Each call checked again before it runs (`Mcp.RunRead`): an argument not shown or a call that could act is refused
+  - [x] The commands that act are named in the prompt (not callable): asked to act, it names the command
+  - [x] Talk kept per club and save for 2 h (`~/.cache/fm-cli/ask.json`); earlier answers are not facts: figures are read again
+  - [x] Under the answer: what was read; a capitalised name no read, question or earlier turn holds is flagged
+  - [ ] Anthropic's own API (no key to test with); OpenAI-style providers only for now
+  - [x] Live: `tests/live/round79.toml` TR + EN (changes nothing, says what it read, follow-ups); `tools/ask-bench.py`
+    - haiku-5-5, TR game: 20/20 answered, 2 with a name flagged, talks 8/8, median 16.7 s
+    - Found and fixed: a yearly wage told as weekly; an earlier wrong answer taken as a fact; a player of another club
+      taken as ours (`player` now shows the club)
 - [ ] T209 Plans: steps, approval, run, verify
 - [ ] T210 Save memory: facts, preferences, plans; list, fix, delete
 - [ ] T211 Transfer and tactic advice from real match data

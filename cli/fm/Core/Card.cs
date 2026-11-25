@@ -10,14 +10,14 @@ namespace FmCli;
 /// </summary>
 internal static class Card
 {
-	public static void Draw(JsonElement player, IReadOnlyList<string> traits, IReadOnlyList<(string Title, List<JsonElement> Attributes)> blocks, int potential = 0, IReadOnlyList<double>? ability = null)
+	public static void Draw(JsonElement player, IReadOnlyList<string> traits, IReadOnlyList<(string Title, List<JsonElement> Attributes)> blocks, int potential = 0, IReadOnlyList<double>? ability = null, string club = "")
 	{
 		var console = Ui.Out;
 
 		var who = new List<string>
 		{
 			$"[bold]{Ui.Safe(F(player, "Name"))}[/]" + Prefixed("  [dim]#[/]", ShirtNumber(F(player, "SquadNumber")))
-			+ Prefixed("  ", Suffixed(F(player, "Age"), L(" years old"))) + Prefixed("  ", Ui.Safe(F(player, "Nation"))),
+			+ Prefixed("  ", Suffixed(F(player, "Age"), L(" years old"))) + Prefixed("  ", Ui.Safe(F(player, "Nation"))) + Prefixed("  [dim]·[/]  ", Ui.Safe(club)),
 			$"[dim]{Ui.Safe(GameWords.Of(F(player, "PositionCombinedStringLong")))}[/]",
 			"",
 			Pair(L("Value"), F(player, "Value")) + Pair(L("Wage"), F(player, "Wage")),

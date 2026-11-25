@@ -34,7 +34,9 @@ internal static partial class Program
 
 		// The potential the club's staff see in him, out of 200. The game turns it into stars
 		// measured against the club's own level, so it is given as the number.
-		var seen = await Fm.Pull(Field(card.GetProperty("Player"), "Path"), "PerceivedPotentialAbility,AbilityProgressHistory");
+		var seen = await Fm.Pull(Field(card.GetProperty("Player"), "Path"), "PerceivedPotentialAbility,AbilityProgressHistory,Club.Name");
+		// His club, from his record: the page does not say it, and without it a player of another club reads as ours.
+		var club = Field(seen, "Club.Name");
 		var potential = int.TryParse(Field(seen, "PerceivedPotentialAbility"), out var pa) && pa > 0 ? pa : 0;
 		// His ability at the last four monthly measurements, out of 200.
 		var ability = AbilityHistory(Field(seen, "AbilityProgressHistory"));
@@ -52,6 +54,7 @@ internal static partial class Program
 				if (node["Player"]?[key] is System.Text.Json.Nodes.JsonValue value && value.TryGetValue<string>(out var shown))
 					node["Player"]![key] = GameWords.Of(shown);
 			if (potential > 0) node["Player"]!["PerceivedPotentialAbility"] = potential;
+			node["Player"]!["Club"] = club;
 			node["Traits"] = new System.Text.Json.Nodes.JsonArray([.. (await PlayerTraits(Field(card.GetProperty("Player"), "Path"))).Select(t => (System.Text.Json.Nodes.JsonNode)t)]);
 			if (ability.Count > 0) node["Player"]!["AbilityHistory"] = new System.Text.Json.Nodes.JsonArray(ability.Select(v => (System.Text.Json.Nodes.JsonNode)v).ToArray());
 			Console.WriteLine(node.ToJsonString());
@@ -66,7 +69,7 @@ internal static partial class Program
 		void PlainHeader()
 		{
 		Console.WriteLine(Line("  ", Field(player, "Name"), Prefixed("#", Card.ShirtNumber(Field(player, "SquadNumber"))), Suffixed(Field(player, "Age"), L(" years old")),
-			GameWords.Of(Field(player, "Nation")), GameWords.Of(Field(player, "PositionCombinedStringLong"))));
+			GameWords.Of(Field(player, "Nation")), club, GameWords.Of(Field(player, "PositionCombinedStringLong"))));
 		Console.WriteLine(Line(" · ", Prefixed(L("Value "), Field(player, "Value")), Prefixed(L("Wage "), Field(player, "Wage")),
 			Prefixed(L("Contract "), GameWords.Of(Field(player, "ContractEnds"))), GameWords.Of(Field(player, "PlayingTime"))));
 		// A game word stuck to its label with one space is not told apart from it on the way out: put in the game's words here.
@@ -101,7 +104,7 @@ internal static partial class Program
 		{
 			if (Ui.Rich)
 			{
-				Card.Draw(player, traits, [], potential, ability);
+				Card.Draw(player, traits, [], potential, ability, club);
 				foreach (var line in history) Console.WriteLine(line);
 			}
 			return 0;
@@ -119,7 +122,7 @@ internal static partial class Program
 
 		if (Ui.Rich)
 		{
-			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList(), potential, ability);
+			Card.Draw(player, traits, titles.Zip(blocks).Select(t => (t.First, t.Second)).ToList(), potential, ability, club);
 			foreach (var line in history) Console.WriteLine(line);
 			Ui.Line(L($"[dim]Offer, shortlist, scouting…: player \"{Ui.Safe(Field(player, "Name"))}\" --actions[/]"));
 			return 0;

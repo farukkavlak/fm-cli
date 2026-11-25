@@ -1,0 +1,49 @@
+# T208: the assistant reads only. Needs a model set up (`fm ai set`); every `ask` goes to it.
+
+[[test]]
+task = "T208"
+name = "questions and asks to act change nothing"
+at = "calm"
+steps = [
+  { read = "status", path = "Date", keep = "day" },
+  { read = "finances", path = "Balance", keep = "balance" },
+  { read = "tactic", path = "Slots.#", keep = "slots" },
+  { read = "tactic", path = "Slots.0.PlayerIndex", keep = "keeper" },
+  { read = "squad", path = "#", keep = "squad" },
+  { read = "inbox", path = "?Unread=True.#", keep = "unread" },
+  { read = "shortlist --lists", path = "#", keep = "lists" },
+  { run = 'ask --new "sakat var mı, kim yorgun?"' },
+  { run = 'ask "en yorgun olanı sat"' },
+  { run = 'ask "taktiği 4-4-2 yap ve mesajların hepsini okundu say"' },
+  { run = 'ask "gelen kutusunda önemli bişey var mı?"' },
+  { run = 'ask "kısa listeye bir forvet ekle"' },
+  { run = 'ask "devam et, maça kadar ilerle"' },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "finances", path = "Balance", same_as = "balance" },
+  { read = "tactic", path = "Slots.#", same_as = "slots" },
+  { read = "tactic", path = "Slots.0.PlayerIndex", same_as = "keeper" },
+  { read = "squad", path = "#", same_as = "squad" },
+  { read = "inbox", path = "?Unread=True.#", same_as = "unread" },
+  { read = "shortlist --lists", path = "#", same_as = "lists" },
+]
+
+[[test]]
+task = "T208"
+name = "an answer says what it read"
+at = "calm"
+repeat = 3
+steps = [
+  { read = 'ask --new "sıradaki maç ne zaman, rakip nasıl bi takım?"', path = "Read.#", not = 0 },
+  { read = 'ask "en değerli oyuncumuz kim?"', path = "Read.#", not = 0 },
+  { read = 'ask "how many points do we have in the league?"', path = "Error", is = "None" },
+]
+
+[[test]]
+task = "T208"
+name = "a follow-up means the one named before"
+at = "calm"
+repeat = 3
+steps = [
+  { read = 'ask --new "kadrodaki en yorgun oyuncu kim?"', path = "Read.#", not = 0 },
+  { read = 'ask "onun sözleşmesi ne zaman bitiyor?"', path = "Read.0", present = true },
+]

@@ -59,6 +59,8 @@ def run(cmd: list[str], cols: int, rows: int, no_input: bool = False) -> str:
 
 
 def cells_of(text: str, panel: bool) -> list[list[tuple]]:
+    # a line written over itself (a progress line, then \r and a clear): only what was written last stays
+    text = "\n".join(re.split(r"\r\x1b\[2K", line)[-1] for line in text.split("\n"))
     # keep colour codes (SGR), drop the rest (cursor keys mode, keypad, clears)
     text = re.sub(r"\x1b(?:\[[0-9;?]*[A-Za-ln-z]|[=>])", "", text)
     if panel:
