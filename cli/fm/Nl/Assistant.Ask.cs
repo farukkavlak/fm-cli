@@ -49,7 +49,7 @@ internal static partial class Program
 
 		if (json)
 		{
-			Console.WriteLine(JsonOut.Of(new { result.Answer, result.Read, result.Refused, result.Unread, result.Seconds, result.Error }));
+			Console.WriteLine(JsonOut.Of(new { result.Answer, result.Read, result.Refused, result.Unread, result.Seconds, result.Tokens, result.Error }));
 			return result.Error == null ? 0 : 1;
 		}
 		if (result.Error != null)
