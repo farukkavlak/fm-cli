@@ -40,15 +40,18 @@ internal static partial class Program
 	private static void HaltOnMessages(string kind, IEnumerable<JsonElement> messages)
 	{
 		var list = messages.Where(m => Field(m, "UniqueId").Length > 0).ToList();
-		// An offer or our accepted bid found first stays the stop; its messages are answers beside its own.
-		var before = StopNow is { Kind: "offer" or "bid" } first ? first : null;
+		// An offer found first stays the stop: the offers' own messages would only say them again, and any other
+		// message waits behind the offers for the next stop. Our accepted bid is answered in its message, so its
+		// messages are answers beside its own.
+		if (StopNow is { Kind: "offer", Answers.Count: > 0 }) return;
+		var before = StopNow is { Kind: "bid" } first ? first : null;
 		Halt(before?.Kind ?? kind, null, [.. before?.Answers ?? [], .. list.Select(Open)]);
 	}
 
 	/// <summary>The kind of stop as said to the user.</summary>
 	private static string StopName(string kind) => kind switch
 	{
-		"offer" => L("An offer for one of our players"),
+		"offer" => L("Offers for our players"),
 		"bid" => L("A bid of ours was accepted"),
 		"setpieces" => L("The set piece wizard"),
 		"vision" => L("The club vision meeting"),

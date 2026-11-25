@@ -3196,7 +3196,7 @@ To forget note #{0}: memory delete {1}	#{0} numaralı notu unutmak için: memory
 To keep it: remember {0}	Not almak için: remember {0}
 memory          notes kept for this save, given to ask and plan;  memory add <note> · fix <number> <note> · delete <number>|all	memory          bu kayıt için alınan notlar, ask ve plan bunları bilir;  memory add <not> · fix <numara> <not> · delete <numara>|all
 remember        keep a note for this save: remember <note>  (--plan, --rule, --about: its kind)	remember        bu kayıt için not al: remember <not>  (--plan, --rule, --about: türü)
-An offer for one of our players	Oyuncularımızdan birine teklif var
+Offers for our players	Oyuncularımıza teklif var
 A bid of ours was accepted	Teklifimiz kabul edildi
 The set piece wizard	Duran top sihirbazı
 The club vision meeting	Kulüp vizyonu toplantısı
@@ -3217,9 +3217,9 @@ To answer: 1   ·   a question is answered and the stop waits	Cevap: 1   ·   so
 To answer: 1–{0}   ·   a question is answered and the stop waits	Cevap: 1–{0}   ·   soru sorarsan cevaplanır, durak bekler
 answers	cevaplar
 That message is no longer in the inbox. For the current messages: inbox	O mesaj artık gelen kutusunda yok. Güncel mesajlar: inbox
-see the offer: {0} → {1} ({2})	teklife bak: {0} → {1} ({2})
-accept it: {0} → {1}	kabul et: {0} → {1}
-reject it: {0} → {1}	reddet: {0} → {1}
+see the offer	teklife bak
+accept it	kabul et
+reject it	reddet
 answer its questions	sorularını cevapla
 see the objectives and bargain	hedeflere bak, pazarlık et
 finish the meeting	toplantıyı bitir
@@ -3232,3 +3232,5 @@ play the match	maçı oyna
 straight to the result	doğrudan sonuç
 answer it	cevapla
 go on without answering	cevaplamadan devam et
+{0}: our own approach for another club's player. To see it: offers {1} view	{0}: başka bir kulübün oyuncusu için bizim girişimimiz. Görmek için: offers {1} view
+stall	beklet

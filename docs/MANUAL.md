@@ -57,7 +57,8 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 ### Stops
 
-- Where `next` stops, the session says what waits and its answers, numbered: an offer (see, accept, reject), a message, the press, a talk, the vision meeting, the set piece wizard, match day (play, or straight to the result).
+- Where `next` stops, the session says what waits and its answers, numbered: offers, a message, the press, a talk, the vision meeting, the set piece wizard, match day (play, or straight to the result).
+- Offers come one line each; a number picks one and puts its own answers (see, accept, stall when the game gives it, reject). `offers <#>` does the same outside the session.
 - A number answers. So does typing the command (`offers 1 reject`) or a sentence.
 - A question in between (`rakip kim`, `kim sakat`) is answered and the stop waits; its answers stay on the numbers, unless the question showed a list of its own.
 - After `next --until match` (`maça kadar ilerle`) an answered stop goes on to the match by itself; match day ends it.

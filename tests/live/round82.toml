@@ -50,21 +50,21 @@ repeat = 3
 steps = [
   { read = "next", path = "Stop.Answers.0.Command", keep = "open", live = true },
   { read = "next", path = "Stop.Kind", is = "message", live = true },
-  { run = "{open}" },
+  { run = "{open!}" },
   { run = "reply id:0", rc = "fail" },
 ]
 
 [[test]]
 task = "T214"
-name = "the press invitation waits as a message stop, opened by its id"
+name = "the press invitation waits as a press stop, opened by its id"
 at = "press"
 fresh = true
 repeat = 3
 steps = [
-  { read = "next", path = "Stop.Kind", is = "message", live = true },
+  { read = "next", path = "Stop.Kind", is = "press", live = true },
   { read = "next", path = "Stop.Answers.#", is = 1, live = true },
   { read = "next", path = "Stop.Answers.0.Command", keep = "open", live = true },
-  { run = "{open}" },
+  { run = "{open!}" },
 ]
 
 [[test]]
@@ -77,4 +77,36 @@ steps = [
   { read = "next", path = "Stop.Kind", is = "message", live = true },
   { read = "next", path = "Stop.Answers.#", is = 3, live = true },
   { read = "next", path = "Moved", is = false, live = true },
+]
+
+[[test]]
+task = "T214"
+name = "offers hold the game as one stop, each offer one answer that names it"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "offer", live = true },
+  { read = "next", path = "Stop.Answers.#", not = 0, keep = "count", live = true },
+  { read = "next", path = "Stop.Answers.0.Command", keep = "pick", live = true },
+  { session = ["{pick!}", "1", "kim sakat"] },
+  { read = "next", path = "Stop.Answers.#", same_as = "count", live = true },
+]
+
+[[test]]
+task = "T214"
+name = "an offer chosen and rejected leaves the stop one answer short; an offer not there is no answer"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Answers.#", keep = "count", live = true },
+  { read = "next", path = "Stop.Answers.0.Command", keep = "pick", live = true },
+  { run = "{pick!}" },
+  { run = "{pick!} reject --yes" },
+  { read = "next", path = "Stop.Kind", is = "offer", live = true },
+  { read = "next", path = "Stop.Answers.#", differs_from = "count", live = true },
+  { read = "next", path = "Stop.Answers.#", keep = "left", live = true },
+  { run = "offers 999 reject --yes", rc = "fail" },
+  { read = "next", path = "Stop.Answers.#", same_as = "left", live = true },
 ]

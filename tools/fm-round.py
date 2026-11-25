@@ -48,7 +48,7 @@ Steps:
   as without the moment (T92), not as a failure.
   session = ["<line>", …]  lines typed into an `fm` session, one after another, then quit; rc as for run.
                            What it prints is not compared: the reads after it say what it did
-  {name} in a command      the value kept under that name
+  {name} in a command      the value kept under that name, as one word; {name!} as words (a kept command)
 
 A hunt list (tests/live/hunt*.toml): scenarios taken in turn while a moment they serve is short of its quota;
 each match played to its end, every card applied, every stop answered, each moment checked when it shows:
@@ -783,7 +783,8 @@ def holds(step, value, kept):
 
 
 def filled(command, kept):
-    return re.sub(r"\{(\w+)\}", lambda m: shlex.quote(str(kept[m.group(1)])), command)
+    """{name} is the kept value as one word; {name!} is it as words of the command (a stop's answer, `offers 2`)."""
+    return re.sub(r"\{(\w+)(!?)\}", lambda m: str(kept[m.group(1)]) if m.group(2) else shlex.quote(str(kept[m.group(1)])), command)
 
 
 SPEEDS = ("highlight speed", "speed between highlights")

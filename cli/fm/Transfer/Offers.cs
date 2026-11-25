@@ -20,6 +20,16 @@ internal static partial class Program
 		public bool CanReject { get; init; }
 	}
 
+	/// <summary>One offer chosen at the offer stop: its own answers, the ones the game gives for it.</summary>
+	private static void HoldOffer(WaitingOffer offer, string place, string what)
+	{
+		List<(string, string[])> answers = [(L("see the offer"), ["offers", place, "view"])];
+		if (offer.CanAccept) answers.Add((L("accept it"), ["offers", place, "accept"]));
+		if (offer.CanStall) answers.Add((L("stall"), ["offers", place, "stall"]));
+		if (offer.CanReject) answers.Add((L("reject it"), ["offers", place, "reject"]));
+		Halt("offer", [what], [.. answers]);
+	}
+
 	private static async Task<int> Offers(bool json, string[] args)
 	{
 		if (await NotNow() is { } refused) return refused;
@@ -55,13 +65,15 @@ internal static partial class Program
 			return 0;
 		}
 
-		if (words.Count < 2 || Fold(words[^1]) is not ("view" or "accept" or "stall" or "reject" or "goster" or "kabul" or "beklet" or "reddet"))
+		// An offer named without an answer is the offer chosen: its answers are said (a stop, in the session).
+		var verbed = Fold(words[^1]) is "view" or "accept" or "stall" or "reject" or "goster" or "kabul" or "beklet" or "reddet";
+		var verb = !verbed ? "" : Fold(words[^1]) switch { "goster" => "view", "kabul" => "accept", "beklet" => "stall", "reddet" => "reject", var v => v };
+		var wanted = string.Join(" ", verbed ? words.Take(words.Count - 1) : words);
+		if (wanted.Length == 0)
 		{
 			Ui.Hint(L("usage: offers   ·   offers <# | player> view | accept | stall | reject [--yes]"), Console.Error);
 			return 64;
 		}
-		var verb = Fold(words[^1]) switch { "goster" => "view", "kabul" => "accept", "beklet" => "stall", "reddet" => "reject", var v => v };
-		var wanted = string.Join(" ", words.Take(words.Count - 1));
 		WaitingOffer offer;
 		if (int.TryParse(wanted, out var number) && number >= 1 && number <= offers.Count) offer = offers[number - 1];
 		else
@@ -76,6 +88,22 @@ internal static partial class Program
 		}
 
 		var what = $"{offer.Club} → {offer.Player} ({offer.Fee})";
+		var place = (offers.IndexOf(offer) + 1).ToString();
+		if (verb == "")
+		{
+			if (!offer.Incoming)
+			{
+				Console.WriteLine(L($"{what}: our own approach for another club's player. To see it: offers {place} view"));
+				return 0;
+			}
+			HoldOffer(offer, place, what);
+			if (!SessionShowsStops)
+			{
+				Console.WriteLine(what);
+				foreach (var (label, command) in StopNow!.Answers) Console.WriteLine($"  {label}: {string.Join(' ', command)}");
+			}
+			return 0;
+		}
 		if (verb == "view")
 		{
 			if (await OpenOfferCard(offer) is { } failed)
@@ -88,6 +116,8 @@ internal static partial class Program
 			// question waiting (status, next) though there is nothing to answer there. The offers list is
 			// the row already chosen in its menu and does not reopen, so the portal is opened instead.
 			await OpenPage(Screen.Home);
+			// Seen, not answered: its answers are put again after the card.
+			if (offer.Incoming) HoldOffer(offer, place, what);
 			return card;
 		}
 

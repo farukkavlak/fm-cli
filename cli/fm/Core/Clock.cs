@@ -114,7 +114,28 @@ internal static partial class Program
 			// Straight after a load the game still calls itself free to continue while messages
 			// are waiting; the inbox knows better until the first real stop.
 			var flow = Field(state, "State");
-			if (flow == "CanContinue" && inbox.Any(Blocking)) flow = "NeedAction";
+			if (flow == "CanContinue" && inbox.Any(Blocking))
+			{
+				// What holds it is the game's to say (an offer: Respond 3), not the inbox's: one press asks it. Held,
+				// the press moves nothing; not held after all, it is the step this was for.
+				var (pressed, _) = await PressAndRead(state);
+				if (pressed is not { } said)
+				{
+					Console.Error.WriteLine(L("The game has been processing for three minutes; I stopped waiting. For the state: status"));
+					return 75;
+				}
+				if (Field(said, "Date") != Field(state, "Date") || Field(said, "Clock") != Field(state, "Clock"))
+				{
+					moved = true;
+					if (Field(said, "Date") != Field(state, "Date")) Console.WriteLine($"{Pretty(Field(state, "Date"))} → {Pretty(Field(said, "Date"))} {Time(said)}");
+					else Console.WriteLine($"{Pretty(Field(said, "Date"))} {Time(state)} → {Time(said)}");
+					continue;
+				}
+				state = said;
+				inbox = (await TopInbox()).EnumerateArray().ToList();
+				flow = Field(state, "State");
+				if (flow == "CanContinue" && inbox.Any(Blocking)) flow = "NeedAction";
+			}
 
 			// A message the game wants read: one press opens it and frees the clock. It is named.
 			if (flow == "NeedAction" && await OnlyToRead(state, inbox))
@@ -501,13 +522,9 @@ internal static partial class Program
 					try { waiting = await WaitingOffers(); }
 					catch (FmError) { }
 					// Each answer goes by the offer's place in the game's own list, read again when it runs.
+					// One answer an offer: choosing it puts that offer's own answers (see, accept, stall, reject).
 					var answers = waiting.Select((o, i) => (o, n: (i + 1).ToString())).Where(x => x.o.Incoming && x.o.CanAccept)
-						.SelectMany(x => new[]
-						{
-							(L($"see the offer: {x.o.Club} → {x.o.Player} ({x.o.Fee})"), new[] { "offers", x.n, "view" }),
-							(L($"accept it: {x.o.Club} → {x.o.Player}"), new[] { "offers", x.n, "accept" }),
-							(L($"reject it: {x.o.Club} → {x.o.Player}"), new[] { "offers", x.n, "reject" }),
-						}).ToArray();
+						.Select(x => ($"{x.o.Club} → {x.o.Player} · {x.o.Fee}", new[] { "offers", x.n })).ToArray();
 					if (answers.Length > 0) Halt("offer", null, answers);
 					else Halt("bid");
 					output.WriteLine(waiting.Any(o => o.Incoming && o.CanAccept)
