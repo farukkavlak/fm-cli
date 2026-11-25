@@ -327,6 +327,7 @@ internal static partial class Program
 				"learned" => LearnedCommand(args),
 				"ai" => await AiCommand(args),
 				"ask" => await AskCommand(args, json),
+				"plan" => await PlanCommand(args, json),
 				"help" or "--help" or "-h" => Help(args),
 				_ => Unknown(command),
 			};

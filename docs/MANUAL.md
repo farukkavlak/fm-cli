@@ -110,6 +110,21 @@ fm ask --new "how many points do we have?"
 
 ![an answer from the assistant](manual/img/ask/assistant.png)
 
+### Plans
+
+- `fm plan <what to do>` reads the game and proposes the steps, each a command, with a read that checks it.
+- Nothing runs before your yes. A step that cannot be taken back asks again; in a script it is not run.
+- Each step is read before and after: ✓ done, = already so, ✗ not shown or failed. A step that did not hold stops the rest.
+- Time, matches, talks and saves are never in a plan.
+- `--dry` only shows the plan; `--yes` runs it without the question.
+
+```bash
+fm plan "yorgun oyuncuların antrenman yoğunluğunu yarıya indir"
+fm plan --dry "set our two least fit players to half intensity"
+```
+
+![a plan run and read back](manual/img/ask/plan.png)
+
 ### Language
 
 The CLI follows the game's language. To use another language for the CLI alone:

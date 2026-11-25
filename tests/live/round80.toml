@@ -1,0 +1,70 @@
+# T209: plans. Needs a model set up (`fm ai set`). Run without a terminal: a weighty step is never run.
+# A plan that acts is a `run` step (a dry run asks reads), checked by the game's own reads after it.
+
+[[test]]
+task = "T209"
+name = "a plan does what it says, each step read back"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "intensity", path = "?Value=0.#", keep = "half" },
+  { read = "squad", path = "#", keep = "squad" },
+  { read = "status", path = "Date", keep = "day" },
+  { run = 'plan --yes "kondisyonu en düşük üç oyuncunun antrenman yoğunluğunu yarıya indir"' },
+  { read = "intensity", path = "?Value=0.#", differs_from = "half" },
+  { read = "squad", path = "#", same_as = "squad" },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T209"
+name = "the same in English"
+at = "calm"
+fresh = true
+repeat = 3
+steps = [
+  { read = "intensity", path = "?Value=0.#", keep = "half" },
+  { run = 'plan --yes "set the training intensity of our two least fit players to half"' },
+  { read = "intensity", path = "?Value=0.#", differs_from = "half" },
+]
+
+[[test]]
+task = "T209"
+name = "--dry and a plan with no yes change nothing"
+at = "calm"
+fresh = true
+steps = [
+  { read = "intensity", path = "?Value=0.#", keep = "half" },
+  { read = 'plan --dry "yorgun oyuncuların hepsini yarı yoğunluğa al"', path = "Steps.#", not = 0 },
+  { run = 'plan "yorgun oyuncuların hepsini yarı yoğunluğa al"', rc = "any" },
+  { read = "intensity", path = "?Value=0.#", same_as = "half" },
+]
+
+[[test]]
+task = "T209"
+name = "a weighty step, time and talks are not run"
+at = "calm"
+fresh = true
+steps = [
+  { read = "squad", path = "#", keep = "squad" },
+  { read = "status", path = "Date", keep = "day" },
+  { read = "finances", path = "Balance", keep = "balance" },
+  { run = 'plan --yes "en yorgun oyuncumuzun sözleşmesini karşılıklı feshet"', rc = "any" },
+  { run = 'plan --yes "maça kadar ilerle"', rc = "any" },
+  { run = 'plan --yes "release our lowest rated player for free"', rc = "any" },
+  { read = "squad", path = "#", same_as = "squad" },
+  { read = "status", path = "Date", same_as = "day" },
+  { read = "finances", path = "Balance", same_as = "balance" },
+]
+
+[[test]]
+task = "T209"
+name = "a step the game refuses is told as failed"
+at = "calm"
+fresh = true
+steps = [
+  { read = "intensity", path = "?Value=0.#", keep = "half" },
+  { run = 'plan --yes "sakat oyuncumuzun antrenman yoğunluğunu yarıya indir"', rc = "any" },
+  { read = "intensity", path = "?Value=0.#", same_as = "half" },
+]

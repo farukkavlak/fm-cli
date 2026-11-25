@@ -3150,3 +3150,21 @@ Nothing was read from the game for this answer ({0:0.0} s).	Bu cevap için oyund
 Not run (it could change the game): {0}	Çalıştırılmadı (oyunu değiştirebilirdi): {0}
 ⚠ Not in anything read: {0}. Check before you rely on it.	⚠ Okunan hiçbir şeyde yok: {0}. Güvenmeden önce kontrol et.
 ask             the assistant: a question answered from what it reads in the game (read-only; needs ai set);  ask --new <question>: a new talk	ask             asistan: soruyu oyundan okuduğuyla cevaplar (yalnız okur; ai set gerekir);  ask --new <soru>: yeni bir konuşma
+usage: plan <what to do>   (--dry: only show the plan; --yes: run it without asking)	kullanım: plan <ne yapılacak>   (--dry: planı yalnız göster; --yes: sormadan çalıştır)
+Run the plan?	Plan çalıştırılsın mı?
+running: {0}…	çalışıyor: {0}…
+Nothing was run: plan … --yes runs it.	Hiçbir şey çalıştırılmadı: plan … --yes çalıştırır.
+`{0}` cannot be taken back: it runs only on a yes at a terminal.	`{0}` geri alınamaz: yalnız terminalde evet denince çalışır.
+`{0}` cannot be taken back. Run it?	`{0}` geri alınamaz. Çalıştırılsın mı?
+{0} gave no plan ({1}). Check it: ai test	{0} plan vermedi ({1}). Denetle: ai test
+Plan, {0} steps:	Plan, {0} adım:
+(cannot be taken back: asks again)	(geri alınamaz: yeniden sorar)
+check: {0} → {1}	denetim: {0} → {1}
+done	yapıldı
+already so	zaten öyle
+the game does not show it	oyun bunu göstermiyor
+failed	başarısız
+ran; not checked	çalıştı; denetlenemedi
+plan            something to do, done in steps: the assistant reads and proposes them, you say yes, each is read back;  --dry: only show · --yes: no question	plan            bir iş, adım adım: asistan okur ve adımları önerir, sen evet dersin, her adım geri okunur;  --dry: yalnız göster · --yes: sormadan
+Ran, not shown to hold: {0}. Check it before going on.	Çalıştı, tuttuğu görülmedi: {0}. Devam etmeden denetle.
+Failed: {0}	Başarısız: {0}

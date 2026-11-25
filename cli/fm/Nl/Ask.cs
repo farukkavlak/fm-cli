@@ -124,24 +124,32 @@ internal static class Ask
 			}
 			messages.Add(reply.Message!);
 			foreach (var call in reply.Calls)
-			{
-				calls++;
-				var words = Mcp.CommandFor(call.Name, call.Args) is { } w ? string.Join(" ", w) : call.Name;
-				reading?.Invoke(words);
-				var (text, ran) = calls > MaxCalls
-					? ("Not run: enough has been read for one question; answer from it.", false)
-					: await Mcp.RunRead(call.Name, call.Args, run);
-				if (ran)
-				{
-					read.Add(words);
-					seen.Add(text);
-				}
-				else if (calls <= MaxCalls) refused.Add(words);
-				if (text.Length > MaxRead) text = text[..MaxRead] + "\n…(cut: ask for less, e.g. one player)";
-				messages.Add(new JsonObject { ["role"] = "tool", ["tool_call_id"] = call.Id, ["content"] = text });
-			}
+				messages.Add(await Read(call, ++calls > MaxCalls, run, read, refused, seen, reading));
 		}
 		return new Result("", read, refused, [], Seconds(), tokens, "no answer");
+	}
+
+	/// <summary>
+	/// A read the model asked for, run when it only reads (<see cref="Mcp.RunRead"/>), as the tool message
+	/// that answers it; <paramref name="enough"/> refuses it, nothing run. What ran goes to <paramref name="read"/>
+	/// and its text to <paramref name="seen"/>; a call that could act goes to <paramref name="refused"/>.
+	/// </summary>
+	internal static async Task<JsonObject> Read(ToolCall call, bool enough, Func<string[], Task<int>> run,
+		List<string> read, List<string> refused, List<string> seen, Action<string>? reading)
+	{
+		var words = Mcp.CommandFor(call.Name, call.Args) is { } w ? string.Join(" ", w) : call.Name;
+		reading?.Invoke(words);
+		var (text, ran) = enough
+			? ("Not run: enough has been read; answer from it.", false)
+			: await Mcp.RunRead(call.Name, call.Args, run);
+		if (ran)
+		{
+			read.Add(words);
+			seen.Add(text);
+		}
+		else if (!enough) refused.Add(words);
+		if (text.Length > MaxRead) text = text[..MaxRead] + "\n…(cut: ask for less, e.g. one player)";
+		return new JsonObject { ["role"] = "tool", ["tool_call_id"] = call.Id, ["content"] = text };
 	}
 
 	/// <summary>

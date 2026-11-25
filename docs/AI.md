@@ -81,7 +81,20 @@ Order: names first, then the learning router, then the cloud.
     - haiku-5-5, TR game: 20/20 answered, 2 with a name flagged, talks 8/8, median 16.7 s
     - Found and fixed: a yearly wage told as weekly; an earlier wrong answer taken as a fact; a player of another club
       taken as ours (`player` now shows the club)
-- [ ] T209 Plans: steps, approval, run, verify
+- [ ] T209 Plans: `fm plan <what to do>` (`Nl/Plan.cs`)
+  - [x] The model reads, then proposes steps: one acting tool call each, with a read that checks it and what it should show
+  - [x] Each step checked by our code (`Mcp.NotAStep`): tools that act only, arguments of the schema, never `dry`
+    - Not in a plan: time (next, match, holiday), talks, saves, the session, the job, the screen by hand
+    - A plan with a fault is sent back to the model, not shown (3 tries)
+  - [x] Shown in full, run on a yes (`--yes` in a script, `--dry` only shows); a weighty step asks again, never runs without a terminal
+  - [x] Each step: its check read before and after; done only when it changed and the model says it shows the step
+    - Unchanged and shown: already so. Failed, not shown, no verdict: the rest stop, and the end says what ran, failed, was left
+  - [x] Up to 12 steps; a reply cut at its length is told so and proposed again (one player each: 10 tired players)
+  - [x] Live: `tests/live/round80.toml` TR + EN 5/5 (repeats 3/3): does it and reads it back, `--dry` and no yes change
+    nothing, a weighty step / time / talks not run, a step the game refuses told as failed
+    - Found and fixed: a plan of 10 steps cut at the reply's length; a long check read cut past the changed row
+      (the verdict now gets the changed lines first)
+  - [ ] It sometimes plans a step for what already holds (shown as "already so", harmless)
 - [ ] T210 Save memory: facts, preferences, plans; list, fix, delete
 - [ ] T211 Transfer and tactic advice from real match data
 - [ ] T212 Personality setting

@@ -28,7 +28,7 @@ internal static partial class Program
 			["club", "staff", "advice", "board", "vision", "finances", "supporters", "facilities", "youth", "responsibilities",
 			 "manager", "jobs", "resign", "read"]),
 		("settings", "ayarlar", "Settings, language and output",
-			["settings", "lang", "learned", "ai", "ask", "export", "completion"]),
+			["settings", "lang", "learned", "ai", "ask", "plan", "export", "completion"]),
 		("tools", "araclar", "The game's screen, by hand",
 			["pages", "open", "buttons", "press", "dropdowns", "select", "type", "actions", "crawl"]),
 	];

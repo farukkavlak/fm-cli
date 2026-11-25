@@ -12,15 +12,19 @@ internal interface IChatModel
 {
 	string Name { get; }
 
-	/// <summary>The model's next message for <paramref name="messages"/>, offered <paramref name="tools"/>; <paramref name="seconds"/> bounds the wait.</summary>
-	Task<ChatReply> Next(JsonArray messages, JsonArray tools, double seconds);
+	/// <summary>The model's next message for <paramref name="messages"/>, offered <paramref name="tools"/>; <paramref name="seconds"/> bounds the wait, <paramref name="tokens"/> its length.</summary>
+	Task<ChatReply> Next(JsonArray messages, JsonArray tools, double seconds, int tokens = 1200);
 }
 
 /// <summary>A tool the model asked for: its call id, name and arguments.</summary>
 internal sealed record ToolCall(string Id, string Name, JsonObject Args);
 
 /// <summary>The model's message: text, tool calls, or why there is none (<see cref="Error"/>). <see cref="Message"/> goes back into the talk as it came.</summary>
-internal sealed record ChatReply(string Text, List<ToolCall> Calls, JsonObject? Message, string? Error, int Tokens);
+internal sealed record ChatReply(string Text, List<ToolCall> Calls, JsonObject? Message, string? Error, int Tokens)
+{
+	/// <summary>The message was cut off at its length: a tool call's arguments in it may be lost.</summary>
+	public bool Cut { get; init; }
+}
 
 internal static class ChatModels
 {
@@ -35,13 +39,13 @@ internal sealed class OpenAiChat(Cloud.Settings settings) : IChatModel
 
 	public string Name => settings.Model;
 
-	public async Task<ChatReply> Next(JsonArray messages, JsonArray tools, double seconds)
+	public async Task<ChatReply> Next(JsonArray messages, JsonArray tools, double seconds, int tokens = 1200)
 	{
 		var body = new JsonObject
 		{
 			["model"] = settings.Model,
 			["temperature"] = 0,
-			["max_tokens"] = 1200,
+			["max_tokens"] = tokens,
 			["messages"] = messages.DeepClone(),
 		};
 		if (tools.Count > 0) body["tools"] = tools.DeepClone();
@@ -70,8 +74,9 @@ internal sealed class OpenAiChat(Cloud.Settings settings) : IChatModel
 				calls.Add(new ToolCall(id, name, args));
 			}
 			var text = message["content"] is JsonValue v && v.TryGetValue<string>(out var t) ? t : "";
-			var tokens = reply["usage"]?["total_tokens"]?.GetValue<int>() ?? 0;
-			return new ChatReply(text.Trim(), calls, (JsonObject)message.DeepClone(), null, tokens);
+			var used = reply["usage"]?["total_tokens"]?.GetValue<int>() ?? 0;
+			var cut = reply["choices"]?[0]?["finish_reason"]?.GetValue<string>() == "length";
+			return new ChatReply(text.Trim(), calls, (JsonObject)message.DeepClone(), null, used) { Cut = cut };
 		}
 		catch (Exception e) when (e is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or InvalidOperationException)
 		{
