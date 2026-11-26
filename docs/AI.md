@@ -104,8 +104,7 @@ Order (before T211–T213). New work is added in this file, by id.
     title, flags, time, id, TagsList (empty in the tree); `NewsItemAction`/`NewsActionData` are not pullable from it
   - [ ] Look further: the tags' values, the offer's own record against the message id; else leave it (the
     messages open the offers, and `next` turns them into the offer stop)
-- [ ] T225 At the offer stop "samsunun teklifine bak" picks the offer but not "view" (model reads "-"):
-  add view sentences about an offer to `Nl/stop-answers.tsv`, measure with `fm __stops`
+- [ ] T225 Seeing an offer by a sentence: the possessive of a club name ("rizesporunkine") is not found as the club
 - [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
   measure what the page shows when it misses before changing the wait
 - [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell

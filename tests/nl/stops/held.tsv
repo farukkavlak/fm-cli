@@ -51,3 +51,10 @@ goon	devamke	goon
 goon	go	goon
 goon	taktik	-
 goon	who is injured	-
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Rizespor → Baray Yenilmez	samsunun teklifine bak	about>view
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Rizespor → Baray Yenilmez	rizesporunkine bakalım	about>view
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Rizespor → Baray Yenilmez	başakşehirin teklifini göster	about>view
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Rizespor → Baray Yenilmez	show me the rizespor offer	about>view
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Rizespor → Baray Yenilmez	let me see samsunspor's bid	about>view
+about	ikinci teklife bir bakayım	about>view
+about	look at the second one	about>view
