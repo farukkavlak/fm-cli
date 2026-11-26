@@ -1,0 +1,39 @@
+# A stop answered with nowhere to go (a plain `next`): what still waits is read again, nothing pressed.
+# The other offers come back as the stop, so a number picks one of them; a game left free moves no day.
+
+[[test]]
+task = "T214"
+name = "an offer rejected without a goal: the other offers are the stop again, a number picks one"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "offer", live = true },
+  { read = "next", path = "Stop.Answers.0.Command", keep = "pick", live = true },
+  # Every offer made to us that can be accepted is an answer of the stop, in the game's own order. The first
+  # is rejected; the fifth is then the stop's fourth (offer-stop: the first that can be stalled).
+  { read = "next", path = "Stop.Answers.#", keep = "count", live = true },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", same_as = "count" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Player", keep = "next_one" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Club", keep = "from" },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.CanStall", is = true },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", keep = "was" },
+  { read = "status", path = "Date", keep = "day" },
+  # The stop comes back after the reject: a number alone picks that offer, its third answer stalls it.
+  { session = ["next", "{pick!}", "{pick!} reject --yes", "4", "3"] },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", differs_from = "was" },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T214"
+name = "a message stop answered without a goal moves no day"
+at = "cup-draw"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "message", live = true },
+  { read = "status", path = "Date", keep = "day" },
+  { session = ["next", "1"] },
+  { read = "status", path = "Date", same_as = "day" },
+]

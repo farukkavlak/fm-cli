@@ -139,6 +139,13 @@ internal static class Session
 					await Interruptible(() => Run(onward));
 					if (!Console.IsOutputRedirected) await Program.SayNews();
 				}
+				// Nowhere to go: what still waits is read, nothing pressed (the other offers come back as the stop).
+				else if (Program.GoalNow == null && !wentOn)
+				{
+					var free = false;
+					await Interruptible(async () => { free = await Program.LookAgain(); return 0; });
+					if (free) Console.WriteLine(Program.Dim(L("The game can go on: next")));
+				}
 			}
 
 			// A stop come to is shown once, with its answers; one still standing after a question keeps its

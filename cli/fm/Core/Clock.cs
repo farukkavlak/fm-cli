@@ -485,6 +485,27 @@ internal static partial class Program
 		return false;
 	}
 
+	/// <summary>
+	/// After a stop is answered with nowhere to go (a plain `next`, a load): what the game holds for now, read
+	/// and never pressed, so the offers still waiting are a stop again and a free game moves no day. Held by the
+	/// game's own flow and its must-respond kind, as `next` reads them. True when it is free to go on.
+	/// </summary>
+	internal static async Task<bool> LookAgain()
+	{
+		var state = await Fm.GetJson("state");
+		if (Busy(state) && !await Until(async () => !Busy(state = await Fm.GetJson("state")), seconds: 60, every: 0.25))
+			return false;
+		var flow = Field(state, "State");
+		if (Field(state, "DuringMatch") == "True" || flow is "Tactics" or "SubmitTeam")
+		{
+			HaltMatchDay();
+			return false;
+		}
+		if (Passable(flow)) return true;
+		await Explain(state, Console.Out, flow);
+		return false;
+	}
+
 	/// <summary>Why the game will not continue, in the terms of what to do about it.</summary>
 	private static async Task Explain(JsonElement state, TextWriter output, string? flow = null)
 	{

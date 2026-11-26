@@ -62,6 +62,7 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - A number answers. So does typing the command (`offers 1 reject`) or a sentence.
 - A question in between (`rakip kim`, `kim sakat`) is answered and the stop waits; its answers stay on the numbers, unless the question showed a list of its own.
 - After `next --until match` (`maça kadar ilerle`) an answered stop goes on to the match by itself; match day ends it.
+- After a plain `next` an answered stop is read again, nothing pressed: the other offers come back as the stop; a game left free moves no day.
 - Anything weighty (accept, reject, sell) still asks for a yes.
 - `next --json` gives the stop too: `Stop.Kind`, `Stop.About`, `Stop.Answers[].Command`.
 
