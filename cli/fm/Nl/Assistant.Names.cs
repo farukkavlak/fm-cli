@@ -156,17 +156,8 @@ internal static partial class Program
 	/// <summary>The name to give the command for what was typed; null when a choice was left unanswered.</summary>
 	internal static string? Named(string typed, List<SaveName> known, bool byId = false)
 	{
-		var words = new Nl.Text(typed).Words.ToList();
+		var (words, players) = Fits(typed, known);
 		if (words.Count == 0) return typed;
-		var players = NameFit.Who(words, known, SaveName.Player);
-		// "frosinonenin rinaldi": the club's words are not his name.
-		if (players.Count == 0 && NameFit.ClubFirst(words, known) is { } split)
-		{
-			words = [.. split.Left];
-			players = NameFit.Who(words, known, SaveName.Player);
-		}
-		// "salifounun bilgilerini": a word the reader took into the name that is no part of one
-		if (players.Count == 0 && NameFit.Within(words, known, SaveName.Player) is { } part) (words, players) = part;
 		if (players.Count == 0) return string.Join(' ', words);
 		var who = players[0];
 		if (players.Count > 1)
@@ -184,5 +175,42 @@ internal static partial class Program
 		}
 		// Two of ours with one name are told apart by the id, as `player` reads it.
 		return byId && known.Count(k => k.Kind == SaveName.Player && k.Name == who.Name) > 1 ? $"{who.Name} #{who.Id}" : who.Name;
+	}
+
+	/// <summary>The words of a typed name and the save's players they fit, best first.</summary>
+	private static (List<string> Words, List<SaveName> Players) Fits(string typed, List<SaveName> known)
+	{
+		var words = new Nl.Text(typed).Words.ToList();
+		if (words.Count == 0) return (words, []);
+		var players = NameFit.Who(words, known, SaveName.Player);
+		// "frosinonenin rinaldi": the club's words are not his name.
+		if (players.Count == 0 && NameFit.ClubFirst(words, known) is { } split)
+		{
+			words = [.. split.Left];
+			players = NameFit.Who(words, known, SaveName.Player);
+		}
+		// "salifounun bilgilerini": a word the reader took into the name that is no part of one
+		if (players.Count == 0 && NameFit.Within(words, known, SaveName.Player) is { } part) (words, players) = part;
+		return (words, players);
+	}
+
+	/// <summary>
+	/// The call as the list of likely commands shows it: each player it names put as the save knows
+	/// him when that is sure without asking (one fits, or the one picked for these words before);
+	/// otherwise as typed. The call itself is left as it is: its names are settled once it is chosen.
+	/// </summary>
+	private static Router.Call ShownNames(Router.Call call, List<SaveName> known)
+	{
+		if (!PlayerArgs.TryGetValue(call.Tool, out var args) || known.Count == 0) return call;
+		var shown = (JsonObject)call.Args.DeepClone();
+		foreach (var arg in args)
+		{
+			if (shown[arg] is not JsonValue v || !v.TryGetValue<string>(out var typed) || typed.Length == 0) continue;
+			var (words, players) = Fits(typed, known);
+			var learned = players.Count > 1 ? Learned.IdFor(string.Join(' ', words), SaveName.Player, players.Select(p => p.Id)) : null;
+			if (players.Count == 1) shown[arg] = players[0].Name;
+			else if (learned != null) shown[arg] = players.First(p => p.Id == learned).Name;
+		}
+		return call with { Args = shown };
 	}
 }

@@ -46,7 +46,8 @@ internal static partial class Program
 			return 64;
 		}
 
-		var seen = NameFit.StandIn(sentence, await SaveNames());
+		var known = await SaveNames();
+		var seen = NameFit.StandIn(sentence, known);
 		var understood = Nl.Router.Understand(sentence, model, seen);
 		// smart mode: the cloud model the user set up, asked only when the router is not sure
 		if (understood.Calls.Count == 0 && Cloud.Current() is { } cloud)
@@ -74,7 +75,7 @@ internal static partial class Program
 		var byEnter = false;
 		if (calls.Count == 0)
 		{
-			(var pick, var own, byEnter) = Choose(understood.Options);
+			(var pick, var own, byEnter) = Choose(understood.Options, known);
 			if (own != null) return await RunInstead(own, understood, seen ?? sentence, sentence, execute);
 			if (pick == null) return NothingRun;
 			calls = [pick];
@@ -193,17 +194,18 @@ internal static partial class Program
 	/// with its arguments. Enter takes the first (ByEnter: a weighty one is still asked); 0 says none is meant and asks for the command that
 	/// is (Typed), which runs and is learned for the sentence. Null when nothing is chosen.
 	/// </summary>
-	private static (Nl.Router.Call? Pick, string[]? Typed, bool ByEnter) Choose(List<(Nl.Router.Call Call, float Weight)> options)
+	private static (Nl.Router.Call? Pick, string[]? Typed, bool ByEnter) Choose(List<(Nl.Router.Call Call, float Weight)> options, List<SaveName> known)
 	{
 		Console.WriteLine(options.Count == 1 ? L("Did you mean this?") : L("Did you mean one of these?"));
 		var described = CommandDescriptions();
 		var rows = options.Select(o =>
 		{
-			var words = Typed(o.Call) ?? [o.Call.Tool];
+			var call = ShownNames(o.Call, known);
+			var words = Typed(call) ?? [call.Tool];
 			// an argument still to be asked stands empty in the words
 			var shown = string.Join(' ', words.Select(w => w.Length == 0 ? "…" : w.Contains(' ') ? $"\"{w}\"" : w));
 			var share = o.Weight == Nl.Router.FromCloudWeight ? L("ai").PadLeft(4) : $"{o.Weight * 100,3:0}%";
-			var about = CallLines.Of(o.Call.Tool, o.Call.Args, (arg, value) => ChoiceText(o.Call.Tool, arg, value))
+			var about = CallLines.Of(call.Tool, call.Args, (arg, value) => ChoiceText(call.Tool, arg, value))
 				?? Short(described.GetValueOrDefault(words[0], ""));
 			return (shown, share, about);
 		}).ToList();
