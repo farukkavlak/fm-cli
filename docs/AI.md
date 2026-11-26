@@ -89,7 +89,7 @@ Order (before T211–T213). New work is added in this file, by id.
   the lines as shown; sent by index or id
   - [x] Coded: a message opened and a conversation are a stop of lines in the session (Core/StopLines.cs);
     bench `fm __lines tests/nl/lines/{cases,held}-{tr,en}.tsv` (held TR 16/23, EN 28/30, no wrong line without a yes)
-  - [ ] round85 live: EN 3/3 all three tests; TR left (press scenario)
+  - [x] round85 live: TR + EN 3/3 all three tests
   - [ ] Team talks and the tunnel interview in `match` are still picked with the arrows
 - [ ] T223 Readable output: find the outputs that read better as a table or with dividers, then do them in one round
   - [ ] Offer stop: 13 offers as one line each (`Club → Player · fee`); a table (club, player, fee, terms) reads better
