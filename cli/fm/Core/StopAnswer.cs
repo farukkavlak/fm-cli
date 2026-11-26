@@ -110,7 +110,7 @@ internal static partial class Program
 	/// </summary>
 	internal static (string[] Command, IReadOnlySet<string> Done, bool Sure)? StopAnswer(HeldStop stop, string sentence, bool ask = true)
 	{
-		if (AnswersSaid(stop, sentence) is not { Places.Count: > 0 } said) return null;
+		if ((stop.Kind == LinesKind ? LinesSaid(stop, sentence) : AnswersSaid(stop, sentence)) is not { Places.Count: > 0 } said) return null;
 		var at = said.Places[0];
 		if (said.Places.Count > 1)
 		{
@@ -123,7 +123,8 @@ internal static partial class Program
 			at = n - 1;
 		}
 		var (label, command) = stop.Answers[at];
-		var leads = DoneBy(command) == null;
+		// one of the game's own lines leads nowhere further: it is the answer
+		var leads = stop.Kind != LinesKind && DoneBy(command) == null;
 		// Read, but not clearly: shown, and run on a yes (an answer that leads on is only a look, and goes).
 		if (!said.Sure && !leads && said.Places.Count == 1 && !SureOf(stop, at, ask)) return ([], new HashSet<string>(), true);
 		Console.WriteLine(Dim($"→ {at + 1}. {label}"));

@@ -56,6 +56,7 @@ internal static partial class Program
 		"setpieces" => L("The set piece wizard"),
 		"vision" => L("The club vision meeting"),
 		"talk" => L("A conversation is open"),
+		LinesKind => L("What do you say?"),
 		"tour" => L("A guided tour"),
 		"message" => L("A message waits for an answer"),
 		"again" => L("A message may want answering again"),

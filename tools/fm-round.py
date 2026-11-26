@@ -47,6 +47,7 @@ Steps:
   ours for a substitute, then the step's `again`. A game that dies in a try is started again and the try counted
   as without the moment (T92), not as a failure.
   session = ["<line>", …]  lines typed into an `fm` session, one after another, then quit; rc as for run.
+                           session_<lang> = the lines as typed in that language (session in the others)
                            What it prints is not compared: the reads after it say what it did
   {name} in a command      the value kept under that name, as one word; {name!} as words (a kept command)
 
@@ -699,6 +700,10 @@ def problems_in(tests):
             allowed = {"run", "rc", "within", "note"} | {f"run_{lang}" for lang in LANGUAGES}
             if kind == "run" and set(step) - allowed:
                 found.append(f"{where} step {number}: unknown {sorted(set(step) - allowed)}")
+            # `session_<lang>`: the lines as a player of that language types them; `session` in the others.
+            allowed_session = {"session", "rc", "seconds", "note"} | {f"session_{lang}" for lang in LANGUAGES}
+            if kind == "session" and set(step) - allowed_session:
+                found.append(f"{where} step {number}: unknown {sorted(set(step) - allowed_session)}")
             if kind == "start":
                 running = True
             if kind in ("finish", "stop"):
@@ -951,6 +956,8 @@ def play(test):
         for number, step in enumerate(test["steps"], 1):
             if f"run_{LANG_NOW}" in step:
                 step = {**step, "run": step[f"run_{LANG_NOW}"]}
+            if f"session_{LANG_NOW}" in step:
+                step = {**step, "session": step[f"session_{LANG_NOW}"]}
             step = {k: filled(v, kept) if k in ("run", "read", "until", "start") else v for k, v in step.items()}
             if "run" in step or "read" in step:
                 plain_step(number, step, kept)

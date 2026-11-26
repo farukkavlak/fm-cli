@@ -288,6 +288,10 @@ internal static partial class Program
 		if (await FeeAsked(words) is { } fee) return fee;
 		var options = await TalkOptions();
 
+		// In a session the conversation is a stop: what was said, then its lines numbered, answered by a number or
+		// a sentence (T221), each line said coming back with the next ones.
+		if (words.Count == 0 && !json && SessionShowsStops && options.Count > 0) return await Shown(options);
+
 		// At a terminal the conversation is held right here: what was said, then the answers
 		// to pick from with the arrows, until it ends or the question is put aside.
 		if (words.Count == 0 && !json && Ui.Interactive && options.Count > 0)
@@ -372,7 +376,19 @@ internal static partial class Program
 			return 0;
 		}
 
-		return await Say(options[offered.IndexOf(pick)]) ?? await Show(options);
+		return await Say(options[offered.IndexOf(pick)]) ?? await Shown(options);
+
+		// The talk as it stands; in a session its lines are the stop, by their place (`talk <n>`).
+		async Task<int> Shown(List<Line> lines)
+		{
+			if (!SessionShowsStops || json) return await Show(lines);
+			var code = await Show(lines, footer: false);
+			if (code != 0) return code;
+			var recommended = await Recommended();
+			await GameWords.Ask(Fm, [.. lines.Select(o => o.Label)]);
+			Halt(LinesKind, null, [.. lines.Select((o, i) => (GameWords.Of(o.Label) + (recommended.Contains(o.Label) ? L("  (recommended)") : ""), new[] { "talk", $"{i + 1}" }))]);
+			return 0;
+		}
 
 		// Says one line and waits for the conversation to move on. Null means it goes on, with
 		// the next answers in options; a number is how the command ends.

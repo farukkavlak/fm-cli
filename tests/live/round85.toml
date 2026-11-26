@@ -1,0 +1,45 @@
+# T221: the game's own lines as a stop. In a session a message's answers and a conversation's lines come numbered,
+# answered by a number or by a sentence held against the lines as the game shows them (the model's sense of each,
+# and the user's own words found in it), sent by their place. A message's answer read from a sentence is shown and
+# said on a yes; a line clearly nearest is said. A question, or a sentence for something else, leaves it waiting.
+
+[[test]]
+task = "T221"
+name = "a message's answers are a stop: one said in a sentence, on a yes"
+at = "press"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "press", live = true },
+  { session = ["next", "1", "let's attend the press conference", "y"], session_tr = ["next", "1", "basın toplantısına katılalım", "e"] },
+  { read = "talk", path = "Answers.0.Label", present = true },
+]
+
+[[test]]
+task = "T221"
+name = "a question at a message's answers leaves the message waiting"
+at = "press"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "press", live = true },
+  { session = ["next", "1", "which one is better?"], session_tr = ["next", "1", "hangisi daha iyi?"] },
+  { read = "next", path = "Stop.Kind", is = "press", live = true },
+]
+
+[[test]]
+task = "T221"
+name = "a conversation's line said in a sentence; a command at it says no line"
+at = "press"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "press", live = true },
+  { session = ["next", "1", "2", "1"] },
+  { read = "talk", path = "Says.0", keep = "question" },
+  { read = "talk", path = "Answers.#", is = 5 },
+  { session = ["talk", "show the squad"], session_tr = ["talk", "kadroyu göster"] },
+  { read = "talk", path = "Says.0", same_as = "question" },
+  { session = ["talk", "I won't talk about it"], session_tr = ["talk", "bu konuyu konuşmak istemiyorum"] },
+  { read = "talk", path = "Says.0", differs_from = "question" },
+]

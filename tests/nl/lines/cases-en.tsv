@@ -1,0 +1,41 @@
+# Sentences at a stop of the game's own lines (T221): "= lines" then "sentence<TAB>line wanted" (0: none).
+# Lines as the game showed them (press conference, Helmond Sport, EN, 26 Nov 2026).
+= It's a real honour to be entrusted with this role and I'm excited about the future | I'm happy to be here and I'll be even happier when we get down to business and start working with the group | It's a challenging environment but one I really wanted to work in | If we all work together, and if we're patient, we can enjoy a long and fruitful relationship | I don't wish to discuss this
+say it's an honour	1
+excited about the future	1
+happy to be here, can't wait to work with the players	2
+it will be hard but I wanted this	3
+ready for the challenge	3
+be patient and we'll do well together	4
+no comment	5
+I won't talk about it	5
+the second one	2
+show the squad	0
+who is injured	0
+= I believe so; the playing staff here fit my philosophy and that's a big part of why I came here | I really believe in my system, but it requires a certain type of player, which is the kind of player I want to bring in to the side | I've always enjoyed that style of football but, at the end of the day, my job is to get the best out of the players | Every group of players brings a different set of strengths and weaknesses for a manager, so I'm looking forward to finding the system that suits them best | To be honest, I think this has all been overstated in the media. The results come first and I plan to set the team up to get them
+yes, the players fit my style	1
+I need to sign players for my system	2
+my job is getting the best from the players	3
+I'll find a system that suits the squad	4
+the media overstates it, results matter	5
+when is the next match	0
+= At the end of the day I think it probably was, FC Den Bosch had to make a decision they felt was best for the club | I can certainly see why they decided to take a different approach, and I bear no grudges | I don't think it's appropriate to discuss that, I've moved on and want to focus on my new job | I think it was a bit harsh looking back | I think I was treated extremely unfairly and the decision was absolutely the wrong one
+they did what was best for the club	1
+no hard feelings	2
+I understand them	2
+I've moved on, focus on the new job	3
+it was a bit harsh	4
+it was unfair	5
+they were wrong to sack me	5
+= I think it was imperative to, football is my life and I'd hate to be out of the game for too long | I'm very pleased to have landed on my feet, so to speak. | I don't think it's appropriate to discuss that, I've moved on and want to focus on my new job | I think it was a case of being in the right place at the right time, and thankfully Helmond Sport were keen to talk to me | I could hardly say no to a club like this
+football is my life	1
+glad I landed on my feet	2
+right place, right time	4
+couldn't say no to this club	5
+= I can honestly say there were no problems at any stage. This is meant to be | I knew I had to jump at the chance if it came my way and I'm very lucky it did | Not particularly, although I'm not naive enough to think there won't be rough times to go along with the smooth, as there are in any job | I know I've had a lot of faith put in me and I have to make sure I repay that faith each and every day | I'd say they were more questions than reservations, but I know the challenges of the job, and I'm looking forward to tackling them
+no doubts at all, it was meant to be	1
+I was lucky to get the chance	2
+there will be hard times	3
+I must repay their faith	4
+just questions, I'm ready for the challenges	5
+what's our budget	0

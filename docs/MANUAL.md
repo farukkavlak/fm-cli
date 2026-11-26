@@ -67,6 +67,11 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
   - What to do is read by the language model, not by a word list: other ways of saying it, endings and typos work too.
   - Not sure what was meant: the answer is shown and runs on a yes. Two as good (one player, two clubs) are asked between.
   - A question or a sentence about something else goes to the router; the stop waits.
+- A message opened, or a conversation (a press conference, a talk with a player), puts the game's own lines as the stop:
+  - a number says one; so does a sentence in your own words: `kin beslemiyorum` finds "… hiçbir şekilde kin beslemem";
+  - the model holds the sentence against what each line says, and your words found in a line count too;
+  - a line clearly nearest is said; one less sure, or a message's answer, is shown and said on a yes; a few as near are asked between;
+  - each line said brings the next question's lines, until the talk is over.
 - A question in between (`rakip kim`, `kim sakat`) is answered and the stop waits; its answers stay on the numbers, unless the question showed a list of its own.
 - After `next --until match` (`maça kadar ilerle`) an answered stop goes on to the match by itself; match day ends it.
 - After a plain `next` an answered stop is read again, nothing pressed: the other offers come back as the stop; a game left free moves no day.

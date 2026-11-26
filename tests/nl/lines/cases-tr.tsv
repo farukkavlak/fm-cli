@@ -1,0 +1,41 @@
+# Sentences at a stop of the game's own lines (T221): "= lines" then "sentence<TAB>line wanted" (0: none).
+# Lines as the game showed them (press conference, Helmond Sport, TR, 26 Nov 2026).
+= Bu göreve layık görülmek büyük bir onur. Geleceğe umutla bakıyorum | Burada olmaktan çok mutluyum. Antrenman sahasına inip oyuncularımla çalışmaya başlayınca daha da mutlu olacağım | Bu görevde birçok zorlukla karşılaşacağımız kesin; ama ben de tam olarak böyle bir şey istiyordum | If we all work together, and if we're patient, we can enjoy a long and fruitful relationship | Bu konuyu tartışmayı istemiyorum
+onur duyduğumu söyle	1
+gelecekten umutluyum	1
+burada olmaktan mutluyum de	2
+oyuncularla çalışmak için sabırsızlanıyorum	2
+zor olacak ama bunu istiyordum	3
+zorluklara hazırım	3
+sabırlı olursak birlikte başarırız	4
+birlikte çalışırsak uzun bir ilişki olur	4
+bu konuyu konuşmak istemiyorum	5
+cevap verme	5
+ilkini söyle	1
+üçüncüsü	3
+kadroyu göster	0
+sakatlar kim	0
+hangisi daha iyi?	0
+= Oyun sistemimin kulübüme uyacağını düşünüyorum. Zaten buradaki oyuncuların çoğu da kafamdaki sisteme uygun olduğu için bu takımı tercih etmiştim | Kendi oyun sistemime inancım tam ama bu sistemi uygulayabilmem için belli oyuncu tipindeki oyunculara sahip olmam gerekiyor ki ben de böylelerini takıma katmak istiyorum | Her zaman kendi oyun sistemimi oynatmanın keyfi bir başka olmuştur benim için ama sonuçta bir menajer olarak önemli olan şey oyunculardan bir şekilde tam verimi almayı başarmaktır | Elimizdeki oyuncuların geneline bakınca belli başlı artılar ve eksiler ortaya çıkar. Ben de takımıma göre bir sistem ayarlamayı istiyorum bir an önce | Açıkçası futbol sistemimi medyanın abartısı olarak görüyorum. Önemli olan şey istenilen sonucu almaktır ve ben de takımımı buna göre kuracağım
+sistemim bu takıma uyar	1
+oyuncular sistemime uygun	1
+sistemim için yeni oyuncular almam lazım	2
+transfer yapmam gerekecek	2
+önemli olan oyunculardan verim almak	3
+takıma göre sistem kuracağım	4
+sistemi oyunculara göre ayarlarım	4
+medya abartıyor	5
+sistem diye bir şey yok, sonuç önemli	5
+maç ne zaman	0
+taktiği göster	0
+= FC Den Bosch yönetiminin kulüp için en doğru kararı vermeye çalıştığına inanıyorum, saygılayla karşılamak gerekir | Benden vazgeçip başka bir isme teklif götürmelerini anlayışla karşılıyorum, hiçbir şekilde kin beslemem | Bu konuda konuşma taraftarı değilim, yeni bir kulübüme geldim ve artık işime odaklanmak istiyorum | Geriye baktığımda bunun biraz zorlu olduğunu görüyorum. | Bana yaptıkları yargısız infazdı, aldıkları karar kesinlikle yanlıştı
+kararlarına saygı duyuyorum	1
+doğru kararı verdiler	1
+kin beslemiyorum	2
+onları anlıyorum	2
+geçmişi konuşmayalım, işime bakıyorum	3
+yeni kulübüme odaklanıyorum	3
+zor bir dönemdi	4
+haksızlık yaptılar	5
+karar yanlıştı	5
+bütçe ne kadar	0

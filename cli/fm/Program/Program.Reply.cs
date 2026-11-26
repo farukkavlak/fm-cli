@@ -250,11 +250,27 @@ internal static partial class Program
 			if (says.Length > 0) Console.WriteLine($"  {says.Replace("\n", "\n  ")}");
 			await WriteAttachment(answers.Select(a => Field(a, "Label")).ToHashSet());
 			Console.WriteLine();
-			if (!Ui.Interactive) Options(Console.Out);
+			if (!Ui.Interactive && !SessionShowsStops) Options(Console.Out);
 			if (choices.Count > 0)
 			{
 				Console.WriteLine(L("\nIn the message, to choose before answering (reply <message> --pick <number>):"));
 				WriteChoices(Console.Out, choices);
+			}
+
+			// In a session the answers are a stop, answered by a number or a sentence (T221), each sent by its
+			// place; an answer that is a list is one answer per option.
+			if (SessionShowsStops)
+			{
+				var lines = new List<(string, string[])>();
+				for (var i = 0; i < answers.Count; i++)
+				{
+					var label = GameWords.Of(Field(answers[i], "Label"));
+					if (listed.TryGetValue(Field(answers[i], "Pointer"), out var options) && options.Count > 0)
+						lines.AddRange(options.Select((o, c) => ($"{label}: {o}", new[] { "reply", $"id:{id}", $"{i + 1}", $"{c + 1}" })));
+					else lines.Add((label, ["reply", $"id:{id}", $"{i + 1}"]));
+				}
+				Halt(LinesKind, null, [.. lines]);
+				return 0;
 			}
 
 			// At a terminal the choice is asked for on the spot. A script gets the listing and
@@ -382,6 +398,8 @@ internal static partial class Program
 		else if (tour) Console.WriteLine(L("A guided tour opened; the message closes when the tour is over. To run it: tour"));
 		else if (talking && await OfferScreen.Read(Fm, "contract") != null)
 			Console.WriteLine(L("Contract talks opened; the message closes when they are over. The terms: contract   (to accept them: contract --sign --yes)"));
+		// in a session the conversation it opened is the next stop, its lines numbered
+		else if (talking && SessionShowsStops) return await TalkTo(false, []);
 		else if (talking) Console.WriteLine(L("A conversation opened; the message closes when the conversation is over. To go on: talk"));
 		else if (!settled && await VisionControls() != null) Console.WriteLine(L("A club vision meeting opened; the message closes when the meeting is over. To go on: vision"));
 		else if (!settled && await RegistrationOnScreen()) Console.WriteLine(L("The squad registration screen opened; the message closes when the list is sent. The list and the rules: register   (the assistant's choice: register --auto, then register --send)"));
