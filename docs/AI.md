@@ -93,7 +93,7 @@ Order (before T211–T213). New work is added in this file, by id.
   - [ ] Team talks and the tunnel interview in `match` are still picked with the arrows
 - [ ] T223 Readable output: find the outputs that read better as a table or with dividers, then do them in one round
   - [ ] Offer stop: 13 offers as one line each (`Club → Player · fee`); a table (club, player, fee, terms) reads better
-  - [ ] Session: after an answer the whole stop comes back in full; a divider between what ran and the stop
+  - [ ] Session: after an answer the whole stop comes back in full (a rule with the stop's name now starts each stop)
   - [ ] "Did you mean" at a stop: aligned columns (the router's list is done)
   - [ ] Sweep the other commands' output for the same (list in this box first, then do them)
 - [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):

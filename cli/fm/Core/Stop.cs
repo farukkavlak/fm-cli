@@ -73,13 +73,16 @@ internal static partial class Program
 	};
 
 	/// <summary>
-	/// The session's way of saying a stop: its kind, what it is about, then its answers numbered, which a number
+	/// The session's way of saying a stop: a rule with its kind, what it is about, then its answers numbered, which a number
 	/// alone then picks (the pick list is the stop's until another list is shown).
 	/// </summary>
 	internal static void ShowStop(HeldStop stop)
 	{
 		Console.WriteLine();
-		if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(StopName(stop.Kind))}[/]");
+		// A rule with the stop's name: what the last command printed ends here, and what waits starts.
+		if (Ui.Rich)
+			Ui.Out.Write(new Spectre.Console.Rule($"[bold]{Ui.Safe(StopName(stop.Kind))}[/]")
+				{ Justification = Spectre.Console.Justify.Left, Style = new Spectre.Console.Style(Spectre.Console.Color.Grey) });
 		else Console.WriteLine(StopName(stop.Kind));
 		foreach (var about in stop.About) Console.WriteLine($"  {about}");
 		if (stop.Answers.Count == 0)
