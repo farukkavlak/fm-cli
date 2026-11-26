@@ -87,6 +87,11 @@ Order (before T211–T213). New work is added in this file, by id.
 
 - [ ] T221 The game's own lines by words: a message's answers, talk and press lines picked by a sentence held against
   the lines as shown (today they are picked with the arrows); sent by index or id
+- [ ] T223 Readable output: find the outputs that read better as a table or with dividers, then do them in one round
+  - [ ] Offer stop: 13 offers as one line each (`Club → Player · fee`); a table (club, player, fee, terms) reads better
+  - [ ] Session: after an answer the whole stop comes back in full; a divider between what ran and the stop
+  - [ ] "Did you mean" lists (router, stop answers): aligned columns
+  - [ ] Sweep the other commands' output for the same (list in this box first, then do them)
 - [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
   measure what the page shows when it misses before changing the wait
 - [ ] T220 The options list: command and % stay; beside each a short line of what that call does with its arguments
