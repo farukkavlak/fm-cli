@@ -131,6 +131,9 @@ internal static class Labels
 	public static string Lf(string template, params object?[] values) =>
 		string.Format(CultureInfo.CurrentCulture, AsWritten ? template : Lookup(template) ?? template, values);
 
+	/// <summary>A line with named holes ("{player}"), in the game's language with its holes left to fill.</summary>
+	public static string Named(string line) => AsWritten ? line : Lookup(line) ?? line;
+
 	/// <summary>A text the CLI prints with values in it, in the game's language.</summary>
 	public static string L(ref Template text) => text.Text();
 

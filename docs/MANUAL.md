@@ -79,7 +79,9 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 
 - Turkish or English: `önümüzdeki maç ne zaman`, `rinaldiyi sat`, `who is injured`.
 - The command it became is shown, then runs.
-- Not sure: it offers 3–5 commands; a number picks one, Enter none.
+- Not sure: it offers 3–5 commands, each with a short line of what that call would do.
+  - A number picks one; Enter takes the first (a yes is still asked for anything that cannot be undone).
+  - `0`: none of them; type the command you meant. It runs and is learned for the sentence.
 - Missing details are asked (`maça çık` asks how).
 - Anything that spends, signs, sells or cannot be undone runs only on a yes.
 - One word, a command's name first, or `--options`: it stays a command.

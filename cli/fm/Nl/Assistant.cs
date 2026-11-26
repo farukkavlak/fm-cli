@@ -71,9 +71,12 @@ internal static partial class Program
 
 		var calls = understood.Calls;
 		var chosen = false;
+		var byEnter = false;
 		if (calls.Count == 0)
 		{
-			if (Choose(understood.Options) is not { } pick) return NothingRun;
+			(var pick, var own, byEnter) = Choose(understood.Options);
+			if (own != null) return await RunInstead(own, understood, seen ?? sentence, sentence, execute);
+			if (pick == null) return NothingRun;
 			calls = [pick];
 			chosen = true;
 		}
@@ -90,7 +93,8 @@ internal static partial class Program
 			// a pick from the list, with nothing asked after, was already a yes; one the cloud model and
 			// the router agreed on runs by itself only when it changes nothing in the game
 			var agreed = understood.FromCloud && !chosen && Mcp.EffectOf(call.Tool, call.Args) != Mcp.Effect.Read;
-			if (IsWeighty(call) && !(chosen && call.Ask.Count == 0) || agreed)
+			// a bare Enter took the first without naming it: what cannot be taken back is still asked
+			if (IsWeighty(call) && (byEnter || !(chosen && call.Ask.Count == 0)) || agreed)
 			{
 				if (!Confirm(L($"Run `{shown}`?"))) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
 				yes = true;
@@ -104,6 +108,23 @@ internal static partial class Program
 			// a step that failed stops the rest: they were asked for after it, and may count on it
 			if (code != 0) return Stopped(done, calls.Skip(i + 1), code, calls.Count);
 			done.Add(shown);
+		}
+		return code;
+	}
+
+	/// <summary>
+	/// None of the offered commands was meant and the user typed the one that was: it runs, and when it
+	/// works the sentence is learned for its tool, like a pick from the list (open since T206).
+	/// </summary>
+	private static async Task<int> RunInstead(string[] typed, Nl.Router.Understood understood, string text, string sentence, Func<string[], Task<int>> execute)
+	{
+		var command = Shown(typed);
+		Learned.Next(typed[0]);
+		var code = await execute(typed);
+		if (code == 0 && Mcp.ToolForTyped(typed) is { } tool)
+		{
+			var rivals = understood.Options.Select(o => Typed(o.Call) is [var name, ..] ? name : null).OfType<string>().Where(n => n != typed[0]);
+			Learned.Chose(new Learned.Sentence(text, sentence, tool, command), rivals);
 		}
 		return code;
 	}
@@ -167,24 +188,45 @@ internal static partial class Program
 	/// <summary>A call that cannot be taken back and matters (Mcp.Effect.Weighty): shown and run only on a yes.</summary>
 	internal static bool IsWeighty(Nl.Router.Call call) => Mcp.EffectOf(call.Tool, call.Args) == Mcp.Effect.Weighty;
 
-	/// <summary>The likely commands, each with its share of the vote; null when none is chosen.</summary>
-	private static Nl.Router.Call? Choose(List<(Nl.Router.Call Call, float Weight)> options)
+	/// <summary>
+	/// The likely commands, each with its share of the vote and a short line of what that call does
+	/// with its arguments. Enter takes the first (ByEnter: a weighty one is still asked); 0 says none is meant and asks for the command that
+	/// is (Typed), which runs and is learned for the sentence. Null when nothing is chosen.
+	/// </summary>
+	private static (Nl.Router.Call? Pick, string[]? Typed, bool ByEnter) Choose(List<(Nl.Router.Call Call, float Weight)> options)
 	{
 		Console.WriteLine(options.Count == 1 ? L("Did you mean this?") : L("Did you mean one of these?"));
 		var described = CommandDescriptions();
-		for (var i = 0; i < options.Count; i++)
+		var rows = options.Select(o =>
 		{
-			var (call, weight) = options[i];
-			var words = Typed(call) ?? [call.Tool];
-			var shown = string.Join(' ', words.Select(w => w.Contains(' ') ? $"\"{w}\"" : w));
-			var about = described.GetValueOrDefault(words[0], "");
-			var share = weight == Nl.Router.FromCloudWeight ? L("ai").PadLeft(4) : $"{weight * 100,3:0}%";
-			Console.WriteLine($"  {i + 1}. {shown,-28} {share}  {Dim(Short(about))}");
-		}
-		if (options.Count == 1) return Confirm(L("Run it?")) ? options[0].Call : null;
-		Console.Write(L($"Which one (1-{options.Count}, Enter: none)? "));
+			var words = Typed(o.Call) ?? [o.Call.Tool];
+			// an argument still to be asked stands empty in the words
+			var shown = string.Join(' ', words.Select(w => w.Length == 0 ? "…" : w.Contains(' ') ? $"\"{w}\"" : w));
+			var share = o.Weight == Nl.Router.FromCloudWeight ? L("ai").PadLeft(4) : $"{o.Weight * 100,3:0}%";
+			var about = CallLines.Of(o.Call.Tool, o.Call.Args, (arg, value) => ChoiceText(o.Call.Tool, arg, value))
+				?? Short(described.GetValueOrDefault(words[0], ""));
+			return (shown, share, about);
+		}).ToList();
+		var width = Math.Min(rows.Max(r => r.shown.Length), 40);
+		for (var i = 0; i < rows.Count; i++)
+			Console.WriteLine($"  {i + 1}. {rows[i].shown.PadRight(width)}  {rows[i].share}  {Dim(rows[i].about)}");
+		if (options.Count == 1) return (Confirm(L("Run it?")) ? options[0].Call : null, null, false);
+		Console.Write(L($"Which one (1-{options.Count}, Enter: 1, 0: none)? "));
 		var answer = Console.ReadLine()?.Trim();
-		return int.TryParse(answer, out var n) && n >= 1 && n <= options.Count ? options[n - 1].Call : null;
+		// no input at all (a script's closed stdin) picks nothing; an empty line is Enter
+		if (answer == null) return (null, null, false);
+		if (answer.Length == 0) return (options[0].Call, null, true);
+		if (int.TryParse(answer, out var n) && n >= 1 && n <= options.Count) return (options[n - 1].Call, null, false);
+		if (answer != "0") return (null, null, false);
+		Console.Write(L("Which command did you mean (Enter: nothing)? "));
+		var typed = (Console.ReadLine() ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		if (typed.Length == 0) return (null, null, false);
+		if (!CommandNames.Contains(typed[0]))
+		{
+			Console.WriteLine(L($"unknown command: {typed[0]} — for the commands: `help`"));
+			return (null, null, false);
+		}
+		return (null, typed, false);
 	}
 
 	internal static string Dim(string text) => Ui.Rich ? $"\u001b[2m{text}\u001b[0m" : text;
@@ -266,6 +308,37 @@ internal static partial class Program
 		["answer=accept"] = "Accept",
 		["answer=stall"] = "Stall",
 		["answer=reject"] = "Reject",
+		["fm_holiday.until=week"] = "For a week",
+		["fm_holiday.until=month"] = "For a month",
+		["fm_holiday.until=match"] = "Until the next match",
+		["fm_setpieces.delivery=in"] = "Inswinging",
+		["fm_setpieces.delivery=out"] = "Outswinging",
+		["fm_vision.action=suggest"] = "Suggest",
+		["fm_vision.action=undo"] = "Undo",
+		["fm_vision.action=reset"] = "Reset",
+		["fm_vision.action=confirm"] = "Confirm",
+		["fm_vision.action=end"] = "End the meeting",
+		["fm_vision.action=plan"] = "The plan",
+		["fm_pause.do=pause"] = "Pause",
+		["fm_pause.do=resume"] = "Play on",
+		["fm_pause.do=skip"] = "Skip the replay",
+		["fm_scout_teams.action=top"] = "Move to the top",
+		["fm_scout_teams.action=cancel"] = "Cancel",
+		["fm_transferroom.action=offer"] = "Offer a player",
+		["fm_transferroom.action=activity"] = "The players offered",
+		["fm_transferroom.action=wanted"] = "Our requirements",
+		["fm_transferroom.action=responses"] = "The replies",
+		["fm_transferroom.action=new"] = "A new requirement",
+		["fm_transferroom.action=delete"] = "Delete a requirement",
+		["fm_transferroom.action=agents"] = "The agents",
+		["fm_transferroom.action=discard"] = "Discard",
+		["fm_schedule_week.do=copy"] = "Copy the week",
+		["fm_schedule_week.do=paste"] = "Paste a week",
+		["fm_schedule_week.do=clear"] = "Clear the week",
+		["action=move"] = "Move",
+		["action=add"] = "Add",
+		["action=remove"] = "Remove",
+		["action=suggest"] = "Suggest",
 	};
 
 	private static string Question(string tool, string arg) =>

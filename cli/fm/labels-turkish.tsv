@@ -3235,3 +3235,307 @@ go on without answering	cevaplamadan devam et
 {0}: our own approach for another club's player. To see it: offers {1} view	{0}: başka bir kulübün oyuncusu için bizim girişimimiz. Görmek için: offers {1} view
 stall	beklet
 The game can go on: next	Oyun devam edebilir: next
+Says the date and what the game waits for	Tarihi ve oyunun ne beklediğini söyler
+Goes on to match day	Maç gününe kadar ilerler
+Goes on until a message comes	Bir mesaj gelene kadar ilerler
+Goes on {times} times	{times} kez ilerler
+Goes on one step	Bir adım ilerler
+Marks every message read	Bütün mesajları okundu sayar
+Lists the inbox	Gelen kutusunu listeler
+Answers message {message} with {answer}	{message} mesajını {answer} ile cevaplar
+Opens message {message} and its answers	{message} mesajını cevaplarıyla açar
+Says line {say} in the conversation	Konuşmada {say} satırını söyler
+Shows the open conversation's lines	Açık konuşmanın satırlarını gösterir
+Skips the guided tour	Tanıtım turunu atlar
+Walks the guided tour	Tanıtım turunu yürütür
+Answers the open window with {answer}	Açık pencereyi {answer} ile cevaplar
+Shows the open window	Açık pencereyi gösterir
+The squad, view {view}	Kadro, {view} görünümü
+The first-team squad	A takım kadrosu
+Searches the game for {text}	Oyunda {text} arar
+{name}'s career	{name} oyuncusunun kariyeri
+{name}'s scout report	{name} oyuncusunun scout raporu
+{name}'s page	{name} oyuncusunun sayfası
+A player's page	Bir oyuncunun sayfası
+Bids {fee} for {name}	{name} için {fee} teklif verir
+Opens a bid for {name}	{name} için teklif ekranını açar
+Opens a bid for a player	Bir oyuncu için teklif ekranını açar
+Signs the contract with {name}	{name} ile sözleşmeyi imzalar
+Offers {name} a wage of {wage}	{name} oyuncusuna {wage} maaş önerir
+Contract talks with {name}	{name} ile sözleşme görüşmesi
+Contract talks with a player	Bir oyuncuyla sözleşme görüşmesi
+Puts {add} on the competition's squad list	{add} oyuncusunu turnuva kadro listesine ekler
+Takes {remove} off the competition's squad list	{remove} oyuncusunu turnuva kadro listesinden çıkarır
+Lets the game fill the squad list	Kadro listesini oyuna doldurtur
+Sends the squad list	Kadro listesini gönderir
+The squad list a competition asks for	Turnuvanın istediği kadro listesi
+Gives {player} number {number}	{player} oyuncusuna {number} numarayı verir
+Lets the game give the squad numbers	Forma numaralarını oyuna verdirir
+The squad numbers	Forma numaraları
+Players in the database at {position}	Veritabanında {position} oyuncuları
+Searches the player database	Oyuncu veritabanında arar
+{competition} table	{competition} puan tablosu
+Our league table	Ligimizin puan tablosu
+Our past and coming matches	Geçmiş ve sıradaki maçlarımız
+The club's calendar for {month}	Kulübün {month} takvimi
+The club's calendar this month	Kulübün bu ayki takvimi
+Goes on holiday: {until}	Tatile çıkar: {until}
+Goes on holiday	Tatile çıkar
+Our last match's report	Son maçımızın raporu
+Our tactic, slot by slot	Taktiğimiz, mevki mevki
+Sets the tactic's {setting} to {value}	Taktiğin {setting} ayarını {value} yapar
+Lists the choices for the tactic's {setting}	Taktiğin {setting} seçeneklerini listeler
+Makes the {position} slot's role out of possession {role}	{position} mevkisinin topsuz rolünü {role} yapar
+Makes the {position} slot's role {role}	{position} mevkisinin rolünü {role} yapar
+Lists the roles for the {position} slot	{position} mevkisinin rollerini listeler
+Changes a slot's role	Bir mevkinin rolünü değiştirir
+Puts {player} in the {position} slot	{player} oyuncusunu {position} mevkisine koyar
+Leaves the {position} slot empty	{position} mevkisini boş bırakır
+Puts {player} in the eleven (slot not said)	{player} oyuncusunu ilk 11'e koyar (mevki belli değil)
+Puts a player in the eleven	Bir oyuncuyu ilk 11'e koyar
+Turns the {position} slot's own role on or off	{position} mevkisinin kişisel rolünü açar ya da kapar
+Personalised roles, slot by slot	Kişisel roller, mevki mevki
+The assistant's eleven	Yardımcının ilk 11'i
+The assistant's opposition report	Yardımcının rakip raporu
+The assistant's view of the tactic	Yardımcının taktik değerlendirmesi
+The game picks the eleven, youth players too	İlk 11'i oyun seçer, gençler dahil
+The game picks the eleven	İlk 11'i oyun seçer
+Sets team instruction {name} to {value}	{name} takım talimatını {value} yapar
+Lists the choices for team instruction {name}	{name} takım talimatının seçeneklerini listeler
+The team instructions	Takım talimatları
+Gives {player} the extra focus {focus}	{player} oyuncusuna {focus} ek odağını verir
+Trains {player} in the role {role}	{player} oyuncusunu {role} rolünde çalıştırır
+Trains {player} at {position}	{player} oyuncusunu {position} mevkisinde çalıştırır
+A coach's training report on {player}	{player} için antrenör antrenman raporu
+{player} starts learning {trait}	{player} {trait} hareketini öğrenmeye başlar
+{player}'s preferred moves	{player} oyuncusunun tercih ettiği hareketler
+{player}'s individual training	{player} oyuncusunun bireysel antrenmanı
+Individual training, player by player	Bireysel antrenman, oyuncu oyuncu
+Sets {player}'s training intensity to {level}	{player} oyuncusunun antrenman yoğunluğunu {level} yapar
+Leaves training intensity to the head of fitness	Antrenman yoğunluğunu kondisyon şefine bırakır
+Training intensity, player by player	Antrenman yoğunluğu, oyuncu oyuncu
+Takes {coach} off {area}	{coach} antrenörünü {area} alanından alır
+Puts {coach} on {area}	{coach} antrenörünü {area} alanına verir
+Leaves the coaches' areas to the assistant	Antrenör alanlarını yardımcıya bırakır
+Clears every coach's area	Bütün antrenör alanlarını boşaltır
+Which coach leads each training area	Hangi antrenörün hangi alanda olduğu
+Applies the assistant's opposition instructions	Yardımcının rakip talimatlarını uygular
+Clears the opposition instructions	Rakip talimatlarını temizler
+Sets opposition instructions for {player}	{player} için rakip talimatı verir
+Opposition instructions for the next match	Sıradaki maç için rakip talimatları
+Releases {player} on a free	{player} oyuncusunun sözleşmesini fesheder
+Ends {player}'s contract by agreement	{player} ile karşılıklı anlaşarak ayrılır
+Lets {player} go	{player} oyuncusunu gönderir
+Lets one of our players go	Oyuncularımızdan birini gönderir
+Answers the offer {offer}: {answer}	{offer} teklifine cevap: {answer}
+The offers for our players	Oyuncularımıza gelen teklifler
+Offers {player} to other clubs on loan	{player} oyuncusunu diğer kulüplere kiralık önerir
+Offers {player} to other clubs for {fee}	{player} oyuncusunu diğer kulüplere {fee} karşılığı önerir
+Offers {player} to other clubs	{player} oyuncusunu diğer kulüplere önerir
+Offers a player to other clubs	Bir oyuncuyu diğer kulüplere önerir
+Our players' national teams	Oyuncularımızın milli takımları
+Lets the game set up the mentoring groups	Mentörlük gruplarını oyuna kurdurur
+Makes a mentoring group of {players}	{players} ile mentörlük grubu kurar
+Takes {remove} out of mentoring	{remove} oyuncusunu mentörlükten çıkarır
+Who could mentor whom	Kim kime mentör olabilir
+The mentoring groups	Mentörlük grupları
+The dressing room	Soyunma odası
+Applies for the job at {club}	{club} işine başvurur
+Shows interest in the job at {club}	{club} işine ilgi gösterir
+The job at {club}	{club} işi
+Manager jobs on offer	Boştaki menajerlik işleri
+News item {item}	{item}. haber
+The media's headlines	Medyanın manşetleri
+Sets match preparation {slot} to {focus}	{slot}. maç hazırlığını {focus} yapar
+The match preparation	Maç hazırlığı
+Puts {session} on {day}, session {slot}	{day} günü {slot}. seansa {session} koyar
+Sets the training style to {style}	Antrenman stilini {style} yapar
+The training schedule	Antrenman programı
+Moves {player} to place {place} among the penalty takers	{player} oyuncusunu penaltı sırasında {place}. yere taşır
+Adds {player} to the penalty takers	{player} oyuncusunu penaltıcılara ekler
+Takes {player} off the penalty takers	{player} oyuncusunu penaltıcılardan çıkarır
+Changes the penalty rule {rule}	{rule} penaltı kuralını değiştirir
+The penalty takers	Penaltıcılar
+Our players where {where}	Oyuncularımız: {where}
+Filters our players	Oyuncularımızı süzer
+Changes the {kind} takers: {action} {player}	{kind} kullananları değiştirir: {action} {player}
+The {kind} takers	{kind} kullananlar
+The set-piece takers	Duran top kullananlar
+Sets the {kind} delivery to {delivery}	{kind} vuruşunu {delivery} yapar
+Aims the {kind} at {aim}	{kind} hedefini {aim} yapar
+Gives place {slot} of the {kind} the task {task}	{kind} için {slot} yerine {task} görevini verir
+The {kind} routine	{kind} düzeni
+A set-piece routine	Bir duran top düzeni
+How happy {player} is, and why	{player} ne kadar mutlu, neden
+How happy each player is	Her oyuncunun ne kadar mutlu olduğu
+How deep the squad is at each position	Her mevkide kadronun derinliği
+Transfer targets at {position}	{position} için transfer hedefleri
+Transfer targets for the thin positions	İnce mevkiler için transfer hedefleri
+Sets {name} to {value}	{name} ayarını {value} yapar
+The game's preferences	Oyunun tercihleri
+Applies the assistant's advice {number}	Yardımcının {number}. önerisini uygular
+Dismisses the assistant's advice {number}	Yardımcının {number}. önerisini kapatır
+The assistant's advice in the match	Maçta yardımcının önerileri
+Applies the staff's advice {number}	Ekibin {number}. önerisini uygular
+Marks all the staff's advice seen	Ekibin bütün önerilerini görüldü sayar
+The staff's advice {number}	Ekibin {number}. önerisi
+The staff's advice	Ekibin önerileri
+Moves money between the transfer and wage budgets	Transfer ve maaş bütçesi arasında para kaydırır
+The club's budgets	Kulübün bütçeleri
+{competition} statistics	{competition} istatistikleri
+Our league's statistics	Ligimizin istatistikleri
+Who is injured or tired	Kim sakat ya da yorgun
+The club at a glance	Bir bakışta kulüp
+The club's staff	Kulübün ekibi
+The club's finances	Kulübün finansları
+What the supporters think	Taraftarların ne düşündüğü
+What is wrong with the squad	Kadroda ne sorun var
+What the board thinks of the manager	Yönetimin menajer hakkında ne düşündüğü
+Asks the board: {request}	Yönetimden ister: {request}
+What the board can be asked for	Yönetimden ne istenebileceği
+The club's facilities	Kulübün tesisleri
+When each contract ends	Her sözleşmenin ne zaman bittiği
+Club vision meeting: {action}	Kulüp vizyonu toplantısı: {action}
+Makes {captain} captain	{captain} oyuncusunu kaptan yapar
+Makes {vice} vice-captain	{vice} oyuncusunu yardımcı kaptan yapar
+The captains	Kaptanlar
+The next opponent's report	Sıradaki rakibin raporu
+Makes a shortlist called {new}	{new} adında kısa liste açar
+The shortlist {list}	{list} kısa listesi
+The players on our shortlist	Kısa listemizdeki oyuncular
+Shouts {shout} from the touchline	Kenardan {shout} der
+The touchline shouts	Kenar talimatları
+Match: {do}	Maç: {do}
+Turns on the in-match tweak {tweak}	Maç içi {tweak} ayarını açar
+Resets the in-match tweaks	Maç içi ayarları sıfırlar
+The in-match tweaks	Maç içi ayarlar
+Sets {position}'s instruction {name} to {value}	{position} mevkisinin {name} talimatını {value} yapar
+The {position} slot's player instructions	{position} mevkisinin oyuncu talimatları
+A slot's player instructions	Bir mevkinin oyuncu talimatları
+Makes tactic {slot} the active one	{slot}. taktiği etkin yapar
+Our tactic slots	Taktik yuvalarımız
+Copies a tactic into a new slot	Bir taktiği yeni yuvaya kopyalar
+Clears tactic slot {slot}	{slot}. taktik yuvasını temizler
+Clears a tactic slot	Bir taktik yuvasını temizler
+Saves the tactic as {save}	Taktiği {save} adıyla kaydeder
+Loads the tactic {load}	{load} taktiğini yükler
+Deletes the tactic file {delete}	{delete} taktik dosyasını siler
+The tactics kept as files	Dosya olarak saklanan taktikler
+Makes a new {style} tactic	Yeni bir {style} taktiği kurar
+Makes a new tactic with the wizard	Sihirbazla yeni taktik kurar
+Sets up set pieces with the wizard	Duran topları sihirbazla kurar
+Plays the match: {mode}	Maçı oynar: {mode}
+Plays match day	Maç gününü oynar
+Takes {off} off for {on}	{off} çıkar, {on} girer
+Who is on the pitch and on the bench	Sahada ve yedekte kimler var
+Saves the game as {as}	Oyunu {as} adıyla kaydeder
+Saves the game	Oyunu kaydeder
+{competition}, stage by stage	{competition}, tur tur
+A cup, stage by stage	Bir kupa, tur tur
+The recruitment focus {focus}	{focus} scouting odağı
+The recruitment focuses	Scouting odakları
+Team reports: {action} {team}	Takım raporları: {action} {team}
+The team reports being made	Hazırlanan takım raporları
+Which save is loaded and when it was saved	Hangi kayıt yüklü, ne zaman kaydedildi
+Hands {delegate} to the staff	{delegate} görevini ekibe bırakır
+Takes {take} back	{take} görevini geri alır
+Who does which staff duty	Hangi görevi kimin yaptığı
+The youngsters who could step up	Yükselebilecek gençler
+The youth setup	Altyapı
+Who is improving and who is declining	Kim gelişiyor, kim geriliyor
+Searches the staff database for {text}	Ekip veritabanında {text} arar
+Staff to hire as {role}	{role} olarak alınabilecek ekip
+Searches the staff database	Ekip veritabanında arar
+Approaches {name} to join the staff	{name} kişisine ekibe katılması için yaklaşır
+Approaches someone to join the staff	Birine ekibe katılması için yaklaşır
+Lets {name} go from the staff	{name} kişisini ekipten gönderir
+Lets one of the staff go	Ekipten birini gönderir
+Does {choose} for {person}	{person} için {choose} yapar
+What can be done about {person}	{person} için neler yapılabilir
+What can be done about a person	Bir kişi için neler yapılabilir
+Recruitment focus: {action}	Scouting odağı: {action}
+Sets up a recruitment focus	Scouting odağı kurar
+Sends a scout to watch {player} for {length}	{player} oyuncusunu {length} izlemesi için scout gönderir
+Sends a scout to watch {player}	{player} oyuncusunu izlemesi için scout gönderir
+Sends a scout to watch a player	Bir oyuncuyu izlemesi için scout gönderir
+Takes {player} off the shortlist	{player} oyuncusunu kısa listeden çıkarır
+Puts {player} on the shortlist	{player} oyuncusunu kısa listeye ekler
+Puts a player on the shortlist	Bir oyuncuyu kısa listeye ekler
+{move}: {player}	{move}: {player}
+A move towards {player}	{player} oyuncusuna yönelik bir adım
+A move towards a player	Bir oyuncuya yönelik bir adım
+Deletes the save {delete}	{delete} kaydını siler
+The save files	Kayıt dosyaları
+Loads the save {name}	{name} kaydını yükler
+Loads a save	Bir kayıt yükler
+Loads the last save from the main menu	Ana menüden son kaydı yükler
+{a} and {b} side by side	{a} ile {b} yan yana
+{a} beside another player	{a} başka bir oyuncuyla yan yana
+Two players side by side	İki oyuncu yan yana
+What has changed since the last look	Son bakıştan beri ne değişti
+The page {page} of {of}	{of} için {page} sayfası
+The page {page}	{page} sayfası
+The game's pages to read	Oyunun okunacak sayfaları
+TransferRoom: {action}	TransferRoom: {action}
+TransferRoom adverts	TransferRoom ilanları
+Squad planner: {action} {player}	Kadro planlayıcı: {action} {player}
+The squad planner at {position}	{position} için kadro planlayıcı
+The squad planner	Kadro planlayıcı
+Holds a team meeting	Takım toplantısı yapar
+Arranges a friendly with {club}	{club} ile hazırlık maçı ayarlar
+Arranges a friendly	Hazırlık maçı ayarlar
+Runs the cup draw	Kupa kurasını çeker
+The training week: {do}	Antrenman haftası: {do}
+The training week's buttons	Antrenman haftasının düğmeleri
+The manager's own record	Menajerin kendi kariyeri
+Resigns as manager	Menajerlikten istifa eder
+Closes the game	Oyunu kapatır
+The game's pages matching {filter}	Oyunun {filter} geçen sayfaları
+The game's pages	Oyunun sayfaları
+Opens the page {page}	{page} sayfasını açar
+Opens a page of the game	Oyunun bir sayfasını açar
+The controls on the screen	Ekrandaki düğmeler
+Presses {label} on the screen	Ekranda {label} düğmesine basar
+Presses a control on the screen	Ekranda bir düğmeye basar
+The dropdowns on the screen	Ekrandaki açılır listeler
+Chooses {choice} in {list}	{list} listesinde {choice} seçer
+Chooses from a dropdown	Açılır listeden seçer
+Writes {text} in the box	Kutuya {text} yazar
+Writes text in the box	Kutuya yazı yazar
+Which one (1-{0}, Enter: 1, 0: none)? 	Hangisi (1-{0}, Enter: 1, 0: hiçbiri)? 
+Which command did you mean (Enter: nothing)? 	Hangi komutu demek istedin (Enter: hiçbiri)? 
+For a week	Bir hafta
+For a month	Bir ay
+Until the next match	Sıradaki maça kadar
+Inswinging	İçe kavisli
+Outswinging	Dışa kavisli
+Suggest	Öner
+Undo	Geri al
+Reset	Sıfırla
+Confirm	Onayla
+End the meeting	Toplantıyı bitir
+The plan	Plan
+Pause	Durdur
+Play on	Devam ettir
+Skip the replay	Tekrarı atla
+Move to the top	En üste taşı
+Offer a player	Oyuncu öner
+The players offered	Önerilen oyuncular
+Our requirements	İhtiyaçlarımız
+The replies	Cevaplar
+A new requirement	Yeni ihtiyaç
+Delete a requirement	İhtiyaç sil
+The agents	Menajerler
+Discard	Vazgeç
+Copy the week	Haftayı kopyala
+Paste a week	Hafta yapıştır
+Clear the week	Haftayı temizle
+Move	Taşı
+Add	Ekle
+Remove	Çıkar
+Sets a player's training intensity to {level}	Bir oyuncunun antrenman yoğunluğunu {level} yapar
+{move}: a player	{move}: bir oyuncu
+Takes {off} off (who comes on not said)	{off} çıkar (giren belli değil)
+Puts {on} on (who comes off not said)	{on} girer (çıkan belli değil)
+{coach}'s training areas	{coach} antrenörünün alanları
+{player}'s squad number	{player} oyuncusunun forma numarası

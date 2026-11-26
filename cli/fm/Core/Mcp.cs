@@ -144,6 +144,24 @@ internal static partial class Mcp
 		Tools.FirstOrDefault(t => t.Name == tool) is { } t ? [.. t.Words(JsonDocument.Parse(arguments.ToJsonString()).RootElement)] : null;
 
 	/// <summary>
+	/// The tool a typed command stands for: the one whose own words (with no arguments) start it the
+	/// longest way ("tactic role DL" is fm_tactic_role, not fm_tactic); null for a command no tool runs.
+	/// </summary>
+	public static string? ToolForTyped(IReadOnlyList<string> typed)
+	{
+		var empty = JsonDocument.Parse("{}").RootElement;
+		string? best = null;
+		var length = 0;
+		foreach (var tool in Tools)
+		{
+			var own = tool.Words(empty).TakeWhile(w => w.Length > 0 && !w.StartsWith("--", StringComparison.Ordinal)).ToList();
+			if (own.Count <= length || own.Count > typed.Count || !own.Zip(typed).All(p => p.First == p.Second)) continue;
+			(best, length) = (tool.Name, own.Count);
+		}
+		return best;
+	}
+
+	/// <summary>
 	/// Whether a command takes free text after its name ("player rinaldi", "search …"): some tool
 	/// standing for it puts a text argument there as it is, not behind an --option. Worked out by
 	/// running each tool's words with a marker in one text argument at a time. A command no tool
