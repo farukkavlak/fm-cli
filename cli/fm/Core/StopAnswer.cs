@@ -116,7 +116,7 @@ internal static partial class Program
 		{
 			if (!ask) return null;
 			Console.WriteLine(L("Did you mean one of these?"));
-			foreach (var i in said.Places) Console.WriteLine($"  {i + 1}. {stop.Answers[i].Label}");
+			ShowAnswers(stop, said.Places);
 			Console.Write(L("Which one (its number, Enter: none)? "));
 			var typed = Console.ReadLine()?.Trim();
 			if (!int.TryParse(typed, out var n) || !said.Places.Contains(n - 1)) return ([], new HashSet<string>(), true);
@@ -137,7 +137,7 @@ internal static partial class Program
 	{
 		if (!ask) return false;
 		Console.WriteLine(L("Did you mean this?"));
-		Console.WriteLine($"  {at + 1}. {stop.Answers[at].Label}");
+		ShowAnswers(stop, [at]);
 		return Confirm(L("Run it?"));
 	}
 

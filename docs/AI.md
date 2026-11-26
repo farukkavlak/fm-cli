@@ -92,12 +92,20 @@ Order (before T211–T213). New work is added in this file, by id.
   - [x] round85 live: TR + EN 3/3 all three tests
   - [ ] Team talks and the tunnel interview in `match` are still picked with the arrows
 - [ ] T223 Readable output: find the outputs that read better as a table or with dividers, then do them in one round
-  - [ ] Offer stop: 13 offers as one line each (`Club → Player · fee`); a table (club, player, fee, terms) reads better
+  - [x] Offer stop: a table (#, club, player, fee, terms); "did you mean" shows the same rows for its candidates
   - [ ] Session: after an answer the whole stop comes back in full (a rule with the stop's name now starts each stop)
-  - [ ] "Did you mean" at a stop: aligned columns (the router's list is done)
+  - [x] "Did you mean" at a stop: the stop's table rows, or numbers aligned when it has none
   - [ ] Sweep the other commands' output for the same (list in this box first, then do them)
 - [ ] T224 Just after a load the session opens on "a message waits" (the offers' messages); the offer stop comes
-  only after `next` (scn-offer-stop, TR, 26 Nov). Find out if `status` should read the game's sign as `next` does
+  only after `next` (scn-offer-stop, TR, 26 Nov)
+  - Why: after a load the game says CanContinue with Respond 0; Respond 3 (an offer) comes only after one Continue.
+    `next` presses once to ask; `status` is a read and must not press (not held, the press moves the day)
+  - No identity found yet that marks a message as an offer's without the press: the bound row has only
+    title, flags, time, id, TagsList (empty in the tree); `NewsItemAction`/`NewsActionData` are not pullable from it
+  - [ ] Look further: the tags' values, the offer's own record against the message id; else leave it (the
+    messages open the offers, and `next` turns them into the offer stop)
+- [ ] T225 At the offer stop "samsunun teklifine bak" picks the offer but not "view" (model reads "-"):
+  add view sentences about an offer to `Nl/stop-answers.tsv`, measure with `fm __stops`
 - [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
   measure what the page shows when it misses before changing the wait
 - [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell

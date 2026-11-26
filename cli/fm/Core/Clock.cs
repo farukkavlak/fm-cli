@@ -544,9 +544,13 @@ internal static partial class Program
 					catch (FmError) { }
 					// Each answer goes by the offer's place in the game's own list, read again when it runs.
 					// One answer an offer: choosing it puts that offer's own answers (see, accept, stall, reject).
-					var answers = waiting.Select((o, i) => (o, n: (i + 1).ToString())).Where(x => x.o.Incoming && x.o.CanAccept)
-						.Select(x => ($"{x.o.Club} → {x.o.Player} · {x.o.Fee}", new[] { "offers", x.n })).ToArray();
-					if (answers.Length > 0) Halt("offer", null, answers);
+					var chosen = waiting.Select((o, i) => (o, n: (i + 1).ToString())).Where(x => x.o.Incoming && x.o.CanAccept).ToList();
+					var answers = chosen.Select(x => ($"{x.o.Club} → {x.o.Player} · {x.o.Fee}", new[] { "offers", x.n })).ToArray();
+					if (answers.Length > 0)
+					{
+						Halt("offer", null, answers);
+						StopNow!.Table = ([L("CLUB"), L("PLAYER"), L("FEE"), L("TERMS")], chosen.Select(x => (string[])[x.o.Club, x.o.Player, x.o.Fee, x.o.Terms]).ToList());
+					}
 					else Halt("bid");
 					output.WriteLine(waiting.Any(o => o.Incoming && o.CanAccept)
 						? L("Transfer offer waiting: offers   ·   reject: offers <#> reject --yes   (stall does not close this step)")

@@ -16,6 +16,8 @@ internal static partial class Program
 		/// <summary>What `Explain` wrote for it, said in place of the answers when it has none.</summary>
 		public string Told { get; set; } = "";
 		public List<string> Notes { get; } = [];
+		/// <summary>The answers as a table: the headings, and one row of cells an answer, in the answers' order.</summary>
+		public (string[] Headers, List<string[]> Rows)? Table { get; set; }
 	}
 
 	/// <summary>The stop `next` came to last; null when it went on, or nothing has been asked of it yet.</summary>
@@ -89,17 +91,25 @@ internal static partial class Program
 		{
 			foreach (var line in stop.Told.Split('\n', StringSplitOptions.RemoveEmptyEntries)) Console.WriteLine($"  {line.TrimEnd()}");
 		}
-		else
-		{
-			for (var i = 0; i < stop.Answers.Count; i++)
-				Console.WriteLine($"  {i + 1}. {stop.Answers[i].Label}");
-		}
+		else ShowAnswers(stop, Enumerable.Range(0, stop.Answers.Count).ToList());
 		foreach (var note in stop.Notes) Console.WriteLine($"  {note}");
 		if (stop.Answers.Count > 0)
 			Ui.Hint(stop.Answers.Count == 1
 				? L("To answer: 1   ·   a question is answered and the stop waits")
 				: L($"To answer: 1–{stop.Answers.Count}   ·   a question is answered and the stop waits"));
 		PickStop(stop);
+	}
+
+	/// <summary>Some of the stop's answers, by the numbers the stop gives them: as its table when it has one, else a line each.</summary>
+	internal static void ShowAnswers(HeldStop stop, IReadOnlyList<int> places)
+	{
+		if (stop.Table is { } table && table.Rows.Count == stop.Answers.Count)
+		{
+			Table.Write(["#", .. table.Headers], places.Select(i => (string[])[(i + 1).ToString(), .. table.Rows[i]]).ToList());
+			return;
+		}
+		var width = places.Select(i => (i + 1).ToString().Length).DefaultIfEmpty(1).Max();
+		foreach (var i in places) Console.WriteLine($"  {(i + 1).ToString().PadLeft(width)}. {stop.Answers[i].Label}");
 	}
 
 	/// <summary>The stop's answers as the list a number alone picks from.</summary>
