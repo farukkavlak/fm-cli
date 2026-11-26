@@ -1,0 +1,122 @@
+# A stop's kinds of answer, a sentence typed there, and the kind it asks for ("-": none of them; the router's).
+# Scored by `fm __stops tests/nl/stops/cases.tsv`. Never a copy of cli/fm/Nl/stop-answers.tsv.
+view,accept,stall,reject	reddedelim	reject
+view,accept,stall,reject	reddediyorum	reject
+view,accept,stall,reject	geri çevirelim	reject
+view,accept,stall,reject	yok ya	reject
+view,accept,stall,reject	nah	reject
+view,accept,stall,reject	istemiyoruz	reject
+view,accept,stall,reject	hayir satmiyoz	reject
+view,accept,stall,reject	vermiyorum oyuncuyu	reject
+view,accept,stall,reject	no thanks	reject
+view,accept,stall,reject	tell them no	reject
+view,accept,stall,reject	he's not for sale	reject
+view,accept,stall,reject	reddet şunu	reject
+view,accept,stall,reject	kabul ediyorum	accept
+view,accept,stall,reject	kabul	accept
+view,accept,stall,reject	kabl et	accept
+view,accept,stall,reject	sattım gitsin	accept
+view,accept,stall,reject	olur ver gitsin	accept
+view,accept,stall,reject	tamam satalım	accept
+view,accept,stall,reject	evet	accept
+view,accept,stall,reject	iyi para kabul	accept
+view,accept,stall,reject	let's take the money	accept
+view,accept,stall,reject	yes accept	accept
+view,accept,stall,reject	sure, sell	accept
+view,accept,stall,reject	fine by me	accept
+view,accept,stall,reject	biraz bekletelim	stall
+view,accept,stall,reject	bekletiyorum	stall
+view,accept,stall,reject	sonra düşünürüz	stall
+view,accept,stall,reject	şimdi değil	stall
+view,accept,stall,reject	oyalayalım	stall
+view,accept,stall,reject	make them wait	stall
+view,accept,stall,reject	let it wait a bit	stall
+view,accept,stall,reject	hold it	stall
+view,accept,stall,reject	bi bakalım şuna	view
+view,accept,stall,reject	teklifi göster	view
+view,accept,stall,reject	detaylar ne	view
+view,accept,stall,reject	neler teklif etmişler bakayım	view
+view,accept,stall,reject	show it	view
+view,accept,stall,reject	what are the terms	view
+view,accept,stall,reject	let me look	view
+view,accept,stall,reject	kadroyu göster	-
+view,accept,stall,reject	kim sakat	-
+view,accept,stall,reject	lig tablosu	-
+view,accept,stall,reject	sıradaki maç ne zaman	-
+view,accept,stall,reject	antrenmanı hafiflet	-
+view,accept,stall,reject	who is injured	-
+view,accept,stall,reject	show the squad	-
+view,accept,stall,reject	when is the next match	-
+view,accept,stall,reject	maçı oyna	-
+play,instant	maçı canlı oynayalım	play
+play,instant	izle	play
+play,instant	ben oynatıcam	play
+play,instant	maci izleyelim	play
+play,instant	oyna	play
+play,instant	kenarda ben olayım	play
+play,instant	play it	play
+play,instant	i want to watch	play
+play,instant	let's play	play
+play,instant	direkt sonuç	instant
+play,instant	maçı direkt sonuca geç	instant
+play,instant	hızlı geçelim	instant
+play,instant	sonuc ver	instant
+play,instant	izlemicem sonucu söyle	instant
+play,instant	simule et gitsin	instant
+play,instant	just simulate	instant
+play,instant	give me the result	instant
+play,instant	skip the match	instant
+play,instant	teklifleri göster	-
+play,instant	show the league table	-
+play,instant	rakip kim	-
+play,instant	kim yorgun	-
+play,instant	ilk 11 i göster	-
+play,instant	reddet	-
+play,instant	who are we playing	-
+play,instant	kabul et	-
+answer,skip	cevaplayalım	answer
+answer,skip	soruya cevap ver	answer
+answer,skip	konuşayım	answer
+answer,skip	answer	answer
+answer,skip	i'll answer	answer
+answer,skip	atla	skip
+answer,skip	geç cevaplama	skip
+answer,skip	boşver	skip
+answer,skip	skip this	skip
+answer,skip	no answer	skip
+answer,skip	kadroyu göster	-
+answer,skip	league table	-
+view,end	toplantıyı bitirelim	end
+view,end	bitir şunu	end
+view,end	kapatalım	end
+view,end	end the meeting	end
+view,end	we're finished	end
+view,end	hedeflere bakalım	view
+view,end	göster	view
+view,end	show me	view
+view,end	kim sakat	-
+open	aç bakalım	open
+open	mesajı oku	open
+open	oku şunu	open
+open	read the message	open
+open	open	open
+open	kadro	-
+open	who is tired	-
+goon	devam edelim	goon
+goon	ilerleyelim	goon
+goon	maça geç	goon
+goon	go ahead	goon
+goon	next	goon
+goon	kim sakat	-
+goon	takım	-
+about	stall the first one	about>stall
+about	ilkini beklet	about>stall
+about	ilk teklifi kabul et	about>accept
+about	birinciyi reddet	about>reject
+about	ilkine bak	about>view
+about	ilki	about>
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Eyüpspor → Ahmet Karademir	başakşehir baray teklifini beklet	about>stall
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Eyüpspor → Ahmet Karademir	samsunsporun teklifini reddet	about>reject
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Eyüpspor → Ahmet Karademir	eyüpspor teklifine bakalım	about>view
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Eyüpspor → Ahmet Karademir	accept the eyupspor offer	about>accept
+about=Başakşehir FK → Baray Yenilmez,about=Samsunspor → Baray Yenilmez,about=Eyüpspor → Ahmet Karademir	stall the fifth one	-

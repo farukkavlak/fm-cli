@@ -21,6 +21,7 @@ internal static partial class Program
 		if (args[0] == "mcp") return await Mcp.Serve(Run);
 
 		if (args[0] == "__route") return Nl.Router.RouteLines(args);
+		if (args[0] == "__stops") return StopBench(args);
 
 		// "fm önümüzdeki maç ne zaman": a sentence, not a command
 		if (IsSentence(args)) return await Understand(string.Join(' ', args), Run);

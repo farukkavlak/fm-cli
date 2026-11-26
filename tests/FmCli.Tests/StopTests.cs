@@ -38,9 +38,14 @@ public sealed class StopTests
 	}
 }
 
-/// <summary>A sentence at a stop held to its answers (T215): by place, by what is done, by the game's own words.</summary>
+/// <summary>
+/// A sentence at a stop held to its answers (T215), without the model: by place and by the game's own words.
+/// What is to be done is the model's to read; it is scored by `fm __stops tests/nl/stops/cases.tsv`.
+/// </summary>
 public sealed class StopAnswerTests
 {
+	static StopAnswerTests() => Environment.SetEnvironmentVariable("FM_NL_MODEL", "/nonexistent/fm-nl-model");
+
 	private static Program.HeldStop Offers() => new("offer", [],
 	[
 		("Fenerbahçe → Mauro Rinaldi · €2.5M", ["offers", "2"]),
@@ -56,9 +61,6 @@ public sealed class StopAnswerTests
 		("reject it", ["offers", "2", "reject"]),
 	]);
 
-	private static Program.HeldStop Match() => new("match", [],
-		[("play the match", ["match", "--play"]), ("straight to the result", ["match", "--instant"])]);
-
 	private static Program.HeldStop Messages() => new("message", [],
 	[
 		("Board Confidence Update", ["reply", "id:11"]),
@@ -68,67 +70,30 @@ public sealed class StopAnswerTests
 	private static List<int>? Said(Program.HeldStop stop, string sentence) => Program.AnswersSaid(stop, sentence)?.Places;
 
 	[Theory]
-	[InlineData("kabul et", 1)]
-	[InlineData("tamam kabul", 1)]
-	[InlineData("reddet", 3)]
-	[InlineData("hayır istemiyorum", 3)]
-	[InlineData("beklet şimdilik", 2)]
-	[InlineData("teklife bakalım", 0)]
-	[InlineData("accept it", 1)]
-	[InlineData("turn it down", 3)]
-	[InlineData("let it wait", 2)]
 	[InlineData("ikincisi", 1)]
 	[InlineData("the last one", 3)]
-	public void What_is_done_picks_the_answer_that_does_it(string sentence, int answer) =>
+	[InlineData("3", 2)]
+	[InlineData("4'ü", 3)]
+	public void A_place_in_the_list(string sentence, int answer) =>
 		Assert.Equal([answer], Said(OneOffer(), sentence));
 
-	[Theory]
-	[InlineData("maçı canlı oynayalım", 0)]
-	[InlineData("izle", 0)]
-	[InlineData("direkt sonuç", 1)]
-	[InlineData("hızlı geç sonuca", 1)]
-	[InlineData("play it", 0)]
-	[InlineData("just the result", 1)]
-	public void Match_day_by_what_is_done(string sentence, int answer) =>
-		Assert.Equal([answer], Said(Match(), sentence));
+	[Fact]
+	public void A_number_past_the_end_is_no_place() =>
+		Assert.Null(Said(OneOffer(), "ilk 11 i göster"));
 
 	[Theory]
 	[InlineData("trabzonun teklifi", 2)]
 	[InlineData("galatasaray", 1)]
 	[InlineData("fenerin teklifini kabul et", 0)]
 	[InlineData("sušak", 2)]
+	[InlineData("susak", 2)]
 	[InlineData("ilkini aç", 0)]
 	public void An_offer_is_said_by_its_club_or_player(string sentence, int answer) =>
 		Assert.Equal([answer], Said(Offers(), sentence));
 
 	[Fact]
-	public void A_name_is_no_word_for_doing() =>
-		Assert.Equal(["stall"], Program.AnswersSaid(new Program.HeldStop("offer", [], [("Başakşehir FK → Baray Yenilmez · €34K", ["offers", "6"])]),
-			"Başakşehir FK Baray Yenilmez teklifini beklet")!.Done);
-
-	[Fact]
 	public void One_player_two_clubs_is_asked_between() =>
 		Assert.Equal([0, 1], Said(Offers(), "rinaldi için gelen teklif"));
-
-	[Fact]
-	public void What_to_do_is_kept_for_the_offer_it_leads_to() =>
-		Assert.Contains("accept", Program.AnswersSaid(Offers(), "fenerin teklifini kabul et")!.Done);
-
-	[Theory]
-	[InlineData("kim yorgun")]
-	[InlineData("kabul edelim mi")]
-	[InlineData("who is injured?")]
-	[InlineData("rinaldiyi sat")]
-	[InlineData("kadroyu göster")]
-	public void A_question_or_something_else_goes_to_the_router(string sentence) =>
-		Assert.Null(Said(Messages(), sentence));
-
-	[Theory]
-	[InlineData("oyunu kapat")]
-	[InlineData("maçı oyna")]
-	[InlineData("kabul et")]
-	public void Nothing_said_of_the_messages_is_no_answer(string sentence) =>
-		Assert.Null(Said(Messages(), sentence));
 
 	[Theory]
 	[InlineData("youth intake mesajını aç", 1)]
@@ -137,11 +102,11 @@ public sealed class StopAnswerTests
 	public void A_message_is_said_by_its_subject_or_place(string sentence, int answer) =>
 		Assert.Equal([answer], Said(Messages(), sentence));
 
-	[Fact]
-	public void Opening_with_several_messages_asks_which() =>
-		Assert.Equal([0, 1], Said(Messages(), "mesajı aç"));
-
-	[Fact]
-	public void A_kind_of_answer_the_stop_has_not_is_no_answer() =>
-		Assert.Null(Said(Match(), "reddet"));
+	[Theory]
+	[InlineData("who is injured?")]
+	[InlineData("rinaldiyi sat")]
+	[InlineData("kadroyu göster")]
+	[InlineData("oyunu kapat")]
+	public void A_question_or_something_else_is_no_answer(string sentence) =>
+		Assert.Null(Said(Messages(), sentence));
 }

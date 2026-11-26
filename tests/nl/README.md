@@ -9,6 +9,7 @@ Written the way people type: typos, no Turkish letters, slang, half sentences.
 |---|---|
 | `00-none.jsonl` … `13-multi.jsonl` | the test set, by command group (see the map below) |
 | `train/*.jsonl` | training-only sentences; never scored, never a copy of a test sentence |
+| `stops/cases.tsv`, `stops/held.tsv` | sentences at a stop and the kind of answer they ask (T215); `held` is never used to set the numbers. Examples: `cli/fm/Nl/stop-answers.tsv`. Score: `fm __stops FILE` |
 | `expanded/` | noisy variants, generated, not committed |
 
 ## Tools

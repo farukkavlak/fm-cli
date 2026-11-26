@@ -114,6 +114,11 @@ internal sealed class Neighbours
 
 	public float[][] Embed(IReadOnlyList<string> texts) => _embedder.Embed(texts);
 
+	/// <summary>The <paramref name="k"/> examples nearest a sentence's vector, each with its call and similarity, nearest first.</summary>
+	public List<(string Call, float Sim)> Nearest(float[] q, int k, Func<string, bool>? keep = null) =>
+		[.. Enumerable.Range(0, _index.Length).Where(j => keep == null || keep(_examples[j].Call))
+			.Select(j => (_examples[j].Call, Sim: Embedder.Dot(q, _index[j]))).OrderByDescending(t => t.Sim).Take(k)];
+
 	private float[][] Build(string cacheDir, List<(string Text, string Call)> examples, string kind = "index")
 	{
 		var index = _embedder.Embed([.. examples.Select(e => e.Text)]);

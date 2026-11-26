@@ -1,0 +1,53 @@
+# Held out: never used to set StopKinds' numbers, only to check them after (`fm __stops tests/nl/stops/held.tsv`).
+view,accept,stall,reject	tamam ver	accept
+view,accept,stall,reject	ok sat	accept
+view,accept,stall,reject	kabul edelim gitsin	accept
+view,accept,stall,reject	accept that	accept
+view,accept,stall,reject	yes sell him	accept
+view,accept,stall,reject	olmaz öyle şey	reject
+view,accept,stall,reject	reddet gitsin	reject
+view,accept,stall,reject	asla	reject
+view,accept,stall,reject	nope	reject
+view,accept,stall,reject	decline	reject
+view,accept,stall,reject	bekleyelim	stall
+view,accept,stall,reject	biraz oyalayalım onları	stall
+view,accept,stall,reject	wait a few days	stall
+view,accept,stall,reject	not now	stall
+view,accept,stall,reject	teklifi incele	view
+view,accept,stall,reject	ayrıntıları göster	view
+view,accept,stall,reject	show me the details	view
+view,accept,stall,reject	rinaldiyi transfer listesine koy	-
+view,accept,stall,reject	taktiği değiştir	-
+view,accept,stall,reject	antrenman programı	-
+view,accept,stall,reject	bütçemiz ne kadar	-
+view,accept,stall,reject	sell rinaldi	-
+view,accept,stall,reject	what's our budget	-
+view,accept,stall,reject	kaleci kim	-
+view,accept,stall,reject	haberler	-
+play,instant	maçı yönetmek istiyorum	play
+play,instant	canlı	play
+play,instant	watch the game	play
+play,instant	sonucu ver yeter	instant
+play,instant	simüle	instant
+play,instant	result only	instant
+play,instant	taktiği göster	-
+play,instant	kadroyu değiştir	-
+play,instant	rakibi analiz et	-
+play,instant	show me the opponent	-
+play,instant	sakatlar	-
+answer,skip	cevap verelim	answer
+answer,skip	geç	skip
+answer,skip	cevap yok	skip
+answer,skip	skip the question	skip
+answer,skip	fikstür	-
+view,end	toplantı bitti	end
+view,end	done	end
+view,end	neler var bakalım	view
+view,end	kadro	-
+open	aç şunu	open
+open	read	open
+open	lig	-
+goon	devamke	goon
+goon	go	goon
+goon	taktik	-
+goon	who is injured	-

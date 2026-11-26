@@ -87,6 +87,8 @@ Order (before T211–T213). New work is added in this file, by id.
 
 - [ ] T221 The game's own lines by words: a message's answers, talk and press lines picked by a sentence held against
   the lines as shown (today they are picked with the arrows); sent by index or id
+- [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
+  measure what the page shows when it misses before changing the wait
 - [ ] T220 The options list: command and % stay; beside each a short line of what that call does with its arguments
   ("sol bekin rolünü değiştirir"), not the command's whole description; options that differ only in arguments told apart
   - [ ] Enter takes the first; "none" asks what was meant, and the command typed after it is learned (open in T206)

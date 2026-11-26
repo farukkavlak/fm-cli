@@ -70,6 +70,7 @@ internal static class Session
 		// the offer chosen, then accepting it), run as the next line; and what that sentence said to do.
 		string[]? queued = null;
 		IReadOnlySet<string>? carried = null;
+		var carriedSure = true;
 		while (true)
 		{
 			string[] words;
@@ -114,8 +115,11 @@ internal static class Session
 					if (Program.StopNow is { Answers.Count: > 0 } at && (Program.IsSentence(words) || words is [var one] && !Program.IsCommandWord(one))
 					    && Program.StopAnswer(at, string.Join(' ', words)) is { } said)
 					{
+						// Asked about and not taken: nothing runs, the stop waits.
+						if (said.Command.Length == 0) continue;
 						(words, answering) = (said.Command, true);
 						carried = said.Done.Count > 0 ? said.Done : null;
+						carriedSure = said.Sure;
 					}
 				}
 			}
@@ -178,7 +182,7 @@ internal static class Session
 				}
 				else if (!Program.HasList) Program.PickStop(stop);
 				// What the sentence said to do, for the answers its answer led to: the one that does it, if one does.
-				if (carried != null && !ReferenceEquals(stop, standing) && Program.DoneAnswer(stop, carried) is { } next) queued = next;
+				if (carried != null && !ReferenceEquals(stop, standing) && Program.DoneAnswer(stop, carried, carriedSure) is { } next) queued = next;
 			}
 			else shownStop = null;
 			carried = null;

@@ -33,25 +33,6 @@ internal static partial class Program
 		_ => null,
 	};
 
-	/// <summary>
-	/// The user's words for each thing an answer does, folded (Turkish letters as the router folds them), as
-	/// Text.Matches reads a cue: four letters or more match as a word's start, shorter ones whole, "*" a start too.
-	/// </summary>
-	private static readonly (string Done, string[] Cues)[] SaidDone =
-	[
-		("accept", ["kabul", "kabl", "evet", "tamam", "onayla", "olur$", "uygun", "sat$", "satal*", "satin$", "accept", "yes", "ok$", "okay", "agree", "sell"]),
-		("reject", ["reddet", "red$", "ret$", "hayir", "olmaz", "istemiyorum", "reject", "refuse", "decline", "no$", "nope", "turn down", "turn it down"]),
-		("stall", ["beklet", "oyala", "bekle", "sonra$", "stall", "wait", "later", "hold"]),
-		("view", ["goster", "bak$", "bakal*", "bakay*", "gor$", "goreyim", "incele", "detay", "view", "see$", "show", "look", "details"]),
-		("play", ["oyna*", "izle*", "canli", "play", "watch", "live"]),
-		("instant", ["sonuc", "direkt", "hizli", "simule", "aninda", "instant", "result", "quick", "sim$", "simulate"]),
-		("goon", ["devam", "ilerle", "surdur", "continue", "go$", "go on", "carry on", "proceed"]),
-		("skip", ["atla", "gec$", "gecelim", "cevaplama*", "cevapsiz", "skip", "ignore", "without"]),
-		("end", ["bitir", "sonlandir", "kapat", "end$", "finish", "close", "done"]),
-		("open", ["ac$", "acal*", "acay*", "oku", "open", "read"]),
-		("answer", ["cevapla", "yanitla", "konus", "soyle", "answer", "reply", "respond", "talk", "say$"]),
-	];
-
 	/// <summary>Places in a list as said: the n-th, by the count from one; "last" is -1.</summary>
 	private static readonly (int Place, string[] Cues)[] SaidPlace =
 	[
@@ -60,17 +41,13 @@ internal static partial class Program
 		(-1, ["son$", "sonuncu*", "sondaki", "last"]),
 	];
 
-	/// <summary>Words that start a question, or ask one in Turkish ("mı"): a question at a stop is answered and the stop waits.</summary>
-	private static readonly string[] Asking =
-		["kim$", "kimi$", "kime$", "ne$", "neler", "nedir", "neden", "nasil", "kac$", "kaca$", "hangi*", "mi$", "mu$", "misin", "musun", "midir", "nerede", "niye",
-		 "who", "whos", "what", "whats", "when", "how", "which", "why", "where", "should", "is$", "are$", "does", "do$", "can$"];
-
 	/// <summary>Little words that say nothing about which answer: left out when an answer's own words are looked for.</summary>
 	private static readonly HashSet<string> Little =
 		["bu", "su", "o", "bir", "ve", "ile", "icin", "et", "etsene", "edelim", "yap", "olsun", "lutfen", "teklif", "teklifi", "teklifini", "teklifine", "mesaj", "mesaji",
 		 "the", "a", "an", "it", "that", "this", "one", "of", "for", "to", "please", "offer", "message", "from", "and"];
 
-	internal sealed record SaidAnswers(List<int> Places, IReadOnlySet<string> Done);
+	/// <param name="Sure">false when the model read what to do but not clearly: the answer is shown and asked about first.</param>
+	internal sealed record SaidAnswers(List<int> Places, IReadOnlySet<string> Done, bool Sure = true);
 
 	/// <summary>
 	/// Which of the stop's answers a sentence says, by their places in its list (0 based): one, several as
@@ -83,45 +60,45 @@ internal static partial class Program
 		if (count == 0) return null;
 		var words = new Text(sentence).Words;
 		if (words.Length == 0) return null;
-		var text = " " + string.Join(' ', words) + " ";
-		bool Says(string cue) => cue.Contains(' ') ? text.Contains($" {cue} ", StringComparison.Ordinal) : words.Any(w => Text.Matches(w, cue, typo: cue.TrimEnd('$', '*').Length >= 6));
-		// One typo is forgiven in a long cue only: a name is no word for doing ("baray" is not "bakay").
+		bool Says(string cue) => words.Any(w => Text.Matches(w, cue, typo: false));
 
-		if (sentence.TrimEnd().EndsWith('?') || Asking.Any(Says)) return null;
-
-		var done = SaidDone.Where(d => d.Cues.Any(Says)).Select(d => d.Done).ToHashSet();
+		if (sentence.TrimEnd().EndsWith('?')) return null;
 
 		// A place: a number of the list said in the sentence, or a word for one.
+		// A number past the list's end makes a place word part of something else ("ilk 11": the first eleven).
+		var past = words.Any(w => int.TryParse(w, out var n) && n > count);
 		var places = words.Where(w => int.TryParse(w, out var n) && n >= 1 && n <= count).Select(int.Parse)
-			.Concat(SaidPlace.Where(p => p.Cues.Any(Says)).Select(p => p.Place == -1 ? count : p.Place))
+			.Concat(past ? [] : SaidPlace.Where(p => p.Cues.Any(Says)).Select(p => p.Place == -1 ? count : p.Place))
 			.Where(p => p >= 1 && p <= count).Distinct().ToList();
-		if (places.Count == 1) return new SaidAnswers([places[0] - 1], done);
 		if (places.Count > 1) return null;
 
-		// The answer's own words, for the answers about something: the user's words not taken by a cue.
-		var cued = SaidDone.SelectMany(d => d.Cues).Concat(Asking).ToList();
-		var own = words.Where(w => w.Length >= 3 && !Little.Contains(w) && !w.All(char.IsDigit)
-		                           && !cued.Any(c => !c.Contains(' ') && Text.Matches(w, c, typo: false))).ToList();
-		var fit = stop.Answers.Select(a => DoneBy(a.Command) != null || own.Count == 0 ? 0
-			: own.Sum(w => NameFit.Words(a.Label).Select(l => Fits(w, l)).DefaultIfEmpty(0).Max())).ToList();
+		// The answer's own words, for the answers about something.
+		var own = words.Where(w => w.Length >= 3 && !Little.Contains(w) && !w.All(char.IsDigit)).ToList();
+		int Fit(string w, string label) => NameFit.Words(label).Select(l => Fits(w, l)).DefaultIfEmpty(0).Max();
+		var fit = stop.Answers.Select(a => DoneBy(a.Command) != null || own.Count == 0 || places.Count == 1 ? 0 : own.Sum(w => Fit(w, a.Label))).ToList();
 		var all = Enumerable.Range(0, count).ToList();
 		var best = fit.Max();
-		// Words of its own that fit no answer: the sentence is about something else ("rinaldiyi sat" at a message).
-		if (best == 0 && own.Count > 0 && fit.Count(f => f == 0) == count && stop.Answers.Any(a => DoneBy(a.Command) == null))
-			return null;
 		var candidates = best > 0 ? all.Where(i => fit[i] == best).ToList() : all;
+
+		// What is to be done, read without the words for the place or for what the answer is about:
+		// "the first one" and "Başakşehir Baray" say nothing of stalling.
+		bool Place(string w) => int.TryParse(w, out _) || SaidPlace.Any(p => p.Cues.Any(c => Text.Matches(w, c, typo: false)));
+		bool Named(string w) => best > 0 && candidates.Any(i => Fit(w, stop.Answers[i].Label) > 0);
+		var rest = words.Where(w => !(places.Count == 1 && Place(w)) && !Named(w) && !(best > 0 && Little.Contains(w))).ToList();
+		var done = KindAsked(stop, rest.Count > 0 && rest.Count < words.Length ? string.Join(' ', rest) : rest.Count == 0 ? "" : sentence);
+		if (places.Count == 1) return new SaidAnswers([places[0] - 1], done, LastSure);
 
 		if (done.Count > 0)
 		{
 			var doing = candidates.Where(i => DoneBy(stop.Answers[i].Command) is { } d && done.Contains(d)).ToList();
-			if (doing.Count > 0) return new SaidAnswers(doing, done);
+			if (doing.Count > 0) return new SaidAnswers(doing, done, LastSure);
 			// Said what to do, and none of these does it: an answer about something leads to answers that may
 			// (an offer, then accepting it), when the sentence said which, or there is one; only for what such
 			// answers lead to ("kapat" at a message is not opening it).
 			var about = candidates.Where(i => DoneBy(stop.Answers[i].Command) == null).ToList();
-			if (about.Count > 0 && (best > 0 || about.Count == 1 || done.Overlaps(["open", "view", "answer"]))
+			if (about.Count > 0 && (best > 0 || about.Count == 1 || LastSure && done.Overlaps(["open", "view", "answer"]))
 			    && done.Overlaps(["accept", "reject", "stall", "view", "open", "answer"]))
-				return new SaidAnswers(about, done);
+				return new SaidAnswers(about, done, LastSure);
 			return null;
 		}
 		return best > 0 ? new SaidAnswers(candidates, done) : null;
@@ -131,7 +108,7 @@ internal static partial class Program
 	/// The command the sentence says at the stop: one answer run; several as good asked among, by the numbers the
 	/// stop showed them with; null when it says none, and the sentence goes to the router.
 	/// </summary>
-	internal static (string[] Command, IReadOnlySet<string> Done)? StopAnswer(HeldStop stop, string sentence, bool ask = true)
+	internal static (string[] Command, IReadOnlySet<string> Done, bool Sure)? StopAnswer(HeldStop stop, string sentence, bool ask = true)
 	{
 		if (AnswersSaid(stop, sentence) is not { Places.Count: > 0 } said) return null;
 		var at = said.Places[0];
@@ -142,20 +119,63 @@ internal static partial class Program
 			foreach (var i in said.Places) Console.WriteLine($"  {i + 1}. {stop.Answers[i].Label}");
 			Console.Write(L("Which one (its number, Enter: none)? "));
 			var typed = Console.ReadLine()?.Trim();
-			if (!int.TryParse(typed, out var n) || !said.Places.Contains(n - 1)) return null;
+			if (!int.TryParse(typed, out var n) || !said.Places.Contains(n - 1)) return ([], new HashSet<string>(), true);
 			at = n - 1;
 		}
 		var (label, command) = stop.Answers[at];
+		var leads = DoneBy(command) == null;
+		// Read, but not clearly: shown, and run on a yes (an answer that leads on is only a look, and goes).
+		if (!said.Sure && !leads && said.Places.Count == 1 && !SureOf(stop, at, ask)) return ([], new HashSet<string>(), true);
 		Console.WriteLine(Dim($"→ {at + 1}. {label}"));
 		// What was said to be done, for the answers the chosen one leads to; nothing more when it did it.
-		return (command, DoneBy(command) == null ? said.Done : new HashSet<string>());
+		return (command, leads ? said.Done : new HashSet<string>(), said.Sure);
+	}
+
+	/// <summary>The answer the model read without being sure of it, asked about: true on a yes.</summary>
+	private static bool SureOf(HeldStop stop, int at, bool ask)
+	{
+		if (!ask) return false;
+		Console.WriteLine(L("Did you mean this?"));
+		Console.WriteLine($"  {at + 1}. {stop.Answers[at].Label}");
+		return Confirm(L("Run it?"));
+	}
+
+	/// <summary>How the model read the last sentence: each label's share, for the bench.</summary>
+	internal static string LastVotes = "";
+
+	/// <summary>Whether the model read the last sentence clearly.</summary>
+	private static bool LastSure = true;
+
+	private static Nl.StopKinds? stopKinds;
+
+	/// <summary>What an answer about something leads to answers for (an offer: accept, stall …; a message: open it).</summary>
+	private static readonly string[] LeadsTo = ["accept", "reject", "stall", "view", "open", "answer"];
+
+	/// <summary>
+	/// What the sentence asks done, read by the model among the kinds of answer the stop has (and, for answers
+	/// about something, the kinds those lead to); none when the model is not installed, or it reads something else.
+	/// </summary>
+	private static HashSet<string> KindAsked(HeldStop stop, string sentence)
+	{
+		LastSure = true;
+		if (sentence.Length == 0 || Model() is not { } router || embedder == null) return [];
+		stopKinds ??= new Nl.StopKinds(router, embedder, ModelDir);
+		var kinds = stop.Answers.Select(a => DoneBy(a.Command)).OfType<string>().ToHashSet();
+		if (stop.Answers.Any(a => DoneBy(a.Command) == null)) kinds.UnionWith(LeadsTo);
+		// The router's own examples for what these answers run ask the same in other words; going on is every stop's.
+		var theirs = stop.Answers.Select(a => a.Command switch { ["setpieces", "new", ..] => "fm_setpieces_new", [var c, ..] => $"fm_{c}", _ => "" })
+			.Append("fm_next").Append("fm_continue").ToHashSet();
+		var (asked, sure, votes) = stopKinds.Ask(sentence, kinds, theirs);
+		LastSure = sure;
+		LastVotes = string.Join(" ", votes.Take(3).Select(v => $"{v.Label}:{v.Share:0.00}"));
+		return [.. asked];
 	}
 
 	/// <summary>The one answer of the stop that does what was said; null when none or several do.</summary>
-	internal static string[]? DoneAnswer(HeldStop stop, IReadOnlySet<string> done)
+	internal static string[]? DoneAnswer(HeldStop stop, IReadOnlySet<string> done, bool sure = true)
 	{
 		var doing = Enumerable.Range(0, stop.Answers.Count).Where(i => DoneBy(stop.Answers[i].Command) is { } d && done.Contains(d)).ToList();
-		if (doing is not [var at]) return null;
+		if (doing is not [var at] || !sure && !SureOf(stop, at, ask: true)) return null;
 		Console.WriteLine(Dim($"→ {at + 1}. {stop.Answers[at].Label}"));
 		return stop.Answers[at].Command;
 	}

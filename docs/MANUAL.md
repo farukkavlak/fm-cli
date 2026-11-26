@@ -64,7 +64,9 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
   - its place in the list: `ikincisi`, `the last one`, `5'i beklet`;
   - what to do: `kabul et`, `reddet`, `beklet`, `teklife bak`, `maçı izle`, `direkt sonuç`, `devam`;
   - what the game shows it is about: `fenerin teklifini beklet` picks that offer and stalls it in one line.
-  - Two answers as good (one player, two clubs) are asked between; a sentence about something else goes to the router.
+  - What to do is read by the language model, not by a word list: other ways of saying it, endings and typos work too.
+  - Not sure what was meant: the answer is shown and runs on a yes. Two as good (one player, two clubs) are asked between.
+  - A question or a sentence about something else goes to the router; the stop waits.
 - A question in between (`rakip kim`, `kim sakat`) is answered and the stop waits; its answers stay on the numbers, unless the question showed a list of its own.
 - After `next --until match` (`maça kadar ilerle`) an answered stop goes on to the match by itself; match day ends it.
 - After a plain `next` an answered stop is read again, nothing pressed: the other offers come back as the stop; a game left free moves no day.

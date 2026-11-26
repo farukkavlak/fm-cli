@@ -1,6 +1,8 @@
 # T215: a sentence at a stop is held to that stop's answers first: a place in its list, what is to be done
-# (held against what each answer's command does), or the game's own words an answer is about (an offer's club
-# and player). A question, or a sentence about something else, goes to the router and the stop waits.
+# (read by the model among the kinds of answer the stop has), or the game's own words an answer is about (an
+# offer's club and player). A question, or a sentence about something else, goes to the router and the stop waits.
+# A reading the model is not sure of is shown and runs on a yes ("e" after the sentence below; sure ones take
+# the "e" as a line of its own, which answers nothing).
 
 [[test]]
 task = "T215"
@@ -32,7 +34,7 @@ steps = [
   { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Player", keep = "next_one" },
   { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Club", keep = "from" },
   { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", keep = "was" },
-  { session = ["next", "stall the fifth one"] },
+  { session = ["next", "stall the fifth one", "e"] },
   { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", differs_from = "was" },
 ]
 
@@ -61,7 +63,7 @@ fresh = true
 repeat = 3
 steps = [
   { read = "next", path = "Stop.Kind", is = "match", live = true },
-  { session = ["next", "maçı direkt sonuca geç"], seconds = 900 },
+  { session = ["next", "maçı direkt sonuca geç", "e"], seconds = 900 },
   { read = "status", path = "DuringMatch", is = false },
   { read = "status", path = "State", not = "Tactics" },
   { read = "status", path = "State", not = "SubmitTeam" },
@@ -79,4 +81,19 @@ steps = [
   { session = ["next", "teklifleri göster", "show the league table"] },
   { read = "status", path = "State", same_as = "flow" },
   { read = "next", path = "Stop.Kind", is = "match", live = true },
+]
+
+[[test]]
+task = "T215"
+name = "a reading the model is not sure of, refused, changes no offer"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "offer", live = true },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Status", keep = "was" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", keep = "count" },
+  { session = ["next", "stall the fifth one", "h"] },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Status", same_as = "was" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", same_as = "count" },
 ]

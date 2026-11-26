@@ -1,0 +1,169 @@
+# What a sentence at a stop asks done, by example: the kind of answer, then a sentence for it (Turkish or English).
+# A sentence at a stop is set against these and against the router's own examples (anything else) by the model;
+# only the kinds the stop has answers for can win. Tests: tests/nl/stops/cases.tsv, never a copy of a line here.
+accept	kabul et
+accept	teklifi kabul ediyorum
+accept	tamam kabul
+accept	olur, anlaştık
+accept	evet onayla
+accept	sat gitsin
+accept	satalım
+accept	parayı alalım
+accept	bu parayı kaçırmayalım
+accept	onaylıyorum
+accept	uygun, kabul
+accept	tamamdır kabul edelim
+accept	accept it
+accept	accept the offer
+accept	yes, take it
+accept	deal
+accept	sell him
+accept	ok agreed
+accept	take the money
+accept	sounds good, accept
+reject	reddet
+reject	teklifi reddet
+reject	hayır
+reject	istemiyorum
+reject	olmaz
+reject	geri çevir
+reject	kabul etmiyorum
+reject	satmıyoruz
+reject	yok, vermem
+reject	bu teklif olmaz
+reject	asla satmam
+reject	ret
+reject	reject it
+reject	no
+reject	turn it down
+reject	decline the offer
+reject	no way
+reject	not selling
+reject	refuse
+reject	not interested
+stall	beklet
+stall	biraz beklesin
+stall	sonra bakarız
+stall	oyala biraz
+stall	şimdilik beklet
+stall	cevap verme bekle
+stall	acele etmeyelim
+stall	düşüneyim biraz
+stall	sonraya bırak
+stall	stall
+stall	let them wait
+stall	keep them waiting
+stall	later
+stall	hold on for now
+stall	not yet, wait
+view	teklife bak
+view	göster
+view	detaylarına bakalım
+view	bir göreyim
+view	incele
+view	teklifi aç bakayım
+view	şartları neler göster
+view	kartını göster
+view	view it
+view	show me the offer
+view	let me see
+view	look at it
+view	details
+view	see the terms
+play	maçı oyna
+play	maçı izle
+play	canlı izleyelim
+play	ben yöneteceğim
+play	oynayalım
+play	maça gir
+play	kenardan yöneteyim
+play	maçı oynat
+play	play the match
+play	watch it
+play	let me manage it
+play	play it live
+play	i'll take charge
+instant	direkt sonuç
+instant	sonucu göster
+instant	hızlı geç
+instant	simüle et
+instant	anında sonuç
+instant	maçı atla sonucu ver
+instant	izlemeyeceğim sonucu söyle
+instant	yardımcı yönetsin
+instant	sadece skor
+instant	straight to the result
+instant	just the result
+instant	simulate it
+instant	skip to the score
+instant	quick result
+instant	let the assistant handle it
+goon	devam
+goon	devam et
+goon	ilerle
+goon	geç devam
+goon	sürdür
+goon	tamam devam
+goon	maça geçelim
+goon	go on
+goon	continue
+goon	carry on
+goon	keep going
+goon	move on
+skip	atla
+skip	cevaplama geç
+skip	boş ver
+skip	cevap vermeden geç
+skip	pas geç
+skip	umursama
+skip	skip
+skip	skip it
+skip	ignore it
+skip	don't answer
+skip	never mind
+end	bitir
+end	toplantıyı bitir
+end	kapat
+end	sonlandır
+end	yeter bu kadar
+end	tamamla
+end	end it
+end	finish
+end	close it
+end	we're done
+end	that's enough
+open	aç
+open	mesajı aç
+open	oku
+open	okuyalım
+open	ne diyor bakalım
+open	open it
+open	read it
+open	open the message
+open	what does it say
+answer	cevapla
+answer	yanıtla
+answer	konuşalım
+answer	cevap ver
+answer	soruyu cevapla
+answer	bir şey söyleyeyim
+answer	answer it
+answer	reply
+answer	respond
+answer	let's talk
+answer	answer the question
+# "-": asked at a stop, but no answer to it: a question about it, or thinking aloud. The router answers; the stop waits.
+-	bu teklif iyi mi
+-	kabul etsek mi
+-	ne yapalım sence
+-	hangisi daha mantıklı
+-	oyuncu ne düşünüyor
+-	değeri ne kadar
+-	ne kadar teklif etmişler
+-	maçta kim oynuyor
+-	rakip güçlü mü
+-	should we accept
+-	is this a good offer
+-	what do you think
+-	how much is he worth
+-	which one is better
