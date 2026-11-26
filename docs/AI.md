@@ -96,6 +96,8 @@ Order (before T211–T213). New work is added in this file, by id.
   - [ ] Session: after an answer the whole stop comes back in full (a rule with the stop's name now starts each stop)
   - [ ] "Did you mean" at a stop: aligned columns (the router's list is done)
   - [ ] Sweep the other commands' output for the same (list in this box first, then do them)
+- [ ] T224 Just after a load the session opens on "a message waits" (the offers' messages); the offer stop comes
+  only after `next` (scn-offer-stop, TR, 26 Nov). Find out if `status` should read the game's sign as `next` does
 - [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
   measure what the page shows when it misses before changing the wait
 - [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell
