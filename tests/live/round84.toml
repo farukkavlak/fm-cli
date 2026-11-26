@@ -1,0 +1,82 @@
+# T215: a sentence at a stop is held to that stop's answers first: a place in its list, what is to be done
+# (held against what each answer's command does), or the game's own words an answer is about (an offer's club
+# and player). A question, or a sentence about something else, goes to the router and the stop waits.
+
+[[test]]
+task = "T215"
+name = "an offer said by its club and player, and stalled, in one sentence"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "offer", live = true },
+  # offer-stop: the fifth offer made to us that can be accepted is the first that can be stalled.
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Player", keep = "next_one" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Club", keep = "from" },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.CanStall", is = true },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", keep = "was" },
+  { read = "status", path = "Date", keep = "day" },
+  { session = ["next", "{from!} {next_one!} teklifini beklet"] },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", differs_from = "was" },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T215"
+name = "an offer said by its place in the stop's list, and stalled"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "offer", live = true },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Player", keep = "next_one" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Club", keep = "from" },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", keep = "was" },
+  { session = ["next", "stall the fifth one"] },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", differs_from = "was" },
+]
+
+[[test]]
+task = "T215"
+name = "a question at the offer stop changes no offer"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "offer", live = true },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", keep = "count" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Status", keep = "was" },
+  { read = "status", path = "Date", keep = "day" },
+  { session = ["next", "hangi teklif daha iyi", "who is injured?"] },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", same_as = "count" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Status", same_as = "was" },
+  { read = "status", path = "Date", same_as = "day" },
+]
+
+[[test]]
+task = "T215"
+name = "match day answered by a sentence: straight to the result"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "match", live = true },
+  { session = ["next", "maçı direkt sonuca geç"], seconds = 900 },
+  { read = "status", path = "DuringMatch", is = false },
+  { read = "status", path = "State", not = "Tactics" },
+  { read = "status", path = "State", not = "SubmitTeam" },
+]
+
+[[test]]
+task = "T215"
+name = "a sentence about something else at match day leaves the match waiting"
+at = "kickoff"
+fresh = true
+repeat = 3
+steps = [
+  { read = "next", path = "Stop.Kind", is = "match", live = true },
+  { read = "status", path = "State", keep = "flow" },
+  { session = ["next", "teklifleri göster", "show the league table"] },
+  { read = "status", path = "State", same_as = "flow" },
+  { read = "next", path = "Stop.Kind", is = "match", live = true },
+]

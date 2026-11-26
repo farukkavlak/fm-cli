@@ -31,7 +31,9 @@ internal sealed partial class Text
 	private static char Lower(char c) => char.ToLowerInvariant(c) switch
 	{
 		'ş' or 'Ş' => 's', 'İ' or 'ı' or 'î' or 'í' or 'ï' => 'i', 'ğ' or 'Ğ' => 'g', 'ü' or 'Ü' or 'û' or 'ú' => 'u', 'ö' or 'Ö' or 'ó' => 'o', 'ç' or 'Ç' => 'c',
-		'â' or 'à' or 'á' or 'ä' => 'a', 'é' or 'è' or 'ë' => 'e', 'ñ' => 'n', '’' or '`' or '´' => '\'', var l => l,
+		'â' or 'à' or 'á' or 'ä' or 'ã' or 'å' => 'a', 'é' or 'è' or 'ë' or 'ê' => 'e', 'ñ' or 'ń' => 'n', 'š' or 'ś' => 's', 'ž' or 'ź' or 'ż' => 'z',
+		'č' or 'ć' => 'c', 'đ' => 'd', 'ł' => 'l', 'ø' or 'õ' or 'ô' => 'o', 'ý' => 'y', 'ř' => 'r',
+		'’' or '`' or '´' => '\'', var l => l,
 	};
 
 	private static readonly HashSet<string> EnglishS = ["who", "what", "where", "how", "it", "that", "there", "let", "he", "she", "here", "when", "whats"];

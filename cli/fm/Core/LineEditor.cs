@@ -22,7 +22,10 @@ internal sealed class LineEditor(Func<string[], string, Task<IReadOnlyList<strin
 		if (!Usable)
 		{
 			Console.Write(prompt);
-			return Console.ReadLine();
+			var read = Console.ReadLine();
+			// Lines piped in to a terminal are not echoed by it: said after the prompt, so what answered shows.
+			if (read != null && Console.IsInputRedirected && !Console.IsOutputRedirected) Console.WriteLine(read);
+			return read;
 		}
 
 		var line = new System.Text.StringBuilder();

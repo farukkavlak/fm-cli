@@ -60,6 +60,11 @@ fm stop [--save|--no-save]    # close the game; asks about saving first
 - Where `next` stops, the session says what waits and its answers, numbered: offers, a message, the press, a talk, the vision meeting, the set piece wizard, match day (play, or straight to the result).
 - Offers come one line each; a number picks one and puts its own answers (see, accept, stall when the game gives it, reject). `offers <#>` does the same outside the session.
 - A number answers. So does typing the command (`offers 1 reject`) or a sentence.
+- A sentence is held to the stop's answers first, in Turkish or English:
+  - its place in the list: `ikincisi`, `the last one`, `5'i beklet`;
+  - what to do: `kabul et`, `reddet`, `beklet`, `teklife bak`, `maçı izle`, `direkt sonuç`, `devam`;
+  - what the game shows it is about: `fenerin teklifini beklet` picks that offer and stalls it in one line.
+  - Two answers as good (one player, two clubs) are asked between; a sentence about something else goes to the router.
 - A question in between (`rakip kim`, `kim sakat`) is answered and the stop waits; its answers stay on the numbers, unless the question showed a list of its own.
 - After `next --until match` (`maça kadar ilerle`) an answered stop goes on to the match by itself; match day ends it.
 - After a plain `next` an answered stop is read again, nothing pressed: the other offers come back as the stop; a game left free moves no day.

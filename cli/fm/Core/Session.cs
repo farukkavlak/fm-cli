@@ -66,40 +66,59 @@ internal static class Session
 
 		FirstTime();
 		var editor = new LineEditor(Program.Completions);
+		// An answer the last line's sentence said for the stop its answer led to ("fenerin teklifini kabul et":
+		// the offer chosen, then accepting it), run as the next line; and what that sentence said to do.
+		string[]? queued = null;
+		IReadOnlySet<string>? carried = null;
 		while (true)
 		{
-			Program.ReadAhead();
-			var line = await editor.ReadLine(Prompt(), PromptWidth());
-			if (line == null) break; // ctrl-D
-
-			var words = Split(line);
-			if (words.Length == 0) continue;
-
-			if (words[0] is "quit" or "exit" or "q") break;
-
-			if (words[0] is "clear" or "cls")
-			{
-				Console.Write("\u001b[2J\u001b[H");
-				continue;
-			}
-
-			// `fm squad` typed inside the session is still what someone means.
-			if (words[0] == "fm") words = words.Skip(1).ToArray();
-			if (words.Length == 0) continue;
-
-			// "?" is help: alone, the list of commands; after a command, that command's.
-			if (words is ["?"]) words = ["help"];
-			else if (words.Length > 1 && words[^1] == "?") words = [.. words[..^1], "--help"];
-
-			// A number alone: a row of the list shown last. Anything else forgets that list.
+			string[] words;
 			var answering = false;
-			if (words is [var alone] && int.TryParse(alone, out var number) && number > 0)
+			if (queued != null) (words, queued, answering) = (queued, null, true);
+			else
 			{
-				answering = Program.ListIsStop;
-				if (Program.Picked(number) is not { } picked) continue;
-				words = picked;
+				Program.ReadAhead();
+				var line = await editor.ReadLine(Prompt(), PromptWidth());
+				if (line == null) break; // ctrl-D
+
+				words = Split(line);
+				if (words.Length == 0) continue;
+
+				if (words[0] is "quit" or "exit" or "q") break;
+
+				if (words[0] is "clear" or "cls")
+				{
+					Console.Write("\u001b[2J\u001b[H");
+					continue;
+				}
+
+				// `fm squad` typed inside the session is still what someone means.
+				if (words[0] == "fm") words = words.Skip(1).ToArray();
+				if (words.Length == 0) continue;
+
+				// "?" is help: alone, the list of commands; after a command, that command's.
+				if (words is ["?"]) words = ["help"];
+				else if (words.Length > 1 && words[^1] == "?") words = [.. words[..^1], "--help"];
+
+				// A number alone: a row of the list shown last. Anything else forgets that list.
+				if (words is [var alone] && int.TryParse(alone, out var number) && number > 0)
+				{
+					answering = Program.ListIsStop;
+					if (Program.Picked(number) is not { } picked) continue;
+					words = picked;
+				}
+				else
+				{
+					Program.ForgetList();
+					// A sentence at a stop, or a word that is no command: one of the stop's answers first, the router after.
+					if (Program.StopNow is { Answers.Count: > 0 } at && (Program.IsSentence(words) || words is [var one] && !Program.IsCommandWord(one))
+					    && Program.StopAnswer(at, string.Join(' ', words)) is { } said)
+					{
+						(words, answering) = (said.Command, true);
+						carried = said.Done.Count > 0 ? said.Done : null;
+					}
+				}
 			}
-			else Program.ForgetList();
 
 			// At a stop with somewhere to go, going on from it goes there.
 			var standing = Program.StopNow;
@@ -158,8 +177,11 @@ internal static class Session
 					shownStop = stop;
 				}
 				else if (!Program.HasList) Program.PickStop(stop);
+				// What the sentence said to do, for the answers its answer led to: the one that does it, if one does.
+				if (carried != null && !ReferenceEquals(stop, standing) && Program.DoneAnswer(stop, carried) is { } next) queued = next;
 			}
 			else shownStop = null;
+			carried = null;
 
 			// A save, or an autosave on the way: the prompt's reminder counts from it.
 			await Program.NoteSave(loaded: false);

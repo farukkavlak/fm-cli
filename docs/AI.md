@@ -85,7 +85,8 @@ no model and no key, is the goal. A cloud model (haiku …) stays an extra, neve
 
 Order (before T211–T213). New work is added in this file, by id.
 
-- [ ] T215 Answers at a stop: the router held to the stop's answers (offer, message, press, talk, board, dialog)
+- [ ] T221 The game's own lines by words: a message's answers, talk and press lines picked by a sentence held against
+  the lines as shown (today they are picked with the arrows); sent by index or id
 - [ ] T220 The options list: command and % stay; beside each a short line of what that call does with its arguments
   ("sol bekin rolünü değiştirir"), not the command's whole description; options that differ only in arguments told apart
   - [ ] Enter takes the first; "none" asks what was meant, and the command typed after it is learned (open in T206)
