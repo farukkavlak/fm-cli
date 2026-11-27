@@ -302,3 +302,36 @@
 {"en": "keep going till match day", "call": "fm_next", "args": {"until": "match"}}
 {"en": "advance until a message comes in", "call": "fm_next", "args": {"until": "message"}}
 {"en": "go on until the next message", "call": "fm_next", "args": {"until": "message"}}
+{"tr": "22 yaşından küçük stoper bul", "call": "fm_players", "args": {"position": "DC", "age": "16-22"}}
+{"tr": "en fazla 21 yaşında sağ bek arıyorum", "call": "fm_players", "args": {"position": "DR", "age": "16-21"}}
+{"tr": "24 yaşını geçmemiş forvet lazım", "call": "fm_players", "args": {"position": "ST", "age": "16-24"}}
+{"tr": "yaşı 20den küçük kaleci ara", "call": "fm_players", "args": {"position": "GK", "age": "16-20"}}
+{"tr": "28 yaş üstü tecrübeli stoper bul 1 milyona kadar", "call": "fm_players", "args": {"position": "DC", "age": "28-40", "max_value": "1M"}}
+{"tr": "sağ kanat bak, 21 yaş altı, 3 milyon", "call": "fm_players", "args": {"position": "AMR", "age": "16-21", "max_value": "3M"}}
+{"en": "strikers younger than 22", "call": "fm_players", "args": {"position": "ST", "age": "16-22"}}
+{"en": "find a centre back aged 21 at most", "call": "fm_players", "args": {"position": "DC", "age": "16-21"}}
+{"en": "goalkeepers older than 30 under 500k", "call": "fm_players", "args": {"position": "GK", "age": "30-40", "max_value": "500K"}}
+{"en": "look for a right winger, under 21, up to 4m", "call": "fm_players", "args": {"position": "AMR", "age": "16-21", "max_value": "4M"}}
+{"tr": "esposito satış listesine girsin", "call": "fm_listing", "args": {"player": "esposito"}}
+{"tr": "bunu transfer listesine koyalım", "call": "fm_listing", "args": {}}
+{"tr": "ghiglioneyi satış listesinden kaldır", "call": "fm_listing", "args": {"player": "ghiglione", "off": true}}
+{"en": "list fazzini for transfer", "call": "fm_listing", "args": {"player": "fazzini"}}
+{"en": "fazzini is not for sale anymore, take him off the list", "call": "fm_listing", "args": {"player": "fazzini", "off": true}}
+{"tr": "bu oyuncuyu satış listesine koy", "call": "fm_listing", "args": {}}
+{"tr": "onu transfer listesine ekle", "call": "fm_listing", "args": {}}
+{"tr": "satış listesine koy", "call": "fm_listing", "args": {}}
+{"tr": "kerem satış listesine konsun", "call": "fm_listing", "args": {"player": "kerem"}}
+{"tr": "musabayı transfer listesine at", "call": "fm_listing", "args": {"player": "musaba"}}
+{"tr": "rinaldi artık satış listesinde olmasın", "call": "fm_listing", "args": {"player": "rinaldi", "off": true}}
+{"tr": "satış listesinden çıkar onu", "call": "fm_listing", "args": {"off": true}}
+{"tr": "transfer listesini kaldır tosto için", "call": "fm_listing", "args": {"player": "tosto", "off": true}}
+{"en": "put him on the transfer list", "call": "fm_listing", "args": {}}
+{"en": "add esposito to the transfer list", "call": "fm_listing", "args": {"player": "esposito"}}
+{"en": "transfer-list this player", "call": "fm_listing", "args": {}}
+{"en": "unlist marin", "call": "fm_listing", "args": {"player": "marin", "off": true}}
+{"en": "take him off the transfer list", "call": "fm_listing", "args": {"off": true}}
+{"tr": "transfer listesine koy bunu", "call": "fm_listing", "args": {}}
+{"tr": "karademiri transfer listesine ekle", "call": "fm_listing", "args": {"player": "karademir"}}
+{"tr": "onu satışa listele", "call": "fm_listing", "args": {}}
+{"tr": "transfer listesine alalım şunu", "call": "fm_listing", "args": {}}
+{"en": "stick him on the transfer list", "call": "fm_listing", "args": {}}

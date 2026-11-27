@@ -28,7 +28,7 @@ internal static partial class Router
 	{
 		["fm_actions"] = ["person"], ["fm_approach"] = ["player", "move"], ["fm_compare"] = ["a", "b"], ["fm_load"] = ["name", "save"],
 		["fm_match"] = ["mode"], ["fm_offer"] = ["name"], ["fm_open"] = ["page"], ["fm_player"] = ["name"], ["fm_press"] = ["label"], ["fm_type"] = ["text"],
-		["fm_propose"] = ["player"], ["fm_query"] = ["where"], ["fm_release"] = ["player"], ["fm_reply"] = ["message"],
+		["fm_propose"] = ["player"], ["fm_listing"] = ["player"], ["fm_query"] = ["where"], ["fm_release"] = ["player"], ["fm_reply"] = ["message"],
 		["fm_scout_focus"] = ["action"], ["fm_scout_player"] = ["player"], ["fm_search"] = ["text"], ["fm_select"] = ["list", "choice"],
 		["fm_setpieces"] = ["kind"], ["fm_shortlist_change"] = ["player"], ["fm_staff_fire"] = ["name"], ["fm_staff_hire"] = ["name"],
 		["fm_stop"] = ["save"], ["fm_tactic_pi"] = ["position"], ["fm_tactic_player"] = ["position", "player"], ["fm_tactic_role"] = ["position"],
@@ -761,6 +761,12 @@ internal static partial class Router
 				if (c.Name() is string p) c.Set("player", p);
 				if (c.Money() is string f) c.Set("fee", f);
 				if (c.Has("kira", "loan")) c.Set("loan", true);
+			}),
+		R("fm_listing", "satis listesine=5; satis listesinden=5; transfer listesine=5; transfer listesinden=5; satis listesi=3; transfer list=5; transfer listed=5; " +
+			"on the transfer list=5; off the transfer list=5; list him for sale=4; take him off the list=3", c =>
+			{
+				if (c.Name() is string p) c.Set("player", p);
+				if (c.Has("listesinden", "off the", "cikar", "kaldir", "remove", "take off", "take him off", "unlist")) c.Set("off", true);
 			}),
 		R("fm_release", "fesh=5; serbest birak=5; karsilikli anlas=3; yollarimizi=2; bedavaya gonder=5; kovalim=3; release$=5; terminate=5; mutual consent=2", c =>
 			{

@@ -137,6 +137,7 @@ internal static class Session
 			ran.Clear();
 			if (!Program.IsSentence(words)) Nl.Learned.Next(Program.QuietCommand(words[0]));
 			var code = await Interruptible(() => Program.IsSentence(words) ? Program.Understand(string.Join(' ', words), Run) : Run(words));
+			if (code == 0 && !Program.IsSentence(words)) Program.NoteTyped(words);
 			// A save loaded or the game closed is another starting point, not news.
 			if (Program.QuietCommand(words[0]) is "load" or "continue" or "start" or "stop")
 			{

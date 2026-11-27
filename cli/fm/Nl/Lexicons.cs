@@ -241,7 +241,7 @@ internal static partial class Router
 	}
 
 	private static readonly Lex QueryFields = new(
-		("yas", "age"), ("yasindan", "age"), ("age", "age"), ("under", "age"), ("potansiyel", "potential"), ("potential", "potential"), ("kondisyon", "condition"),
+		("yas", "age"), ("yasindan", "age"), ("yasini", "age"), ("yasinda", "age"), ("younger", "age"), ("older", "age"), ("age", "age"), ("under", "age"), ("potansiyel", "potential"), ("potential", "potential"), ("kondisyon", "condition"),
 		("condition", "condition"), ("maas", "wage"), ("earns", "wage"), ("wage", "wage"), ("sozlesme", "contract"), ("boyu", "height"), ("taller", "height"),
 		("height", "height"), ("gol", "goals"), ("goals", "goals"), ("asist", "assists"), ("assists", "assists"), ("reyting", "rating"), ("rating", "rating"),
 		("mac formu", "sharpness"), ("sharpness", "sharpness"));
@@ -255,8 +255,12 @@ internal static partial class Router
 			if (field == "age" && c.W[at] == "under" && parts.Any(p => p.StartsWith("age"))) continue;
 			var near = c.Nums().Concat(c.Moneys().Select(m => (Value: (int)MoneyValue(m.Value), m.At))).Where(n => Math.Abs(n.At - at) <= 3 && n.At != at).OrderBy(n => Math.Abs(n.At - at)).FirstOrDefault();
 			var window = string.Join(' ', c.W[Math.Max(0, at - 1)..Math.Min(c.W.Length, at + len + 4)]);
-			var less = new[] { "alti", "altinda", "kucuk", "under", "below", "az", "less", "dusuk" }.Any(w => window.Split(' ').Any(x => Text.Matches(x, w)));
-			var more = new[] { "ustu", "fazla", "buyuk", "over", "more", "taller", "above", "yuksek" }.Any(w => window.Split(' ').Any(x => Text.Matches(x, w)));
+			// "en fazla" / "at most" is a ceiling and "en az" / "at least" a floor, whatever the word alone says
+			var wide = string.Join(' ', c.W[Math.Max(0, at - 3)..Math.Min(c.W.Length, at + len + 4)]);
+			var most = wide.Contains("en fazla") || wide.Contains("at most");
+			var least = wide.Contains("en az") || wide.Contains("at least");
+			var less = most || (!least && new[] { "alti", "altinda", "kucuk", "under", "below", "az", "less", "dusuk", "younger", "gecmemis", "asmayan" }.Any(w => window.Split(' ').Any(x => Text.Matches(x, w))));
+			var more = least || (!most && new[] { "ustu", "fazla", "buyuk", "over", "more", "taller", "above", "yuksek", "older" }.Any(w => window.Split(' ').Any(x => Text.Matches(x, w))));
 			if (c.Has("sirala", "sorted", "sort", "baslayarak") && near == default)
 			{
 				sort = field;

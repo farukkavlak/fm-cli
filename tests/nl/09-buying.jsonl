@@ -200,3 +200,5 @@
 {"en": "which team reports are the scouts working on", "call": "fm_scout_teams", "args": {}, "split": "dev"}
 {"en": "put the Feyenoord report first", "call": "fm_scout_teams", "args": {"action": "top", "team": "Feyenoord"}, "split": "dev"}
 {"en": "cancel the team report on Utrecht", "call": "fm_scout_teams", "args": {"action": "cancel", "team": "Utrecht"}, "split": "final"}
+{"tr": "sol bek ara, 23 yaş altı, 2 milyona kadar", "call": "fm_players", "args": {"position": "DL", "age": "16-23", "max_value": "2M"}, "or": [{"call": "fm_targets", "args": {"position": "DL", "age": "16-23", "max_value": "2M"}}], "split": "final"}
+{"en": "find a left back, under 23, up to 2m", "call": "fm_players", "args": {"position": "DL", "age": "16-23", "max_value": "2M"}, "or": [{"call": "fm_targets", "args": {"position": "DL", "age": "16-23", "max_value": "2M"}}], "split": "dev"}

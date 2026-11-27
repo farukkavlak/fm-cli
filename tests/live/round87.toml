@@ -1,0 +1,51 @@
+# T216: transfers by talking. `listing` puts one of our players on the transfer list or takes him off it
+# (his actions' PersonSetPlayersTransferStatus, the SetTransferStatus session's value, read back from his
+# TransferListed status flag). Players are held by their game id: a loanee (2000262647) has no transfer status. In a session a player not named is offered as the one last named.
+
+[[test]]
+task = "T216"
+name = "a player put on the transfer list and taken off it, each twice"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "?UniqueId=70112029.0.Name", keep = "p" },
+  { read = "listing \"{p!}\" --status", path = "Listed", is = false },
+  { run = "listing \"{p!}\"", within = 60 },
+  { read = "listing \"{p!}\" --status", path = "Listed", is = true },
+  { run = "listing \"{p!}\"", within = 60 },
+  { read = "listing \"{p!}\" --status", path = "Listed", is = true },
+  { run = "listing \"{p!}\" --off", within = 60 },
+  { read = "listing \"{p!}\" --status", path = "Listed", is = false },
+  { run = "listing \"{p!}\" --off", within = 60 },
+  { read = "listing \"{p!}\" --status", path = "Listed", is = false },
+]
+
+[[test]]
+task = "T216"
+name = "no such player and a loanee are refused, and nobody's status moves"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "?UniqueId=70112029.0.Name", keep = "p" },
+  { read = "listing \"{p!}\" --status", path = "Listed", keep = "was" },
+  { read = "squad", path = "?UniqueId=2000262647.0.Name", keep = "loanee" },
+  { run = "listing \"Zzqx Vvyk\"", rc = "fail" },
+  { run = "listing \"{loanee!}\"", rc = "fail" },
+  { read = "listing \"{loanee!}\" --status", path = "Listed", is = false },
+  { read = "listing \"{p!}\" --status", path = "Listed", same_as = "was" },
+]
+
+[[test]]
+task = "T216"
+name = "the player just looked at put on the list by a sentence, Enter taking him"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "squad", path = "?UniqueId=70112029.0.Name", keep = "p" },
+  { read = "listing \"{p!}\" --status", path = "Listed", is = false },
+  { session = ["player \"{p!}\"", "put him on the transfer list", ""], session_tr = ["player \"{p!}\"", "bu oyuncu transfer listesine girsin", ""] },
+  { read = "listing \"{p!}\" --status", path = "Listed", is = true },
+]

@@ -82,6 +82,23 @@ internal static partial class Router
 	}
 
 	/// <summary>
+	/// Whether the rule split stands against the nearest examples. A split only at commas or
+	/// "ve"/"and" is dropped when the whole sentence's pick is none of the parts' tools and some
+	/// part's tool is not among that part's own three nearest: the parts are then the pick's
+	/// arguments ("sol bek ara, 23 yaş altı, 2 milyona kadar"), not asks of their own
+	/// ("kaydet ve devam et" stays split).
+	/// </summary>
+	private static bool SplitHolds(string text, Result r, List<(string Tool, float Weight)> tools, Neighbours near)
+	{
+		if (r.Calls.Count < 2) return false;
+		if (new Text(text).Words.Any(w => Strong.Contains(w))) return true;
+		if (tools.FirstOrDefault() is not { Weight: >= Unsure } top || r.Calls.Any(c => c.Tool == top.Tool)) return true;
+		var parts = Parts(text);
+		if (parts.Count != r.Calls.Count) return true;
+		return parts.Zip(r.Calls).All(pc => near.Candidates(pc.First.Text, null).Take(3).Any(c => c.Tool == pc.Second.Tool));
+	}
+
+	/// <summary>
 	/// The asks of a sentence, each in its own words, for one candidate list per ask: the parts
 	/// of the rule split when it holds, else the whole sentence. Splitting at every cut, or where
 	/// the nearest examples vote for several asks, did no better (tests/nl/README.md).
@@ -156,13 +173,13 @@ internal static partial class Router
 	public static Understood Understand(string text, Neighbours near, string? seen = null)
 	{
 		var r = Route(text);
-		if (r.Calls.Count > 1) return new Understood(r.Calls, [], []);
 		seen ??= text;
 		var vector = near.Embed([seen])[0];
-		var pick = near.Pick(seen, vector);
 		var rank = near.Rank(seen, vector, 15);
-		if (pick.StartsWith('[')) return new Understood(r.Calls, [], []);
 		var tools = rank.Where(v => v.Call.StartsWith('"')).Select(v => (Tool: JsonNode.Parse(v.Call)!.GetValue<string>(), v.Weight)).ToList();
+		if (SplitHolds(text, r, tools, near)) return new Understood(r.Calls, [], []);
+		var pick = near.Pick(seen, vector);
+		if (pick.StartsWith('[')) return new Understood(r.Calls, [], []);
 		List<string> voted = [.. tools.Select(t => t.Tool).Take(5)];
 		if (pick == "null")
 			return new Understood([], [.. tools.Where(t => t.Weight >= Maybe).Take(3).Select(t => (Fill(t.Tool, new Text(text), 0), t.Weight))], voted);
@@ -210,6 +227,7 @@ internal static partial class Router
 		var perAsk = new List<List<string>>?[texts.Count];
 		var askTexts = new List<string>?[texts.Count];
 		var shares = new float?[texts.Count];
+		var whole = new bool[texts.Count];
 		var clouds = new Understood?[texts.Count];
 		var cloudSeconds = new double?[texts.Count];
 		if (Opt("--model") is { } model)
@@ -226,7 +244,11 @@ internal static partial class Router
 			{
 				picks[i] = near.Pick(texts[i].Text, vectors[i]);
 				// the pick's share of the 15 nearest, as Understand weighs it against Sure
-				shares[i] = near.Rank(texts[i].Text, vectors[i], 15).FirstOrDefault(v => v.Call == picks[i]).Weight;
+				var fifteen = near.Rank(texts[i].Text, vectors[i], 15);
+				shares[i] = fifteen.FirstOrDefault(v => v.Call == picks[i]).Weight;
+				var r15 = Route(texts[i].Text);
+				whole[i] = r15.Calls.Count > 1 && !SplitHolds(texts[i].Text, r15,
+					[.. fifteen.Where(v => v.Call.StartsWith('"')).Select(v => (JsonNode.Parse(v.Call)!.GetValue<string>(), v.Weight))], near);
 				ranks[i] = [.. near.Candidates(texts[i].Text, vectors[i]).Select(c => (JsonSerializer.Serialize(c.Tool), c.Weight))];
 				var asks = Asks(texts[i].Text);
 				if (asks.Count > 1)
@@ -261,6 +283,7 @@ internal static partial class Router
 		{
 			var (text, forcedTool) = texts[i];
 			var r = Route(text);
+			if (whole[i]) r = new Result([], r.Others);
 			var o = new JsonObject();
 			if (r.Calls.Count == 0) o["call"] = null;
 			else if (r.Calls.Count == 1)

@@ -123,3 +123,11 @@
 {"en": "extend someone's contract", "call": "fm_contract", "ask": "name", "split": "held"}
 {"tr": "gelen teklife cevap ver", "call": "fm_offers", "ask": "offer", "split": "held"}
 {"en": "answer the bid", "call": "fm_offers", "ask": "offer", "split": "dev"}
+{"tr": "soldoyu satış listesine koy", "call": "fm_listing", "args": {"player": "soldo"}, "split": "held"}
+{"tr": "rinaldiyi transfer listesine al", "call": "fm_listing", "args": {"player": "rinaldi"}, "split": "dev"}
+{"tr": "tostoyu satış listesinden çıkar", "call": "fm_listing", "args": {"player": "tosto", "off": true}, "split": "dev"}
+{"tr": "marin satış listesinde kalmasın", "call": "fm_listing", "args": {"player": "marin", "off": true}, "split": "held"}
+{"en": "put soldo on the transfer list", "call": "fm_listing", "args": {"player": "soldo"}, "split": "final"}
+{"en": "transfer list rinaldi", "call": "fm_listing", "args": {"player": "rinaldi"}, "split": "dev"}
+{"en": "take tosto off the transfer list", "call": "fm_listing", "args": {"player": "tosto", "off": true}, "split": "dev"}
+{"en": "remove marin from the transfer list", "call": "fm_listing", "args": {"player": "marin", "off": true}, "split": "dev"}

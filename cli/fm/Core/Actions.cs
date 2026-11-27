@@ -387,7 +387,7 @@ internal static partial class Program
 		{
 			await Fm.Get("actions", ("close", "1"));
 			await CloseSearch();
-			Console.WriteLine(JsonOut.Of(new { Name = name, Actions = entries.Where(e => !IsFolder(e)).Select(e => new { Path = NoPlaceholders(Field(e, "ShownPath") is { Length: > 0 } shown ? shown : Field(e, "Path")), Enabled = IsEnabled(e) }) }));
+			Console.WriteLine(JsonOut.Of(new { Name = name, Actions = entries.Where(e => !IsFolder(e)).Select(e => new { Path = NoPlaceholders(Field(e, "ShownPath") is { Length: > 0 } shown ? shown : Field(e, "Path")), Enabled = IsEnabled(e), Action = Field(e, "Action") }) }));
 			return 0;
 		}
 

@@ -87,6 +87,7 @@ internal static partial class Program
 		for (var i = 0; i < calls.Count; i++)
 		{
 			var call = calls[i];
+			await DropWeakNames(call);
 			if (!AskFor(call) || !await NamePlayers(call)) return Stopped(done, calls.Skip(i), NothingRun, calls.Count);
 			if (Typed(call) is not { } words) continue;
 			var shown = Shown(words);
@@ -103,6 +104,7 @@ internal static partial class Program
 			else Console.WriteLine(Dim($"→ {shown}"));
 			Learned.Next(words[0]);
 			code = await execute(words);
+			if (code == 0) KeepLastPlayer(call);
 			// what the user chose for a sentence of one ask is learned (the tool only), unless it failed
 			if (code == 0 && yes && calls.Count == 1)
 				Learned.Chose(new Learned.Sentence(seen ?? sentence, sentence, call.Tool, shown), Rivals(understood, call));
@@ -376,8 +378,13 @@ internal static partial class Program
 				call.Args[name] = choices[at];
 				continue;
 			}
-			Console.Write($"{question} ");
-			var answer = Console.ReadLine()?.Trim() ?? "";
+			// a player the sentence did not name: the one last named in this session is offered ("bu
+			// oyuncuyu kısa listeye ekle", "teklifi 4 milyona çıkar"), shown, never taken unasked
+			var last = PlayerArgs.TryGetValue(call.Tool, out var playerArgs) && playerArgs.Contains(name) ? lastPlayer : null;
+			Console.Write(last != null ? $"{question} {L($"(Enter: {last})")} " : $"{question} ");
+			// Enter takes the one offered; the end of the input takes nothing
+			if (Console.ReadLine()?.Trim() is not { } answer) return false;
+			if (answer.Length == 0 && last != null) answer = last;
 			if (answer.Length == 0) return false;
 			call.Args[name] = answer;
 		}

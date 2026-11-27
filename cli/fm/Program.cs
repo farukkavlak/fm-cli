@@ -144,7 +144,7 @@ internal static partial class Program
 	/// <summary>The commands about the club the manager runs: its squad, staff, tactics, money and dealings.</summary>
 	private static readonly HashSet<string> ClubCommands =
 	[
-		"squad", "offer", "offers", "register", "numbers", "contract", "contracts", "release", "propose", "opposition", "intensity",
+		"squad", "offer", "offers", "register", "numbers", "contract", "contracts", "release", "propose", "listing", "opposition", "intensity",
 		"coaches", "shortlist", "progress", "youth", "responsibilities", "opponent", "captains", "vision", "depth", "targets",
 		"happiness", "mentoring", "dynamics", "staff", "finances", "supporters", "board", "facilities", "health", "doctor",
 		"tactic", "setpieces", "penalties", "takers", "training", "prep", "schedule", "budget", "club", "scout", "match", "shout", "tweak", "sub", "dugout", "advice",
@@ -219,6 +219,7 @@ internal static partial class Program
 				"contract" => await Contract(args),
 				"release" => await Release(args),
 				"propose" => await Propose(args),
+				"listing" => await Listing(json, args),
 				"opposition" => await Opposition(args),
 				"intensity" => await Intensity(args),
 				"coaches" => await Coaches(args),

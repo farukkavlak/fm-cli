@@ -11,7 +11,7 @@ internal static partial class Program
 {
 	private static readonly string[] CommandNames =
 	[
-		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "offers", "contract", "contracts", "release", "propose",
+		"status", "start", "stop", "continue", "squad", "player", "players", "search", "offer", "offers", "contract", "contracts", "release", "propose", "listing",
 		"table", "stages", "league", "fixtures", "calendar", "holiday", "report", "inbox", "reply", "next", "match", "shout", "tweak", "sub", "dugout", "advice",
 		"resign", "manager", "read", "meeting", "transferroom", "planner", "draw", "friendly", "pause", "resume", "skip", "dialog", "talk", "tour", "training", "prep", "schedule", "intensity", "coaches", "budget", "settings", "happiness", "dynamics", "jobs", "news", "internationals", "mentoring", "club",
 		"staff", "finances", "supporters", "board", "facilities", "health", "depth", "doctor", "captains", "vision", "opponent",
@@ -35,7 +35,7 @@ internal static partial class Program
 		["yogunluk"] = "intensity", ["antrenorler"] = "coaches", ["butce"] = "budget", ["ayarlar"] = "settings", ["mutluluk"] = "happiness", ["dinamik"] = "dynamics", ["isler"] = "jobs", ["ilanlar"] = "jobs", ["mentor"] = "mentoring", ["milli"] = "internationals", ["milliler"] = "internationals", ["haber"] = "news", ["haberler"] = "news",
 		["kulup"] = "club", ["personel"] = "staff", ["finans"] = "finances", ["taraftar"] = "supporters",
 		["yonetim"] = "board", ["tesis"] = "facilities", ["saglik"] = "health", ["derinlik"] = "depth", ["hedef"] = "targets", ["hedefler"] = "targets", ["doktor"] = "doctor",
-		["oner"] = "propose", ["aksiyon"] = "actions", ["aksiyonlar"] = "actions", ["teklifler"] = "offers", ["kaptan"] = "captains", ["vizyon"] = "vision", ["hazirlik"] = "friendly", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["yukle"] = "load", ["dunya"] = "world", ["gelisim"] = "progress", ["altyapi"] = "youth", ["genclik"] = "youth", ["sorumluluk"] = "responsibilities", ["gorevler"] = "responsibilities", ["turlar"] = "stages", ["asamalar"] = "stages", ["liste"] = "shortlist",
+		["oner"] = "propose", ["satislistesi"] = "listing", ["aksiyon"] = "actions", ["aksiyonlar"] = "actions", ["teklifler"] = "offers", ["kaptan"] = "captains", ["vizyon"] = "vision", ["hazirlik"] = "friendly", ["rakip"] = "opponent", ["kayitlar"] = "saves", ["kaydet"] = "save", ["yukle"] = "load", ["dunya"] = "world", ["gelisim"] = "progress", ["altyapi"] = "youth", ["genclik"] = "youth", ["sorumluluk"] = "responsibilities", ["gorevler"] = "responsibilities", ["turlar"] = "stages", ["asamalar"] = "stages", ["liste"] = "shortlist",
 		["macgunu"] = "go", ["yapilacaklar"] = "todo", ["numara"] = "numbers", ["taktik"] = "tactic", ["dil"] = "lang", ["sor"] = "ask", ["planla"] = "plan", ["hafiza"] = "memory", ["notlar"] = "memory", ["hatirla"] = "remember", ["unutma"] = "remember", ["soru"] = "ask", ["ogrenilen"] = "learned", ["ogrendiklerin"] = "learned", ["yardim"] = "help", ["aktar"] = "export", ["fark"] = "diff", ["karsilastir"] = "compare", ["penalti"] = "penalties", ["aticilar"] = "takers", ["sorgu"] = "query", ["yaz"] = "type", ["tavsiye"] = "advice", ["oneriler"] = "advice",
 	};
 
@@ -130,6 +130,7 @@ internal static partial class Program
 		["contract"] = ["--agent", "--term", "--wage", "--next", "--sign", "--cancel", "--yes"],
 		["release"] = ["--free", "--mutual", "--yes"],
 		["propose"] = ["--loan", "--yes"],
+		["listing"] = ["--off", "--status"],
 		["mentoring"] = ["new", "remove", "--auto", "--name", "--yes"],
 		["offers"] = ["view", "accept", "stall", "reject", "--yes"],
 		["training"] = ["--report", "--coach", "--trait", "--trait-remove", "--trait-cancel", "--focus", "--position", "--role", "--yes"],
@@ -157,7 +158,7 @@ internal static partial class Program
 	};
 
 	// Commands whose next word is one of our players, which completion offers by name.
-	private static readonly string[] TakesOurPlayer = ["player", "compare", "contract", "contracts", "release", "propose", "training", "intensity", "captains"];
+	private static readonly string[] TakesOurPlayer = ["player", "compare", "contract", "contracts", "release", "propose", "listing", "training", "intensity", "captains"];
 
 	/// <summary>Our players' names, one a line, for completion; nothing at all when the game is not up.</summary>
 	private static async Task<int> OurNames()

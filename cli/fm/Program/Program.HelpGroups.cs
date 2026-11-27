@@ -20,7 +20,7 @@ internal static partial class Program
 			["match", "tactic", "setpieces", "penalties", "takers", "opponent", "opposition", "shout", "tweak", "sub", "dugout",
 			 "pause", "resume", "skip", "report", "fixtures", "calendar", "table", "stages", "league", "friendly", "draw"]),
 		("transfers", "transfer", "Transfers, scouting and contracts",
-			["targets", "players", "search", "shortlist", "scout", "offer", "offers", "propose", "release", "contract", "contracts",
+			["targets", "players", "search", "shortlist", "scout", "offer", "offers", "propose", "listing", "release", "contract", "contracts",
 			 "interest", "enquire", "trial", "transferroom", "planner", "budget"]),
 		("training", "antrenman", "Training",
 			["training", "schedule", "prep", "intensity", "coaches"]),

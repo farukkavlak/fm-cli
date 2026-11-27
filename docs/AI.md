@@ -113,10 +113,13 @@ Order (before T211–T213). New work is added in this file, by id.
 - [ ] T225 Seeing an offer by a sentence: "bakalım" alone is not read as seeing it ("rizesporunkine bakalım" picks the
   offer and shows its answers, not its card); adding it as an example made "asla" read as seeing
 - [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell
-  - [ ] "sol bek ara, 23 yaş altı, 2 milyona kadar" was cut at the commas into three asks (coded, being measured)
-  - [ ] "bu oyuncuyu kısa listeye ekle": the player just looked at is not known
-  - [ ] "teklifi 4 milyona çıkar": the open offer is not known
-  - [ ] Putting one of our players on the transfer list: no command does it
+  - [x] "sol bek ara, 23 yaş altı, 2 milyona kadar" is one search, not three asks; ages as "23 yaşından küçük", "en fazla 23", "younger than 23"
+  - [x] A player not named ("bu oyuncuyu…", "teklifi 4 milyona çıkar") is asked with the one last named offered (Enter); "onu" is no name
+  - [x] `listing` puts one of our players on the transfer list or takes him off it, read back from his status flag (round87 TR + EN 3/3)
+  - [ ] The model reads "satış listesine koy" as `propose` (55%) and "transfer listesine koy" as `register`: examples help a little; retrain with T227
+  - [ ] An asking price on `listing` (the list's values are in the game's base money, not the shown currency)
+  - [ ] Bid, counter-offer and haggle by sentence tried live (offer screen, `offer --negotiate`)
+  - [ ] `docs/MANUAL.md`: `listing` and the "(Enter: …)" question
 - [ ] T217 The week by talking: training, intensity, the tactic and roles, who plays
 - [ ] T218 Match day by talking: the XI and tactic asked, the match played, shouts, subs and tweaks in it, half time and the end told
 - [ ] T219 Measured: a month of a season played by sentences only, TR + EN; every stuck place a tool bug

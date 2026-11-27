@@ -116,6 +116,7 @@ internal static partial class Program
 			  contract <player> --agent  ask their agent whether they are open to a renewal (then with talk)
 			  offers          offers for our players awaiting an answer;  offers <# | player> view | accept | stall | reject
 			  propose <player> [fee] [--loan] [--yes]  offer the player to clubs (a sale or a loan)
+			  listing <player> [--off] [--status]  put the player on the transfer list (--off: take him off it)
 			  release <player> [--free | --mutual] [--yes]  release on a free (shows the compensation) or a mutual termination
 			  training [player]  individual training: position/role, out-of-possession role, focus;  --focus / --position "A>B" / --role;  --control player|month|all takes it over from the assistant
 			  training <player> --report [--coach <name>]  ask a coach for a training report and show it

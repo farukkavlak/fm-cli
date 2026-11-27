@@ -218,13 +218,23 @@ internal sealed partial class Ctx(Text text, string? tool = null)
 			var m = Regex.Match(w, @"^(1\d|2\d|3\d)-(1\d|2\d|3\d|4\d)$");
 			if (m.Success) return m.Value;
 		}
-		var under = Find("yas alti");
-		if (under < 0) under = Find("under");
-		if (under >= 0)
-			foreach (var (v, at) in Nums())
-				if (Math.Abs(at - under) <= 2 && v is >= 15 and <= 40) return $"16-{v}";
+		// An age by a number: "23 yaş altı", "23 yaşından küçük", "en fazla 23 yaşında", "under 23",
+		// "younger than 23", "30 yaş üstü", "at least 30". The words within three of the number.
+		foreach (var (v, at) in Nums())
+		{
+			if (v is < 15 or > 40) continue;
+			var near = W[Math.Max(0, at - 3)..Math.Min(W.Length, at + 4)];
+			bool Any(string[] cues) => near.Any(w => cues.Any(cue => Text.Matches(w, cue)));
+			var aged = Any(AgeWords);
+			if (Any(Younger) && (aged || Any(["under", "younger"]))) return $"16-{v}";
+			if (Any(Older) && (aged || Any(["over", "older"]))) return $"{v}-40";
+		}
 		return null;
 	}
+
+	private static readonly string[] AgeWords = ["yas*", "age$", "aged$", "ages$", "years$", "younger", "older"];
+	private static readonly string[] Younger = ["alti$", "altinda", "kucuk*", "under", "below", "younger", "gecmemis*", "asmayan*", "fazla$", "most$", "max$", "maximum"];
+	private static readonly string[] Older = ["ustu$", "ustunde", "buyuk*", "over", "above", "older", "gecmis$", "az$", "least$", "min$", "minimum"];
 
 	// ---- positions
 

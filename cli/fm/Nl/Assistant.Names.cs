@@ -20,7 +20,25 @@ internal static partial class Program
 		["fm_numbers"] = ["player"], ["fm_tactic_player"] = ["player"], ["fm_training"] = ["player"], ["fm_intensity"] = ["player"],
 		["fm_release"] = ["player"], ["fm_propose"] = ["player"], ["fm_penalties"] = ["player"], ["fm_takers"] = ["player"],
 		["fm_happiness"] = ["player"], ["fm_captains"] = ["captain", "vice", "player"], ["fm_tweak"] = ["player"], ["fm_sub"] = ["on", "off"],
+		["fm_shortlist_change"] = ["player"], ["fm_listing"] = ["player"], ["fm_scout_player"] = ["player"],
 	};
+
+	/// <summary>The player the last command that worked in this session named, as the command was given him.</summary>
+	private static string? lastPlayer;
+
+	/// <summary>A command typed in the session that worked: the player it names is kept as a sentence's would be.</summary>
+	internal static void NoteTyped(string[] words)
+	{
+		if (words.Length > 1 && Router.Route(string.Join(' ', words)).Calls is [var call] && Typed(call) is [var command, ..] && command == words[0]) KeepLastPlayer(call);
+	}
+
+	/// <summary>Keeps the player a call that worked named, when it named one alone.</summary>
+	private static void KeepLastPlayer(Router.Call call)
+	{
+		if (!PlayerArgs.TryGetValue(call.Tool, out var args)) return;
+		var named = args.Select(a => call.Args[a] is JsonValue v && v.TryGetValue<string>(out var n) ? n : null).Where(n => n is { Length: > 0 }).ToList();
+		if (named is [var one]) lastPlayer = one;
+	}
 
 	/// <summary>The tools whose command opens the player's page, and so takes "Name #id" for one of two with a name.</summary>
 	private static readonly HashSet<string> OpensPlayerPage = ["fm_player", "fm_offer", "fm_contract", "fm_release"];
@@ -140,6 +158,26 @@ internal static partial class Program
 	/// The players the call names, put as the save knows them. False when a choice between two
 	/// was asked and left unanswered.
 	/// </summary>
+	/// <summary>
+	/// A player argument that is one common word only starting a name ("onu" is no Onuralp, "him"
+	/// no Himmet) is taken out and asked for, where the player last named is offered.
+	/// </summary>
+	private static async Task DropWeakNames(Router.Call call)
+	{
+		if (!PlayerArgs.TryGetValue(call.Tool, out var args)) return;
+		List<SaveName>? known = null;
+		foreach (var arg in args)
+		{
+			if (call.Args[arg] is not JsonValue v || !v.TryGetValue<string>(out var typed)) continue;
+			var words = new Nl.Text(typed).Words;
+			if (words is not [var word] || !Ctx.IsCommon(word)) continue;
+			known ??= await SaveNames();
+			if (known.Any(k => k.Kind == SaveName.Player && NameFit.Words(k.Name).Any(w => NameFit.Fit(word, w) >= 3))) continue;
+			call.Args.Remove(arg);
+			if (!call.Ask.Contains(arg)) call.Ask.Add(arg);
+		}
+	}
+
 	private static async Task<bool> NamePlayers(Router.Call call)
 	{
 		if (!PlayerArgs.TryGetValue(call.Tool, out var args) || !args.Any(a => call.Args[a] is JsonValue)) return true;

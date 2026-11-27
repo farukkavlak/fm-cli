@@ -586,7 +586,6 @@ There is no preparation called '{0}'. There are: {1}	'{0}' diye bir hazırlık y
   (suggested)	  (öneri)
 Which one? prep {0} <{1}>	Hangisi? prep {0} <{1}>
 {0}: the game did not take the change ({1}).	{0}: oyun değişikliği almadı ({1}).
-{0}: already {1}.	{0}: zaten {1}.
 This command's output has no table; try --md or --json.	Bu komutun çıktısında tablo yok; --md ya da --json dene.
 FM is not running. Start it with `fm start`.	FM çalışmıyor. `fm start` ile başlat.
 FM did not answer — it may be busy (loading, a match). Try again; if it stays so, the game has frozen: fm stop, then fm start.	FM yanıt vermedi — meşgul olabilir (yükleme, maç). Tekrar dene; böyle kalırsa oyun donmuştur: fm stop, sonra fm start.
@@ -3544,3 +3543,20 @@ Which one (its number, Enter: none)? 	Hangisi (numarası, Enter: hiçbiri)?
 NAT	ULUS
 [dim]NAT[/]	[dim]ULUS[/]
 HAPPINESS	MUTLULUK
+(Enter: {0})	(Enter: {0})
+usage: listing <player> [--off] [--status]   (put one of our players on the transfer list, --off takes him off it, --status only says where he stands)	kullanım: listing <oyuncu> [--off] [--status]   (oyuncumuzu satış listesine koy; --off listeden çıkarır, --status yalnız durumunu söyler)
+{0} has no transfer status to set (he may not be ours).	{0} için transfer durumu belirlenemiyor (bizim oyuncumuz olmayabilir).
+The transfer status window did not open.	Transfer durumu penceresi açılmadı.
+The game offers no such transfer status for {0}: {1}	Oyun {0} için böyle bir transfer durumu sunmuyor: {1}
+The transfer status could not be chosen.	Transfer durumu seçilemedi.
+The game did not take it: {0} is still on the transfer list.	Oyun kabul etmedi: {0} hâlâ satış listesinde.
+The game did not take it: {0} is not on the transfer list.	Oyun kabul etmedi: {0} satış listesinde değil.
+{0} is off the transfer list.	{0} satış listesinden çıkarıldı.
+{0} is on the transfer list.	{0} satış listesine kondu.
+listing <player> [--off] [--status]  put the player on the transfer list (--off: take him off it)	listing <oyuncu> [--off] [--status]  oyuncuyu satış listesine koy (--off: listeden çıkar)
+Takes {player} off the transfer list	{player} satış listesinden çıkarılır
+Puts {player} on the transfer list	{player} satış listesine konur
+Puts a player on the transfer list	Bir oyuncu satış listesine konur
+{0} is not in our squad.	{0} kadromuzda değil.
+{0} is not on the transfer list.	{0} satış listesinde değil.
+{0} is already on the transfer list.	{0} zaten satış listesinde.
