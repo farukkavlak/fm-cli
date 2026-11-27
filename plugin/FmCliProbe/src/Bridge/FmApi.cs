@@ -119,6 +119,7 @@ internal static partial class FmApi
 		"opposition" => Opposition.Current(),
 		"namedrows" => NamedRows.Read(q),
 		"rowcontrols" => RowControls.Read(q),
+		"radioitems" => Radio.Items(q),
 		"talk" => Talk.Current(),
 		"coachareas" => CoachAreas.Current(),
 		"tweaks" => Tweaks.Handle(q),

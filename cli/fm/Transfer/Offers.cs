@@ -18,6 +18,8 @@ internal static partial class Program
 		public bool CanAccept { get; init; }
 		public bool CanStall { get; init; }
 		public bool CanReject { get; init; }
+		/// <summary>The player's own id: which tile of the page's player list his offers are under.</summary>
+		public string PersonId { get; init; } = "";
 	}
 
 	/// <summary>One offer chosen at the offer stop: its own answers, the ones the game gives for it.</summary>
@@ -232,7 +234,7 @@ internal static partial class Program
 			try
 			{
 				rows = await Fm.Pull($"{Field(player, "Row")}.TransferOffers",
-					"UniqueId,Person.Name,BuyingClub.Name,SellingClub.Name,SellingClub.UniqueId,TransferOfferStatusString,TransferOfferTypeString,TransferActivityTableFeeString1,TransferActivityTableFeeString2,TransferActivityTableClausesString1,TransferActivityTableClausesString2,TransferActivityTableOptionsString1,TransferActivityTableOptionsString2,CanAcceptOffer,CanStallOffer,CanRejectCancelWithdrawOffer",
+					"UniqueId,Person.UniqueId,Person.Name,BuyingClub.Name,SellingClub.Name,SellingClub.UniqueId,TransferOfferStatusString,TransferOfferTypeString,TransferActivityTableFeeString1,TransferActivityTableFeeString2,TransferActivityTableClausesString1,TransferActivityTableClausesString2,TransferActivityTableOptionsString1,TransferActivityTableOptionsString2,CanAcceptOffer,CanStallOffer,CanRejectCancelWithdrawOffer",
 					list: true,
 					shown: "TransferOfferStatusString,TransferOfferTypeString,TransferActivityTableClausesString1,TransferActivityTableClausesString2,TransferActivityTableOptionsString1,TransferActivityTableOptionsString2");
 			}
@@ -251,6 +253,7 @@ internal static partial class Program
 					CanAccept = Field(row, "CanAcceptOffer") == "True",
 					CanStall = Field(row, "CanStallOffer") == "True",
 					CanReject = Field(row, "CanRejectCancelWithdrawOffer") == "True",
+					PersonId = Field(row, "Person.UniqueId"),
 				});
 			}
 		}
@@ -264,15 +267,14 @@ internal static partial class Program
 	/// <summary>
 	/// The button sending <paramref name="sends"/> in this offer's row of the transfer activity page,
 	/// found by the record its row is for (the offer's UniqueId), never by its place. The page shows
-	/// one player's offers at a time: when the row is not up, each player in the page's list is chosen
-	/// in turn until it is.
+	/// one player's offers at a time: his tile in the page's list of players is chosen by his id.
 	/// </summary>
 	private static async Task<string?> RowButton(WaitingOffer offer, string sends, string? name = null)
 	{
 		var opened = await OpenPage(Screen.TransferActivity);
 		if (opened.StartsWith("error", StringComparison.Ordinal)) return null;
 
-		async Task<string?> Find()
+		async Task<string?> Find(double seconds = 3)
 		{
 			string? found = null;
 			await Until(async () =>
@@ -285,25 +287,65 @@ internal static partial class Program
 					if (Field(await Fm.Pull(item, "UniqueId"), "UniqueId") == offer.Id) { found = Field(b, "Pointer"); return true; }
 				}
 				return false;
-			}, seconds: 3, every: 0.3);
+			}, seconds: seconds, every: 0.3);
 			return found;
 		}
 
-		if (await Find() is { } here) return here;
-		JsonElement? group = null;
-		try
+		// The page shows one player's offers at a time, the one chosen in its list of players. Each
+		// tile of that list is one of the list's items: the tile whose item is the offer's player is
+		// chosen, unless it already is, and the row is waited for, the game's sign his offers are drawn.
+		(string Group, int Tile, int Selected)? his = null;
+		if (offer.PersonId.Length > 0)
+			await Until(async () => (his = await PlayerTile(offer.PersonId)) != null, seconds: 8, every: 0.3);
+		if (his is { } at)
 		{
-			// Radio groups are listed with the dropdowns, by their element's name.
-			group = (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
-				.FirstOrDefault(c => Field(c!.Value, "Name") == "transfers-list-radio-group");
+			if (at.Selected != at.Tile) await Fm.Get("select", ("ptr", at.Group), ("index", at.Tile.ToString()), ("fire", "1"));
+			if (await Find(seconds: 8) is { } row) return row;
 		}
-		catch (FmError) { }
-		if (group is not { } list) return null;
-		for (var at = 0; at < list.GetProperty("Choices").GetArrayLength(); at++)
+
+		// A list whose items cannot be read: each player in turn.
+		if (await Find() is { } here) return here;
+		if (await PlayerList() is not { } list) return null;
+		for (var tile = 0; tile < list.GetProperty("Choices").GetArrayLength(); tile++)
 		{
-			await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("index", at.ToString()), ("fire", "1"));
+			await Fm.Get("select", ("ptr", Field(list, "Pointer")), ("index", tile.ToString()), ("fire", "1"));
 			if (await Find() is { } there) return there;
 		}
+		return null;
+	}
+
+	/// <summary>The page's list of players with offers (a radio group, listed with the dropdowns by its element's name).</summary>
+	private static async Task<JsonElement?> PlayerList()
+	{
+		try
+		{
+			return (await Fm.GetJson("dropdowns", ("json", "1"))).EnumerateArray().Cast<JsonElement?>()
+				.FirstOrDefault(c => Field(c!.Value, "Name") == "transfers-list-radio-group");
+		}
+		catch (FmError) { return null; }
+	}
+
+	/// <summary>Which tile of the page's player list holds this player, by his id, and which is chosen; null when none is read.</summary>
+	private static async Task<(string Group, int Tile, int Selected)?> PlayerTile(string personId)
+	{
+		if (await PlayerList() is not { } list) return null;
+		var group = Field(list, "Pointer");
+		try
+		{
+			var items = await Fm.GetJson("radioitems", ("ptr", group), ("gen", DateTime.UtcNow.Ticks.ToString()));
+			var selected = items.GetProperty("Selected").GetInt32();
+			foreach (var item in items.GetProperty("Items").EnumerateArray())
+			{
+				if (Field(item, "Item") is not { Length: > 0 } path) continue;
+				// Each tile's item is the player's row of the club's transfer activity.
+				if (Field(await Fm.Pull(path, "Person.UniqueId"), "Person.UniqueId") == personId)
+					return (group, item.GetProperty("Index").GetInt32(), selected);
+			}
+		}
+		catch (FmError) { }
+		catch (InvalidOperationException) { }
+		catch (KeyNotFoundException) { }
+		catch (JsonException) { }
 		return null;
 	}
 }

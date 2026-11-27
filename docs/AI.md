@@ -112,10 +112,11 @@ Order (before T211–T213). New work is added in this file, by id.
     messages open the offers, and `next` turns them into the offer stop)
 - [ ] T225 Seeing an offer by a sentence: "bakalım" alone is not read as seeing it ("rizesporunkine bakalım" picks the
   offer and shows its answers, not its card); adding it as an example made "asla" read as seeing
-- [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
-  measure what the page shows when it misses before changing the wait
-  - Seen again 27 Nov: a second `view` of the same offer in a session (TR, 1 of 10); direct `offers <#> view` 3/3
 - [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell
+  - [ ] "sol bek ara, 23 yaş altı, 2 milyona kadar" was cut at the commas into three asks (coded, being measured)
+  - [ ] "bu oyuncuyu kısa listeye ekle": the player just looked at is not known
+  - [ ] "teklifi 4 milyona çıkar": the open offer is not known
+  - [ ] Putting one of our players on the transfer list: no command does it
 - [ ] T217 The week by talking: training, intensity, the tactic and roles, who plays
 - [ ] T218 Match day by talking: the XI and tactic asked, the match played, shouts, subs and tweaks in it, half time and the end told
 - [ ] T219 Measured: a month of a season played by sentences only, TR + EN; every stuck place a tool bug
@@ -129,3 +130,9 @@ Order (before T211–T213). New work is added in this file, by id.
 - [ ] T211 Transfer and tactic advice from real match data
 - [ ] T212 Personality setting
 - [ ] T213 README demo
+
+## Polish (before the release)
+
+- [ ] T226 Windows: everything since v0.9.5 tried on Windows (`ask`, `plan`, memory, session stops, talking play), TR + EN
+- [ ] T227 Release: notes since v0.9.5, a clean install test (curl + brew), the NL model released again if it changed
+- [ ] T228 Docs: README and `docs/MANUAL.md` tell the talking play as it is now; every image refreshed with `tools/manual-shot.py`

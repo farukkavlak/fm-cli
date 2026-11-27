@@ -84,6 +84,36 @@ internal static class Radio
 			+ "\"Shown\": [" + string.Join(", ", Choices(group, shown: true).Select(n => $"\"{Report.Escape(n ?? "")}\"")) + "]}";
 	}
 
+	/// <summary>
+	/// The items a radio group made its tiles from (?ptr=&lt;group&gt;&amp;gen=), each put at a path so its
+	/// record can be read: tile i is the group's item i, so a tile is told apart by whose record it
+	/// holds (a player's UniqueId), not by its text or place. Changes nothing.
+	/// </summary>
+	public static string Items(NameValueCollection q)
+	{
+		if (!Buttons.TryPointer(q["ptr"] ?? "", out var pointer)) return "error: ?ptr=<radio group> required (see /dropdowns)";
+		var group = Groups().FirstOrDefault(g => g.Pointer == pointer);
+		if (group == null) return "error: no radio group at that pointer";
+		var items = group.m_items;
+		var tiles = group.m_radioButtons;
+		// Tiles drawn from another set of items than the one held are not the items' tiles.
+		if (items == null || tiles == null || items.Count != tiles.Count)
+			return $"error: {items?.Count ?? 0} item(s) for {tiles?.Count ?? 0} tile(s)";
+		var under = $"fmcli.radio.g{q["gen"] ?? "0"}";
+		var rows = new List<string>();
+		for (var i = 0; i < items.Count; i++)
+		{
+			var path = "";
+			try
+			{
+				if (items[i] is { IsNull: false } item && RawPath.Set($"{under}.{i}", item) == null) path = $"{under}.{i}";
+			}
+			catch { }
+			rows.Add($"{{\"Index\": {i}, \"Item\": \"{path}\"}}");
+		}
+		return $"{{\"Selected\": {group.m_selectionIndex}, \"Items\": [{string.Join(", ", rows)}]}}\n";
+	}
+
 	/// <summary>Null when no radio group is meant by the request, so the caller can say so its own way.</summary>
 	public static string Select(NameValueCollection q)
 	{

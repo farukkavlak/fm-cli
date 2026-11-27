@@ -1,0 +1,55 @@
+# T222: an offer's row on the transfer activity page is found by its player's tile, chosen by his id
+# (the page shows one player's offers at a time), then by the offer's own record in the rows drawn.
+
+[[test]]
+task = "T222"
+name = "offers of different players seen in turn, and the first one again"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.0.No", keep = "first" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.No", keep = "middle" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.11.No", keep = "late" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", keep = "count" },
+  { run = "offers {late} view", within = 60 },
+  { run = "offers {first} view", within = 60 },
+  { run = "offers {middle} view", within = 60 },
+  { run = "offers {late} view", within = 60 },
+  { run = "offers {late} view", within = 60 },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", same_as = "count" },
+]
+
+[[test]]
+task = "T222"
+name = "an offer stalled by its command, then another player's seen"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  # offer-stop: the fifth offer made to us that can be accepted is the first that can be stalled.
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Player", keep = "next_one" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.4.Club", keep = "from" },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.CanStall", is = true },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", keep = "was" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.11.No", keep = "late" },
+  { run = "offers {late} view", within = 60 },
+  { run = "offers \"{next_one!} {from!}\" stall", within = 60 },
+  { read = "offers", path = "?Player={next_one}.?Club={from}.0.Status", differs_from = "was" },
+  { run = "offers {late} view", within = 60 },
+]
+
+[[test]]
+task = "T222"
+name = "an offer the game gives no stall for is refused and stays as it was"
+at = "offer-stop"
+fresh = true
+repeat = 3
+steps = [
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.?CanStall=False.0.No", keep = "fixed" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.?CanStall=False.0.Status", keep = "was" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", keep = "count" },
+  { run = "offers {fixed} stall", rc = "fail" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.?CanStall=False.0.Status", same_as = "was" },
+  { read = "offers", path = "?Incoming=True.?CanAccept=True.#", same_as = "count" },
+]
