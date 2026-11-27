@@ -29,13 +29,23 @@ internal static class NameFit
 		"la", "le", "yla", "yle", "ca", "ce", "lar", "ler", "es", "si", "su", "sin", "sun",
 	];
 
+	/// <summary>
+	/// Endings one after another, as Turkish stacks them: "rizesporunkine" is Rizespor + un + ki + ne.
+	/// "ki" only follows another ending; at most three.
+	/// </summary>
+	private static bool Ending(string rest, int left = 3, bool first = true) =>
+		left > 0 && rest.Length > 0 && (
+			Endings.Contains(rest)
+			|| Enumerable.Range(1, rest.Length - 1).Any(n => (Endings.Contains(rest[..n]) || !first && rest[..n] == "ki") && Ending(rest[n..], left - 1, false))
+			|| !first && rest == "ki");
+
 	public static string[] Words(string name) =>
 		Text.Fold(name).Split([' ', '-', '\'', '.', '(', ')'], StringSplitOptions.RemoveEmptyEntries);
 
 	public static int Fit(string typed, string word)
 	{
 		if (typed == word) return Exact;
-		if (typed.StartsWith(word, StringComparison.Ordinal) && Endings.Contains(typed[word.Length..])) return Ended;
+		if (typed.StartsWith(word, StringComparison.Ordinal) && Ending(typed[word.Length..])) return Ended;
 		if (typed.Length >= 3 && word.StartsWith(typed, StringComparison.Ordinal)) return Start;
 		if (word.Length < 5 || typed.Length < 4) return 0;
 		// One letter off from five letters on, two from nine; the first letter holds ("rinaldi" is no "final").
@@ -44,7 +54,7 @@ internal static class NameFit
 		for (var n = Math.Max(4, word.Length - cap); n <= Math.Min(typed.Length, word.Length + cap); n++)
 		{
 			var head = typed[..n];
-			if (head[0] != word[0] || !(n == typed.Length || Endings.Contains(typed[n..]))) continue;
+			if (head[0] != word[0] || !(n == typed.Length || Ending(typed[n..]))) continue;
 			if (Text.Distance(head, word, cap) <= cap) return Typo;
 		}
 		return 0;

@@ -104,7 +104,8 @@ Order (before T211–T213). New work is added in this file, by id.
     title, flags, time, id, TagsList (empty in the tree); `NewsItemAction`/`NewsActionData` are not pullable from it
   - [ ] Look further: the tags' values, the offer's own record against the message id; else leave it (the
     messages open the offers, and `next` turns them into the offer stop)
-- [ ] T225 Seeing an offer by a sentence: the possessive of a club name ("rizesporunkine") is not found as the club
+- [ ] T225 Seeing an offer by a sentence: "bakalım" alone is not read as seeing it ("rizesporunkine bakalım" picks the
+  offer and shows its answers, not its card); adding it as an example made "asla" read as seeing
 - [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
   measure what the page shows when it misses before changing the wait
 - [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell

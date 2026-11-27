@@ -52,6 +52,14 @@ public class NameFitTests
 	public void AStartOfThreeLettersFits() => Assert.True(NameFit.Fit("ali", "alioski") > 0);
 
 	[Theory]
+	[InlineData("rizesporunkine", "rizespor", true)]
+	[InlineData("samsunsporunkini", "samsunspor", true)]
+	[InlineData("rinaldininki", "rinaldi", true)]
+	[InlineData("rizesporki", "rizespor", false)]
+	[InlineData("rizesporxyz", "rizespor", false)]
+	public void EndingsStack(string typed, string word, bool fits) => Assert.Equal(fits, NameFit.Fit(typed, word) == 3);
+
+	[Theory]
 	[InlineData("dadukun mutlulugu", "rinaldi mutlulugu")]
 	[InlineData("pendikspor kalafat hakkinda bilgi", "rinaldi hakkinda bilgi")]
 	[InlineData("sengul ile kalafati karsilastir", "rinaldi ile tosto karsilastir")]
