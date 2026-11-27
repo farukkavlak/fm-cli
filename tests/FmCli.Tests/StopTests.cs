@@ -13,6 +13,26 @@ public sealed class StopTests
 		("reject", ["offers", "1", "reject"]),
 	]);
 
+	private static Program.HeldStop List(params string[] clubs)
+	{
+		var stop = new Program.HeldStop("offer", [], [.. clubs.Select((c, i) => ($"{c} → Rinaldi", new[] { "offers", (i + 2).ToString() }))]);
+		stop.Table = (["CLUB", "PLAYER"], [.. clubs.Select(c => new[] { c, "Rinaldi" })]);
+		return stop;
+	}
+
+	[Fact]
+	public void The_same_stop_read_again_is_the_same() =>
+		Assert.True(Program.SameStop(List("Fenerbahçe", "Galatasaray"), List("Fenerbahçe", "Galatasaray")));
+
+	[Fact]
+	public void A_list_with_an_offer_gone_is_another_stop()
+	{
+		Assert.False(Program.SameStop(List("Fenerbahçe", "Galatasaray"), List("Galatasaray")));
+		Assert.False(Program.SameStop(List("Fenerbahçe", "Galatasaray"), List("Galatasaray", "Fenerbahçe")));
+		Assert.False(Program.SameStop(Offer(), List("Fenerbahçe", "Galatasaray", "Trabzonspor")));
+		Assert.False(Program.SameStop(Offer(), Offer() with { Kind = "message" }));
+	}
+
 	[Fact]
 	public void One_of_its_answers_answers_it() =>
 		Assert.True(Program.Answers(Offer(), ["offers", "1", "reject"]));

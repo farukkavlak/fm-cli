@@ -100,6 +100,35 @@ internal static partial class Program
 		PickStop(stop);
 	}
 
+	/// <summary>
+	/// Whether the game gave back the stop just shown, as it was: the same kind, the same things it is about, the same
+	/// answers running the same commands, the same table. Read twice from the game, compared to itself.
+	/// </summary>
+	internal static bool SameStop(HeldStop a, HeldStop b) =>
+		a.Kind == b.Kind && a.About.SequenceEqual(b.About)
+		&& a.Answers.Count == b.Answers.Count
+		&& a.Answers.Zip(b.Answers).All(p => p.First.Label == p.Second.Label && p.First.Command.SequenceEqual(p.Second.Command))
+		&& (a.Table, b.Table) switch
+		{
+			(null, null) => true,
+			({ } x, { } y) => x.Rows.Count == y.Rows.Count && x.Rows.Zip(y.Rows).All(r => r.First.SequenceEqual(r.Second)),
+			_ => false,
+		};
+
+	/// <summary>
+	/// The stop come back as it was after an answer: one line, its name and its answers (or, for a table or a long
+	/// list, that it is the one above); the full stop is above and its numbers stand.
+	/// </summary>
+	internal static void ShowStopAgain(HeldStop stop)
+	{
+		Console.WriteLine();
+		if (stop.Answers.Count == 0 || stop.Table != null || stop.Answers.Count > 4)
+			Ui.Hint(L($"{StopName(stop.Kind)}: as above   ·   to answer: 1–{stop.Answers.Count}"));
+		else
+			Console.WriteLine($"{Dim(StopName(stop.Kind) + ":")} {string.Join("   ", stop.Answers.Select((a, i) => $"{i + 1}. {a.Label}"))}");
+		PickStop(stop);
+	}
+
 	/// <summary>Some of the stop's answers, by the numbers the stop gives them: as its table when it has one, else a line each.</summary>
 	internal static void ShowAnswers(HeldStop stop, IReadOnlyList<int> places)
 	{

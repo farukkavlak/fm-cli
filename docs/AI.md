@@ -93,7 +93,8 @@ Order (before T211–T213). New work is added in this file, by id.
   - [ ] Team talks and the tunnel interview in `match` are still picked with the arrows
 - [ ] T223 Readable output: find the outputs that read better as a table or with dividers, then do them in one round
   - [x] Offer stop: a table (#, club, player, fee, terms); "did you mean" shows the same rows for its candidates
-  - [ ] Session: after an answer the whole stop comes back in full (a rule with the stop's name now starts each stop)
+  - [x] Session: a stop the game gives back as it was after an answer (an offer seen, one stalled) is one line;
+    a changed one (an offer gone, other fees) is shown in full
   - [x] "Did you mean" at a stop: the stop's table rows, or numbers aligned when it has none
   - [ ] Sweep the other commands' output for the same (list in this box first, then do them)
 - [ ] T224 Just after a load the session opens on "a message waits" (the offers' messages); the offer stop comes
@@ -108,6 +109,7 @@ Order (before T211–T213). New work is added in this file, by id.
   offer and shows its answers, not its card); adding it as an example made "asla" read as seeing
 - [ ] T222 `offers <#> stall` once did not find the offer's row on the transfer activity page (TR, 1 of 12 tries, round84):
   measure what the page shows when it misses before changing the wait
+  - Seen again 27 Nov: a second `view` of the same offer in a session (TR, 1 of 10); direct `offers <#> view` 3/3
 - [ ] T216 Transfers by talking: find ("sol bek ara, 23 yaş altı, 2 milyona kadar"), shortlist, bid, haggle, sell
 - [ ] T217 The week by talking: training, intensity, the tactic and roles, who plays
 - [ ] T218 Match day by talking: the XI and tactic asked, the match played, shouts, subs and tweaks in it, half time and the end told

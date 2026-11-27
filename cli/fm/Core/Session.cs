@@ -14,6 +14,9 @@ internal static class Session
 		// so a stop is told once, numbered, and not first as a plain list.
 		Program.SessionShowsStops = true;
 		Program.HeldStop? shownStop = null;
+		// The stops shown last (an offer list, then one offer), kept past their answers: the game giving one back
+		// as it was is said in one line.
+		List<Program.HeldStop> lastShown = [];
 		// Opening on where things stand saves typing the first command of every session.
 		if (Ui.Rich)
 		{
@@ -24,6 +27,7 @@ internal static class Session
 			{
 				Program.ShowStop(opening);
 				shownStop = opening;
+				lastShown = [opening];
 			}
 		}
 		await Program.NewsBaseline();
@@ -139,6 +143,7 @@ internal static class Session
 				Program.ForgetStop();
 				Program.GoalNow = null;
 				shownStop = null;
+				lastShown.Clear();
 				await Program.NewsBaseline();
 				await Program.NoteSave(loaded: Program.QuietCommand(words[0]) is not "stop");
 				continue;
@@ -177,14 +182,20 @@ internal static class Session
 			{
 				if (!ReferenceEquals(stop, shownStop))
 				{
-					Program.ShowStop(stop);
+					if (lastShown.Any(s => Program.SameStop(stop, s))) Program.ShowStopAgain(stop);
+					else Program.ShowStop(stop);
 					shownStop = stop;
+					lastShown = [stop, .. lastShown.Where(s => !Program.SameStop(stop, s)).Take(2)];
 				}
 				else if (!Program.HasList) Program.PickStop(stop);
 				// What the sentence said to do, for the answers its answer led to: the one that does it, if one does.
 				if (carried != null && !ReferenceEquals(stop, standing) && Program.DoneAnswer(stop, carried, carriedSure) is { } next) queued = next;
 			}
-			else shownStop = null;
+			else
+			{
+				shownStop = null;
+				lastShown.Clear();
+			}
 			carried = null;
 
 			// A save, or an autosave on the way: the prompt's reminder counts from it.
