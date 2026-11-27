@@ -83,12 +83,8 @@ internal static partial class Program
 			Console.WriteLine(JsonOut.Of(players.Select(p => new { p.Name, p.Level, p.Score, p.Flags, Complaints = p.NegativesCount })));
 			return 0;
 		}
-		foreach (var player in players)
-		{
-			var flag = player.Flags.Count > 0 ? $"  {string.Join(" ", player.Flags)}" : "";
-			if (Ui.Rich) Ui.Line($"  {Ui.Safe(player.Name),-24} [{LevelColour(player.Score)}]{Ui.Safe(player.Level)}[/][dim]{Ui.Safe(flag)}[/]");
-			else Console.WriteLine($"  {player.Name,-24} {player.Level}{flag}");
-		}
+		Table.Write([L("PLAYER"), L("HAPPINESS"), L("STATUS")], players.Select(p => (string[])[p.Name, p.Level, string.Join(" ", p.Flags)]).ToList(),
+			colour: (row, column) => column == 1 ? LevelColour(players[row].Score) : column == 2 ? "dim" : null);
 		Ui.Hint(L("\nWhy: happiness <player>   ·   everyone's complaints: happiness --why"));
 		return 0;
 	}

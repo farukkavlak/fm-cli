@@ -144,7 +144,8 @@ internal static partial class Program
 		}
 
 		var table = new Spectre.Console.Table().Border(Spectre.Console.TableBorder.Rounded).BorderColor(Spectre.Console.Color.Grey)
-			.AddColumn(L("Player")).AddColumn(L("Age")).AddColumn(L("Position")).AddColumn(L("Expires")).AddColumn(L("Left"));
+			.AddColumn($"[dim]{Ui.Safe(L("PLAYER"))}[/]").AddColumn(new Spectre.Console.TableColumn($"[dim]{Ui.Safe(L("AGE"))}[/]").RightAligned())
+			.AddColumn($"[dim]{Ui.Safe(L("POSITION"))}[/]").AddColumn($"[dim]{Ui.Safe(L("EXPIRES"))}[/]").AddColumn($"[dim]{Ui.Safe(L("LEFT"))}[/]");
 		foreach (var r in rows)
 		{
 			// Inside a year a contract is the manager's business now; inside two, soon.

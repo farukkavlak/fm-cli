@@ -14,7 +14,8 @@ internal static class Table
 	/// <summary>A table was written since the command started.</summary>
 	public static bool Wrote { get; set; }
 
-	public static void Write(IReadOnlyList<string> headers, IReadOnlyList<string[]> rows)
+	/// <param name="colour">A cell's colour in a terminal, by row and column (a level's red, yellow or green); null for none.</param>
+	public static void Write(IReadOnlyList<string> headers, IReadOnlyList<string[]> rows, Func<int, int, string?>? colour = null)
 	{
 		rows = rows.Select(row => row.Select(GameWords.Of).ToArray()).ToList();
 		if (Ui.Format is "csv" or "md")
@@ -67,8 +68,15 @@ internal static class Table
 			table.AddColumn(column);
 		}
 
-		foreach (var row in rows)
-			Spectre.Console.TableExtensions.AddRow(table, headers.Select((_, i) => Ui.Safe(i < row.Length ? row[i] : "")).ToArray());
+		for (var r = 0; r < rows.Count; r++)
+		{
+			var row = rows[r];
+			Spectre.Console.TableExtensions.AddRow(table, headers.Select((_, i) =>
+			{
+				var cell = Ui.Safe(i < row.Length ? row[i] : "");
+				return colour?.Invoke(r, i) is { Length: > 0 } c && cell.Length > 0 ? $"[{c}]{cell}[/]" : cell;
+			}).ToArray());
+		}
 
 		Ui.Out.Write(table);
 	}

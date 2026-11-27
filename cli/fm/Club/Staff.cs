@@ -88,14 +88,11 @@ internal static partial class Program
 			}));
 			return 0;
 		}
-		foreach (var p in staff)
-		{
-			// No wage (a volunteer, the chairman): the kind of contract, as the game words it. Its end date then
-			// reads as a count of matches left ("0 regular season matches remaining"), which says nothing here.
-			var terms = p[5].Any(char.IsDigit) ? $"{p[5]} · {p[6]}" : p[4].Length > 0 ? GameWords.Of(p[4]) : p[6];
-			if (Ui.Rich) Ui.Line($"  {Ui.Safe(Ui.Fit(p[0], 24)),-24} {Ui.Safe(Ui.Fit(GameWords.Of(p[1]), 30)),-30} {p[2],3} {Ui.Safe(p[3]),-4} [dim]{Ui.Safe(terms)}[/]");
-			else Console.WriteLine($"  {Ui.Fit(p[0], 24),-24} {Ui.Fit(GameWords.Of(p[1]), 30),-30} {p[2],3} {p[3],-4} {terms}");
-		}
+		// No wage (a volunteer, the chairman): the kind of contract, as the game words it. Its end date then
+		// reads as a count of matches left ("0 regular season matches remaining"), which says nothing here.
+		static string Terms(string[] p) => p[5].Any(char.IsDigit) ? $"{p[5]} · {p[6]}" : p[4].Length > 0 ? GameWords.Of(p[4]) : p[6];
+		Table.Write([L("NAME"), L("JOB"), L("AGE"), L("NAT"), L("CONTRACT")], staff.Select(p => (string[])[p[0], p[1], p[2], p[3], Terms(p)]).ToList(),
+			colour: (_, column) => column == 4 ? "dim" : null);
 
 		foreach (var (team, roles, board) in teams)
 		{

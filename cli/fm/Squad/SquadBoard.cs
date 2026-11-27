@@ -20,10 +20,10 @@ internal static class SquadBoard
 			.AddColumn(new TableColumn(L("[dim]PLAYER[/]")))
 			.AddColumn(new TableColumn(L("[dim]POSITION[/]")))
 			.AddColumn(new TableColumn(L("[dim]AGE[/]")).RightAligned())
-			.AddColumn(new TableColumn("[dim]ULUS[/]"))
+			.AddColumn(new TableColumn(L("[dim]NAT[/]")))
 			.AddColumn(new TableColumn(L("[dim]CONDITION[/]")))
 			.AddColumn(new TableColumn(L("[dim]MATCH SHARPNESS[/]")))
-			.AddColumn(new TableColumn(""));
+			.AddColumn(new TableColumn($"[dim]{Ui.Safe(L("STATUS"))}[/]"));
 
 		foreach (var player in players.EnumerateArray())
 		{

@@ -96,7 +96,12 @@ Order (before T211–T213). New work is added in this file, by id.
   - [x] Session: a stop the game gives back as it was after an answer (an offer seen, one stalled) is one line;
     a changed one (an offer gone, other fees) is shown in full
   - [x] "Did you mean" at a stop: the stop's table rows, or numbers aligned when it has none
-  - [ ] Sweep the other commands' output for the same (list in this box first, then do them)
+  - [x] Swept 40 reads (TR, 80 and 140 columns): `staff`, `happiness`, `health` were hand-aligned lines, now tables
+    (happiness keeps its level colours); `contracts` headers as the other tables; `squad` nation header was
+    Turkish in every language, its flags column had no header
+  - [ ] `health` injured and tired tables not seen live (no injured or tired player in the scenario)
+  - Left as they are: label/value blocks (`board`, `club`, `finances`, `supporters`, `facilities`) read fine;
+    at 80 columns a long game sentence wraps without its indent
 - [ ] T224 Just after a load the session opens on "a message waits" (the offers' messages); the offer stop comes
   only after `next` (scn-offer-stop, TR, 26 Nov)
   - Why: after a load the game says CanContinue with Respond 0; Respond 3 (an offer) comes only after one Continue.

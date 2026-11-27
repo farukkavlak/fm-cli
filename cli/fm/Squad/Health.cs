@@ -54,18 +54,24 @@ internal static partial class Program
 			return 0;
 		}
 
-		void Section(string title, IEnumerable<string> lines)
+		void Title(string title, bool none)
 		{
-			var list = lines.ToList();
-			if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]{(list.Count == 0 ? L(" [dim]none[/]") : "")}");
-			else Console.WriteLine(title + (list.Count == 0 ? L(": none") : ""));
-			foreach (var line in list) Console.WriteLine($"  {line}");
+			if (Ui.Rich) Ui.Line($"[bold]{Ui.Safe(title)}[/]{(none ? L(" [dim]none[/]") : "")}");
+			else Console.WriteLine(title + (none ? L(": none") : ""));
 		}
 
-		Section(L("Injured"), hurt.Select(p => $"{Field(p, "Name")} — {string.Join(", ", new[] { Injury(p), Left(p) }.Where(x => x.Length > 0))}"));
-		Section(L("Tired (condition under 85%)"), tired.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Condition"))}"));
-		Section(L("Low match sharpness (under 60%)"), rusty.Select(p => $"{Field(p, "Name")} {GameNumbers.Percent(Number(p, "Sharpness"))}"));
-		Section(L($"Highest injury risk (the game's rating {top})"), atRisk.Select(p => $"{Field(p, "Name")}"));
+		void Section(string title, IReadOnlyList<string> headers, IEnumerable<string[]> rows)
+		{
+			var list = rows.ToList();
+			Title(title, list.Count == 0);
+			if (list.Count > 0) Table.Write(headers, list);
+		}
+
+		Section(L("Injured"), [L("PLAYER"), L("INJURY"), L("LEFT")], hurt.Select(p => (string[])[Field(p, "Name"), Injury(p), Left(p)]));
+		Section(L("Tired (condition under 85%)"), [L("PLAYER"), L("CONDITION")], tired.Select(p => (string[])[Field(p, "Name"), GameNumbers.Percent(Number(p, "Condition"))]));
+		Section(L("Low match sharpness (under 60%)"), [L("PLAYER"), L("MATCH SHARPNESS")], rusty.Select(p => (string[])[Field(p, "Name"), GameNumbers.Percent(Number(p, "Sharpness"))]));
+		Title(L($"Highest injury risk (the game's rating {top})"), atRisk.Count == 0);
+		if (atRisk.Count > 0) Console.WriteLine($"  {string.Join(", ", atRisk.Select(p => Field(p, "Name")))}");
 		if (tired.Count + atRisk.Count > 0) Console.WriteLine(L("\nTo rest them: intensity <player> \"rest 1\""));
 		return 0;
 	}
